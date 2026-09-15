@@ -4,163 +4,37 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="2e5d0bc0-6dfb-4940-a39b-53eed3603011" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/components.json" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/public/fonts/IRANSansWeb.woff2" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/public/workers/cssToScss.worker.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/public/workers/csstree.min.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/public/workers/sass.sync.min.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/public/workers/scssToCss.worker.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/scripts/export-tools.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/scripts/generate-sitemap.mjs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/scripts/tools.json" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/app/(converters)/(css)/css-to-js/page.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/app/(converters)/(css)/css-to-scss/page.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/app/(converters)/(css)/css-to-tailwind/page.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/app/(converters)/(css)/scss-to-css/page.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/app/(converters)/(date-time)/date-diff/page.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/app/(converters)/(date-time)/timestamp/page.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/app/(converters)/(encoders)/base64-decode/page.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/app/(converters)/(encoders)/base64-encode/page.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/app/(converters)/(encoders)/jwt-decoder/page.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/app/(converters)/(flow)/flow-to-javascript/page.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/app/(converters)/(flow)/flow-to-typescript-declaration/page.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/app/(converters)/(flow)/flow-to-typescript/page.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/app/(converters)/(graphql)/graphql-to-components/page.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/app/(converters)/(graphql)/graphql-to-flow/page.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/app/(converters)/(graphql)/graphql-to-fragment-matcher/page.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/app/(converters)/(graphql)/graphql-to-introspection-json/page.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/app/(converters)/(graphql)/graphql-to-java/page.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/app/(converters)/(graphql)/graphql-to-resolvers-signature/page.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/app/(converters)/(graphql)/graphql-to-schema-ast/page.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/app/(converters)/(graphql)/graphql-to-typescript-mongodb/page.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/app/(converters)/(graphql)/graphql-to-typescript/page.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/app/(converters)/(html)/html-to-jsx/page.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/app/(converters)/(html)/html-to-pug/page.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/app/(converters)/(js)/es5-to-es6/page.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/app/(converters)/(js)/es6-to-es5/page.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/app/(converters)/(js)/js-to-json/page.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/app/(converters)/(js)/js-to-typescript/page.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/app/(converters)/(json)/json-format/page.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/app/(converters)/(json)/json-to-flow/page.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/app/(converters)/(json)/json-to-go-bson/page.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/app/(converters)/(json)/json-to-go/page.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/app/(converters)/(json)/json-to-graphql/page.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/app/(converters)/(json)/json-to-io-ts/page.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/app/(converters)/(json)/json-to-java/page.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/app/(converters)/(json)/json-to-jsdoc/page.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/app/(converters)/(json)/json-to-json-schema/page.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/app/(converters)/(json)/json-to-kotlin/page.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/app/(converters)/(json)/json-to-mobx-state-tree/page.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/app/(converters)/(json)/json-to-mongoose/page.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/app/(converters)/(json)/json-to-mysql/page.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/app/(converters)/(json)/json-to-proptypes/page.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/app/(converters)/(json)/json-to-rust-serde/page.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/app/(converters)/(json)/json-to-sarcastic/page.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/app/(converters)/(json)/json-to-scala-case-class/page.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/app/(converters)/(json)/json-to-toml/page.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/app/(converters)/(json)/json-to-typescript/page.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/app/(converters)/(json)/json-to-yaml/page.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/app/(converters)/(json)/json-to-zod/page.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/app/(converters)/(jsonld)/jsonld-to-compacted/page.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/app/(converters)/(jsonld)/jsonld-to-flattened/page.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/app/(converters)/(jsonld)/jsonld-to-framed/page.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/app/(converters)/(jsonld)/jsonld-to-normalized/page.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/app/(converters)/(jsonld)/jsonld-to-nquads/page.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/app/(converters)/(jsonschema)/json-schema-to-openapi-schema/page.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/app/(converters)/(jsonschema)/json-schema-to-protobuf/page.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/app/(converters)/(jsonschema)/json-schema-to-typescript/page.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/app/(converters)/(jsonschema)/json-schema-to-zod/page.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/app/(converters)/(others)/cadence-to-go/page.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/app/(converters)/(others)/markdown-to-html/page.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/app/(converters)/(others)/toml-to-json/page.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/app/(converters)/(others)/toml-to-yaml/page.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/app/(converters)/(others)/xml-to-json/page.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/app/(converters)/(others)/yaml-to-json/page.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/app/(converters)/(others)/yaml-to-toml/page.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/app/(converters)/(svg)/svg-to-jsx/page.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/app/(converters)/(svg)/svg-to-react-native/page.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/app/(converters)/(typescript)/typescript-to-flow/page.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/app/(converters)/(typescript)/typescript-to-javascript/page.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/app/(converters)/(typescript)/typescript-to-json-schema/page.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/app/(converters)/(typescript)/typescript-to-typescript-declaration/page.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/app/(converters)/(typescript)/typescript-to-zod/page.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/app/(generators)/lorem-generator/page.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/app/(generators)/password-generator/page.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/app/(generators)/text-diff/page.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/app/about/page.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/app/error.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/app/not-found.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/app/styles.css" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/components/CodeMirrorEditorComponent.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/components/layout/AppLayout.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/components/layout/CommandMenu.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/components/layout/ConditionalSlider.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/components/layout/Providers.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/components/layout/renderIcon.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/components/pages/HomePageClient.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/components/pages/SeoContent.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/components/pages/ToolPageClient.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/components/tools/DateTimeSuite.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/components/tools/LoremGenerator.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/components/tools/PasswordGenerator.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/components/tools/TextDiff.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/components/tools/TimestampConverter.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/components/tools/converter.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/components/utils/tools/helper.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/lib/env.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/lib/registry/GeneratorToolsList.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/lib/registry/JavascriptToolsList.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/lib/registry/__tests__/javascriptTools.test.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/lib/registry/__tests__/jsonTools.test.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/lib/registry/cssToolsList.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/lib/registry/dateTimeToolsList.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/lib/registry/encoders.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/lib/registry/flowToolsList.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/lib/registry/graphqlToolsList.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/lib/registry/htmlToolsList.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/lib/registry/index.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/lib/registry/jsonToolsList.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/lib/registry/jsonldToolsList.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/lib/registry/jsonschemaToolsList.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/lib/registry/otherToolsList.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/lib/registry/samples.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/lib/registry/svgToolsList.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/lib/registry/tools.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/lib/registry/typescriptToolsList.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/lib/seo.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/lib/tools-transformer/advancedGraphqlTransformers.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/lib/tools-transformer/cssTransformers.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/lib/tools-transformer/csvTransformers.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/lib/tools-transformer/encoderTransformers.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/lib/tools-transformer/flowTransformers.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/lib/tools-transformer/htmlTransformers.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/lib/tools-transformer/javascriptTransformers.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/lib/tools-transformer/jsonSchemaTransformers.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/lib/tools-transformer/jsonTransformers.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/lib/tools-transformer/jsonldTransformers.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/lib/tools-transformer/miscTransformers.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/lib/tools-transformer/svgTransformers.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/lib/tools-transformer/typescriptTransformers.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/lib/utils.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/types/babel.d.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/types/tomlify.d.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/vitest.config.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/next.config.ts" beforeDir="false" afterPath="$PROJECT_DIR$/next.config.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/package-lock.json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/app/globals.css" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/globals.css" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/app/layout.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/layout.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/app/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tsconfig.json" beforeDir="false" afterPath="$PROJECT_DIR$/tsconfig.json" afterDir="false" />
+    <list default="true" id="2e5d0bc0-6dfb-4940-a39b-53eed3603011" name="Changes" comment="feat: add  multi language">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scripts/tools.json" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/tools.json" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
+  <component name="ChangesViewManager">
+    <option name="groupingKeys">
+      <option value="directory" />
+      <option value="repository" />
+    </option>
+  </component>
   <component name="ComposerSettings">
-    <execution />
+    <execution>
+      <execution>
+        <execution>
+          <execution>
+            <execution>
+              <execution>
+                <execution>
+                  <execution />
+                </execution>
+              </execution>
+            </execution>
+          </execution>
+        </execution>
+      </execution>
+    </execution>
   </component>
   <component name="ExportToHTMLSettings">
     <option name="OUTPUT_DIRECTORY" value="$PROJECT_DIR$/../zebracode2-new\exportToHTML" />
@@ -175,7 +49,87 @@
     </option>
   </component>
   <component name="Git.Settings">
+    <option name="RECENT_BRANCH_BY_REPOSITORY">
+      <map>
+        <entry key="$PROJECT_DIR$" value="feature-lang" />
+      </map>
+    </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="GitHubPullRequestSearchHistory">{
+  &quot;lastFilter&quot;: {
+    &quot;state&quot;: &quot;OPEN&quot;,
+    &quot;assignee&quot;: &quot;VahidBehrouzieh&quot;
+  }
+}</component>
+  <component name="GithubPullRequestsUISettings"><![CDATA[{
+  "selectedUrlAndAccountId": {
+    "url": "https://github.com/VahidBehrouzieh/zebracode.git",
+    "accountId": "405fa5b0-3f39-4ac0-bfbe-e0b931e1e4cd"
+  }
+}]]></component>
+  <component name="McpProjectServerCommands">
+    <commands />
+    <urls />
+  </component>
+  <component name="NextEditCompletionFeaturesState">
+    <decayedCancelled>
+      <entry key="MS100" value="1.0" />
+      <entry key="MS500" value="1.0001466567550539" />
+      <entry key="S2" value="1.2517006186112494" />
+      <entry key="S5" value="2.4110181817106913" />
+      <entry key="S10" value="3.619775276700467" />
+      <entry key="S30" value="5.017852960314226" />
+      <entry key="S60" value="5.48025121391007" />
+      <entry key="M2" value="5.738671906906546" />
+      <entry key="M5" value="6.406617835532222" />
+      <entry key="M10" value="8.553343952166017" />
+      <entry key="M15" value="10.618165629910402" />
+      <entry key="M30" value="14.496902173669222" />
+      <entry key="H1" value="17.623256368654484" />
+      <entry key="H2" value="19.626201037938948" />
+      <entry key="H4" value="20.762479426405886" />
+      <entry key="D1" value="21.786320380503884" />
+      <entry key="W1" value="21.969287073849117" />
+    </decayedCancelled>
+    <decayedSelected>
+      <entry key="MS100" value="0.0" />
+      <entry key="MS500" value="0.0" />
+      <entry key="S2" value="0.0" />
+      <entry key="S5" value="0.0" />
+      <entry key="S10" value="0.0" />
+      <entry key="S30" value="0.0" />
+      <entry key="S60" value="0.0" />
+      <entry key="M2" value="0.0" />
+      <entry key="M5" value="0.0" />
+      <entry key="M10" value="0.0" />
+      <entry key="M15" value="0.0" />
+      <entry key="M30" value="0.0" />
+      <entry key="H1" value="0.0" />
+      <entry key="H2" value="0.0" />
+      <entry key="H4" value="0.0" />
+      <entry key="D1" value="0.0" />
+      <entry key="W1" value="0.0" />
+    </decayedSelected>
+    <decayedShown>
+      <entry key="MS100" value="5.370533000195594E-13" />
+      <entry key="MS500" value="0.003660552507688428" />
+      <entry key="S2" value="0.49447191365136767" />
+      <entry key="S5" value="1.977741275559446" />
+      <entry key="S10" value="3.3721640640842536" />
+      <entry key="S30" value="4.927215237466657" />
+      <entry key="S60" value="5.433830615454948" />
+      <entry key="M2" value="5.715178582813787" />
+      <entry key="M5" value="6.397141061619222" />
+      <entry key="M10" value="8.54857154607837" />
+      <entry key="M15" value="10.614966534839846" />
+      <entry key="M30" value="14.495287098596508" />
+      <entry key="H1" value="17.62244271129586" />
+      <entry key="H2" value="19.62579226249326" />
+      <entry key="H4" value="20.7622744879372" />
+      <entry key="D1" value="21.786286141497865" />
+      <entry key="W1" value="21.969282180455345" />
+    </decayedShown>
   </component>
   <component name="PhpWorkspaceProjectConfiguration" interpreter_name="C:/xampp/php/php.exe" />
   <component name="ProjectColorInfo">{
@@ -187,41 +141,56 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
-    &quot;js.debugger.nextJs.config.created.client&quot;: &quot;true&quot;,
-    &quot;js.debugger.nextJs.config.created.server&quot;: &quot;true&quot;,
-    &quot;js.last.introduce.type&quot;: &quot;CONST&quot;,
-    &quot;last_opened_file_path&quot;: &quot;D:/NextJS Projects/zebracode/zebracode&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;ts.external.directory.path&quot;: &quot;D:\\NextJS Projects\\zebracode\\zebracode2-new\\node_modules\\typescript\\lib&quot;,
-    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "RunOnceActivity.MCP Project settings loaded": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager": "true",
+    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "RunOnceActivity.typescript.service.memoryLimit.init": "true",
+    "WebServerToolWindowPanel.toolwindow.highlight.mappings": "true",
+    "WebServerToolWindowPanel.toolwindow.highlight.symlinks": "true",
+    "WebServerToolWindowPanel.toolwindow.show.date": "false",
+    "WebServerToolWindowPanel.toolwindow.show.permissions": "false",
+    "WebServerToolWindowPanel.toolwindow.show.size": "false",
+    "codeWithMe.voiceChat.enabledByDefault": "false",
+    "com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1": "true",
+    "git-widget-placeholder": "develop",
+    "ignore.virus.scanning.warn.message": "true",
+    "js.debugger.nextJs.config.created.client": "true",
+    "js.debugger.nextJs.config.created.server": "true",
+    "js.last.introduce.type": "CONST",
+    "junie.onboarding.icon.badge.shown": "true",
+    "last_opened_file_path": "I:/NextJS Projects/zebracode/zebracode/src/app/en",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.jshint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.jshint": "",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "settings.editor.selected.configurable": "org.jetbrains.plugins.github.ui.GithubSettingsConfigurable",
+    "to.speed.mode.migration.done": "true",
+    "ts.external.directory.path": "I:\\NextJS Projects\\zebracode\\zebracode\\node_modules\\typescript\\lib",
+    "vue.rearranger.settings.migration": "true"
   }
-}</component>
+}]]></component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="I:\NextJS Projects\zebracode\zebracode\src\app\en" />
+      <recent name="I:\NextJS Projects\zebracode\zebracode\src\app\(fa)" />
+      <recent name="D:\NextJS Projects\zebracode\zebracode\src\dictionaries" />
+      <recent name="D:\NextJS Projects\zebracode\zebracode\src\app\en" />
       <recent name="D:\NextJS Projects\zebracode\zebracode2-new\src\lib\registry" />
-      <recent name="D:\NextJS Projects\zebracode\zebracode2-new\public\fonts" />
-      <recent name="D:\NextJS Projects\zebracode\zebracode2-new\messages\fa" />
-      <recent name="D:\NextJS Projects\zebracode\zebracode2-new\messages\en" />
-      <recent name="D:\NextJS Projects\zebracode\zebracode2-new\public\workers" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="D:\NextJS Projects\zebracode\zebracode\src\dictionaries\fa" />
+      <recent name="D:\NextJS Projects\zebracode\zebracode\src\app\(fa)" />
       <recent name="D:\NextJS Projects\zebracode\zebracode2-new\src\components\tools" />
       <recent name="D:\NextJS Projects\zebracode\zebracode2-new\src\components\pages" />
       <recent name="D:\NextJS Projects\zebracode\zebracode2-new\src\components\layout" />
-      <recent name="D:\NextJS Projects\zebracode\zebracode2-new\src\app" />
-      <recent name="D:\NextJS Projects\zebracode\zebracode2-new\messages\fa\css" />
     </key>
   </component>
   <component name="RunManager" selected="npm.Next.js: server-side">
@@ -242,8 +211,8 @@
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
-        <option value="bundled-js-predefined-d6986cc7102b-e03c56caf84a-JavaScript-PS-252.23892.419" />
-        <option value="bundled-php-predefined-a98d8de5180a-c72577f2c82f-com.jetbrains.php.sharedIndexes-PS-252.23892.419" />
+        <option value="bundled-js-predefined-d6986cc7102b-4abd2a77f808-JavaScript-PS-262.8665.265" />
+        <option value="bundled-php-predefined-a98d8de5180a-ff90ddd8021d-com.jetbrains.php.sharedIndexes-PS-262.8665.265" />
       </set>
     </attachedChunks>
   </component>
@@ -424,7 +393,27 @@
       <workItem from="1781243622558" duration="111000" />
       <workItem from="1781243774184" duration="11000" />
       <workItem from="1781243804087" duration="28000" />
+      <workItem from="1781590797108" duration="1616000" />
+      <workItem from="1781601724563" duration="14000" />
+      <workItem from="1781683571455" duration="812000" />
+      <workItem from="1781758273919" duration="1361000" />
+      <workItem from="1785776391457" duration="3850000" />
+      <workItem from="1785904696119" duration="51000" />
+      <workItem from="1786369071901" duration="2306000" />
+      <workItem from="1787119469610" duration="2642000" />
+      <workItem from="1789287779710" duration="43000" />
+      <workItem from="1789371953269" duration="1439000" />
+      <workItem from="1789449760837" duration="1617000" />
     </task>
+    <task id="LOCAL-00001" summary="feat: add  multi language">
+      <option name="closed" value="true" />
+      <created>1787121750213</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1787121750213</updated>
+    </task>
+    <option name="localTasksCounter" value="2" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -434,6 +423,10 @@
         <option value="$PROJECT_DIR$/global.d.ts" />
       </list>
     </option>
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="feat: add  multi language" />
+    <option name="LAST_COMMIT_MESSAGE" value="feat: add  multi language" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>

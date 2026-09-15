@@ -2,371 +2,376 @@
   {
     "path": "json-format",
     "title": "JSON Format",
-    "lastmod": "2026-05-25"
+    "lastmod": "2026-09-15"
   },
   {
     "path": "json-to-big-query",
     "title": "JSON to BigQuery",
-    "lastmod": "2026-05-25"
+    "lastmod": "2026-09-15"
   },
   {
     "path": "json-to-flow",
     "title": "JSON to Flow",
-    "lastmod": "2026-05-25"
+    "lastmod": "2026-09-15"
   },
   {
     "path": "json-to-go",
     "title": "JSON to Go",
-    "lastmod": "2026-05-25"
+    "lastmod": "2026-09-15"
   },
   {
     "path": "json-to-go-bson",
     "title": "JSON to Go BSON",
-    "lastmod": "2026-05-25"
+    "lastmod": "2026-09-15"
   },
   {
     "path": "json-to-graphql",
     "title": "JSON to GraphQL",
-    "lastmod": "2026-05-25"
+    "lastmod": "2026-09-15"
   },
   {
     "path": "json-to-io-ts",
     "title": "JSON to io-ts",
-    "lastmod": "2026-05-25"
+    "lastmod": "2026-09-15"
   },
   {
     "path": "json-to-java",
     "title": "JSON to Java",
-    "lastmod": "2026-05-25"
+    "lastmod": "2026-09-15"
   },
   {
     "path": "json-to-jsdoc",
     "title": "JSON to JSDoc",
-    "lastmod": "2026-05-25"
+    "lastmod": "2026-09-15"
   },
   {
     "path": "json-to-json-schema",
     "title": "JSON to JSON Schema",
-    "lastmod": "2026-05-25"
+    "lastmod": "2026-09-15"
   },
   {
     "path": "json-to-kotlin",
     "title": "JSON to Kotlin",
-    "lastmod": "2026-05-25"
+    "lastmod": "2026-09-15"
   },
   {
     "path": "json-to-mobx-state-tree",
     "title": "JSON to MobX State Tree",
-    "lastmod": "2026-05-25"
+    "lastmod": "2026-09-15"
   },
   {
     "path": "json-to-mongoose",
     "title": "JSON to Mongoose",
-    "lastmod": "2026-05-25"
+    "lastmod": "2026-09-15"
   },
   {
     "path": "json-to-mysql",
     "title": "JSON to MySQL",
-    "lastmod": "2026-05-25"
+    "lastmod": "2026-09-15"
   },
   {
     "path": "json-to-proptypes",
     "title": "JSON to PropTypes",
-    "lastmod": "2026-05-25"
+    "lastmod": "2026-09-15"
   },
   {
     "path": "json-to-rust-serde",
     "title": "JSON to Rust Serde",
-    "lastmod": "2026-05-25"
+    "lastmod": "2026-09-15"
   },
   {
     "path": "json-to-sarcastic",
     "title": "JSON to Sarcastic",
-    "lastmod": "2026-05-25"
+    "lastmod": "2026-09-15"
   },
   {
     "path": "json-to-scala-case-class",
     "title": "JSON to Scala Case Class",
-    "lastmod": "2026-05-25"
+    "lastmod": "2026-09-15"
   },
   {
     "path": "json-to-toml",
     "title": "JSON to TOML",
-    "lastmod": "2026-05-25"
+    "lastmod": "2026-09-15"
   },
   {
     "path": "json-to-typescript",
     "title": "JSON to TypeScript",
-    "lastmod": "2026-05-25"
+    "lastmod": "2026-09-15"
   },
   {
     "path": "json-to-yaml",
     "title": "JSON to YAML",
-    "lastmod": "2026-05-25"
+    "lastmod": "2026-09-15"
   },
   {
     "path": "json-to-zod",
     "title": "JSON to Zod",
-    "lastmod": "2026-05-25"
+    "lastmod": "2026-09-15"
   },
   {
     "path": "es5-to-es6",
     "title": "ES5 to ES6",
-    "lastmod": "2026-05-25"
+    "lastmod": "2026-09-15"
   },
   {
     "path": "es6-to-es5",
     "title": "ES6 to ES5",
-    "lastmod": "2026-05-25"
+    "lastmod": "2026-09-15"
   },
   {
     "path": "js-to-json",
     "title": "JS to JSON",
-    "lastmod": "2026-05-25"
+    "lastmod": "2026-09-15"
   },
   {
     "path": "js-to-typescript",
     "title": "JS to TypeScript",
-    "lastmod": "2026-05-25"
+    "lastmod": "2026-09-15"
   },
   {
     "path": "css-to-js",
     "title": "CSS to JS",
-    "lastmod": "2026-05-25"
+    "lastmod": "2026-09-15"
   },
   {
     "path": "css-to-scss",
     "title": "CSS to SCSS",
-    "lastmod": "2026-05-25"
+    "lastmod": "2026-09-15"
   },
   {
     "path": "css-to-tailwind",
     "title": "CSS to Tailwind",
-    "lastmod": "2026-05-25"
+    "lastmod": "2026-09-15"
   },
   {
     "path": "scss-to-css",
     "title": "SCSS to CSS",
-    "lastmod": "2026-05-25"
+    "lastmod": "2026-09-15"
   },
   {
     "path": "html-to-jsx",
     "title": "HTML to JSX",
-    "lastmod": "2026-05-25"
+    "lastmod": "2026-09-15"
   },
   {
     "path": "html-to-pug",
     "title": "HTML to Pug",
-    "lastmod": "2026-05-25"
+    "lastmod": "2026-09-15"
   },
   {
     "path": "graphql-to-flow",
     "title": "GraphQL to Flow",
-    "lastmod": "2026-05-25"
+    "lastmod": "2026-09-15"
   },
   {
     "path": "graphql-to-typescript",
     "title": "GraphQL to TypeScript",
-    "lastmod": "2026-05-25"
+    "lastmod": "2026-09-15"
   },
   {
     "path": "graphql-to-java",
     "title": "GraphQL to Java",
-    "lastmod": "2026-05-25"
+    "lastmod": "2026-09-15"
   },
   {
     "path": "graphql-to-typescript-mongodb",
     "title": "GraphQL to TypeScript MongoDB",
-    "lastmod": "2026-05-25"
+    "lastmod": "2026-09-15"
   },
   {
     "path": "graphql-to-schema-ast",
     "title": "GraphQL Schema AST",
-    "lastmod": "2026-05-25"
+    "lastmod": "2026-09-15"
   },
   {
     "path": "graphql-to-resolvers-signature",
     "title": "GraphQL Resolvers Signature",
-    "lastmod": "2026-05-25"
+    "lastmod": "2026-09-15"
   },
   {
     "path": "graphql-to-introspection-json",
     "title": "GraphQL Introspection JSON",
-    "lastmod": "2026-05-25"
+    "lastmod": "2026-09-15"
   },
   {
     "path": "graphql-to-fragment-matcher",
     "title": "GraphQL Fragment Matcher",
-    "lastmod": "2026-05-25"
+    "lastmod": "2026-09-15"
   },
   {
     "path": "graphql-to-components",
     "title": "GraphQL to Components",
-    "lastmod": "2026-05-25"
+    "lastmod": "2026-09-15"
   },
   {
     "path": "jsonld-to-compacted",
     "title": "JSON-LD to Compacted",
-    "lastmod": "2026-05-25"
+    "lastmod": "2026-09-15"
   },
   {
     "path": "jsonld-to-flattened",
     "title": "JSON-LD to Flattened",
-    "lastmod": "2026-05-25"
+    "lastmod": "2026-09-15"
   },
   {
     "path": "jsonld-to-framed",
     "title": "JSON-LD to Framed",
-    "lastmod": "2026-05-25"
+    "lastmod": "2026-09-15"
   },
   {
     "path": "jsonld-to-normalized",
     "title": "JSON-LD to Normalized",
-    "lastmod": "2026-05-25"
+    "lastmod": "2026-09-15"
   },
   {
     "path": "jsonld-to-nquads",
     "title": "JSON-LD to N-Quads",
-    "lastmod": "2026-05-25"
+    "lastmod": "2026-09-15"
   },
   {
     "path": "json-schema-to-openapi-schema",
     "title": "JSON Schema to OpenAPI",
-    "lastmod": "2026-05-25"
+    "lastmod": "2026-09-15"
   },
   {
     "path": "json-schema-to-typescript",
     "title": "JSON Schema to TypeScript",
-    "lastmod": "2026-05-25"
+    "lastmod": "2026-09-15"
   },
   {
     "path": "json-schema-to-zod",
     "title": "JSON Schema to Zod",
-    "lastmod": "2026-05-25"
+    "lastmod": "2026-09-15"
   },
   {
     "path": "json-schema-to-protobuf",
     "title": "JSON Schema to Protobuf",
-    "lastmod": "2026-05-25"
+    "lastmod": "2026-09-15"
   },
   {
     "path": "typescript-to-flow",
     "title": "TypeScript to Flow",
-    "lastmod": "2026-05-25"
+    "lastmod": "2026-09-15"
   },
   {
     "path": "typescript-to-javascript",
     "title": "TypeScript to JavaScript",
-    "lastmod": "2026-05-25"
+    "lastmod": "2026-09-15"
   },
   {
     "path": "typescript-to-json-schema",
     "title": "TypeScript to JSON Schema",
-    "lastmod": "2026-05-25"
+    "lastmod": "2026-09-15"
   },
   {
     "path": "typescript-to-typescript-declaration",
     "title": "TypeScript to Declaration (.d.ts)",
-    "lastmod": "2026-05-25"
+    "lastmod": "2026-09-15"
   },
   {
     "path": "typescript-to-zod",
     "title": "TypeScript to Zod",
-    "lastmod": "2026-05-25"
+    "lastmod": "2026-09-15"
   },
   {
     "path": "svg-to-jsx",
     "title": "SVG to JSX",
-    "lastmod": "2026-05-25"
+    "lastmod": "2026-09-15"
   },
   {
     "path": "svg-to-react-native",
     "title": "SVG to React Native",
-    "lastmod": "2026-05-25"
+    "lastmod": "2026-09-15"
   },
   {
     "path": "cadence-to-go",
     "title": "Cadence to Go",
-    "lastmod": "2026-05-25"
+    "lastmod": "2026-09-15"
   },
   {
     "path": "markdown-to-html",
     "title": "Markdown to HTML",
-    "lastmod": "2026-05-25"
+    "lastmod": "2026-09-15"
   },
   {
     "path": "toml-to-json",
     "title": "TOML to JSON",
-    "lastmod": "2026-05-25"
+    "lastmod": "2026-09-15"
   },
   {
     "path": "xml-to-json",
     "title": "XML to JSON",
-    "lastmod": "2026-05-25"
+    "lastmod": "2026-09-15"
   },
   {
     "path": "yaml-to-json",
     "title": "YAML to JSON",
-    "lastmod": "2026-05-25"
+    "lastmod": "2026-09-15"
   },
   {
     "path": "yaml-to-toml",
     "title": "YAML to TOML",
-    "lastmod": "2026-05-25"
+    "lastmod": "2026-09-15"
   },
   {
     "path": "toml-to-yaml",
     "title": "TOML to YAML",
-    "lastmod": "2026-05-25"
+    "lastmod": "2026-09-15"
   },
   {
     "path": "base64-decode",
     "title": "Base64 Decode",
-    "lastmod": "2026-05-25"
+    "lastmod": "2026-09-15"
   },
   {
     "path": "base64-encode",
     "title": "Base64 Encode",
-    "lastmod": "2026-05-25"
+    "lastmod": "2026-09-15"
   },
   {
     "path": "jwt-decoder",
     "title": "Jwt Decoder",
-    "lastmod": "2026-05-25"
+    "lastmod": "2026-09-15"
   },
   {
     "path": "flow-to-javascript",
     "title": "Flow to JavaScript",
-    "lastmod": "2026-05-25"
+    "lastmod": "2026-09-15"
   },
   {
     "path": "flow-to-typescript",
     "title": "Flow to TypeScript",
-    "lastmod": "2026-05-25"
+    "lastmod": "2026-09-15"
   },
   {
     "path": "flow-to-typescript-declaration",
     "title": "Flow to TypeScript Declaration",
-    "lastmod": "2026-05-25"
+    "lastmod": "2026-09-15"
   },
   {
     "path": "timestamp",
     "title": "Unix Timestamp Converter",
-    "lastmod": "2026-05-25"
+    "lastmod": "2026-09-15"
   },
   {
     "path": "date-diff",
     "title": "Date & Time Toolbox",
-    "lastmod": "2026-05-25"
+    "lastmod": "2026-09-15"
   },
   {
     "path": "password-generator",
     "title": "Password Generator",
-    "lastmod": "2026-05-25"
+    "lastmod": "2026-09-15"
   },
   {
     "path": "lorem-generator",
     "title": "Lorem Ipsum Generator",
-    "lastmod": "2026-05-25"
+    "lastmod": "2026-09-15"
+  },
+  {
+    "path": "text-diff",
+    "title": "Text Diff Checker",
+    "lastmod": "2026-09-15"
   }
 ]

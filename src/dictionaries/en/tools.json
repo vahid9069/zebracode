@@ -1,0 +1,377 @@
+{
+  "cssToJs": {
+    "title": "CSS to JS",
+    "shortDescription": "Convert CSS to a JavaScript object",
+    "description": "Easily convert your CSS styles into a clean JavaScript object. This free online CSS to JS converter parses your CSS rules and outputs a JavaScript object literal—perfect for CSS-in-JS solutions, inline styles in React, or dynamic styling in any frontend project. Fast, accurate, and requires no sign-up."
+  },
+  "cssToScss": {
+    "title": "CSS to SCSS",
+    "shortDescription": "Convert CSS to SCSS (Sassy CSS)",
+    "description": "Transform standard CSS into SCSS syntax with our online converter. It intelligently adds nesting, variables, and mixin-friendly structure to your existing styles, making them more maintainable and ready for modern Sass workflows. Ideal for migrating legacy CSS to a more powerful preprocessor. Free, fast, and works directly in your browser."
+  },
+  "cssToTailwind": {
+    "title": "CSS to Tailwind",
+    "shortDescription": "Convert CSS classes to Tailwind CSS utilities",
+    "description": "Quickly refactor your CSS classes into Tailwind CSS utility classes. This online converter maps common CSS properties to their Tailwind equivalents, helping you migrate to a utility-first workflow. Suitable for developers adapting existing stylesheets to Tailwind—no manual translation needed. Free, online, and designed for frontend productivity."
+  },
+  "scssToCss": {
+    "title": "SCSS to CSS",
+    "shortDescription": "Compile SCSS to standard CSS",
+    "description": "Compile SCSS (Sassy CSS) to browser-ready CSS instantly. Our online SCSS to CSS converter supports variables, nesting, mixins, and partials. Simply paste your SCSS code and get clean, standard CSS output. Perfect for quick compilation without installing Sass or setting up a build process. Free and no registration needed."
+  },
+  "timestamp-converter": {
+    "title": "Unix Timestamp Converter",
+    "shortDescription": "Convert Unix timestamp to Persian (Shamsi) and Gregorian date",
+    "description": "Free online Unix timestamp converter with full Persian (Jalali/Shamsi) calendar support. Convert timestamps to human‑readable dates, convert dates back to timestamps, and view the current timestamp in real‑time. All processing is done in your browser — no sign‑up required."
+  },
+  "date-diff": {
+    "title": "Date & Time Toolbox",
+    "shortDescription": "Timestamp converter, date difference calculator and date add/subtract",
+    "description": "A complete set of free online date and time utilities: convert Unix timestamps to Persian or Gregorian dates, calculate differences between two dates, and add/subtract days, hours, minutes or seconds from any date. All processing is done in your browser — no sign‑up required."
+  },
+  "base64Decode": {
+    "title": "Base64 Decode",
+    "shortDescription": "Decode Base64 encoded strings to plain text",
+    "description": "Instantly decode Base64 encoded data back to readable text, JSON, or binary. This free online Base64 decoder handles UTF-8, ASCII, and binary input with no registration needed. Perfect for debugging encoded tokens, API responses, or email attachments. All decoding happens directly in your browser for maximum privacy and speed."
+  },
+  "base64-encode": {
+    "title": "Base64 Encode",
+    "shortDescription": "Encode text or files to Base64 format",
+    "description": "Quickly encode any text string, JSON object, or binary content into Base64 format online. This free Base64 encoder is secure—your data never leaves your browser. Ideal for creating data URIs, embedding images in CSS/HTML, or safely transmitting binary in text-based protocols. Fast, simple, and requires no sign-up."
+  },
+  "jwt-decoder": {
+    "title": "Jwt Decoder",
+    "shortDescription": "Decode and inspect JWT tokens",
+    "description": "Decode and explore the header and payload of any JWT (JSON Web Token) without verifying its signature. Our online JWT decoder displays claims like issuer, expiration, and subject in a clear, human-readable format. An essential developer tool for debugging authentication, inspecting API tokens, and understanding JWT structure. Client-side only—your tokens stay private."
+  },
+  "flowToJavascript": {
+    "title": "Flow to JavaScript",
+    "shortDescription": "Strip Flow type annotations to get plain JavaScript",
+    "description": "Convert Flow-typed JavaScript to standard, browser-ready JavaScript by removing all type annotations. This free online converter lets you compile Flow code instantly without installing the Flow binary. Ideal for sharing code snippets, migrating away from Flow, or debugging type-stripped output. No registration required, all processing is client-side."
+  },
+  "flowToTypescript": {
+    "title": "Flow to TypeScript",
+    "shortDescription": "Convert Flow type definitions to TypeScript",
+    "description": "Migrate your codebase from Flow to TypeScript with our online converter. It translates Flow type annotations into equivalent TypeScript interfaces, types, and utility types. Designed to speed up migration, the tool handles common patterns like maybe types, union types, and utility types. Free, browser-based, and secure—your code stays on your machine."
+  },
+  "flowToTypescriptDeclaration": {
+    "title": "Flow to TypeScript Declaration",
+    "shortDescription": "Generate TypeScript declaration files from Flow types",
+    "description": "Automatically generate TypeScript .d.ts declaration files from your Flow type definitions. This converter preserves exported types, interfaces, and module shapes, making it perfect for creating type stubs for JavaScript libraries originally typed with Flow. A vital tool for teams transitioning to TypeScript while maintaining type safety. Works entirely in your browser."
+  },
+  "password-generator": {
+    "title": "Password Generator",
+    "shortDescription": "Generate strong, cryptographically secure passwords online",
+    "description": "A free online Password Generator that creates strong, random, and highly secure passwords with a single click. Customize your password length (up to 64 characters) and choose from lowercase, uppercase, numbers, and symbols. All passwords are generated locally in your browser for maximum privacy—never stored or transmitted."
+  },
+  "lorem-generator": {
+    "title": "Lorem Ipsum Generator",
+    "shortDescription": "Generate Lorem Ipsum placeholder text for your designs in multiple languages",
+    "description": "A free, multilingual Lorem Ipsum Generator for designers and developers. Create dummy text instantly in English, Persian, Arabic, Spanish, French, and German. Customize the output as paragraphs, sentences, or words, and copy your placeholder text with a single click. Works completely offline in your browser."
+  },
+  "text-diff": {
+    "title": "Text Diff Checker",
+    "shortDescription": "Compare two texts line by line and see the differences instantly",
+    "description": "A free online tool to compare two texts and see the differences line by line. Perfect for code review, document versioning, and text analysis. All processing is done in your browser."
+  },
+  "graphqlToFlow": {
+    "title": "GraphQL to Flow",
+    "shortDescription": "Convert GraphQL schema to Flow type definitions",
+    "description": "Easily convert your GraphQL schema into Flow type definitions. This free online tool parses your schema and outputs precise Flow types for queries, mutations, and subscriptions, ensuring end-to-end type safety in your JavaScript projects. No sign-up required, all processing happens locally in your browser."
+  },
+  "graphqlToTypeScript": {
+    "title": "GraphQL to TypeScript",
+    "shortDescription": "Generate TypeScript types from a GraphQL schema",
+    "description": "Automatically generate TypeScript types and interfaces from your GraphQL schema. This converter supports enums, unions, interfaces, and custom scalars, giving you fully typed frontend code that mirrors your API. Perfect for React, Vue, or Node.js projects using Apollo or URQL. Free, fast, and entirely client-based."
+  },
+  "graphqlToJava": {
+    "title": "GraphQL to Java",
+    "shortDescription": "Map your GraphQL schema to Java classes",
+    "description": "Transform your GraphQL schema into clean, well-structured Java classes with this online converter. Ideal for backend Java developers who need to model their domain objects based on a GraphQL API. Get fields, types, and relationships mapped directly into POJOs. No downloads, no registration—just paste your schema and copy the Java code."
+  },
+  "graphqlToTypeScriptMongoDB": {
+    "title": "GraphQL to TypeScript MongoDB",
+    "shortDescription": "Generate TypeScript models for MongoDB from GraphQL schema",
+    "description": "Convert your GraphQL schema into TypeScript interfaces and models optimized for MongoDB documents. This tool maps GraphQL types to MongoDB document structures, adding appropriate decorators or schema definitions for Mongoose or the native MongoDB Node.js driver. Free, fast, and all processing happens in your browser."
+  },
+  "graphqlSchemaAst": {
+    "title": "GraphQL Schema AST",
+    "shortDescription": "Output the Abstract Syntax Tree of your GraphQL schema",
+    "description": "Parse your GraphQL schema and obtain its Abstract Syntax Tree (AST) in JSON format. This online tool is perfect for debugging, building schema analysis tools, or developing your own GraphQL code generators. Works locally in your browser, no server uploads required."
+  },
+  "graphqlResolversSignature": {
+    "title": "GraphQL Resolvers Signature",
+    "shortDescription": "Generate resolver function signatures from GraphQL schema",
+    "description": "Automatically generate TypeScript resolver function signatures based on your GraphQL schema. This converter provides the boilerplate code for resolvers with correct argument types, return types, and context typing. Save time and reduce errors when implementing a GraphQL server with Apollo, Express, or any other framework. Free and client-side."
+  },
+  "graphqlIntrospectionJson": {
+    "title": "GraphQL Introspection JSON",
+    "shortDescription": "Convert GraphQL schema to introspection JSON",
+    "description": "Generate a standard GraphQL introspection query result from your schema definition. This JSON can be used with GraphQL IDEs, code generators, or other tools that expect an introspection format. Instant, free, and performed entirely within your browser."
+  },
+  "graphqlFragmentMatcher": {
+    "title": "GraphQL Fragment Matcher",
+    "shortDescription": "Generate a fragment matcher config from a GraphQL schema",
+    "description": "Create a fragment matcher configuration (possible types map) for Apollo Client from your GraphQL schema. This JSON tells the cache how to match interfaces and unions to concrete types, crucial for fragment matching in union queries. This online tool generates the config directly from your schema, no manual mapping needed. Free and unlimited."
+  },
+  "graphqlToComponents": {
+    "title": "GraphQL to Components",
+    "shortDescription": "Generate React/Vue components from GraphQL schema",
+    "description": "Turn your GraphQL schema into ready-to-use React or Vue components. This free online tool generates form components, list views, and detail components based on types and queries, accelerating frontend development. All processing happens locally—no sign-up required."
+  },
+  "html-to-jsx": {
+    "title": "HTML to JSX",
+    "shortDescription": "Convert HTML to JSX for React",
+    "description": "Quickly convert your standard HTML into JSX syntax ready for React components. This free online converter automatically transforms attributes like `class` to `className`, `for` to `htmlFor`, and self-closes empty elements. Ideal for migrating existing markup or prototyping UI without manual rewriting. No registration needed, entirely client-side."
+  },
+  "html-to-pug": {
+    "title": "HTML to Pug",
+    "shortDescription": "Transform HTML into Pug (formerly Jade) templates",
+    "description": "Effortlessly convert your HTML code into clean, indented Pug syntax. This online converter eliminates angle brackets and closing tags, giving you a concise template ready for Node.js or Express apps. Perfect for developers transitioning to Pug or maintaining legacy projects. Fast, free, and browser-based—no installation required."
+  },
+  "es5-to-es6": {
+    "title": "ES5 to ES6",
+    "shortDescription": "Convert ES5 JavaScript code to modern ES6+ syntax",
+    "description": "Transform your legacy ES5 code into modern ES6+ JavaScript. This free online converter updates `var` to `let`/`const`, converts functions to arrow functions, uses template literals, and applies many other modern syntax improvements—perfect for refactoring older codebases. Works directly in your browser."
+  },
+  "es6-to-es5": {
+    "title": "ES6 to ES5",
+    "shortDescription": "Transpile ES6+ JavaScript down to ES5 for compatibility",
+    "description": "Convert modern ES6+ JavaScript back to broadly compatible ES5 code. This free tool transpiles arrow functions, template literals, `const`/`let`, classes, and more into ES5 equivalents—perfect for supporting older browsers or environments. Simple, fast, and runs entirely in your browser."
+  },
+  "js-to-json": {
+    "title": "JS to JSON",
+    "shortDescription": "Extract or convert a JavaScript object to JSON",
+    "description": "Turn a JavaScript object literal into valid JSON with a single click. Our online converter handles quotes, trailing commas, and unquoted keys, outputting clean, standards-compliant JSON. Great for config files, API payloads, or safely serializing data. No sign-up, fully client-side."
+  },
+  "js-to-typescript": {
+    "title": "JS to TypeScript",
+    "shortDescription": "Convert JavaScript code to TypeScript with type annotations",
+    "description": "Migrate your JavaScript code to TypeScript automatically. This free converter infers types, adds interfaces, and converts `PropTypes` to TypeScript interfaces where possible. Perfect for bootstrapping type safety in existing JavaScript projects. Works offline in your browser, no registration required."
+  },
+  "jsonld-to-compacted": {
+    "title": "JSON-LD to Compacted",
+    "shortDescription": "Compact a JSON-LD document with a given context",
+    "description": "Compact your JSON-LD data by applying a specific context to shorten IRIs and reduce document size. This online compactor helps you simplify expanded JSON-LD into a concise, production-ready form. Ideal for SEO, schema markup, and API payloads. Free and processed entirely in your browser."
+  },
+  "jsonld-to-flattened": {
+    "title": "JSON-LD to Flattened",
+    "shortDescription": "Flatten a JSON-LD document to a node-based graph",
+    "description": "Flatten your JSON-LD document into a list of top-level nodes, making it easier to index and query. This converter removes nested objects, replacing them with node references. Perfect for debugging, graph databases, and standardizing structured data. Free online tool, no registration required."
+  },
+  "jsonld-to-framed": {
+    "title": "JSON-LD to Framed",
+    "shortDescription": "Shape a JSON-LD document by applying a frame",
+    "description": "Frame your JSON-LD data to extract a specific view of the graph. This online framer applies a JSON-LD frame to match desired property shapes, making it easier to consume linked data in apps and sites. Essential for schema.org SEO and semantic web development. Free and client-side only."
+  },
+  "jsonld-to-normalized": {
+    "title": "JSON-LD to Normalized",
+    "shortDescription": "Normalize a JSON-LD document (RDF Dataset Normalization)",
+    "description": "Apply the RDF Dataset Normalization algorithm (URDNA2015) to your JSON-LD document, producing a canonical form suitable for digital signatures, comparison, and data integrity. This free online tool works entirely in your browser and requires no registration."
+  },
+  "jsonld-to-nquads": {
+    "title": "JSON-LD to N-Quads",
+    "shortDescription": "Convert JSON-LD document to N-Quads format",
+    "description": "Serialize your JSON-LD data into the N-Quads line-based format, one quad per line. Ideal for feeding RDF data to triple stores, command-line tools, or standard Linked Data pipelines. Our converter is free, client-side, and requires no sign-up."
+  },
+  "jsonSchemaToOpenApiSchema": {
+    "title": "JSON Schema to OpenAPI",
+    "shortDescription": "Convert JSON Schema definitions to OpenAPI specifications",
+    "description": "Effortlessly convert your JSON Schema into OpenAPI 3.0 or 3.1 schemas. This free online converter maps JSON Schema types, validations, and examples directly to OpenAPI components, saving you hours of manual mapping. Perfect for building Swagger/OpenAPI docs from existing JSON Schema. No sign-up, fully client-side."
+  },
+  "jsonSchemaToTypeScript": {
+    "title": "JSON Schema to TypeScript",
+    "shortDescription": "Generate TypeScript types from a JSON Schema",
+    "description": "Automatically generate accurate TypeScript interfaces and type aliases from your JSON Schema. Our online converter handles nested objects, enums, unions, and optional properties. Ideal for frontend projects, API type syncing, and keeping your types in sync with backend validation. Free, fast, and works offline in your browser."
+  },
+  "jsonSchemaToZod": {
+    "title": "JSON Schema to Zod",
+    "shortDescription": "Turn a JSON Schema into a Zod validation schema",
+    "description": "Convert your JSON Schema into a fully typed Zod schema for runtime validation in TypeScript. This online tool preserves refinements, defaults, and nested shapes, bridging the gap between static JSON Schema and Zod’s expressive validators. Perfect for form validation, API gateways, and Next.js server actions. No downloads, entirely browser-based."
+  },
+  "json-schema-to-protobuf": {
+    "title": "JSON Schema to Protobuf",
+    "shortDescription": "Generate Protocol Buffers definitions from JSON Schema",
+    "description": "Convert your JSON Schema into high-quality Protocol Buffers (proto3) definitions. This free online converter maps JSON types to proto types, handles nested messages, enums, and repeated fields. Perfect for microservices, gRPC APIs, and sharing data schemas across systems. No installation required, works directly in your browser."
+  },
+  "formatJSON": {
+    "title": "JSON Format",
+    "shortDescription": "Prettify and format your JSON data",
+    "description": "Format, beautify, and indent your minified or messy JSON with a single click. This free online JSON formatter makes your data readable, validates syntax, and highlights errors. Perfect for debugging APIs, configuration files, and log entries. Works entirely in your browser—no registration required."
+  },
+  "jsonToBigQuery": {
+    "title": "JSON to BigQuery",
+    "shortDescription": "Convert JSON to BigQuery table schema",
+    "description": "Transform your JSON data structure into a BigQuery-compatible schema definition. This online converter infers field names, types, and nested records, making it easy to load JSON into Google BigQuery. A time-saver for data engineers and analysts. Free and client-side, no sign-up needed."
+  },
+  "jsonToFlow": {
+    "title": "JSON to Flow",
+    "shortDescription": "Generate Flow type definitions from JSON",
+    "description": "Instantly create Flow type annotations from your sample JSON data. This converter analyses your JSON structure and outputs precise Flow types, helping you add static typing to JavaScript projects. Perfect for bootstrapping type coverage in existing codebases. Free, online, and requires no installation."
+  },
+  "jsonToGo": {
+    "title": "JSON to Go",
+    "shortDescription": "Convert JSON to Go struct definitions",
+    "description": "Generate idiomatic Go structs from your JSON example. This converter automatically maps JSON fields to Go types, handles nested objects, and adds `json` tags. Ideal for building Go clients, unmarshalling API responses, and rapidly prototyping data models. Free and browser-based."
+  },
+  "jsonToGoBson": {
+    "title": "JSON to Go BSON",
+    "shortDescription": "Create Go structs with BSON tags from JSON",
+    "description": "Convert JSON data into Go structs with BSON tags for MongoDB integration. This online tool outputs structs with both `json` and `bson` tags, perfect for Go applications using the official MongoDB driver. Fast, free, and no registration required."
+  },
+  "jsonToGraphQl": {
+    "title": "JSON to GraphQL",
+    "shortDescription": "Turn a JSON object into a GraphQL schema",
+    "description": "Quickly derive a GraphQL schema from your existing JSON data. This free converter infers types, fields, and relationships, generating SDL you can drop into any GraphQL server. Great for prototyping APIs or bootstrapping a schema from sample responses. No sign-up, fully client-side."
+  },
+  "jsonToIoTs": {
+    "title": "JSON to io-ts",
+    "shortDescription": "Generate io-ts codec definitions from JSON",
+    "description": "Build runtime type-checking with io-ts by converting your sample JSON into io-ts codec definitions. This online tool handles unions, partial objects, and arrays, enabling robust validation in TypeScript projects. Free, quick, and works right in your browser."
+  },
+  "jsonToJava": {
+    "title": "JSON to Java",
+    "shortDescription": "Create Java POJOs from JSON data",
+    "description": "Convert your JSON into clean Java classes with Jackson annotations. This free online converter generates POJOs with fields, getters, and setters, tailored for deserialising JSON in Spring Boot or Android apps. Save hours of manual mapping. No download needed, entirely browser-based."
+  },
+  "jsonToJsdoc": {
+    "title": "JSON to JSDoc",
+    "shortDescription": "Generate JSDoc type annotations from JSON",
+    "description": "Document your JavaScript objects by converting JSON data into JSDoc type definitions. This free tool adds @typedef and @property annotations, providing IntelliSense support in VS Code and other editors. Ideal for adding types without TypeScript. No registration, fully client-side."
+  },
+  "jsonToJsonSchema": {
+    "title": "JSON to JSON Schema",
+    "shortDescription": "Infer a JSON Schema from a JSON sample",
+    "description": "Automatically generate a JSON Schema that describes your JSON data. This converter analyses your input and creates a schema with accurate types, required fields, and nested definitions. Perfect for validation, documentation, and API contracts. Free online tool, no sign-up required."
+  },
+  "jsonToKotlin": {
+    "title": "JSON to Kotlin",
+    "shortDescription": "Create Kotlin data classes from JSON",
+    "description": "Convert your JSON into Kotlin data classes with ease. This online generator produces model classes with `@SerializedName` annotations, ready for use with Gson or Moshi in Android development. Free, fast, and works directly in your browser without installations."
+  },
+  "jsonToMobxStateTree": {
+    "title": "JSON to MobX State Tree",
+    "shortDescription": "Generate MobX State Tree models from JSON",
+    "description": "Transform your JSON into strongly-typed MobX State Tree (MST) model definitions. This free converter creates types, actions, and views scaffolding from sample data, helping you build observable state trees faster. No sign-up, entirely client-side."
+  },
+  "jsonToMongoose": {
+    "title": "JSON to Mongoose",
+    "shortDescription": "Convert JSON to Mongoose schemas",
+    "description": "Generate Mongoose schema definitions from your JSON data for MongoDB and Node.js. This online tool infers data types, nested schemas, and defaults, helping you bootstrap your ODM models. Perfect for quick prototyping and API development. Free, no registration needed."
+  },
+  "jsonToMysql": {
+    "title": "JSON to MySQL",
+    "shortDescription": "Turn JSON into MySQL CREATE TABLE scripts",
+    "description": "Convert your nested JSON objects into normalised MySQL table definitions with relationships. This online tool analyses your data and outputs SQL statements ready for database creation. Ideal for data migration and ETL tasks. Free and works entirely in your browser."
+  },
+  "jsonToPropTypes": {
+    "title": "JSON to PropTypes",
+    "shortDescription": "Generate React PropTypes from JSON data",
+    "description": "Create React PropTypes definitions automatically from a JSON object. This free converter outputs exact shape, arrayOf, and oneOfType validators, ensuring runtime prop validation in your React components. No more manual PropTypes typing. Fast, online, and requires no sign-up."
+  },
+  "jsonToRustSerde": {
+    "title": "JSON to Rust Serde",
+    "shortDescription": "Create Rust structs with Serde attributes from JSON",
+    "description": "Convert your JSON into Rust structs with Serde `Deserialize` and `Serialize` derives. This online generator handles JSON types, nested structures, and optional fields, giving you ready-to-compile code for your Rust projects. Free, fast, and browser-based."
+  },
+  "jsonToSarcastic": {
+    "title": "JSON to Sarcastic",
+    "shortDescription": "Generate Sarcastic type definitions from JSON (humorous tool)",
+    "description": "Convert your JSON into Sarcastic type definitions—a playful, opinionated language for describing data with sarcasm. This light-hearted online tool wraps your data structure in humorous names while preserving structure. For fun, not production. Free and client-side."
+  },
+  "jsonToScalaCaseClass": {
+    "title": "JSON to Scala Case Class",
+    "shortDescription": "Create Scala case classes from JSON",
+    "description": "Generate Scala case classes with Play JSON or Circe annotations from your sample JSON. This free converter supports nested objects, Option types, and Seq, making it easy to model APIs in functional Scala. No registration needed, works in the browser."
+  },
+  "jsonToToml": {
+    "title": "JSON to TOML",
+    "shortDescription": "Convert JSON data to TOML format",
+    "description": "Effortlessly translate your JSON configuration files into TOML format. This online converter preserves arrays, tables, and inline tables, giving you clean, human-friendly TOML output. Ideal for migrating configs for Rust, Python, or Hugo projects. Free and client-side."
+  },
+  "jsonToTypeScript": {
+    "title": "JSON to TypeScript",
+    "shortDescription": "Generate TypeScript interfaces from JSON",
+    "description": "Convert your sample JSON into precise TypeScript interfaces and type aliases. This free tool handles optional properties, arrays, unions, and nested objects, perfect for adding type safety to your frontend or Node.js apps. No sign-up, works entirely in your browser."
+  },
+  "jsonToYaml": {
+    "title": "JSON to YAML",
+    "shortDescription": "Convert JSON to YAML online",
+    "description": "Quickly transform your JSON into clean, indented YAML. This free online converter preserves data types, ordering, and nested structures, making it ideal for Kubernetes manifests, docker-compose files, and CI/CD configs. No download required, completely browser-based."
+  },
+  "jsonToZod": {
+    "title": "JSON to Zod",
+    "shortDescription": "Generate Zod schemas from your JSON data",
+    "description": "Create fully typed Zod validation schemas from a JSON sample. This free converter infers string, number, object, and array schemas, including optional and default values. Perfect for Next.js server actions, API validation, and form libraries. Works online, no sign-up."
+  },
+  "cadence-to-go": {
+    "title": "Cadence to Go",
+    "shortDescription": "Convert Cadence workflow definitions to Go code",
+    "description": "Generate Go worker boilerplate from your Cadence workflow definitions. This free online converter translates your Cadence DSL into ready-to-compile Go structs, activities, and workflow interfaces—perfect for bootstrapping Temporal or Cadence projects. All processing happens in your browser, no sign-up required."
+  },
+  "markdown-to-html": {
+    "title": "Markdown to HTML",
+    "shortDescription": "Convert Markdown to clean, semantic HTML",
+    "description": "Transform your Markdown into clean, responsive HTML with our free online converter. Supports tables, code blocks (with syntax highlighting), GitHub-flavored Markdown, and custom CSS. Ideal for developers, content creators, and anyone building static sites. Works instantly in your browser, no account needed."
+  },
+  "tomlToJson": {
+    "title": "TOML to JSON",
+    "shortDescription": "Convert TOML files to JSON online",
+    "description": "Easily convert your TOML configuration files into structured JSON. This free online tool preserves arrays, nested tables, and inline objects, making it perfect for migrating configs between Rust, Python, and JavaScript ecosystems. Fast, client-side, and requires no installation or sign-up."
+  },
+  "xmlToJson": {
+    "title": "XML to JSON",
+    "shortDescription": "Convert XML data to JSON format",
+    "description": "Transform XML documents into JSON with a single click. Our converter handles attributes, nested elements, and arrays intelligently, producing clean JSON perfect for APIs, web services, or data interchange. Free, secure, and works entirely in your browser—no XML file touches a server."
+  },
+  "yamlToJson": {
+    "title": "YAML to JSON",
+    "shortDescription": "Convert YAML to JSON instantly",
+    "description": "Quickly translate your YAML configuration or data files into valid JSON. This free online converter supports all YAML types, anchors, and multiline strings. Ideal for migrating from Docker Compose, Kubernetes manifests, or CI/CD pipelines to JSON-based tools. No registration required, completely client-side."
+  },
+  "yamlToToml": {
+    "title": "YAML to TOML",
+    "shortDescription": "Convert YAML files to TOML format",
+    "description": "Effortlessly convert your YAML files into clean, readable TOML. This free converter handles nested tables, arrays of tables, and preserves comments where possible. Perfect for teams moving configuration from YAML to TOML for better readability in Python or Rust projects. Works online, no download needed."
+  },
+  "toml-to-yaml": {
+    "title": "TOML to YAML",
+    "shortDescription": "Convert TOML files to YAML format",
+    "description": "Transform your TOML configuration files into clean, indented YAML. This free online converter preserves tables, arrays, and nested structures, making it ideal for migrating configs between Rust, Python, and Kubernetes ecosystems. No registration needed, all processing is done in your browser."
+  },
+  "svgToJsx": {
+    "title": "SVG to JSX",
+    "shortDescription": "Convert SVG files to JSX for React components",
+    "description": "Transform your SVG code into JSX syntax ready for React components. This free online converter correctly converts SVG attributes to React-compatible props (e.g., `class` to `className`, `stroke-width` to `strokeWidth`), handles self-closing elements, and strips unnecessary namespaces. Ideal for creating React icons and illustrations. Works entirely in your browser, no registration needed."
+  },
+  "svgToReactNative": {
+    "title": "SVG to React Native",
+    "shortDescription": "Convert SVGs to React Native SVG components",
+    "description": "Easily convert your SVG files to React Native-compatible SVG components. This free online tool adapts SVG elements for libraries like react-native-svg, mapping tags to their React Native equivalents and optimising attributes for mobile rendering. Perfect for cross-platform mobile app development. Fast, client-side, and requires no sign-up."
+  },
+  "typescript-to-flow": {
+    "title": "TypeScript to Flow",
+    "shortDescription": "Convert TypeScript types to Flow type annotations",
+    "description": "Migrate your TypeScript type definitions to Flow with our free online converter. It maps interfaces, types, enums, and generics to their Flow equivalents, helping you transition codebases between these two static type checkers. Fast, browser-based, and requires no sign-up."
+  },
+  "typescript-to-javascript": {
+    "title": "TypeScript to JavaScript",
+    "shortDescription": "Compile TypeScript to plain JavaScript online",
+    "description": "Strip TypeScript type annotations and compile your code to clean JavaScript instantly. This free online tool removes types, handles enums and decorators, and outputs standard JavaScript that runs in any browser or Node.js environment. Perfect for quick demos, debugging, or sharing snippets without a build step."
+  },
+  "typescript-to-json-schema": {
+    "title": "TypeScript to JSON Schema",
+    "shortDescription": "Generate JSON Schema from TypeScript interfaces",
+    "description": "Transform your TypeScript interfaces and types into valid JSON Schema drafts. This online converter supports generics, unions, optional properties, and arrays, producing schemas perfect for request validation, configuration files, or API documentation. No registration needed, fully client-side."
+  },
+  "typescript-to-typescript-declaration": {
+    "title": "TypeScript to Declaration (.d.ts)",
+    "shortDescription": "Generate .d.ts declaration files from TypeScript source",
+    "description": "Extract only the type declarations from your TypeScript code, producing .d.ts files ready for library publishing. This free online tool removes implementations and keeps interfaces, types, and exports, helping you create type packages for your JavaScript modules. Works directly in your browser with no installation."
+  },
+  "typescript-to-zod": {
+    "title": "TypeScript to Zod",
+    "shortDescription": "Generate Zod validation schemas from TypeScript types",
+    "description": "Convert your TypeScript type definitions into Zod schemas instantly. This free online tool translates interfaces, enums, unions, and optional properties into safe, runtime type validators. Perfect for adding validation to Next.js server actions, API routes, or form libraries without writing schemas by hand. Entirely browser-based—no sign-up needed."
+  }
+}
