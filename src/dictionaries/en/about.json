@@ -1,0 +1,17 @@
+{
+  "heroTitlePrefix": "About",
+  "heroDescription": "We build free, fast, and beautiful developer tools that respect your privacy.",
+  "missionTitle": "Our Mission",
+  "mission": "ZebraCode was created to provide developers with a set of essential online utilities that work instantly, without ads, tracking, or registration. Every tool runs entirely in your browser — your data never leaves your device.",
+  "whyTitle": "Why Choose ZebraCode?",
+  "techTitle": "Built with Modern Tech",
+  "techDescription": "Next.js 15 · React · TypeScript · Tailwind CSS · Lucide Icons · Jalaali-js",
+  "features": [
+    { "id": "instant", "title": "Instant & Free", "desc": "All tools work directly in your browser with zero configuration and no fees." },
+    { "id": "privacy", "title": "Privacy First", "desc": "Your data is processed locally and never uploaded to any server." },
+    { "id": "opensource", "title": "Open Source", "desc": "Our code is open for anyone to inspect, contribute, or improve." },
+    { "id": "developers", "title": "For Developers", "desc": "Built by developers, for developers — with real-world use cases in mind." },
+    { "id": "range", "title": "Wide Range", "desc": "From JSON to CSS, GraphQL to Timestamps, we cover the most needed conversions." },
+    { "id": "community", "title": "Community Driven", "desc": "We listen to feedback and continuously add new tools and features." }
+  ]
+}

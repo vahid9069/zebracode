@@ -5,23 +5,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="2e5d0bc0-6dfb-4940-a39b-53eed3603011" name="Changes" comment="feat: add  multi language">
-      <change afterPath="$PROJECT_DIR$/.idea/.gitignore" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/zebracode.iml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/repomix-output.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.github/workflows/deploy.yml" beforeDir="false" afterPath="$PROJECT_DIR$/.github/workflows/deploy.yml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/app/(fa)/layout.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/(fa)/layout.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/app/(fa)/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/(fa)/page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/app/en/layout.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/en/layout.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/app/en/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/en/page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/components/layout/AppLayout.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/layout/AppLayout.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/components/pages/HomePageClient.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/pages/HomePageClient.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/dictionaries/en/home.json" beforeDir="false" afterPath="$PROJECT_DIR$/src/dictionaries/en/home.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/dictionaries/en/tools.json" beforeDir="false" afterPath="$PROJECT_DIR$/src/dictionaries/en/tools.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/dictionaries/fa/home.json" beforeDir="false" afterPath="$PROJECT_DIR$/src/dictionaries/fa/home.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/dictionaries/fa/tools.json" beforeDir="false" afterPath="$PROJECT_DIR$/src/dictionaries/fa/tools.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/i18n/getDictionary.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/i18n/getDictionary.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scripts/tools.json" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/tools.json" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -41,7 +26,9 @@
           <execution>
             <execution>
               <execution>
-                <execution />
+                <execution>
+                  <execution />
+                </execution>
               </execution>
             </execution>
           </execution>
@@ -64,7 +51,7 @@
   <component name="Git.Settings">
     <option name="RECENT_BRANCH_BY_REPOSITORY">
       <map>
-        <entry key="$PROJECT_DIR$" value="main" />
+        <entry key="$PROJECT_DIR$" value="feature-lang" />
       </map>
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -75,19 +62,12 @@
     &quot;assignee&quot;: &quot;VahidBehrouzieh&quot;
   }
 }</component>
-  <component name="GithubProjectSettings">
-    <option name="branchProtectionPatterns">
-      <list>
-        <option value="main" />
-      </list>
-    </option>
-  </component>
-  <component name="GithubPullRequestsUISettings">{
-  &quot;selectedUrlAndAccountId&quot;: {
-    &quot;url&quot;: &quot;https://github.com/VahidBehrouzieh/zebracode.git&quot;,
-    &quot;accountId&quot;: &quot;6e85cfb0-ca39-4340-946d-a9e2cca554b7&quot;
+  <component name="GithubPullRequestsUISettings"><![CDATA[{
+  "selectedUrlAndAccountId": {
+    "url": "https://github.com/VahidBehrouzieh/zebracode.git",
+    "accountId": "405fa5b0-3f39-4ac0-bfbe-e0b931e1e4cd"
   }
-}</component>
+}]]></component>
   <component name="McpProjectServerCommands">
     <commands />
     <urls />
@@ -177,7 +157,7 @@
     "WebServerToolWindowPanel.toolwindow.show.size": "false",
     "codeWithMe.voiceChat.enabledByDefault": "false",
     "com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1": "true",
-    "git-widget-placeholder": "feature-lang",
+    "git-widget-placeholder": "develop",
     "ignore.virus.scanning.warn.message": "true",
     "js.debugger.nextJs.config.created.client": "true",
     "js.debugger.nextJs.config.created.server": "true",
@@ -423,6 +403,7 @@
       <workItem from="1787119469610" duration="2642000" />
       <workItem from="1789287779710" duration="43000" />
       <workItem from="1789371953269" duration="1439000" />
+      <workItem from="1789449760837" duration="1617000" />
     </task>
     <task id="LOCAL-00001" summary="feat: add  multi language">
       <option name="closed" value="true" />

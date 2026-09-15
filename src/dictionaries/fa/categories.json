@@ -1,0 +1,21 @@
+{
+  "converters": "مبدل‌ها",
+  "generators": "تولیدکننده‌ها",
+  "json": "JSON",
+  "css": "CSS",
+  "html": "HTML",
+  "javascript": "جاوااسکریپت",
+  "typescript": "تایپ‌اسکریپت",
+  "graphql": "GraphQL",
+  "jsonld": "JSON-LD",
+  "json-schema": "JSON Schema",
+  "flow": "Flow",
+  "svg": "SVG",
+  "encoders": "رمزگذاری",
+  "date-time": "تاریخ و زمان",
+  "password": "رمز عبور",
+  "text": "متن",
+  "others": "سایر",
+  "other": "سایر",
+  "general": "عمومی"
+}

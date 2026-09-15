@@ -1,0 +1,21 @@
+{
+  "converters": "Converters",
+  "generators": "Generators",
+  "json": "JSON",
+  "css": "CSS",
+  "html": "HTML",
+  "javascript": "JavaScript",
+  "typescript": "TypeScript",
+  "graphql": "GraphQL",
+  "jsonld": "JSON-LD",
+  "json-schema": "JSON Schema",
+  "flow": "Flow",
+  "svg": "SVG",
+  "encoders": "Encoders",
+  "date-time": "Date & Time",
+  "password": "Password",
+  "text": "Text",
+  "others": "Others",
+  "other": "Other",
+  "general": "General"
+}

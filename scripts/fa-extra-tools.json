@@ -1,0 +1,269 @@
+{
+  "cssToJs": {
+    "title": "تبدیل CSS به JS",
+    "shortDescription": "تبدیل CSS به آبجکت جاوااسکریپت",
+    "description": "استایل‌های CSS خود را به یک آبجکت تمیز جاوااسکریپت تبدیل کنید. این مبدل رایگان قوانین CSS را پارس کرده و یک object literal خروجی می‌دهد؛ مناسب برای CSS-in-JS، استایل اینلاین در React و استایل‌دهی پویا. سریع، دقیق و بدون ثبت‌نام."
+  },
+  "cssToScss": {
+    "title": "تبدیل CSS به SCSS",
+    "shortDescription": "تبدیل CSS به SCSS (Sassy CSS)",
+    "description": "CSS استاندارد را به سینتکس SCSS تبدیل کنید. این ابزار ساختار تو در تو، متغیرها و قالبی مناسب mixin به استایل‌های موجود اضافه می‌کند تا مهاجرت به Sass آسان‌تر شود. رایگان، سریع و کاملاً در مرورگر."
+  },
+  "cssToTailwind": {
+    "title": "تبدیل CSS به Tailwind",
+    "shortDescription": "تبدیل کلاس‌های CSS به utilityهای Tailwind",
+    "description": "کلاس‌های CSS را سریع به کلاس‌های utility تیل‌ویند نگاشت کنید. این مبدل آنلاین ویژگی‌های رایج CSS را به معادل Tailwind تبدیل می‌کند تا مهاجرت به workflow مبتنی بر utility ساده‌تر شود. رایگان و آنلاین."
+  },
+  "scssToCss": {
+    "title": "تبدیل SCSS به CSS",
+    "shortDescription": "کامپایل SCSS به CSS استاندارد",
+    "description": "SCSS را فوری به CSS آماده مرورگر کامپایل کنید. از متغیر، nesting، mixin و partial پشتیبانی می‌شود. مناسب برای کامپایل سریع بدون نصب Sass. رایگان و بدون ثبت‌نام."
+  },
+  "timestamp-converter": {
+    "title": "مبدل Timestamp یونیکس",
+    "shortDescription": "تبدیل timestamp یونیکس به تاریخ شمسی و میلادی",
+    "description": "مبدل رایگان timestamp یونیکس با پشتیبانی کامل از تقویم شمسی (جلالی). تبدیل timestamp به تاریخ خوانا، تبدیل تاریخ به timestamp و نمایش زمان جاری به‌صورت زنده. همه چیز در مرورگر شما انجام می‌شود."
+  },
+  "date-diff": {
+    "title": "جعبه ابزار تاریخ و زمان",
+    "shortDescription": "تبدیل timestamp، محاسبه اختلاف تاریخ و جمع/تفریق تاریخ",
+    "description": "مجموعه کامل ابزارهای تاریخ و زمان: تبدیل timestamp به تاریخ شمسی یا میلادی، محاسبه اختلاف دو تاریخ، و افزودن یا کم کردن روز، ساعت، دقیقه و ثانیه. پردازش کاملاً سمت مرورگر است."
+  },
+  "base64Decode": {
+    "title": "دیکد Base64",
+    "shortDescription": "تبدیل رشته‌های Base64 به متن ساده",
+    "description": "داده‌های Base64 را فوری به متن، JSON یا باینری برگردانید. این دیکدر از UTF-8، ASCII و ورودی باینری پشتیبانی می‌کند. مناسب برای دیباگ توکن‌ها، پاسخ API و پیوست ایمیل. کاملاً در مرورگر."
+  },
+  "base64-encode": {
+    "title": "انکد Base64",
+    "shortDescription": "رمزگذاری متن یا فایل به فرمت Base64",
+    "description": "هر متن، JSON یا محتوای باینری را سریع به Base64 تبدیل کنید. داده‌ها مرورگر را ترک نمی‌کنند. مناسب برای data URI، جاسازی تصویر در CSS/HTML و انتقال امن باینری. رایگان و بدون ثبت‌نام."
+  },
+  "jwt-decoder": {
+    "title": "دیکدر JWT",
+    "shortDescription": "دیکد و بررسی توکن‌های JWT",
+    "description": "هدر و payload هر JWT را بدون تأیید امضا ببینید. claims مانند issuer، انقضا و subject به‌صورت خوانا نمایش داده می‌شوند. ابزاری ضروری برای دیباگ احراز هویت. کاملاً سمت کلاینت."
+  },
+  "flowToJavascript": {
+    "title": "تبدیل Flow به جاوااسکریپت",
+    "shortDescription": "حذف تایپ‌های Flow و دریافت جاوااسکریپت خالص",
+    "description": "کد Flow را با حذف تمام حاشیه‌نویسی تایپ به جاوااسکریپت استاندارد تبدیل کنید. بدون نصب باینری Flow. مناسب برای اشتراک اسنیپت یا مهاجرت از Flow. رایگان و سمت مرورگر."
+  },
+  "flowToTypescript": {
+    "title": "تبدیل Flow به تایپ‌اسکریپت",
+    "shortDescription": "تبدیل تایپ‌های Flow به TypeScript",
+    "description": "تایپ‌های Flow را به اینترفیس، type و utility type معادل در تایپ‌اسکریپت ترجمه کنید. از maybe type، union و الگوهای رایج پشتیبانی می‌شود. کد شما روی دستگاه‌تان می‌ماند."
+  },
+  "flowToTypescriptDeclaration": {
+    "title": "تبدیل Flow به Declaration تایپ‌اسکریپت",
+    "shortDescription": "تولید فایل‌های .d.ts از تایپ‌های Flow",
+    "description": "از تعریف‌های Flow به‌صورت خودکار فایل declaration تایپ‌اسکریپت بسازید. تایپ‌ها، اینترفیس‌ها و شکل ماژول حفظ می‌شود؛ مناسب برای استاب تایپ کتابخانه‌های جاوااسکریپت. کاملاً در مرورگر."
+  },
+  "password-generator": {
+    "title": "تولیدکننده رمز عبور",
+    "shortDescription": "تولید رمزهای قوی و امن به‌صورت آنلاین",
+    "description": "رمزهای تصادفی و امن را با یک کلیک بسازید. طول تا ۶۴ کاراکتر و انتخاب حروف کوچک، بزرگ، عدد و نماد. همه چیز محلی در مرورگر تولید می‌شود و ذخیره یا ارسال نمی‌شود."
+  },
+  "lorem-generator": {
+    "title": "تولیدکننده لورم ایپسوم",
+    "shortDescription": "تولید متن ساختگی چندزبانه برای طراحی",
+    "description": "متن آزمایشی را فوری به انگلیسی، فارسی، عربی، اسپانیایی، فرانسوی و آلمانی بسازید. خروجی را به‌صورت پاراگراف، جمله یا کلمه تنظیم کنید. کاملاً آفلاین در مرورگر."
+  },
+  "text-diff": {
+    "title": "مقایسه‌گر متن",
+    "shortDescription": "مقایسه خط‌به‌خط دو متن و مشاهده تفاوت‌ها",
+    "description": "دو متن را خط‌به‌خط مقایسه کنید. مناسب برای بازبینی کد، نسخه‌بندی سند و تحلیل متن. پردازش کاملاً در مرورگر انجام می‌شود."
+  },
+  "graphqlToFlow": {
+    "title": "تبدیل GraphQL به Flow",
+    "shortDescription": "تبدیل اسکیمای GraphQL به تایپ‌های Flow",
+    "description": "اسکیمای GraphQL را به تایپ‌های دقیق Flow برای query، mutation و subscription تبدیل کنید تا ایمنی تایپ سرتاسری در پروژه‌های جاوااسکریپت داشته باشید. کاملاً محلی در مرورگر."
+  },
+  "graphqlToTypeScript": {
+    "title": "تبدیل GraphQL به تایپ‌اسکریپت",
+    "shortDescription": "تولید تایپ‌های TypeScript از اسکیمای GraphQL",
+    "description": "از اسکیمای GraphQL اینترفیس و تایپ تایپ‌اسکریپت بسازید. از enum، union، interface و scalar سفارشی پشتیبانی می‌شود. مناسب برای React، Vue یا Node با Apollo یا URQL."
+  },
+  "graphqlToJava": {
+    "title": "تبدیل GraphQL به Java",
+    "shortDescription": "نگاشت اسکیمای GraphQL به کلاس‌های جاوا",
+    "description": "اسکیمای GraphQL را به کلاس‌های ساخت‌یافته جاوا تبدیل کنید. فیلدها، نوع‌ها و روابط به POJO نگاشت می‌شوند. اسکیما را بچسبانید و کد جاوا را کپی کنید."
+  },
+  "graphqlToTypeScriptMongoDB": {
+    "title": "تبدیل GraphQL به مدل MongoDB تایپ‌اسکریپت",
+    "shortDescription": "تولید مدل‌های TypeScript برای MongoDB از GraphQL",
+    "description": "اسکیمای GraphQL را به اینترفیس و مدل تایپ‌اسکریپت سازگار با سندهای MongoDB تبدیل کنید. مناسب برای Mongoose یا درایور رسمی Node. رایگان و سمت مرورگر."
+  },
+  "graphqlSchemaAst": {
+    "title": "AST اسکیمای GraphQL",
+    "shortDescription": "خروجی درخت نحوی انتزاعی اسکیمای GraphQL",
+    "description": "اسکیمای GraphQL را پارس کرده و AST را به‌صورت JSON بگیرید. مناسب برای دیباگ، تحلیل اسکیما و ساخت کدژنریتور. بدون آپلود به سرور."
+  },
+  "graphqlResolversSignature": {
+    "title": "امضای Resolverهای GraphQL",
+    "shortDescription": "تولید امضای توابع resolver از اسکیمای GraphQL",
+    "description": "امضای TypeScript برای resolverها را با نوع آرگومان، خروجی و context بسازید. زمان پیاده‌سازی سرور GraphQL با Apollo یا Express را کم می‌کند."
+  },
+  "graphqlIntrospectionJson": {
+    "title": "JSON اینتروسپکشن GraphQL",
+    "shortDescription": "تبدیل اسکیمای GraphQL به JSON اینتروسپکشن",
+    "description": "نتیجه استاندارد introspection را از تعریف اسکیما بسازید. این JSON برای IDEهای GraphQL و کدژنریتورها قابل استفاده است. فوری و سمت مرورگر."
+  },
+  "graphqlFragmentMatcher": {
+    "title": "Fragment Matcher برای GraphQL",
+    "shortDescription": "تولید تنظیمات fragment matcher از اسکیما",
+    "description": "نقشه possible types را برای Apollo Client از اسکیمای GraphQL بسازید تا matching اینترفیس و union درست کار کند. رایگان و نامحدود."
+  },
+  "graphqlToComponents": {
+    "title": "تبدیل GraphQL به کامپوننت",
+    "shortDescription": "تولید کامپوننت React/Vue از اسکیمای GraphQL",
+    "description": "از اسکیمای GraphQL کامپوننت فرم، لیست و جزئیات آماده بسازید تا توسعه فرانت سریع‌تر شود. پردازش محلی و بدون ثبت‌نام."
+  },
+  "html-to-jsx": {
+    "title": "تبدیل HTML به JSX",
+    "shortDescription": "تبدیل HTML به JSX برای React",
+    "description": "HTML استاندارد را به JSX آماده React تبدیل کنید. ویژگی‌هایی مثل class به className و for به htmlFor نگاشت می‌شوند و تگ‌های خالی خودبسته‌اند. کاملاً سمت کلاینت."
+  },
+  "html-to-pug": {
+    "title": "تبدیل HTML به Pug",
+    "shortDescription": "تبدیل HTML به قالب Pug",
+    "description": "کد HTML را به سینتکس فشرده و دندانه‌دار Pug تبدیل کنید. مناسب برای مهاجرت به Pug در Node یا Express. رایگان و مبتنی بر مرورگر."
+  },
+  "es5-to-es6": {
+    "title": "تبدیل ES5 به ES6",
+    "shortDescription": "تبدیل جاوااسکریپت ES5 به سینتکس مدرن ES6+",
+    "description": "کد قدیمی ES5 را به جاوااسکریپت مدرن تبدیل کنید: var به let/const، توابع به arrow function و template literal. مناسب برای ریفکتور کدبیس‌های قدیمی."
+  },
+  "es6-to-es5": {
+    "title": "تبدیل ES6 به ES5",
+    "shortDescription": "ترنسپایل ES6+ به ES5 برای سازگاری",
+    "description": "جاوااسکریپت مدرن را به ES5 سازگار با مرورگرهای قدیمی تبدیل کنید؛ شامل arrow function، کلاس و const/let. سریع و کاملاً در مرورگر."
+  },
+  "js-to-json": {
+    "title": "تبدیل JS به JSON",
+    "shortDescription": "تبدیل آبجکت جاوااسکریپت به JSON",
+    "description": "object literal جاوااسکریپت را با یک کلیک به JSON معتبر تبدیل کنید. نقل‌قول، trailing comma و کلیدهای بدون کوتیشن مدیریت می‌شوند. مناسب برای کانفیگ و payload API."
+  },
+  "js-to-typescript": {
+    "title": "تبدیل JS به تایپ‌اسکریپت",
+    "shortDescription": "تبدیل جاوااسکریپت به TypeScript با حاشیه‌نویسی تایپ",
+    "description": "کد جاوااسکریپت را خودکار به تایپ‌اسکریپت مهاجرت دهید. تایپ‌ها استنتاج می‌شوند و در صورت امکان PropTypes به اینترفیس تبدیل می‌شود. آفلاین در مرورگر."
+  },
+  "jsonld-to-compacted": {
+    "title": "فشرده‌سازی JSON-LD",
+    "shortDescription": "فشرده کردن سند JSON-LD با یک context",
+    "description": "با اعمال context، IRIها را کوتاه و حجم سند JSON-LD را کم کنید. مناسب برای سئو، اسکیما مارکاپ و payload API. ورودی دوم: Context. رایگان و سمت مرورگر.",
+    "secondaryInputTitle": "Context مربوط به JSON-LD"
+  },
+  "jsonld-to-flattened": {
+    "title": "تخت‌سازی JSON-LD",
+    "shortDescription": "تبدیل سند JSON-LD به گراف مبتنی بر نود",
+    "description": "سند JSON-LD را به فهرست نودهای سطح بالا تخت کنید تا ایندکس و کوئری آسان‌تر شود. مناسب برای دیباگ و داده‌های ساخت‌یافته."
+  },
+  "jsonld-to-framed": {
+    "title": "فریم کردن JSON-LD",
+    "shortDescription": "شکل‌دهی سند JSON-LD با اعمال frame",
+    "description": "با اعمال frame، نمای مشخصی از گراف JSON-LD استخراج کنید. مناسب برای schema.org و وب معنایی. ورودی دوم: Frame.",
+    "secondaryInputTitle": "Frame مربوط به JSON-LD"
+  },
+  "jsonld-to-normalized": {
+    "title": "نرمال‌سازی JSON-LD",
+    "shortDescription": "نرمال‌سازی سند JSON-LD (RDF Dataset Normalization)",
+    "description": "الگوریتم URDNA2015 را روی JSON-LD اعمال کنید تا فرم کانونیکال برای امضا، مقایسه و یکپارچگی داده به‌دست آید. رایگان و در مرورگر."
+  },
+  "jsonld-to-nquads": {
+    "title": "تبدیل JSON-LD به N-Quads",
+    "shortDescription": "تبدیل سند JSON-LD به فرمت N-Quads",
+    "description": "داده‌های JSON-LD را به فرمت خطی N-Quads سریال کنید. مناسب برای triple store و پایپ‌لاین Linked Data. رایگان و سمت کلاینت."
+  },
+  "jsonSchemaToOpenApiSchema": {
+    "title": "تبدیل JSON Schema به OpenAPI",
+    "shortDescription": "تبدیل تعریف JSON Schema به مشخصات OpenAPI",
+    "description": "JSON Schema را به اسکیمای OpenAPI 3.0 یا 3.1 تبدیل کنید. نوع‌ها، اعتبارسنجی و مثال‌ها به کامپوننت‌های OpenAPI نگاشت می‌شوند. مناسب برای مستندات Swagger."
+  },
+  "jsonSchemaToTypeScript": {
+    "title": "تبدیل JSON Schema به تایپ‌اسکریپت",
+    "shortDescription": "تولید تایپ‌های TypeScript از JSON Schema",
+    "description": "از JSON Schema اینترفیس و type alias دقیق بسازید. آبجکت تو در تو، enum، union و پراپرتی اختیاری پشتیبانی می‌شود. رایگان و آفلاین در مرورگر."
+  },
+  "jsonSchemaToZod": {
+    "title": "تبدیل JSON Schema به Zod",
+    "shortDescription": "تبدیل JSON Schema به اسکیمای اعتبارسنجی Zod",
+    "description": "JSON Schema را به اسکیمای Zod کاملاً تایپ‌شده برای اعتبارسنجی زمان اجرا تبدیل کنید. مناسب برای فرم، API و Server Actionهای Next.js."
+  },
+  "json-schema-to-protobuf": {
+    "title": "تبدیل JSON Schema به Protobuf",
+    "shortDescription": "تولید تعریف Protocol Buffers از JSON Schema",
+    "description": "JSON Schema را به تعریف proto3 باکیفیت تبدیل کنید. نوع‌ها، پیام تو در تو، enum و فیلد repeated نگاشت می‌شوند. مناسب برای میکروسرویس و gRPC."
+  },
+  "cadence-to-go": {
+    "title": "تبدیل Cadence به Go",
+    "shortDescription": "تبدیل تعریف workflowهای Cadence به کد Go",
+    "description": "از تعریف Cadence، boilerplate ورکر Go شامل struct، activity و اینترفیس workflow بسازید. مناسب برای شروع پروژه‌های Temporal یا Cadence."
+  },
+  "markdown-to-html": {
+    "title": "تبدیل Markdown به HTML",
+    "shortDescription": "تبدیل Markdown به HTML تمیز و معنایی",
+    "description": "Markdown را به HTML تمیز تبدیل کنید. از جدول، بلوک کد، GitHub-flavored Markdown و CSS سفارشی پشتیبانی می‌شود. فوری در مرورگر."
+  },
+  "tomlToJson": {
+    "title": "تبدیل TOML به JSON",
+    "shortDescription": "تبدیل فایل‌های TOML به JSON آنلاین",
+    "description": "فایل کانفیگ TOML را به JSON ساخت‌یافته تبدیل کنید. آرایه، جدول تو در تو و آبجکت اینلاین حفظ می‌شوند. مناسب برای مهاجرت بین Rust، Python و جاوااسکریپت."
+  },
+  "xmlToJson": {
+    "title": "تبدیل XML به JSON",
+    "shortDescription": "تبدیل داده XML به فرمت JSON",
+    "description": "اسناد XML را با یک کلیک به JSON تبدیل کنید. ویژگی‌ها، عناصر تو در تو و آرایه‌ها هوشمندانه مدیریت می‌شوند. داده به سرور ارسال نمی‌شود."
+  },
+  "yamlToJson": {
+    "title": "تبدیل YAML به JSON",
+    "shortDescription": "تبدیل فوری YAML به JSON",
+    "description": "فایل YAML را به JSON معتبر ترجمه کنید. از انواع YAML، anchor و رشته چندخطی پشتیبانی می‌شود. مناسب برای Docker Compose، Kubernetes و CI/CD."
+  },
+  "yamlToToml": {
+    "title": "تبدیل YAML به TOML",
+    "shortDescription": "تبدیل فایل‌های YAML به فرمت TOML",
+    "description": "YAML را به TOML خوانا تبدیل کنید. جداول تو در تو و آرایه جداول مدیریت می‌شوند. مناسب برای تیم‌هایی که کانفیگ را به TOML منتقل می‌کنند."
+  },
+  "toml-to-yaml": {
+    "title": "تبدیل TOML به YAML",
+    "shortDescription": "تبدیل فایل‌های TOML به فرمت YAML",
+    "description": "کانفیگ TOML را به YAML تمیز و دندانه‌دار تبدیل کنید. جداول، آرایه‌ها و ساختار تو در تو حفظ می‌شوند. مناسب برای مهاجرت به Kubernetes یا Python."
+  },
+  "svgToJsx": {
+    "title": "تبدیل SVG به JSX",
+    "shortDescription": "تبدیل فایل SVG به JSX برای کامپوننت React",
+    "description": "کد SVG را به JSX سازگار با React تبدیل کنید. ویژگی‌ها مثل class به className و stroke-width به strokeWidth نگاشت می‌شوند. مناسب برای آیکون‌های React."
+  },
+  "svgToReactNative": {
+    "title": "تبدیل SVG به React Native",
+    "shortDescription": "تبدیل SVG به کامپوننت react-native-svg",
+    "description": "فایل SVG را به کامپوننت سازگار با React Native تبدیل کنید. تگ‌ها و ویژگی‌ها برای رندر موبایل بهینه می‌شوند. رایگان و سمت کلاینت."
+  },
+  "typescript-to-flow": {
+    "title": "تبدیل تایپ‌اسکریپت به Flow",
+    "shortDescription": "تبدیل تایپ‌های TypeScript به حاشیه‌نویسی Flow",
+    "description": "اینترفیس، type، enum و generic تایپ‌اسکریپت را به معادل Flow نگاشت کنید تا مهاجرت بین دو سیستم تایپ سریع‌تر شود. رایگان و در مرورگر."
+  },
+  "typescript-to-javascript": {
+    "title": "تبدیل تایپ‌اسکریپت به جاوااسکریپت",
+    "shortDescription": "کامپایل TypeScript به جاوااسکریپت خالص آنلاین",
+    "description": "حاشیه‌نویسی تایپ را حذف کرده و کد را به جاوااسکریپت تمیز کامپایل کنید. مناسب برای دمو، دیباگ یا اشتراک اسنیپت بدون بیلد."
+  },
+  "typescript-to-json-schema": {
+    "title": "تبدیل تایپ‌اسکریپت به JSON Schema",
+    "shortDescription": "تولید JSON Schema از اینترفیس‌های TypeScript",
+    "description": "اینترفیس و تایپ تایپ‌اسکریپت را به JSON Schema معتبر تبدیل کنید. generic، union، پراپرتی اختیاری و آرایه پشتیبانی می‌شود. کاملاً سمت کلاینت."
+  },
+  "typescript-to-typescript-declaration": {
+    "title": "تبدیل تایپ‌اسکریپت به فایل Declaration",
+    "shortDescription": "تولید فایل .d.ts از سورس TypeScript",
+    "description": "فقط تعریف تایپ را از کد تایپ‌اسکریپت استخراج کنید تا فایل .d.ts برای انتشار کتابخانه آماده شود. پیاده‌سازی حذف و اینترفیس‌ها حفظ می‌شوند."
+  },
+  "typescript-to-zod": {
+    "title": "تبدیل تایپ‌اسکریپت به Zod",
+    "shortDescription": "تولید اسکیمای Zod از تایپ‌های TypeScript",
+    "description": "تعریف تایپ تایپ‌اسکریپت را فوری به اسکیمای Zod تبدیل کنید. اینترفیس، enum، union و فیلد اختیاری به اعتبارسنج زمان اجرا تبدیل می‌شوند. مناسب برای Server Action و API."
+  }
+}
