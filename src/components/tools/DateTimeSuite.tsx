@@ -4,6 +4,8 @@
 import React, { useState, useEffect, useCallback, memo } from 'react';
 import { toJalaali, toGregorian, isLeapJalaaliYear } from 'jalaali-js';
 import { Copy, Calendar, Clock, Check, RotateCcw, Timer, CalendarRange } from 'lucide-react';
+import { Card } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 
 // ---------- ثابت‌ها ----------
 const MONTH_NAMES_FA = [
@@ -242,7 +244,7 @@ export default function DateTimeSuite() {
     }, [baseDate, baseTs, addDays, addHours, addMinutes, addSeconds]);
 
     return (
-        <div className="max-w-5xl mx-auto p-4 space-y-6">
+        <div className="min-h-screen max-w-5xl mx-auto p-4 space-y-6 bg-background text-foreground">
             {/* تب‌ها */}
             <div className="flex flex-wrap gap-2 justify-center">
                 {([
@@ -250,7 +252,9 @@ export default function DateTimeSuite() {
                     ['difference', CalendarRange, 'Date Diff'],
                     ['addsub', Timer, 'Add/Sub'],
                 ] as [TabType, any, string][]).map(([tab, Icon, label]) => (
-                    <button
+                    <Button
+                        type="button"
+                        variant={activeTab === tab ? 'default' : 'outline'}
                         key={tab}
                         onClick={() => setActiveTab(tab)}
                         className={`flex items-center gap-2 px-4 py-2 rounded-full font-medium transition-colors ${
@@ -258,7 +262,7 @@ export default function DateTimeSuite() {
                         }`}
                     >
                         <Icon size={18} /> {label}
-                    </button>
+                    </Button>
                 ))}
             </div>
 
@@ -267,17 +271,17 @@ export default function DateTimeSuite() {
                 <div className="space-y-6">
                     {/* Timestamp زنده */}
                     <div className="text-center">
-                        <div className="inline-flex items-center gap-3 bg-white dark:bg-gray-800 px-6 py-3 rounded-full shadow">
+                        <Card className="inline-flex items-center gap-3 px-6 py-3 rounded-full shadow">
                             <Clock className="text-indigo-500" size={24} />
                             <span className="text-3xl font-mono font-bold">{tsNow}</span>
                             <button onClick={() => { navigator.clipboard.writeText(tsNow?.toString() ?? ''); setTsCopied(true); setTimeout(() => setTsCopied(false), 2000); }}>
                                 {tsCopied ? <Check size={18} className="text-green-500" /> : <Copy size={18} />}
                             </button>
-                        </div>
+                        </Card>
                     </div>
 
                     {/* Timestamp → Date */}
-                    <div className="bg-white dark:bg-gray-800 p-4 rounded-xl shadow space-y-3">
+                    <Card className="p-4 rounded-xl shadow space-y-3">
                         <h3 className="font-semibold">Timestamp to Date</h3>
                         <div className="flex gap-2">
                             <input type="text" placeholder="Timestamp..." value={tsInput} onChange={e => setTsInput(e.target.value)}
@@ -296,10 +300,10 @@ export default function DateTimeSuite() {
                                 </div>
                             </div>
                         )}
-                    </div>
+                    </Card>
 
                     {/* Date → Timestamp */}
-                    <div className="bg-white dark:bg-gray-800 p-4 rounded-xl shadow space-y-3">
+                    <Card className="p-4 rounded-xl shadow space-y-3">
                         <h3 className="font-semibold">Date to Timestamp</h3>
                         <DateInputCard value={toTsDate} onChange={setToTsDate} label="Date" />
                         <button onClick={handleDateToTs} className="bg-emerald-600 text-white px-4 py-2 rounded-lg w-full">Generate Timestamp</button>
@@ -311,7 +315,7 @@ export default function DateTimeSuite() {
                                 </button>
                             </div>
                         )}
-                    </div>
+                    </Card>
                 </div>
             )}
 
@@ -351,7 +355,7 @@ export default function DateTimeSuite() {
             {/* ===== Add/Sub Tab ===== */}
             {activeTab === 'addsub' && (
                 <div className="space-y-6">
-                    <div className="bg-white dark:bg-gray-800 p-4 rounded-xl shadow space-y-3">
+                    <Card className="p-4 rounded-xl shadow space-y-3">
                         <div className="flex gap-2">
                             <button onClick={() => setBaseTs('')} className={`px-3 py-1 text-sm rounded-full ${!baseTs ? 'bg-indigo-200 dark:bg-indigo-800' : 'bg-gray-100 dark:bg-gray-700'}`}>Date</button>
                             <button onClick={() => setBaseTs(tsNow?.toString() ?? '')} className={`px-3 py-1 text-sm rounded-full ${baseTs ? 'bg-indigo-200 dark:bg-indigo-800' : 'bg-gray-100 dark:bg-gray-700'}`}>Timestamp</button>
@@ -361,8 +365,8 @@ export default function DateTimeSuite() {
                         ) : (
                             <input type="text" value={baseTs} onChange={e => setBaseTs(e.target.value)} placeholder="Timestamp" className="w-full p-2 border rounded dark:bg-gray-700" />
                         )}
-                    </div>
-                    <div className="bg-white dark:bg-gray-800 p-4 rounded-xl shadow">
+                    </Card>
+                    <Card className="p-4 rounded-xl shadow">
                         <h3 className="font-semibold mb-3">Add / Subtract</h3>
                         <div className="grid grid-cols-4 gap-2">
                             <Field label="Days" value={addDays} onChange={setAddDays} />
@@ -370,17 +374,17 @@ export default function DateTimeSuite() {
                             <Field label="Minutes" value={addMinutes} onChange={setAddMinutes} />
                             <Field label="Seconds" value={addSeconds} onChange={setAddSeconds} />
                         </div>
-                        <button onClick={handleAddSub} className="mt-4 w-full bg-blue-600 text-white py-2 rounded-lg">Calculate</button>
-                    </div>
+                        <Button type="button" onClick={handleAddSub} className="mt-4 w-full">Calculate</Button>
+                    </Card>
                     {resultDate && (
-                        <div className="bg-white dark:bg-gray-800 p-4 rounded-xl shadow space-y-2">
+                        <Card className="p-4 rounded-xl shadow space-y-2">
                             <div className="font-bold">New Date</div>
                             <div className="text-sm">Timestamp: {resultTs}</div>
                             <div className="text-sm">
                                 Shamsi: <span dir="rtl">{toShamsiString(resultDate)}</span>
                             </div>
                             <div className="text-sm">Gregorian: {toGregorianString(resultDate)}</div>
-                        </div>
+                        </Card>
                     )}
                 </div>
             )}

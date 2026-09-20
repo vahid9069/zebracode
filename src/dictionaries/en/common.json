@@ -13,7 +13,7 @@
   "switchPrimaryOutput": "Switch to primary output",
   "aboutThisTool": "About this tool",
   "faqTitle": "Frequently Asked Questions",
-  "searchConverters": "Search across all converters...",
+  "searchConverters": "Search across all Converters...",
   "noToolsFoundFor": "No tools found for",
   "convertersLabel": "Converters",
   "searchByName": "Search by tool name",
@@ -107,5 +107,44 @@
       { "question": "How does this tool work?", "answer": "All processing happens directly in your browser. Your data is never sent to any server." },
       { "question": "Can I use this tool offline?", "answer": "Yes, once the page is loaded, the tool works completely offline in your browser." }
     ]
+  },
+  "faqByTool": {},
+  "seoByTool": {
+    "lorem-generator": {
+      "title": "Lorem Ipsum Generator Guide",
+      "intro": "Generate customizable placeholder text for web designs, app layouts, prototypes, and development projects.",
+      "sections": [
+        { "title": "What is Lorem Ipsum used for?", "content": "Lorem Ipsum helps designers and developers preview typography, spacing, and page structure before final content is ready." },
+        { "title": "Create multilingual placeholder text", "content": "Choose from supported languages and generate paragraphs, sentences, or words with a configurable amount." },
+        { "title": "Private and browser-based", "content": "Text is generated locally in your browser, so no project content needs to be uploaded to a server." }
+      ]
+    },
+    "password-generator": {
+      "title": "Secure Password Generator Guide",
+      "intro": "Create strong random passwords for accounts, applications, and development environments with flexible security options.",
+      "sections": [
+        { "title": "How to create a strong password", "content": "Choose a suitable length and combine lowercase letters, uppercase letters, numbers, and symbols for better resistance to guessing." },
+        { "title": "Why password length matters", "content": "Longer passwords increase the number of possible combinations and are generally more difficult to crack." },
+        { "title": "Privacy by design", "content": "Passwords are generated locally in your browser and are not transmitted or stored by this tool." }
+      ]
+    },
+    "timestamp-converter": {
+      "title": "Unix Timestamp Converter Guide",
+      "intro": "Convert Unix timestamps to readable Gregorian or Persian dates and convert calendar dates back to timestamps.",
+      "sections": [
+        { "title": "What is a Unix timestamp?", "content": "A Unix timestamp is the number of seconds elapsed since January 1, 1970 UTC and is widely used in software systems and APIs." },
+        { "title": "Convert between calendars", "content": "Use the converter to inspect timestamps in Gregorian and Jalali formats, including date and time values." },
+        { "title": "Useful for debugging APIs", "content": "Readable dates make it easier to inspect logs, database records, API responses, and event times." }
+      ]
+    },
+    "date-diff": {
+      "title": "Date and Time Calculator Guide",
+      "intro": "Calculate date differences and add or subtract time from dates for planning, testing, reporting, and development work.",
+      "sections": [
+        { "title": "Calculate the difference between dates", "content": "Compare two dates and view the result in years, months, days, hours, minutes, and seconds." },
+        { "title": "Add or subtract time", "content": "Start with a calendar date or timestamp and calculate a new date by changing days, hours, minutes, or seconds." },
+        { "title": "Works in the browser", "content": "Calculations run locally in your browser, making the tool convenient for quick checks without uploading date data." }
+      ]
+    }
   }
 }

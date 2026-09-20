@@ -1,8 +1,21 @@
 // src/lib/seo.ts
 import { Metadata } from 'next';
 import { getToolConfig } from "@/components/utils/tools/helper";
+import { BASE_URL } from "@/lib/env";
 
-export function generateToolMetadata(toolType: string, locale?: string): Metadata {
+export function getLocalizedToolPath(toolType: string, locale: 'fa' | 'en'): string | undefined {
+    const tool = getToolConfig(toolType);
+    if (!tool) return undefined;
+    const slug = tool.href.split('/').filter(Boolean).pop();
+    if (!slug) return undefined;
+    return locale === 'en' ? `/en/${slug}` : `/${slug}`;
+}
+
+export function getLocalizedUrl(path: string): string {
+    return `${BASE_URL.replace(/\/$/, '')}${path.startsWith('/') ? path : `/${path}`}`;
+}
+
+export function generateToolMetadata(toolType: string, locale: 'fa' | 'en' = 'en'): Metadata {
     const tool = getToolConfig(toolType);
     if (!tool) {
         return {
@@ -11,51 +24,24 @@ export function generateToolMetadata(toolType: string, locale?: string): Metadat
         };
     }
 
-    const title = `${tool.title} – Free Online Converter | ZebraCode`;
+    const title = `${tool.title} – ${locale === 'fa' ? 'ابزار آنلاین رایگان' : 'Free Online Tool'} | ZebraCode`;
     const description = tool.shortDescription || tool.description;
-    const url = `https://zebracode.ir${tool.href}`;
-
-    // ۱. اسکیمای SoftwareApplication (همیشه)
-    const softwareAppSchema = tool.structuredData || {
-        "@context": "https://schema.org",
-        "@type": "SoftwareApplication",
-        "name": tool.title,
-        "description": tool.shortDescription || tool.description,
-        "applicationCategory": "DeveloperApplication",
-        "operatingSystem": "Any",
-        "url": url,
-        "offers": {
-            "@type": "Offer",
-            "price": "0",
-            "priceCurrency": "USD"
-        }
-    };
-
-    // ۲. FAQ Schema – اولویت با FAQ اختصاصی، سپس پیش‌فرض بر اساس subCategory
-    const faq = tool.extraContent?.faq && tool.extraContent.faq.length > 0
-        ? tool.extraContent.faq
-        : getDefaultFaq(tool.subCategory || 'others');
-
-    const faqSchema = faq.length > 0 ? {
-        "@context": "https://schema.org",
-        "@type": "FAQPage",
-        "mainEntity": faq.map(item => ({
-            "@type": "Question",
-            "name": item.question,
-            "acceptedAnswer": {
-                "@type": "Answer",
-                "text": item.answer
-            }
-        }))
-    } : null;
-
-    // ۳. ترکیب اسکیماها
-    const structuredData = faqSchema ? [softwareAppSchema, faqSchema] : [softwareAppSchema];
+    const path = getLocalizedToolPath(toolType, locale) || '/';
+    const url = getLocalizedUrl(path);
+    const alternateLocale = locale === 'fa' ? 'en' : 'fa';
+    const alternatePath = getLocalizedToolPath(toolType, alternateLocale) || '/';
 
     return {
         title,
         description,
-        alternates: { canonical: url },
+        alternates: {
+            canonical: url,
+            languages: {
+                'fa-IR': locale === 'fa' ? url : getLocalizedUrl(alternatePath),
+                en: locale === 'en' ? url : getLocalizedUrl(alternatePath),
+                'x-default': getLocalizedUrl(alternatePath),
+            },
+        },
         robots: { index: true, follow: true },
         openGraph: {
             title,
@@ -63,20 +49,17 @@ export function generateToolMetadata(toolType: string, locale?: string): Metadat
             url,
             siteName: 'ZebraCode',
             type: 'website',
-            locale: locale || 'en_US',
+            locale: locale === 'fa' ? 'fa_IR' : 'en_US',
         },
         twitter: {
             card: 'summary_large_image',
             title,
             description,
         },
-        other: {
-            'script:ld+json': JSON.stringify(structuredData),
-        },
     };
 }
 
-export function getDefaultFaq(subCategory: string): { question: string; answer: string }[] {
+export function getDefaultFaq(subCategory: string, locale: string = 'en'): { question: string; answer: string }[] {
     const faqs: Record<string, { question: string; answer: string }[]> = {
         // ---------- دسته‌های قبلی (converters) ----------
         json: [
@@ -163,6 +146,93 @@ export function getDefaultFaq(subCategory: string): { question: string; answer: 
             { question: "Can I use this tool offline?", answer: "Yes, once the page is loaded, the tool works completely offline in your browser." }
         ]
     };
+
+    if (locale === 'fa') {
+        const faqsFa: Record<string, { question: string; answer: string }[]> = {
+            json: [
+                { question: "آیا استفاده از این ابزار JSON رایگان است؟", answer: "بله، تمام ابزارهای JSON در ZebraCode کاملاً رایگان هستند و بدون ثبت‌نام یا محدودیت قابل استفاده‌اند." },
+                { question: "آیا داده‌های JSON من امن هستند؟", answer: "بله. تمام پردازش‌ها مستقیماً در مرورگر شما انجام می‌شود و داده‌ها برای حفظ حریم خصوصی به هیچ سروری ارسال نمی‌شوند." },
+                { question: "آیا می‌توانم فایل‌های JSON بزرگ را پردازش کنم؟", answer: "بله، ابزارهای ما برای عملکرد مناسب بهینه شده‌اند و بسته به توانایی مرورگر شما می‌توانند فایل‌هایی تا چند مگابایت را پردازش کنند." }
+            ],
+            css: [
+                { question: "آیا استفاده از این ابزار CSS رایگان است؟", answer: "بله، تمام ابزارهای CSS در ZebraCode کاملاً رایگان و بدون نیاز به ثبت‌نام هستند." },
+                { question: "آیا ابزار از قابلیت‌های جدید CSS پشتیبانی می‌کند؟", answer: "بله، ابزارهای CSS از قابلیت‌هایی مانند custom properties، flexbox و grid پشتیبانی می‌کنند." },
+                { question: "آیا کد CSS من به‌صورت امن پردازش می‌شود؟", answer: "بله، تمام پردازش‌ها به‌صورت محلی در مرورگر انجام می‌شوند و کد شما از دستگاه خارج نمی‌شود." }
+            ],
+            graphql: [
+                { question: "آیا استفاده از این ابزار GraphQL رایگان است؟", answer: "بله، تمام ابزارهای GraphQL در ZebraCode کاملاً رایگان و بدون محدودیت هستند." },
+                { question: "آیا ابزار از آخرین مشخصات GraphQL پشتیبانی می‌کند؟", answer: "بله، ابزارهای ما بر پایه کتابخانه رسمی GraphQL.js ساخته شده‌اند و از آخرین مشخصات پشتیبانی می‌کنند." },
+                { question: "آیا اسکیمای GraphQL من امن است؟", answer: "بله، تمام پردازش‌ها به‌صورت محلی در مرورگر انجام می‌شوند و اسکیمای شما به سروری ارسال نمی‌شود." }
+            ],
+            jsonld: [
+                { question: "آیا استفاده از این ابزار JSON-LD رایگان است؟", answer: "بله، تمام ابزارهای JSON-LD در ZebraCode کاملاً رایگان هستند." },
+                { question: "آیا ابزار از تمام contextهای JSON-LD پشتیبانی می‌کند؟", answer: "بله، ابزارهای JSON-LD از contextهای سفارشی و واژگان استاندارد schema.org پشتیبانی می‌کنند." },
+                { question: "آیا داده‌های JSON-LD من امن هستند؟", answer: "بله، تمام پردازش‌ها در مرورگر انجام می‌شوند و داده‌های شما ارسال نمی‌شوند." }
+            ],
+            'json-schema': [
+                { question: "آیا استفاده از این ابزار JSON Schema رایگان است؟", answer: "بله، تمام ابزارهای JSON Schema در ZebraCode کاملاً رایگان هستند." },
+                { question: "آیا ابزار از نسخه‌های جدید JSON Schema پشتیبانی می‌کند؟", answer: "بله، ابزارهای ما از نسخه‌های JSON Schema تا draft 2020-12 پشتیبانی می‌کنند." },
+                { question: "آیا JSON Schema من به‌صورت امن پردازش می‌شود؟", answer: "بله، تمام پردازش‌ها در مرورگر انجام می‌شوند و اسکیمای شما ارسال نمی‌شود." }
+            ],
+            flow: [
+                { question: "آیا استفاده از این ابزار Flow رایگان است؟", answer: "بله، تمام ابزارهای Flow در ZebraCode کاملاً رایگان هستند." },
+                { question: "آیا حذف typeهای Flow با دقت انجام می‌شود؟", answer: "بله، ابزارهای Flow از Babel و preset رسمی Flow برای حذف دقیق typeها استفاده می‌کنند." },
+                { question: "آیا کد Flow من امن است؟", answer: "بله، تمام پردازش‌ها در مرورگر انجام می‌شوند و کد شما از دستگاه خارج نمی‌شود." }
+            ],
+            html: [
+                { question: "آیا استفاده از این ابزار HTML رایگان است؟", answer: "بله، تمام ابزارهای HTML در ZebraCode رایگان هستند و به ثبت‌نام نیاز ندارند." },
+                { question: "آیا ابزار ساختارهای پیچیده HTML را پردازش می‌کند؟", answer: "بله، ابزارهای HTML برای پردازش ساختارهای تو‌در‌تو و اسناد بزرگ طراحی شده‌اند." },
+                { question: "آیا کد HTML من به‌صورت امن پردازش می‌شود؟", answer: "بله، تمام پردازش‌ها در مرورگر انجام می‌شوند و کد شما از دستگاه خارج نمی‌شود." }
+            ],
+            javascript: [
+                { question: "آیا استفاده از این ابزار JavaScript رایگان است؟", answer: "بله، تمام ابزارهای JavaScript در ZebraCode کاملاً رایگان هستند." },
+                { question: "آیا ابزار از JavaScript مدرن (ES6+) پشتیبانی می‌کند؟", answer: "بله، ابزارهای ما از سینتکس مدرن مانند arrow function و template literal پشتیبانی می‌کنند." },
+                { question: "آیا کد JavaScript من امن است؟", answer: "بله، تمام پردازش‌ها در مرورگر انجام می‌شوند و کد شما در هیچ سروری بارگذاری نمی‌شود." }
+            ],
+            typescript: [
+                { question: "آیا استفاده از این ابزار TypeScript رایگان است؟", answer: "بله، تمام ابزارهای TypeScript در ZebraCode کاملاً رایگان و بدون محدودیت هستند." },
+                { question: "آیا ابزار از قابلیت‌های جدید TypeScript پشتیبانی می‌کند؟", answer: "بله، ابزارهای ما بر پایه کامپایلر رسمی TypeScript ساخته شده‌اند و از قابلیت‌های جدید پشتیبانی می‌کنند." },
+                { question: "آیا کد TypeScript من به‌صورت امن پردازش می‌شود؟", answer: "بله، تمام پردازش‌ها در مرورگر انجام می‌شوند و کد شما از دستگاه خارج نمی‌شود." }
+            ],
+            svg: [
+                { question: "آیا استفاده از این ابزار SVG رایگان است؟", answer: "بله، تمام ابزارهای SVG در ZebraCode کاملاً رایگان هستند." },
+                { question: "آیا ابزار گرافیک‌های پیچیده SVG را پردازش می‌کند؟", answer: "بله، ابزارهای ما گرافیک‌های برداری پیچیده با عناصر و ویژگی‌های متعدد را پردازش می‌کنند." },
+                { question: "آیا کد SVG من امن است؟", answer: "بله، کد SVG شما به سروری ارسال نمی‌شود و تمام پردازش‌ها در مرورگر انجام می‌شوند." }
+            ],
+            encoders: [
+                { question: "آیا استفاده از ابزارهای رمزگذاری رایگان است؟", answer: "بله، تمام ابزارهای رمزگذاری و رمزگشایی در ZebraCode کاملاً رایگان هستند." },
+                { question: "آیا داده‌های من به‌صورت امن پردازش می‌شوند؟", answer: "بله، تمام پردازش‌ها در مرورگر انجام می‌شوند و داده‌های شما ارسال نمی‌شوند." },
+                { question: "چه نوع رمزگذاری‌هایی پشتیبانی می‌شوند؟", answer: "در حال حاضر رمزگذاری و رمزگشایی Base64 و رمزگشایی JWT پشتیبانی می‌شوند و فرمت‌های بیشتری در آینده اضافه خواهند شد." }
+            ],
+            'date-time': [
+                { question: "آیا استفاده از این ابزار تاریخ و زمان رایگان است؟", answer: "بله، تمام ابزارهای تاریخ و زمان در ZebraCode کاملاً رایگان هستند." },
+                { question: "آیا ابزار از تقویم‌های مختلف پشتیبانی می‌کند؟", answer: "بله، ابزارهای تاریخ و زمان از تقویم میلادی و فارسی (جلالی/شمسی) پشتیبانی می‌کنند." },
+                { question: "محاسبات ابزار چقدر دقیق هستند؟", answer: "تمام محاسبات با استفاده از Date در JavaScript و کتابخانه jalaali-js انجام می‌شوند و دقت بالایی دارند." },
+                { question: "آیا داده‌های timestamp من امن هستند؟", answer: "بله، تمام پردازش‌ها در مرورگر انجام می‌شوند و داده‌ها به هیچ سروری ارسال نمی‌شوند." }
+            ],
+            generators: [
+                { question: "آیا استفاده از ابزارهای تولیدکننده رایگان است؟", answer: "بله، تمام ابزارهای تولیدکننده در ZebraCode کاملاً رایگان هستند." },
+                { question: "مقادیر تولیدشده چگونه ایجاد می‌شوند؟", answer: "تولیدکننده‌ها برای رمزعبور از تصادفی‌سازی امن رمزنگاری و برای متن از الگوریتم‌های مناسب تولید متن استفاده می‌کنند." },
+                { question: "آیا مقادیر تولیدشده جایی ذخیره می‌شوند؟", answer: "خیر، همه‌چیز در مرورگر شما تولید می‌شود و هیچ داده‌ای ذخیره، ارسال یا ثبت نمی‌شود." }
+            ],
+            text: [
+                { question: "آیا استفاده از این ابزار متنی رایگان است؟", answer: "بله، تمام ابزارهای متنی در ZebraCode کاملاً رایگان هستند." },
+                { question: "مقایسه متن چگونه انجام می‌شود؟", answer: "مقایسه متن با الگوریتم تفاوت‌سنجی خط‌به‌خط انجام می‌شود تا دقیقاً تغییرات بین دو متن نمایش داده شوند." },
+                { question: "آیا داده‌های متنی من امن هستند؟", answer: "بله، تمام پردازش‌ها در مرورگر انجام می‌شوند و متن شما از دستگاه خارج نمی‌شود." }
+            ],
+            password: [
+                { question: "آیا رمزعبورهای تولیدشده امن هستند؟", answer: "بله، رمزعبورها با Web Crypto API و اعداد تصادفی رمزنگاری‌شده تولید می‌شوند." },
+                { question: "آیا می‌توانم طول رمزعبور را شخصی‌سازی کنم؟", answer: "بله، می‌توانید رمزعبورهایی بین ۸ تا ۶۴ کاراکتر تولید کنید و نوع کاراکترها را انتخاب کنید." },
+                { question: "آیا رمزعبورهای من ذخیره یا ثبت می‌شوند؟", answer: "خیر، رمزعبورها کاملاً در مرورگر شما تولید می‌شوند و هرگز ارسال، ذخیره یا ثبت نمی‌شوند." }
+            ],
+            others: [
+                { question: "آیا استفاده از این ابزار رایگان است؟", answer: "بله، تمام ابزارهای ZebraCode کاملاً رایگان هستند و به ثبت‌نام نیاز ندارند." },
+                { question: "این ابزار چگونه کار می‌کند؟", answer: "تمام پردازش‌ها مستقیماً در مرورگر شما انجام می‌شوند و داده‌ها به هیچ سروری ارسال نمی‌شوند." },
+                { question: "آیا می‌توانم از این ابزار به‌صورت آفلاین استفاده کنم؟", answer: "بله، پس از بارگذاری صفحه، ابزار کاملاً به‌صورت آفلاین در مرورگر شما کار می‌کند." }
+            ]
+        };
+        return faqsFa[subCategory] || faqsFa.others;
+    }
 
     return faqs[subCategory] || faqs['others'] || [];
 }

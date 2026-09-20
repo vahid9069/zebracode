@@ -12,6 +12,8 @@ import {
     Eye,
     EyeOff,
 } from 'lucide-react';
+import { Card } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 
 const STORAGE_KEY = 'zebracode_password_history';
 
@@ -114,9 +116,9 @@ export default function PasswordGenerator() {
     const strength = getStrength();
 
     return (
-        <div className="max-w-2xl mx-auto px-4 py-12">
+        <div className="min-h-screen bg-background text-foreground max-w-2xl mx-auto px-4 py-12">
             {/* کارت اصلی */}
-            <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8 space-y-8">
+            <Card className="rounded-2xl shadow-xl p-8 space-y-8">
                 {/* Header */}
                 <div className="text-center">
                     <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
@@ -274,14 +276,15 @@ export default function PasswordGenerator() {
                 </div>
 
                 {/* دکمهٔ تولید مجدد */}
-                <button
+                <Button
+                    type="button"
                     onClick={generatePassword}
-                    className="w-full flex items-center justify-center gap-2 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl transition-colors shadow-md"
+                    className="w-full"
                 >
                     <RefreshCw size={20} />
                     Generate New Password
-                </button>
-            </div>
+                </Button>
+            </Card>
 
             {/* تاریخچه */}
             {history.length > 0 && (

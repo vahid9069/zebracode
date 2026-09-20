@@ -271,34 +271,34 @@ const CodeMirrorEditorComponent: React.FC<Props> = ({
             {showOpenModal && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75">
                     <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-2xl w-full max-w-sm">
-                        <div className="flex justify-between items-center mb-4">
-                            <h3 className="text-xl font-semibold text-gray-900 dark:text-white">Open File</h3>
+                                        <div className="flex justify-between items-center mb-4">
+                            <h3 className="text-xl font-semibold text-gray-900 dark:text-white">{dict.common.openFile}</h3>
                             <button onClick={() => { setShowOpenModal(false); setFileError(null); setUrlInput(''); }} className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"><X size={24} /></button>
                         </div>
                         <label className="block mb-4">
-                            <span className="text-gray-700 dark:text-gray-300">Upload a file</span>
+                            <span className="text-gray-700 dark:text-gray-300">{dict.common.uploadFile}</span>
                             <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md dark:border-gray-600">
                                 <div className="space-y-1 text-center">
                                     <Upload className="mx-auto h-12 w-12 text-gray-400" />
                                     <div className="flex text-sm text-gray-600 dark:text-gray-400">
                                         <label className="relative cursor-pointer bg-white dark:bg-gray-800 rounded-md font-medium text-blue-600 hover:text-blue-500 focus-within:outline-none">
-                                            <span>Select a file</span>
+                                            <span>{dict.common.selectFile}</span>
                                             <input type="file" className="sr-only" onChange={handleFileLoad} accept=".json,.txt,.sql,.md,.js,.html" />
                                         </label>
-                                        <p className="pl-1">or drag and drop</p>
+                                        <p className="pl-1">{dict.common.orDragAndDrop}</p>
                                     </div>
                                     <p className="text-xs text-gray-500">JSON, TXT, SQL, MD, JS, HTML</p>
                                 </div>
                             </div>
                         </label>
                         <div className="mb-4">
-                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Load from URL</label>
+                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">{dict.common.loadFromUrl}</label>
                             <div className="mt-1 flex shadow-sm">
                                 <input type="url" value={urlInput} onChange={e => setUrlInput(e.target.value)} placeholder="https://example.com/file.json"
                                        className="flex-1 block w-full rounded-l-md border-gray-300 p-2 dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
                                 <button onClick={handleUrlLoad} disabled={!urlInput}
                                         className="inline-flex items-center px-4 py-2 border border-l-0 border-gray-300 bg-gray-50 text-sm font-medium text-gray-700 rounded-r-md hover:bg-gray-100 dark:bg-gray-600 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-500 disabled:opacity-50">
-                                    <Link size={18} className="mr-2" />Load</button>
+                                    <Link size={18} className="mr-2" />{dict.common.load}</button>
                             </div>
                         </div>
                         {fileError && <p className="text-red-500 text-sm mt-2 flex items-center"><XCircle size={16} className="mr-1" /> {fileError}</p>}

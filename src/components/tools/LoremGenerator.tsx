@@ -3,6 +3,8 @@
 
 import React, { useState, useCallback, useEffect } from 'react';
 import { Copy, Check, RefreshCw, Languages, AlignLeft, Type } from 'lucide-react';
+import { Card } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 
 // ---------- بانک کلمات برای هر زبان ----------
 const wordBanks: Record<string, string[]> = {
@@ -142,9 +144,9 @@ export default function LoremGenerator() {
     };
 
     return (
-        <div className="max-w-6xl mx-auto px-4 py-12">
+        <div className="min-h-screen bg-background text-foreground max-w-6xl mx-auto px-4 py-12">
             {/* کارت اصلی */}
-            <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8 space-y-8">
+            <Card className="rounded-2xl shadow-xl p-8 space-y-8">
                 {/* Header */}
                 <div className="text-center">
                     <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2 flex items-center justify-center gap-3">
@@ -226,13 +228,14 @@ export default function LoremGenerator() {
                 </div>
 
                 {/* دکمهٔ تولید */}
-                <button
+                <Button
+                    type="button"
                     onClick={generateLorem}
-                    className="w-full flex items-center justify-center gap-2 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl transition-colors shadow-md"
+                    className="w-full"
                 >
                     <RefreshCw size={20} />
                     Generate Text
-                </button>
+                </Button>
 
                 {/* خروجی */}
                 {output && (
@@ -263,7 +266,7 @@ export default function LoremGenerator() {
                         </div>
                     </div>
                 )}
-            </div>
+            </Card>
         </div>
     );
 }

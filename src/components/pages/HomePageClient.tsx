@@ -10,6 +10,9 @@ import renderIcon from '@/components/layout/renderIcon';
 import { BASE_URL } from "@/lib/env";
 import type { Dictionary } from '@/i18n/getDictionary';
 import { localizeCategory, localizeTool } from '@/i18n/localize';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Card } from '@/components/ui/card';
 
 // ---------- تایپ‌های جدید ----------
 interface GroupedSubCategory {
@@ -87,15 +90,15 @@ export default function HomePageClient({ dict, locale }: HomePageClientProps) {
     return (
         <div className="min-h-screen bg-white dark:bg-[#0d1117] text-gray-900 dark:text-[#c9d1d9] font-sans transition-colors duration-300">
             {/* هیرو */}
-            <section className="relative overflow-hidden bg-gradient-to-b from-blue-50 to-white dark:from-gray-900 dark:to-[#0d1117] py-16 px-4">
+            <section className="relative overflow-hidden border-b bg-gradient-to-b from-primary/5 via-background to-background py-20 px-4">
                 <div className="max-w-4xl mx-auto text-center">
-                    <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight text-gray-900 dark:text-white mb-4 flex items-center justify-center gap-3">
-                        <Terminal size={36} className="text-blue-600 dark:text-blue-400"/>
-                        <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-indigo-600 dark:from-blue-400 dark:to-indigo-400">
+                    <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight text-foreground mb-4 flex items-center justify-center gap-3">
+                        <Terminal size={36} className="text-primary"/>
+                        <span>
                             {home.heroTitle}
                         </span>
                     </h1>
-                    <p className="text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
+                    <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
                         {home.heroDescription}
                     </p>
                 </div>
@@ -103,72 +106,49 @@ export default function HomePageClient({ dict, locale }: HomePageClientProps) {
 
             {/* نوار جستجو و فیلترها */}
             <div className="max-w-6xl mx-auto px-4 -mt-8 relative z-10">
-                <div className="bg-white dark:bg-[#161b22] border border-gray-200 dark:border-gray-700 rounded-xl shadow-lg p-4">
+                <Card className="bg-card/95 p-4 shadow-lg backdrop-blur">
                     <div className="flex flex-col sm:flex-row gap-4 items-center">
                         <div className="relative flex-1 w-full">
-                            {/* تغییر left-3 به start-3 */}
-                            <Search className="absolute start-3 top-1/2 -translate-y-1/2 text-gray-400" size={20}/>
-                            <input
+                            <Search className="absolute start-3 top-1/2 -translate-y-1/2 text-muted-foreground" size={20} />
+                            <Input
                                 type="text"
                                 placeholder={home.searchPlaceholder}
                                 value={searchTerm}
                                 onChange={e => setSearchTerm(e.target.value)}
-                                // تغییر pl-10 و pr-4 به ps-10 و pe-10
-                                className="w-full ps-10 pe-10 py-3 bg-gray-50 dark:bg-[#0d1117] border border-gray-200 dark:border-gray-600 rounded-lg text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:ring-2 focus:ring-blue-500 outline-none"
+                                className="h-12 ps-10 pe-10"
                             />
                             {searchTerm && (
-                                // تغییر right-3 به end-3
-                                <button
+                                <Button
+                                    type="button"
+                                    variant="ghost"
+                                    size="icon"
                                     onClick={() => setSearchTerm('')}
-                                    className="absolute end-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200"
+                                    className="absolute end-1 top-1/2 -translate-y-1/2"
                                 >
-                                    <X size={18}/>
-                                </button>
+                                    <X size={18} />
+                                </Button>
                             )}
                         </div>
                         <div className="flex gap-2">
-                            <button
-                                onClick={() => setViewMode('grid')}
-                                className={`p-2 rounded-lg ${viewMode === 'grid' ? 'bg-blue-100 dark:bg-blue-900/50 text-blue-600 dark:text-blue-400' : 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-200'}`}
-                            >
-                                <LayoutGrid size={20}/>
-                            </button>
-                            <button
-                                onClick={() => setViewMode('list')}
-                                className={`p-2 rounded-lg ${viewMode === 'list' ? 'bg-blue-100 dark:bg-blue-900/50 text-blue-600 dark:text-blue-400' : 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-200'}`}
-                            >
-                                <List size={20}/>
-                            </button>
+                            <Button type="button" variant={viewMode === 'grid' ? 'default' : 'outline'} size="icon" onClick={() => setViewMode('grid')} aria-label="Grid view">
+                                <LayoutGrid size={20} />
+                            </Button>
+                            <Button type="button" variant={viewMode === 'list' ? 'default' : 'outline'} size="icon" onClick={() => setViewMode('list')} aria-label="List view">
+                                <List size={20} />
+                            </Button>
                         </div>
                     </div>
-
-                    {/* فیلترهای دسته‌بندی */}
                     <div className="flex flex-wrap gap-2 mt-4">
-                        <button
-                            onClick={() => setActiveCategory('all')}
-                            className={`px-3 py-1.5 text-sm rounded-full font-medium transition-colors ${
-                                activeCategory === 'all'
-                                    ? 'bg-blue-600 text-white shadow'
-                                    : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
-                            }`}
-                        >
+                        <Button type="button" size="sm" variant={activeCategory === 'all' ? 'default' : 'outline'} onClick={() => setActiveCategory('all')}>
                             {home.allCategories}
-                        </button>
+                        </Button>
                         {categories.map(cat => (
-                            <button
-                                key={cat}
-                                onClick={() => setActiveCategory(cat)}
-                                className={`px-3 py-1.5 text-sm rounded-full font-medium capitalize transition-colors ${
-                                    activeCategory === cat
-                                        ? 'bg-blue-600 text-white shadow'
-                                        : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
-                                }`}
-                            >
+                            <Button type="button" size="sm" variant={activeCategory === cat ? 'default' : 'outline'} key={cat} onClick={() => setActiveCategory(cat)}>
                                 {localizeCategory(dict.categories, cat)}
-                            </button>
+                            </Button>
                         ))}
                     </div>
-                </div>
+                </Card>
             </div>
 
             {/* نمایش گروه‌بندی‌ها */}
@@ -181,14 +161,14 @@ export default function HomePageClient({ dict, locale }: HomePageClientProps) {
                     groupedTools.map(category => (
                         <div key={category.title} className="mb-10">
                             {/* عنوان دستهٔ اصلی */}
-                            <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6 pb-2 border-b border-gray-200 dark:border-gray-700">
+                            <h2 className="text-2xl font-bold text-foreground mb-6 pb-2 border-b">
                                 {category.title}
                             </h2>
 
                             {/* زیرگروه‌ها */}
                             {category.items.map(subGroup => (
                                 <div key={subGroup.title} className="mb-8">
-                                    <h3 className="text-lg font-semibold text-gray-600 dark:text-gray-300 mb-3 uppercase tracking-wider">
+                                    <h3 className="text-lg font-semibold text-muted-foreground mb-3 uppercase tracking-wider">
                                         {subGroup.title}
                                     </h3>
 
@@ -201,7 +181,7 @@ export default function HomePageClient({ dict, locale }: HomePageClientProps) {
                                     ) : (
                                         <div className="space-y-2">
                                             {subGroup.items.map(tool => (
-                                                <ToolListItem key={tool.href} tool={tool} locale={locale} />
+                                                <ToolListItem key={tool.href} tool={tool} locale={locale} dict={dict} />
                                             ))}
                                         </div>
                                     )}
@@ -218,33 +198,35 @@ export default function HomePageClient({ dict, locale }: HomePageClientProps) {
 // ---------- کارت گرید ----------
 function ToolCard({ tool, locale, dict }: { tool: ToolMeta, locale: 'fa' | 'en', dict: any }) {
     const Icon = tool.icon;
-    // اضافه کردن پیشوند زبان انگلیسی به مسیر
     const localizedHref = locale === 'en' ? `/en${tool.href}` : tool.href;
+    const localizedTool = localizeTool(tool, dict.tools);
 
     return (
+        <Card
+        >
         <Link
             href={`${BASE_URL || ''}${localizedHref}`}
-            className="group relative bg-white dark:bg-[#161b22] border border-gray-200 dark:border-gray-700 rounded-xl p-5 hover:shadow-md hover:border-blue-200 dark:hover:border-blue-500/50 transition-all duration-200 flex flex-col"
+            className="group relative p-5 hover:bg-accent/40 transition-colors flex flex-col"
         >
-            <div className="mb-4 inline-flex h-10 w-10 items-center justify-center rounded-lg bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 group-hover:bg-blue-200 dark:group-hover:bg-blue-900/50 transition-colors">
+            <div className="mb-4 inline-flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
                 {renderIcon(Icon, "w-5 h-5")}
             </div>
-            {/* در آینده می‌توانید tool.title را هم از dict بخوانید */}
-            <h3 className="text-base font-semibold text-gray-900 dark:text-white mb-1">{tool.title}</h3>
-            <p className="text-sm text-gray-500 dark:text-gray-400 line-clamp-2 flex-1">{tool.shortDescription}</p>
+            <h3 className="text-base font-semibold text-gray-900 dark:text-white mb-1">{localizedTool.title}</h3>
+            <p className="text-sm text-gray-500 dark:text-gray-400 line-clamp-2 flex-1">{localizedTool.shortDescription}</p>
             <div className="mt-3 flex items-center text-xs font-medium text-blue-600 dark:text-blue-400 opacity-0 group-hover:opacity-100 transition-opacity">
-                {dict.openTool}
-                {/* تغییر ml-1 به ms-1 و اضافه کردن rtl:-scale-x-100 برای قرینه شدن در فارسی */}
+                {dict.common.browseTools}
                 <ArrowRight size={14} className="ms-1 transform rtl:-scale-x-100" />
             </div>
         </Link>
+        </Card>
     );
 }
 
 // ---------- آیتم لیست ----------
-function ToolListItem({ tool, locale }: { tool: ToolMeta, locale: 'fa' | 'en' }) {
+function ToolListItem({ tool, locale, dict }: { tool: ToolMeta, locale: 'fa' | 'en', dict: any }) {
     const Icon = tool.icon;
     const localizedHref = locale === 'en' ? `/en${tool.href}` : tool.href;
+    const localizedTool = localizeTool(tool, dict.tools);
 
     return (
         <Link
@@ -255,10 +237,9 @@ function ToolListItem({ tool, locale }: { tool: ToolMeta, locale: 'fa' | 'en' })
                 {renderIcon(Icon, "w-4 h-4")}
             </div>
             <div className="flex-1 min-w-0">
-                <h3 className="text-sm font-semibold text-gray-900 dark:text-white">{tool.title}</h3>
-                <p className="text-xs text-gray-500 dark:text-gray-400 truncate">{tool.shortDescription}</p>
+                <h3 className="text-sm font-semibold text-gray-900 dark:text-white">{localizedTool.title}</h3>
+                <p className="text-xs text-gray-500 dark:text-gray-400 truncate">{localizedTool.shortDescription}</p>
             </div>
-            {/* اضافه کردن قرینه‌سازی برای فلش لیست */}
             <ArrowRight size={16} className="text-gray-400 group-hover:text-blue-500 transition-colors transform rtl:-scale-x-100" />
         </Link>
     );
