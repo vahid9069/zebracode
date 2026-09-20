@@ -7,10 +7,14 @@ import { AllToolsList } from '@/lib/registry/tools';
 import { ToolMeta } from '@/types/types';
 import {BASE_URL} from "@/lib/env";
 
+import { localizeTool } from "@/i18n/localize";
+import { Dictionary } from "@/i18n/getDictionary";
+
 interface CommandMenuProps {
     isOpen: boolean;
     setIsOpen: (isOpen: boolean) => void;
     locale: string;
+    dict: Dictionary;
 }
 
 const getGroupedTools = (tools: ToolMeta[]) => {
@@ -50,7 +54,7 @@ function renderIcon(Icon: any, className?: string): React.ReactNode {
     return null;
 }
 
-export default function CommandMenu({ isOpen, setIsOpen, locale }: CommandMenuProps) {
+export default function CommandMenu({ isOpen, setIsOpen, locale, dict }: CommandMenuProps) {
     const [search, setSearch] = useState('');
     const router = useRouter();
 
@@ -96,7 +100,7 @@ export default function CommandMenu({ isOpen, setIsOpen, locale }: CommandMenuPr
                     <input
                         autoFocus
                         type="text"
-                        placeholder="Search across all Converters..."
+                        placeholder={dict.common.searchConverters}
                         className="flex-1 bg-transparent border-none outline-none text-gray-900 dark:text-white placeholder-gray-500 text-lg"
                         value={search}
                         onChange={(e) => setSearch(e.target.value)}
@@ -109,33 +113,34 @@ export default function CommandMenu({ isOpen, setIsOpen, locale }: CommandMenuPr
                 <div className="max-h-[60vh] overflow-y-auto p-2 custom-scrollbar">
                     {filteredCategories.length === 0 ? (
                         <div className="p-6 text-center text-gray-500">
-                            No tools found for &quot;{search}&quot;
+                            {dict.common.noToolsFoundFor} &quot;{search}&quot;
                         </div>
                     ) : (
                         filteredCategories.map((category, idx) => (
                             <div key={idx} className="mb-4">
                                 <h3 className="px-3 text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2 mt-2">
-                                    Converters / {category.title}
+                                    {dict.common.convertersLabel} / {category.title}
                                 </h3>
                                 <ul>
                                     {category.items.map((item, itemIdx) => {
-                                        const Icon = item.icon;
+                                        const localizedItem = localizeTool(item, dict.tools, item.type);
+                                        const Icon = localizedItem.icon;
                                         return (
                                             <li key={itemIdx}>
                                                 <button
                                                     onClick={() => {
-                                                        const validPath = getValidPath(item.href);
+                                                        const validPath = getValidPath(localizedItem.href);
                                                         router.push(validPath);
                                                         setIsOpen(false);
                                                     }}
-                                                    className="w-full flex items-center px-3 py-3 rounded-lg hover:bg-blue-50 dark:hover:bg-gray-800 transition-colors text-left group"
+                                                    className={`w-full flex items-center px-3 py-3 rounded-lg hover:bg-blue-50 dark:hover:bg-gray-800 transition-colors ${locale === 'fa' ? 'flex-row-reverse' : ''} group`}
                                                 >
-                                                    <div className="p-2 bg-gray-100 dark:bg-gray-800 rounded-md group-hover:bg-blue-100 dark:group-hover:bg-blue-900/30 transition-colors">
+                                                    <div className={`p-2 bg-gray-100 dark:bg-gray-800 rounded-md group-hover:bg-blue-100 dark:group-hover:bg-blue-900/30 transition-colors ${locale === 'fa' ? 'ml-3' : 'mr-0'}`}>
                                                         {renderIcon(Icon, "w-5 h-5 text-gray-600 dark:text-gray-300 group-hover:text-blue-600 dark:group-hover:text-blue-400")}
                                                     </div>
-                                                    <div className="ml-3">
-                                                        <div className="text-sm font-medium text-gray-900 dark:text-white">{item.title}</div>
-                                                        <div className="text-xs text-gray-500 dark:text-gray-400">{item.shortDescription}</div>
+                                                    <div className={`flex-1 ${locale === 'fa' ? 'text-right' : 'text-left'}`}>
+                                                        <div className="text-sm font-medium text-gray-900 dark:text-white">{localizedItem.title}</div>
+                                                        <div className="text-xs text-gray-500 dark:text-gray-400">{localizedItem.shortDescription}</div>
                                                     </div>
                                                 </button>
                                             </li>
@@ -148,8 +153,8 @@ export default function CommandMenu({ isOpen, setIsOpen, locale }: CommandMenuPr
                 </div>
 
                 <div className="px-4 py-3 bg-gray-50 dark:bg-gray-800/50 border-t border-gray-200 dark:border-gray-800 text-xs text-gray-500 flex justify-between">
-                    <span>Search by tool name</span>
-                    <span><kbd className="bg-gray-200 dark:bg-gray-700 px-1.5 py-0.5 rounded text-gray-600 dark:text-gray-300">Esc</kbd> to close</span>
+                    <span>{dict.common.searchByName}</span>
+                    <span><kbd className="bg-gray-200 dark:bg-gray-700 px-1.5 py-0.5 rounded text-gray-600 dark:text-gray-300">Esc</kbd> {dict.common.escToClose}</span>
                 </div>
             </div>
         </div>

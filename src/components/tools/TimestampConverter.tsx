@@ -4,6 +4,8 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { toJalaali, toGregorian, isLeapJalaaliYear } from 'jalaali-js';
 import { Copy, Calendar, Clock, Check } from 'lucide-react';
+import { Card } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 
 const MONTH_NAMES_FA = [
     'فروردین', 'اردیبهشت', 'خرداد', 'تیر', 'مرداد', 'شهریور',
@@ -227,7 +229,7 @@ export default function TimestampConverter() {
 
     if (!mounted) {
         return (
-            <div className="max-w-6xl mx-auto p-6 space-y-10">
+            <div className="min-h-screen max-w-6xl mx-auto p-6 space-y-10 bg-background text-foreground">
                 <section className="text-center">
                     <h2 className="text-3xl font-bold text-gray-800 dark:text-white">Unix Timestamp Now</h2>
                     <div className="mt-4 text-5xl font-mono bg-gray-100 dark:bg-gray-800 px-6 py-4 rounded-2xl inline-block animate-pulse">
@@ -239,10 +241,10 @@ export default function TimestampConverter() {
     }
 
     return (
-        <div className="max-w-7xl mx-auto px-4 py-8 space-y-8">
+        <div className="min-h-screen max-w-7xl mx-auto px-4 py-8 space-y-8 bg-background text-foreground">
             {/* Timestamp زنده */}
             <section className="text-center relative">
-                <div className="inline-flex items-center gap-3 bg-white/80 dark:bg-gray-800/80 backdrop-blur-md px-6 py-4 rounded-full shadow-xl">
+                <Card className="inline-flex items-center gap-3 px-6 py-4 rounded-full shadow-xl">
                     <Clock size={28} className="text-blue-500" />
                     <span className="text-4xl md:text-5xl font-mono font-bold text-gray-800 dark:text-white transition-opacity">
             {tsNow}
@@ -258,14 +260,14 @@ export default function TimestampConverter() {
                     >
                         {tsCopied ? <Check size={20} className="text-green-600" /> : <Copy size={20} className="text-blue-600 dark:text-blue-400" />}
                     </button>
-                </div>
+                </Card>
                 <p className="mt-3 text-sm text-gray-500 dark:text-gray-400">The current Unix timestamp (seconds)</p>
             </section>
 
             {/* دو کارت تبدیل در یک ردیف */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 {/* Timestamp → Date */}
-                <section className="bg-white dark:bg-gray-900 rounded-2xl shadow-lg p-6 border border-gray-100 dark:border-gray-700">
+                <Card className="rounded-2xl shadow-lg p-6">
                     <h3 className="flex items-center gap-2 text-xl font-semibold text-gray-800 dark:text-white mb-4">
                         <Clock size={24} className="text-indigo-500" />
                         Timestamp to Date
@@ -278,9 +280,9 @@ export default function TimestampConverter() {
                             onChange={e => setTsInput(e.target.value)}
                             className="flex-1 px-4 py-3 border border-gray-200 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 text-gray-900 dark:text-white"
                         />
-                        <button onClick={handleTsConvert} className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-3 rounded-xl font-medium transition-colors">
+                        <Button type="button" onClick={handleTsConvert}>
                             Convert
-                        </button>
+                        </Button>
                     </div>
                     {tsOutput && (
                         <div className="space-y-3">
@@ -310,10 +312,10 @@ export default function TimestampConverter() {
                             </div>
                         </div>
                     )}
-                </section>
+                </Card>
 
                 {/* Date → Timestamp */}
-                <section className="bg-white dark:bg-gray-900 rounded-2xl shadow-lg p-6 border border-gray-100 dark:border-gray-700">
+                <Card className="rounded-2xl shadow-lg p-6">
                     <h3 className="flex items-center gap-2 text-xl font-semibold text-gray-800 dark:text-white mb-4">
                         <Calendar size={24} className="text-emerald-500" />
                         Date to Timestamp
@@ -361,11 +363,11 @@ export default function TimestampConverter() {
                             </button>
                         </div>
                     )}
-                </section>
+                </Card>
             </div>
 
             {/* تقویم */}
-            <section className="bg-white dark:bg-gray-900 rounded-2xl shadow-lg p-6 border border-gray-100 dark:border-gray-700">
+            <Card className="rounded-2xl shadow-lg p-6">
                 <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
                     <h3 className="flex items-center gap-2 text-xl font-semibold text-gray-800 dark:text-white">
                         <Calendar size={24} className="text-purple-500" />
@@ -429,7 +431,7 @@ export default function TimestampConverter() {
                             )
                     )}
                 </div>
-            </section>
+            </Card>
         </div>
     );
 }

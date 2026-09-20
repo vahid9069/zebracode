@@ -24,6 +24,13 @@ export const EncodersToolsList: Record<string, ToolMeta> = {
         outputLanguage: 'text',       // خروجی می‌تواند متن، JSON یا هر چیز دیگری باشد
         transformFunction: base64Decode,
         gradientClasses: 'from-blue-50 to-indigo-50 dark:from-gray-900 dark:to-gray-800',
+        extraContent: {
+            faq: [
+                { question: "Is Base64 decoding secure?", answer: "Yes, all decoding happens directly in your browser. Your encoded data is never uploaded to any server, ensuring complete privacy." },
+                { question: "Does it support UTF-8 and special characters?", answer: "Yes, the decoder handles UTF-8 encoded text, emojis, and special characters, converting them correctly back to their original form." },
+                { question: "Is there a file size limit?", answer: "The tool is optimized for performance and can handle encoded strings up to several megabytes, depending on your browser's capabilities." }
+            ]
+        }
     },
     'base64-encode': {
         type: 'base64-encode',
@@ -39,6 +46,13 @@ export const EncodersToolsList: Record<string, ToolMeta> = {
         outputLanguage: 'text',
         transformFunction: base64Encode,
         gradientClasses: 'from-indigo-50 to-purple-50 dark:from-gray-900 dark:to-gray-800',
+        extraContent: {
+            faq: [
+                { question: "What can I use Base64 encoding for?", answer: "Base64 encoding is commonly used for embedding images as Data URIs in HTML/CSS, transmitting binary data in JSON APIs, and encoding credentials for Basic Authentication." },
+                { question: "Is my data secure during encoding?", answer: "Yes, all encoding happens locally in your browser. Your data is never transmitted to any server, ensuring complete confidentiality." },
+                { question: "Can I encode files as well as text?", answer: "Yes, you can encode any text string. For binary files, paste the content or use the browser's built-in FileReader API alongside this tool." }
+            ]
+        }
     },
     'jwt-decoder': {
         type: 'jwt-decoder',
@@ -54,5 +68,12 @@ export const EncodersToolsList: Record<string, ToolMeta> = {
         outputLanguage: 'json',       // محتوای header و payload به‌صورت JSON نمایش داده می‌شود
         transformFunction: jwtDecode,
         gradientClasses: 'from-green-50 to-teal-50 dark:from-gray-900 dark:to-gray-800',
+        extraContent: {
+            faq: [
+                { question: "Is the JWT signature verified?", answer: "This decoder extracts and displays the header and payload without cryptographic verification. For signature verification, use a server-side library with your secret key." },
+                { question: "Is my JWT token safe to paste here?", answer: "Yes, all decoding happens locally in your browser. Your token is never sent to any server. However, never share tokens containing sensitive data on public screens." },
+                { question: "What information can I see in a decoded JWT?", answer: "You can view the algorithm, token type, expiration time (exp), issued-at time (iat), issuer (iss), subject (sub), and any custom claims in the payload." }
+            ]
+        }
     },
 };

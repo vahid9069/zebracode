@@ -16,6 +16,13 @@ export const GeneratorToolsList: Record<string, ToolMeta> = {
         outputLanguage: 'text',
         transformFunction: () => '',
         gradientClasses: 'from-green-50 to-emerald-50 dark:from-gray-900 dark:to-gray-800',
+        extraContent: {
+            faq: [
+                { question: "Are the generated passwords truly random?", answer: "Yes, passwords are generated using the Web Crypto API (Crypto.getRandomValues), which provides cryptographically strong random values suitable for security purposes." },
+                { question: "Can I customize the password requirements?", answer: "Yes, you can set the length from 8 to 64 characters and choose which character types to include: lowercase, uppercase, numbers, and symbols." },
+                { question: "Are generated passwords stored anywhere?", answer: "No. Passwords are generated entirely in your browser and are never transmitted, stored, or logged anywhere." }
+            ]
+        }
     },
     'lorem-generator': {
         type: 'lorem-generator',
@@ -31,6 +38,13 @@ export const GeneratorToolsList: Record<string, ToolMeta> = {
         outputLanguage: 'text',
         transformFunction: () => '',
         gradientClasses: 'from-purple-50 to-pink-50 dark:from-gray-900 dark:to-gray-800',
+        extraContent: {
+            faq: [
+                { question: "What is Lorem Ipsum used for?", answer: "Lorem Ipsum is placeholder text used by designers and developers to fill content areas during layout prototyping, before real copy is available." },
+                { question: "Does it support languages other than Latin?", answer: "Yes, this generator supports multiple languages including English, Persian, Arabic, Spanish, French, and German for realistic multilingual prototyping." },
+                { question: "Can I customize the output format?", answer: "Yes, you can generate placeholder text as paragraphs, sentences, or individual words, and specify the exact amount needed." }
+            ]
+        }
     },
     'text-diff': {
         type: 'text-diff',
@@ -46,5 +60,12 @@ export const GeneratorToolsList: Record<string, ToolMeta> = {
         outputLanguage: 'text',
         transformFunction: () => '',
         gradientClasses: 'from-violet-50 to-purple-50 dark:from-gray-900 dark:to-gray-800',
+        extraContent: {
+            faq: [
+                { question: "How does the text comparison work?", answer: "The tool uses a line-by-line diff algorithm to compare two texts side by side, highlighting additions, deletions, and unchanged lines for easy review." },
+                { question: "Can I compare code with this tool?", answer: "Yes, it's perfect for code review, comparing configuration files, or checking document versions. It works with any plain text format." },
+                { question: "Is my text data secure?", answer: "Yes, all comparison happens locally in your browser. Your text is never uploaded to any server, ensuring complete privacy." }
+            ]
+        }
     },
 };

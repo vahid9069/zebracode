@@ -23,6 +23,13 @@ export const FlowToolsList: Record<string, ToolMeta> = {
         outputLanguage: 'javascript',
         transformFunction: flowToJs,
         gradientClasses: 'from-purple-50 to-indigo-50 dark:from-gray-900 dark:to-gray-800',
+        extraContent: {
+            faq: [
+                { question: "Does this tool accurately strip all Flow types?", answer: "Yes, it uses Babel with the Flow preset to ensure precise type annotation removal while preserving your JavaScript logic." },
+                { question: "Will the output run in any browser?", answer: "Yes, the output is standard JavaScript compatible with all modern browsers and Node.js environments." },
+                { question: "Is this suitable for migrating away from Flow?", answer: "Absolutely. This tool is a quick first step for extracting plain JavaScript before migrating to TypeScript or maintaining vanilla JS." }
+            ]
+        }
     },
     flowToTypescript: {
         type: 'flowToTypescript',
@@ -38,6 +45,13 @@ export const FlowToolsList: Record<string, ToolMeta> = {
         outputLanguage: 'typescript',
         transformFunction: flowToTs,
         gradientClasses: 'from-blue-50 to-cyan-50 dark:from-gray-900 dark:to-gray-800',
+        extraContent: {
+            faq: [
+                { question: "How accurate is the Flow to TypeScript conversion?", answer: "The tool maps Flow type annotations to their TypeScript equivalents, handling common patterns like maybe types, unions, and generics. Complex utility types may need manual review." },
+                { question: "Does it convert all Flow-specific syntax?", answer: "Yes, it handles Flow's `?Type` (maybe), `{| |}` (exact objects), `$Keys`, `$Values`, and other Flow-specific utility types." },
+                { question: "Can I use this to migrate a large codebase?", answer: "Yes, it's designed for migration. The converter handles the syntax translation, though we recommend running your test suite after conversion to verify correctness." }
+            ]
+        }
     },
     flowToTypescriptDeclaration: {
         type: 'flowToTypescriptDeclaration',
@@ -53,5 +67,12 @@ export const FlowToolsList: Record<string, ToolMeta> = {
         outputLanguage: 'typescript',   // .d.ts فایل‌های هم‌چنان TypeScript محسوب می‌شوند
         transformFunction: flowToDts,
         gradientClasses: 'from-violet-50 to-purple-50 dark:from-gray-900 dark:to-gray-800',
+        extraContent: {
+            faq: [
+                { question: "What are .d.ts files used for?", answer: ".d.ts declaration files provide type information for JavaScript libraries, enabling TypeScript users to get autocompletion and type checking when using your package." },
+                { question: "Does it preserve module structure?", answer: "Yes, the tool preserves exported types, interfaces, and module declarations from your Flow code, generating clean .d.ts output." },
+                { question: "Is this part of a Flow-to-TypeScript migration?", answer: "Yes, generating .d.ts files from Flow types is a key step in transitioning a library to TypeScript while maintaining type safety for consumers." }
+            ]
+        }
     },
 };

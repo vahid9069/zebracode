@@ -20,6 +20,13 @@ export const HtmlToolsList: Record<string, ToolMeta> = {
         outputLanguage: 'javascript',   // JSX در زبان جاوااسکریپت هایلایت می‌شود
         transformFunction: htmlToJsx,
         gradientClasses: 'from-orange-50 to-amber-50 dark:from-gray-900 dark:to-gray-800',
+        extraContent: {
+            faq: [
+                { question: "Why convert HTML to JSX?", answer: "React requires JSX, a syntax extension that looks like HTML but differs slightly in attribute names like 'className' and 'htmlFor'." },
+                { question: "Does it handle self-closing tags?", answer: "Yes, the tool automatically converts tags like <img> or <br> to their self-closing counterparts required by JSX." },
+                { question: "Is this compatible with all React versions?", answer: "Yes, the generated JSX is compatible with all versions of React, as it strictly follows the JSX syntax standard." }
+            ]
+        }
     },
     'html-to-pug': {
         type: 'html-to-pug',
@@ -35,5 +42,12 @@ export const HtmlToolsList: Record<string, ToolMeta> = {
         outputLanguage: 'text',         // Pug به‌عنوان زبان مستقل پشتیبانی نمی‌شود → text
         transformFunction: htmlToPugConvert,
         gradientClasses: 'from-yellow-50 to-lime-50 dark:from-gray-900 dark:to-gray-800',
+        extraContent: {
+            faq: [
+                { question: "Why use Pug instead of HTML?", answer: "Pug (formerly Jade) is designed for clean, minimalist code by removing closing tags and using indentation, which significantly speeds up template creation." },
+                { question: "Can I convert complex HTML documents?", answer: "Yes, the tool handles nested structures, classes, and IDs, converting them efficiently into Pug’s shorthand syntax." },
+                { question: "Is Pug better for performance?", answer: "Pug is a template engine that compiles to HTML; it's ideal for maintaining clean templates in Node.js applications." }
+            ]
+        }
     },
 };
