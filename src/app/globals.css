@@ -205,3 +205,180 @@
 html {
     font-size: var(--font-size);
 }
+
+/* The home page keeps the reference design's dark palette while allowing the
+   existing theme switcher to provide a complete light variant. */
+html:not(.dark) .home-theme [class*="bg-[#0b0f19]"],
+html:not(.dark) .theme-shell [class*="bg-[#0b0f19]"] {
+    background-color: #f8fafc !important;
+}
+
+html:not(.dark) .home-theme [class*="bg-[#0d1117]"],
+html:not(.dark) .theme-shell [class*="bg-[#0d1117]"] {
+    background-color: #ffffff !important;
+}
+
+html:not(.dark) .home-theme [class*="bg-[#0e1422]"] {
+    background-color: #f1f5f9 !important;
+}
+
+html:not(.dark) .home-theme [class*="bg-[#161b26]"],
+html:not(.dark) .theme-shell [class*="bg-[#161b26]"] {
+    background-color: #ffffff !important;
+}
+
+html:not(.dark) .home-theme [class*="bg-[#1e1f26]"] {
+    background-color: #f1f5f9 !important;
+}
+
+html:not(.dark) .home-theme [class*="bg-[#0e131d]"] {
+    background-color: #f8fafc !important;
+}
+
+html:not(.dark) .home-theme [class*="bg-[#0a0d14]"] {
+    background-color: #e2e8f0 !important;
+}
+
+html:not(.dark) .home-theme [class*="bg-[#blue-950"] {
+    background-color: #eff6ff !important;
+}
+
+html:not(.dark) .home-theme [class*="border-[#273043]"],
+html:not(.dark) .home-theme [class*="border-[#334155]"],
+html:not(.dark) .theme-shell [class*="border-[#273043]"] {
+    border-color: #dbe3ee !important;
+}
+
+html:not(.dark) .home-theme [class*="text-[#e3e1ec]"] {
+    color: #0f172a !important;
+}
+
+html:not(.dark) .home-theme h1[class*="text-white"],
+html:not(.dark) .home-theme h2[class*="text-white"],
+html:not(.dark) .home-theme h3[class*="text-white"],
+html:not(.dark) .home-theme strong[class*="text-white"],
+html:not(.dark) .theme-shell a[class*="text-white"] {
+    color: #0f172a !important;
+}
+
+html:not(.dark) .home-theme [class*="text-[#94a3b8]"],
+html:not(.dark) .theme-shell [class*="text-[#94a3b8]"] {
+    color: #475569 !important;
+}
+
+html:not(.dark) .home-theme [class*="text-[#64748b]"],
+html:not(.dark) .theme-shell [class*="text-[#64748b]"] {
+    color: #64748b !important;
+}
+
+html:not(.dark) .home-theme [class*="text-[#b4c5ff]"],
+html:not(.dark) .theme-shell [class*="text-[#b4c5ff]"] {
+    color: #2563eb !important;
+}
+
+html:not(.dark) .home-theme [class*="text-[#c0c1ff]"] {
+    color: #4f46e5 !important;
+}
+
+html:not(.dark) .home-theme [class*="bg-blue-950"] {
+    background-color: #eff6ff !important;
+}
+
+html:not(.dark) .home-theme [class*="border-blue-800"] {
+    border-color: #bfdbfe !important;
+}
+
+html:not(.dark) .home-theme [class*="bg-emerald-950"] {
+    background-color: #ecfdf5 !important;
+}
+
+html:not(.dark) .home-theme [class*="border-emerald-800"] {
+    border-color: #a7f3d0 !important;
+}
+
+html:not(.dark) .home-theme [class*="text-emerald-300"] {
+    color: #047857 !important;
+}
+
+html:not(.dark) .home-theme [class*="from-[#0d1117]"] {
+    --tw-gradient-from: #ffffff var(--tw-gradient-from-position) !important;
+}
+
+html:not(.dark) .home-theme [class*="via-[#0e1422]"] {
+    --tw-gradient-via: #f1f5f9 var(--tw-gradient-via-position) !important;
+}
+
+html:not(.dark) .home-theme [class*="to-[#0b0f19]"] {
+    --tw-gradient-to: #f8fafc var(--tw-gradient-to-position) !important;
+}
+
+html:not(.dark) .theme-shell header {
+    background-color: rgb(255 255 255 / 0.95) !important;
+}
+
+html:not(.dark) .about-theme {
+    background-color: #f8fafc !important;
+    color: #0f172a !important;
+}
+
+html:not(.dark) .about-theme [class*="bg-[#0b0f19]"],
+html:not(.dark) .about-theme [class*="bg-[#0d1117]"] {
+    background-color: #ffffff !important;
+}
+
+html:not(.dark) .about-theme [class*="bg-[#161b26]"],
+html:not(.dark) .about-theme [class*="bg-[#1e1f26]"] {
+    background-color: #f1f5f9 !important;
+}
+
+html:not(.dark) .about-theme [class*="border-[#273043]"] {
+    border-color: #dbe3ee !important;
+}
+
+html:not(.dark) .about-theme [class*="text-white"] {
+    color: #0f172a !important;
+}
+
+html:not(.dark) .about-theme [class*="text-[#e3e1ec]"] {
+    color: #0f172a !important;
+}
+
+html:not(.dark) .about-theme [class*="text-[#94a3b8]"] {
+    color: #475569 !important;
+}
+
+html:not(.dark) .about-theme [class*="text-[#64748b]"] {
+    color: #64748b !important;
+}
+
+html:not(.dark) .about-theme [class*="text-[#b4c5ff]"] {
+    color: #2563eb !important;
+}
+
+html:not(.dark) .about-theme [class*="text-[#4edea3]"] {
+    color: #047857 !important;
+}
+
+html:not(.dark) .about-theme [class*="bg-blue-950"] {
+    background-color: #eff6ff !important;
+}
+
+html:not(.dark) .about-theme [class*="bg-emerald-950"] {
+    background-color: #ecfdf5 !important;
+}
+
+html:not(.dark) .about-theme [class*="bg-red-950"] {
+    background-color: #fef2f2 !important;
+}
+
+html:not(.dark) .about-theme [class*="from-[#0d1117]"] {
+    --tw-gradient-from: #ffffff var(--tw-gradient-from-position) !important;
+}
+
+html:not(.dark) .about-theme [class*="via-[#0e1422]"] {
+    --tw-gradient-via: #f1f5f9 var(--tw-gradient-via-position) !important;
+}
+
+html:not(.dark) .about-theme [class*="to-[#0b0f19]"] {
+    --tw-gradient-to: #f8fafc var(--tw-gradient-to-position) !important;
+}
