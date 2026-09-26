@@ -1,393 +1,125 @@
-// src/components/DateTimeSuite.tsx
 'use client';
 
-import React, { useState, useEffect, useCallback, memo } from 'react';
-import { toJalaali, toGregorian, isLeapJalaaliYear } from 'jalaali-js';
-import { Copy, Calendar, Clock, Check, RotateCcw, Timer, CalendarRange } from 'lucide-react';
+import React, { useEffect, useMemo, useState } from 'react';
+import { toGregorian, toJalaali, isLeapJalaaliYear } from 'jalaali-js';
+import { CalendarDays, Check, ChevronDown, ChevronLeft, ChevronRight, Clock3, Copy, Pause, Play, RefreshCw, RotateCcw, ShieldCheck, Zap } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 
-// ---------- ثابت‌ها ----------
-const MONTH_NAMES_FA = [
-    'فروردین', 'اردیبهشت', 'خرداد', 'تیر', 'مرداد', 'شهریور',
-    'مهر', 'آبان', 'آذر', 'دی', 'بهمن', 'اسفند',
-];
-const IRAN_OFFSET_MS = (3 * 60 + 30) * 60 * 1000; // 3.5 ساعت به میلی‌ثانیه
+const months = ['فروردین', 'اردیبهشت', 'خرداد', 'تیر', 'مرداد', 'شهریور', 'مهر', 'آبان', 'آذر', 'دی', 'بهمن', 'اسفند'];
+const gregorianMonths = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+const gregorianShortMonths = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+const fa = (value: number) => value.toLocaleString('fa-IR');
+const daysInJalaliMonth = (year: number, month: number) => month <= 6 ? 31 : month <= 11 ? 30 : isLeapJalaaliYear(year) ? 30 : 29;
 
-// ---------- انواع ----------
-interface DateEntry {
-    calendar: 'shamsi' | 'gregorian';
-    year: number;
-    month: number;
-    day: number;
-    hour: number;
-    minute: number;
-    second: number;
-}
-type TabType = 'timestamp' | 'difference' | 'addsub';
-
-// ---------- توابع تبدیل UTC <-> ایران ----------
-function toDateObjUTC(entry: DateEntry): Date {
-    let gy: number, gm: number, gd: number;
-    if (entry.calendar === 'shamsi') {
-        const g = toGregorian(entry.year, entry.month, entry.day);
-        gy = g.gy; gm = g.gm; gd = g.gd;
-    } else {
-        gy = entry.year; gm = entry.month; gd = entry.day;
-    }
-    // ساعت وارد شده توسط کاربر را به وقت ایران در نظر می‌گیریم و به UTC تبدیل می‌کنیم
-    const iranDate = new Date(Date.UTC(gy, gm - 1, gd, entry.hour, entry.minute, entry.second));
-    return new Date(iranDate.getTime() - IRAN_OFFSET_MS);
+function Field({ label, value, onChange, max }: { label: string; value: number; onChange: (value: number) => void; max?: number }) {
+    return <label className="text-[11px] text-slate-500">{label}<input type="number" value={value} min={0} max={max} onChange={(event) => onChange(Number(event.target.value) || 0)} className="mt-1 h-10 w-full rounded-lg bg-[#f8fafc] px-2 text-center font-mono text-sm outline-none focus:ring-2 focus:ring-blue-500 dark:bg-[#0d1117] dark:text-white" /></label>;
 }
 
-function toGregorianString(entry: DateEntry): string {
-    const d = toDateObjUTC(entry);
-    const iranDate = new Date(d.getTime() + IRAN_OFFSET_MS);
-    return iranDate.toLocaleString('en-US', {
-        year: 'numeric', month: 'short', day: 'numeric',
-        hour: '2-digit', minute: '2-digit', second: '2-digit',
-        timeZone: 'UTC',
-    });
+function CopyButton({ value }: { value: string }) {
+    const [copied, setCopied] = useState(false);
+    return <button type="button" onClick={() => { navigator.clipboard.writeText(value); setCopied(true); window.setTimeout(() => setCopied(false), 1200); }} className="rounded-lg p-2 text-slate-500 hover:bg-slate-100 hover:text-blue-600 dark:hover:bg-[#0d1117]">{copied ? <Check className="h-4 w-4 text-emerald-600" /> : <Copy className="h-4 w-4" />}</button>;
 }
-
-function toShamsiString(entry: DateEntry): string {
-    const d = toDateObjUTC(entry);
-    const iranDate = new Date(d.getTime() + IRAN_OFFSET_MS);
-    const j = toJalaali(iranDate.getUTCFullYear(), iranDate.getUTCMonth() + 1, iranDate.getUTCDate());
-    return `${j.jd} ${MONTH_NAMES_FA[j.jm - 1]} ${j.jy} ${String(iranDate.getUTCHours()).padStart(2, '0')}:${String(iranDate.getUTCMinutes()).padStart(2, '0')}:${String(iranDate.getUTCSeconds()).padStart(2, '0')}`;
-}
-
-function tsToDateEntry(ts: number): DateEntry {
-    const d = new Date(ts * 1000 + IRAN_OFFSET_MS);
-    const j = toJalaali(d.getUTCFullYear(), d.getUTCMonth() + 1, d.getUTCDate());
-    return {
-        calendar: 'shamsi',
-        year: j.jy, month: j.jm, day: j.jd,
-        hour: d.getUTCHours(), minute: d.getUTCMinutes(), second: d.getUTCSeconds(),
-    };
-}
-
-// ---------- کامپوننت‌های پایدار ----------
-const Field = memo(function Field({
-                                      label,
-                                      value,
-                                      onChange,
-                                  }: {
-    label: string;
-    value: number;
-    onChange: (v: number) => void;
-}) {
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const num = parseInt(e.target.value, 10);
-        if (!isNaN(num)) onChange(num);
-    };
-
-    return (
-        <div className="flex flex-col">
-            <label className="text-[10px] text-gray-400 mb-0.5">{label}</label>
-            <input
-                type="number"
-                value={value}
-                onChange={handleChange}
-                className="w-full px-1 py-1 text-sm border rounded dark:bg-gray-700 dark:border-gray-600 focus:ring-1 focus:ring-indigo-400 outline-none"
-            />
-        </div>
-    );
-});
-
-const DateInputCard = memo(function DateInputCard({
-                                                      value,
-                                                      onChange,
-                                                      label,
-                                                  }: {
-    value: DateEntry;
-    onChange: (d: DateEntry) => void;
-    label: string;
-}) {
-    const toggleCalendar = useCallback(() => {
-        if (value.calendar === 'shamsi') {
-            const g = toGregorian(value.year, value.month, value.day);
-            onChange({ ...value, calendar: 'gregorian', year: g.gy, month: g.gm, day: g.gd });
-        } else {
-            const j = toJalaali(value.year, value.month, value.day);
-            onChange({ ...value, calendar: 'shamsi', year: j.jy, month: j.jm, day: j.jd });
-        }
-    }, [value, onChange]);
-
-    const crossDate = value.calendar === 'shamsi'
-        ? toGregorianString(value)
-        : toShamsiString(value);
-
-    const updateYear = useCallback((year: number) => onChange({ ...value, year }), [value, onChange]);
-    const updateMonth = useCallback((month: number) => onChange({ ...value, month }), [value, onChange]);
-    const updateDay = useCallback((day: number) => onChange({ ...value, day }), [value, onChange]);
-    const updateHour = useCallback((hour: number) => onChange({ ...value, hour }), [value, onChange]);
-    const updateMinute = useCallback((minute: number) => onChange({ ...value, minute }), [value, onChange]);
-    const updateSecond = useCallback((second: number) => onChange({ ...value, second }), [value, onChange]);
-
-    return (
-        <div className="bg-white dark:bg-gray-800 p-4 rounded-xl shadow">
-            <div className="flex justify-between items-center mb-3">
-                <span className="font-semibold text-sm">{label}</span>
-                <button onClick={toggleCalendar} className="text-xs px-2 py-1 rounded-full bg-gray-100 dark:bg-gray-700">
-                    {value.calendar === 'shamsi' ? 'Gregorian' : 'Shamsi'}
-                </button>
-            </div>
-            <div className="grid grid-cols-6 gap-1">
-                <Field label="Y" value={value.year} onChange={updateYear} />
-                <Field label="M" value={value.month} onChange={updateMonth} />
-                <Field label="D" value={value.day} onChange={updateDay} />
-                <Field label="H" value={value.hour} onChange={updateHour} />
-                <Field label="m" value={value.minute} onChange={updateMinute} />
-                <Field label="s" value={value.second} onChange={updateSecond} />
-            </div>
-            <div className="text-xs text-gray-500 mt-2">{crossDate}</div>
-        </div>
-    );
-});
 
 export default function DateTimeSuite() {
-    const [activeTab, setActiveTab] = useState<TabType>('timestamp');
+    const [now, setNow] = useState(() => Date.now());
+    const [live, setLive] = useState(true);
+    const [calendar, setCalendar] = useState<'jalali' | 'gregorian'>('jalali');
+    const current = new Date(now);
+    const currentJalali = toJalaali(current.getFullYear(), current.getMonth() + 1, current.getDate());
+    const [date, setDate] = useState({ year: currentJalali.jy, month: currentJalali.jm, day: currentJalali.jd, hour: current.getHours(), minute: current.getMinutes(), second: current.getSeconds() });
+    const [timestampInput, setTimestampInput] = useState(String(Math.floor(now / 1000)));
+    const [converted, setConverted] = useState<Date | null>(null);
+    const [month, setMonth] = useState(currentJalali.jm);
+    const [year, setYear] = useState(currentJalali.jy);
 
-    // ================= Timestamp =================
-    const [tsNow, setTsNow] = useState<number | null>(null);
-    const [tsInput, setTsInput] = useState('');
-    const [tsCopied, setTsCopied] = useState(false);
-    const [tsOutput, setTsOutput] = useState<{ shamsi: string; gregorian: string } | null>(null);
-    const [toTsDate, setToTsDate] = useState<DateEntry>({
-        calendar: 'shamsi', year: 1404, month: 2, day: 21, hour: 10, minute: 30, second: 0,
-    });
-    const [generatedTs, setGeneratedTs] = useState<number | null>(null);
-
-    // ================= Date Difference =================
-    const [diffDate1, setDiffDate1] = useState<DateEntry>({
-        calendar: 'shamsi', year: 1404, month: 2, day: 20, hour: 10, minute: 0, second: 0,
-    });
-    const [diffDate2, setDiffDate2] = useState<DateEntry>({
-        calendar: 'shamsi', year: 1404, month: 2, day: 21, hour: 10, minute: 0, second: 0,
-    });
-    const [diffResult, setDiffResult] = useState<any>(null);
-
-    // ================= Add / Subtract =================
-    const [baseDate, setBaseDate] = useState<DateEntry>({
-        calendar: 'shamsi', year: 1404, month: 2, day: 20, hour: 10, minute: 0, second: 0,
-    });
-    const [baseTs, setBaseTs] = useState('');
-    const [addDays, setAddDays] = useState(0);
-    const [addHours, setAddHours] = useState(0);
-    const [addMinutes, setAddMinutes] = useState(0);
-    const [addSeconds, setAddSeconds] = useState(0);
-    const [resultDate, setResultDate] = useState<DateEntry | null>(null);
-    const [resultTs, setResultTs] = useState<number | null>(null);
-
-    // تایمر زنده تایم‌استمپ
     useEffect(() => {
-        const update = () => setTsNow(Math.floor(Date.now() / 1000));
-        update();
-        const timer = setInterval(update, 1000);
-        return () => clearInterval(timer);
-    }, []);
+        if (!live) return;
+        const timer = window.setInterval(() => setNow(Date.now()), 1000);
+        return () => window.clearInterval(timer);
+    }, [live]);
 
-    // Timestamp → Date
-    const handleTsConvert = useCallback(() => {
-        const num = parseInt(tsInput, 10);
-        if (isNaN(num)) return;
-        const ts = num.toString().length === 13 ? Math.floor(num / 1000) : num;
-        const entry = tsToDateEntry(ts);
-        setTsOutput({
-            shamsi: toShamsiString(entry),
-            gregorian: toGregorianString(entry),
-        });
-    }, [tsInput]);
-
-    // Date → Timestamp
-    const handleDateToTs = useCallback(() => {
-        const d = toDateObjUTC(toTsDate);
-        setGeneratedTs(Math.floor(d.getTime() / 1000));
-    }, [toTsDate]);
-
-    // محاسبه اختلاف تاریخ
-    const handleDiffCalc = useCallback(() => {
-        const d1 = toDateObjUTC(diffDate1).getTime();
-        const d2 = toDateObjUTC(diffDate2).getTime();
-        const diffSec = Math.floor(Math.abs(d1 - d2) / 1000);
-        let remaining = diffSec;
-        const days = Math.floor(remaining / 86400); remaining %= 86400;
-        const hours = Math.floor(remaining / 3600); remaining %= 3600;
-        const minutes = Math.floor(remaining / 60);
-        const seconds = remaining % 60;
-        const years = Math.floor(days / 365);
-        const months = Math.floor((days % 365) / 30.44);
-        setDiffResult({ diffSec, years, months, days, hours, minutes, seconds });
-    }, [diffDate1, diffDate2]);
-
-    // Add/Subtract
-    const handleAddSub = useCallback(() => {
-        let startDate: Date;
-        if (baseTs.trim()) {
-            const num = parseInt(baseTs, 10);
-            if (isNaN(num)) return;
-            const ts = num.toString().length === 13 ? Math.floor(num / 1000) : num;
-            startDate = new Date(ts * 1000);
-        } else {
-            startDate = toDateObjUTC(baseDate);
+    const timestamp = useMemo(() => {
+        const g = calendar === 'jalali' ? toGregorian(date.year, date.month, date.day) : { gy: date.year, gm: date.month, gd: date.day };
+        return Math.floor(new Date(g.gy, g.gm - 1, g.gd, date.hour, date.minute, date.second).getTime() / 1000);
+    }, [calendar, date]);
+    const result = converted || new Date(Number(timestampInput.length >= 13 ? timestampInput : Number(timestampInput) * 1000));
+    const resultJalali = toJalaali(result.getUTCFullYear(), result.getUTCMonth() + 1, result.getUTCDate());
+    const resultGregorian = `${result.getUTCFullYear()}-${String(result.getUTCMonth() + 1).padStart(2, '0')}-${String(result.getUTCDate()).padStart(2, '0')} ${String(result.getUTCHours()).padStart(2, '0')}:${String(result.getUTCMinutes()).padStart(2, '0')}:${String(result.getUTCSeconds()).padStart(2, '0')}`;
+    const calendarCells = useMemo(() => {
+        const first = calendar === 'jalali' ? toGregorian(year, month, 1) : { gy: year, gm: month, gd: 1 };
+        const firstDate = new Date(first.gy, first.gm - 1, first.gd);
+        const offset = (firstDate.getDay() + 1) % 7;
+        const count = calendar === 'jalali' ? daysInJalaliMonth(year, month) : new Date(year, month, 0).getDate();
+        const cells: Array<{ day: number; secondary: string; muted: boolean; friday: boolean; selectedYear: number; selectedMonth: number } | null> = [];
+        for (let index = 0; index < offset; index += 1) {
+            const value = new Date(firstDate);
+            value.setDate(value.getDate() - offset + index);
+            const previous = calendar === 'jalali'
+                ? toJalaali(value.getFullYear(), value.getMonth() + 1, value.getDate())
+                : { jy: value.getFullYear(), jm: value.getMonth() + 1, jd: value.getDate() };
+            cells.push({
+                day: previous.jd,
+                secondary: calendar === 'jalali' ? `${gregorianShortMonths[value.getMonth()]} ${value.getDate()}` : `${fa(previous.jm)}/${fa(previous.jd)}`,
+                muted: true,
+                friday: value.getDay() === 5,
+                selectedYear: previous.jy,
+                selectedMonth: previous.jm,
+            });
         }
-        const newMs = startDate.getTime() +
-            addDays * 86400_000 +
-            addHours * 3600_000 +
-            addMinutes * 60_000 +
-            addSeconds * 1000;
-        const newDate = new Date(newMs);
-        const entry = tsToDateEntry(Math.floor(newDate.getTime() / 1000));
-        setResultDate(entry);
-        setResultTs(Math.floor(newDate.getTime() / 1000));
-    }, [baseDate, baseTs, addDays, addHours, addMinutes, addSeconds]);
+        for (let index = 0; index < count; index += 1) {
+            const value = new Date(firstDate);
+            value.setDate(value.getDate() + index);
+            const current = calendar === 'jalali'
+                ? toJalaali(value.getFullYear(), value.getMonth() + 1, value.getDate())
+                : { jy: value.getFullYear(), jm: value.getMonth() + 1, jd: value.getDate() };
+            cells.push({
+                day: current.jd,
+                secondary: calendar === 'jalali' ? `${gregorianShortMonths[value.getMonth()]} ${value.getDate()}` : `${fa(toJalaali(value.getFullYear(), value.getMonth() + 1, value.getDate()).jm)}/${fa(toJalaali(value.getFullYear(), value.getMonth() + 1, value.getDate()).jd)}`,
+                muted: false,
+                friday: value.getDay() === 5,
+                selectedYear: current.jy,
+                selectedMonth: current.jm,
+            });
+        }
+        return cells;
+    }, [calendar, month, year]);
 
-    return (
-        <div className="min-h-screen max-w-5xl mx-auto p-4 space-y-6 bg-background text-foreground">
-            {/* تب‌ها */}
-            <div className="flex flex-wrap gap-2 justify-center">
-                {([
-                    ['timestamp', Clock, 'Timestamp'],
-                    ['difference', CalendarRange, 'Date Diff'],
-                    ['addsub', Timer, 'Add/Sub'],
-                ] as [TabType, any, string][]).map(([tab, Icon, label]) => (
-                    <Button
-                        type="button"
-                        variant={activeTab === tab ? 'default' : 'outline'}
-                        key={tab}
-                        onClick={() => setActiveTab(tab)}
-                        className={`flex items-center gap-2 px-4 py-2 rounded-full font-medium transition-colors ${
-                            activeTab === tab ? 'bg-indigo-600 text-white' : 'bg-white dark:bg-gray-800 text-gray-600'
-                        }`}
-                    >
-                        <Icon size={18} /> {label}
-                    </Button>
-                ))}
-            </div>
+    const setToday = () => {
+        const value = new Date();
+        const j = toJalaali(value.getFullYear(), value.getMonth() + 1, value.getDate());
+        setCalendar('jalali'); setYear(j.jy); setMonth(j.jm); setDate({ year: j.jy, month: j.jm, day: j.jd, hour: value.getHours(), minute: value.getMinutes(), second: value.getSeconds() }); setTimestampInput(String(Math.floor(value.getTime() / 1000)));
+    };
+    const changeMonth = (delta: number) => {
+        let nextMonth = month + delta; let nextYear = year;
+        if (nextMonth < 1) { nextMonth = 12; nextYear--; }
+        if (nextMonth > 12) { nextMonth = 1; nextYear++; }
+        setMonth(nextMonth); setYear(nextYear);
+    };
+    const selectDay = (day: number) => {
+        if (calendar === 'jalali') setDate((value) => ({ ...value, year, month, day }));
+        else { const j = toJalaali(year, month, day); setDate((value) => ({ ...value, year: j.jy, month: j.jm, day: j.jd })); }
+    };
+    const selectedCalendarDate = calendar === 'jalali'
+        ? { year: date.year, month: date.month, day: date.day }
+        : (() => {
+            const value = toGregorian(date.year, date.month, date.day);
+            return { year: value.gy, month: value.gm, day: value.gd };
+        })();
 
-            {/* ===== Timestamp Tab ===== */}
-            {activeTab === 'timestamp' && (
-                <div className="space-y-6">
-                    {/* Timestamp زنده */}
-                    <div className="text-center">
-                        <Card className="inline-flex items-center gap-3 px-6 py-3 rounded-full shadow">
-                            <Clock className="text-indigo-500" size={24} />
-                            <span className="text-3xl font-mono font-bold">{tsNow}</span>
-                            <button onClick={() => { navigator.clipboard.writeText(tsNow?.toString() ?? ''); setTsCopied(true); setTimeout(() => setTsCopied(false), 2000); }}>
-                                {tsCopied ? <Check size={18} className="text-green-500" /> : <Copy size={18} />}
-                            </button>
-                        </Card>
-                    </div>
-
-                    {/* Timestamp → Date */}
-                    <Card className="p-4 rounded-xl shadow space-y-3">
-                        <h3 className="font-semibold">Timestamp to Date</h3>
-                        <div className="flex gap-2">
-                            <input type="text" placeholder="Timestamp..." value={tsInput} onChange={e => setTsInput(e.target.value)}
-                                   className="flex-1 p-2 border rounded dark:bg-gray-700 dark:border-gray-600" />
-                            <button onClick={handleTsConvert} className="bg-indigo-600 text-white px-4 py-2 rounded-lg">Convert</button>
-                        </div>
-                        {tsOutput && (
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm">
-                                <div className="p-2 bg-gray-50 dark:bg-gray-700 rounded flex justify-between">
-                                    <div><div className="text-xs">Shamsi</div><div className="font-bold" dir="rtl">{tsOutput.shamsi}</div></div>
-                                    <button onClick={() => navigator.clipboard.writeText(tsOutput.shamsi)}><Copy size={16} /></button>
-                                </div>
-                                <div className="p-2 bg-gray-50 dark:bg-gray-700 rounded flex justify-between">
-                                    <div><div className="text-xs">Gregorian</div><div className="font-bold">{tsOutput.gregorian}</div></div>
-                                    <button onClick={() => navigator.clipboard.writeText(tsOutput.gregorian)}><Copy size={16} /></button>
-                                </div>
-                            </div>
-                        )}
-                    </Card>
-
-                    {/* Date → Timestamp */}
-                    <Card className="p-4 rounded-xl shadow space-y-3">
-                        <h3 className="font-semibold">Date to Timestamp</h3>
-                        <DateInputCard value={toTsDate} onChange={setToTsDate} label="Date" />
-                        <button onClick={handleDateToTs} className="bg-emerald-600 text-white px-4 py-2 rounded-lg w-full">Generate Timestamp</button>
-                        {generatedTs !== null && (
-                            <div className="p-2 bg-gray-50 dark:bg-gray-700 rounded flex justify-between items-center font-mono">
-                                <span>{generatedTs}</span>
-                                <button onClick={() => { navigator.clipboard.writeText(generatedTs.toString()); }}>
-                                    <Copy size={16} />
-                                </button>
-                            </div>
-                        )}
-                    </Card>
-                </div>
-            )}
-
-            {/* ===== Date Diff Tab ===== */}
-            {activeTab === 'difference' && (
-                <div className="space-y-6">
-                    <div className="flex flex-col lg:flex-row gap-4">
-                        <DateInputCard value={diffDate1} onChange={setDiffDate1} label="First Date" />
-                        <DateInputCard value={diffDate2} onChange={setDiffDate2} label="Second Date" />
-                    </div>
-                    <div className="text-center">
-                        <button onClick={handleDiffCalc} className="bg-violet-600 text-white px-6 py-3 rounded-xl font-semibold">
-                            <RotateCcw size={18} className="inline mr-2" /> Calculate Difference
-                        </button>
-                    </div>
-                    {diffResult && (
-                        <div className="grid grid-cols-3 md:grid-cols-7 gap-2 text-center">
-                            {[
-                                ['Years', diffResult.years],
-                                ['Months', diffResult.months],
-                                ['Days', diffResult.days],
-                                ['Hours', diffResult.hours],
-                                ['Minutes', diffResult.minutes],
-                                ['Seconds', diffResult.seconds],
-                                ['Total Sec', diffResult.diffSec],
-                            ].map(([l, v]) => (
-                                <div key={l} className="p-2 bg-violet-50 dark:bg-violet-900/20 rounded-lg">
-                                    <div className="text-lg font-bold text-violet-700">{v}</div>
-                                    <div className="text-[10px] text-gray-500">{l}</div>
-                                </div>
-                            ))}
-                        </div>
-                    )}
-                </div>
-            )}
-
-            {/* ===== Add/Sub Tab ===== */}
-            {activeTab === 'addsub' && (
-                <div className="space-y-6">
-                    <Card className="p-4 rounded-xl shadow space-y-3">
-                        <div className="flex gap-2">
-                            <button onClick={() => setBaseTs('')} className={`px-3 py-1 text-sm rounded-full ${!baseTs ? 'bg-indigo-200 dark:bg-indigo-800' : 'bg-gray-100 dark:bg-gray-700'}`}>Date</button>
-                            <button onClick={() => setBaseTs(tsNow?.toString() ?? '')} className={`px-3 py-1 text-sm rounded-full ${baseTs ? 'bg-indigo-200 dark:bg-indigo-800' : 'bg-gray-100 dark:bg-gray-700'}`}>Timestamp</button>
-                        </div>
-                        {!baseTs ? (
-                            <DateInputCard value={baseDate} onChange={setBaseDate} label="Base Date" />
-                        ) : (
-                            <input type="text" value={baseTs} onChange={e => setBaseTs(e.target.value)} placeholder="Timestamp" className="w-full p-2 border rounded dark:bg-gray-700" />
-                        )}
-                    </Card>
-                    <Card className="p-4 rounded-xl shadow">
-                        <h3 className="font-semibold mb-3">Add / Subtract</h3>
-                        <div className="grid grid-cols-4 gap-2">
-                            <Field label="Days" value={addDays} onChange={setAddDays} />
-                            <Field label="Hours" value={addHours} onChange={setAddHours} />
-                            <Field label="Minutes" value={addMinutes} onChange={setAddMinutes} />
-                            <Field label="Seconds" value={addSeconds} onChange={setAddSeconds} />
-                        </div>
-                        <Button type="button" onClick={handleAddSub} className="mt-4 w-full">Calculate</Button>
-                    </Card>
-                    {resultDate && (
-                        <Card className="p-4 rounded-xl shadow space-y-2">
-                            <div className="font-bold">New Date</div>
-                            <div className="text-sm">Timestamp: {resultTs}</div>
-                            <div className="text-sm">
-                                Shamsi: <span dir="rtl">{toShamsiString(resultDate)}</span>
-                            </div>
-                            <div className="text-sm">Gregorian: {toGregorianString(resultDate)}</div>
-                        </Card>
-                    )}
-                </div>
-            )}
+    return <div dir="rtl" className="min-h-screen bg-[#f8f9ff] px-4 py-6 text-[#0b1c30] dark:bg-[#0b0f19] dark:text-white md:px-6">
+        <div className="mx-auto max-w-7xl space-y-6">
+            <div className="flex flex-wrap items-center justify-between gap-3 text-sm text-slate-500"><div className="flex items-center gap-2"><a href="/">خانه</a><ChevronDown className="h-4 w-4 -rotate-90" /><span>ابزارها</span><ChevronDown className="h-4 w-4 -rotate-90" /><span>تاریخ و زمان</span><ChevronDown className="h-4 w-4 -rotate-90" /><b className="text-slate-800 dark:text-white">مبدل Timestamp یونیکس</b></div><div className="flex items-center gap-2 rounded-full bg-white px-3 py-1.5 shadow-sm dark:bg-[#161b26]"><span className="h-2 w-2 animate-pulse rounded-full bg-emerald-500" />Epoch زنده: <code className="font-mono font-bold">{Math.floor(now / 1000)}</code><button type="button" onClick={() => navigator.clipboard.writeText(String(Math.floor(now / 1000)))}><Copy className="h-4 w-4" /></button><button type="button" onClick={() => setLive(!live)}>{live ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}</button></div></div>
+            <Card className="flex flex-col justify-between gap-5 border-0 bg-white p-7 shadow-sm dark:bg-[#161b26] md:flex-row md:items-center"><div className="max-w-2xl"><div className="flex items-center gap-3"><div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-600 text-white"><Clock3 /></div><h1 className="text-2xl font-bold">مبدل Timestamp یونیکس</h1><span className="rounded-full bg-blue-100 px-2 py-1 text-xs font-semibold text-blue-700">Epoch &amp; Jalali 2-Way</span></div><p className="mt-3 text-sm leading-7 text-slate-600 dark:text-slate-400">تبدیل سریع و دوطرفه بین زمان یونیکس (ثانیه‌ها و میلی‌ثانیه‌ها)، تقویم شمسی (جلالی)، میلادی و استانداردهای ISO 8601 و RFC 2822. پردازش ۱۰۰٪ لوکال، بلادرنگ و بدون وقفه در مرورگر شما.</p></div><div className="flex gap-5 rounded-lg bg-slate-50 p-4 text-xs dark:bg-[#0d1117]"><div><span className="block text-slate-500">منطقه زمانی پیش‌فرض</span><b>Asia/Tehran (+03:30)</b></div><div className="border-r border-slate-200 pr-5 dark:border-slate-700"><span className="block text-slate-500">دقت زمان</span><b className="text-emerald-600">میلی‌ثانیه (ms)</b></div></div></Card>
+            <div className="grid items-start gap-6 lg:grid-cols-2"><Card className="overflow-hidden border-0 bg-white p-0 shadow-sm dark:bg-[#161b26]"><PanelTitle icon={<CalendarDays />} title="تبدیل تاریخ به زمان یونیکس"><div className="flex rounded-lg bg-white p-1 shadow-sm dark:bg-[#161b26]"><button type="button" onClick={() => setCalendar('jalali')} className={`rounded px-3 py-1 text-xs ${calendar === 'jalali' ? 'bg-blue-600 text-white' : 'text-slate-500'}`}>شمسی</button><button type="button" onClick={() => setCalendar('gregorian')} className={`rounded px-3 py-1 text-xs ${calendar === 'gregorian' ? 'bg-blue-600 text-white' : 'text-slate-500'}`}>میلادی</button></div></PanelTitle><div className="space-y-5 p-6"><div className="grid grid-cols-3 gap-3 sm:grid-cols-6"><Field label="سال" value={date.year} onChange={(value) => setDate({ ...date, year: value })} /><Field label="ماه" value={date.month} max={12} onChange={(value) => setDate({ ...date, month: value })} /><Field label="روز" value={date.day} max={31} onChange={(value) => setDate({ ...date, day: value })} /><Field label="ساعت" value={date.hour} max={23} onChange={(value) => setDate({ ...date, hour: value })} /><Field label="دقیقه" value={date.minute} max={59} onChange={(value) => setDate({ ...date, minute: value })} /><Field label="ثانیه" value={date.second} max={59} onChange={(value) => setDate({ ...date, second: value })} /></div><div className="flex justify-end gap-2"><Button type="button" variant="outline" onClick={setToday}><RefreshCw className="h-4 w-4" />زمان فعلی</Button><Button type="button" onClick={() => setTimestampInput(String(timestamp))} className="bg-blue-600"><Zap className="h-4 w-4" />تولید Timestamp</Button></div><Output label="ثانیه (Unix Epoch)" value={String(timestamp)} suffix="s" /><Output label="میلی‌ثانیه" value={String(timestamp * 1000)} suffix="ms" /></div></Card>
+                <Card className="overflow-hidden border-0 bg-white p-0 shadow-sm dark:bg-[#161b26]"><PanelTitle icon={<RotateCcw />} title="تبدیل Timestamp به تاریخ"><div className="flex gap-1 text-xs"><button type="button" onClick={() => setTimestampInput(String(Math.floor(Date.now() / 1000)))} className="rounded bg-white px-2 py-1 shadow-sm dark:bg-[#161b26]">هم‌اکنون</button><button type="button" onClick={setToday} className="rounded bg-white px-2 py-1 shadow-sm dark:bg-[#161b26]">امروز</button></div></PanelTitle><div className="space-y-5 p-6"><div className="flex gap-2"><input value={timestampInput} onChange={(event) => setTimestampInput(event.target.value)} dir="ltr" className="h-10 flex-1 rounded-lg bg-slate-50 px-3 font-mono outline-none focus:ring-2 focus:ring-blue-500 dark:bg-[#0d1117]" placeholder="Timestamp برحسب ثانیه یا میلی‌ثانیه..." /><Button type="button" onClick={() => setConverted(result)} className="bg-slate-900">تبدیل</Button></div><div className="grid gap-3 sm:grid-cols-2"><Result title="تقویم شمسی (جلالی)" value={`${fa(resultJalali.jd)} ${months[resultJalali.jm - 1]} ${fa(resultJalali.jy)}`} /><Result title="تقویم میلادی" value={resultGregorian} ltr /><Result title="فرمت ISO 8601" value={result.toISOString()} ltr /><Result title="فاصله تا هم‌اکنون" value={`${Math.round((result.getTime() - Date.now()) / 86400000)} روز`} /></div></div></Card></div>
+            <Card className="flex flex-col gap-4 border-0 bg-white p-6 shadow-sm dark:bg-[#161b26]"><div className="flex flex-wrap items-center justify-between gap-3"><div className="flex items-center gap-3"><div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-100 text-blue-600 dark:bg-blue-950/40"><CalendarDays className="h-5 w-5" /></div><div><h2 className="text-lg font-bold">نمای تقویم و انتخابگر روز</h2><p className="text-xs text-slate-500">با کلیک روی هر روز، مقدار دقیق Timestamp آن تولید می‌شود.</p></div></div><div className="flex items-center gap-2"><div className="flex items-center rounded-lg bg-slate-100 p-0.5 dark:bg-[#0d1117]"><button type="button" onClick={() => changeMonth(-1)} className="rounded p-1.5 text-slate-600 hover:bg-white dark:hover:bg-[#161b26]"><ChevronRight className="h-4 w-4" /></button><b className="min-w-[130px] px-3 text-center text-sm">{calendar === 'jalali' ? `${months[month - 1]} ${fa(year)}` : `${gregorianMonths[month - 1]} ${year}`}</b><button type="button" onClick={() => changeMonth(1)} className="rounded p-1.5 text-slate-600 hover:bg-white dark:hover:bg-[#161b26]"><ChevronLeft className="h-4 w-4" /></button></div><button type="button" onClick={setToday} className="h-9 rounded bg-slate-100 px-3 text-xs text-slate-600 hover:bg-slate-200 dark:bg-[#0d1117]">امروز</button></div></div><div className="w-full overflow-x-auto"><div className="grid min-w-[620px] grid-cols-7 gap-1 text-center text-xs">{['ش', 'ی', 'د', 'س', 'چ', 'پ', 'ج'].map((day, index) => <span key={day} className={`py-2 font-semibold ${index === 6 ? 'text-red-600' : 'text-slate-500'}`}>{day}</span>)}{calendarCells.map((cell, index) => cell ? <button disabled={cell.muted} type="button" key={index} onClick={() => selectDay(cell.day)} className={`flex h-14 flex-col items-center justify-between rounded p-1 transition-colors ${cell.muted ? 'bg-slate-100/40 text-slate-400 opacity-60 dark:bg-[#0d1117]/40' : 'hover:bg-slate-100 dark:hover:bg-blue-950/40'} ${cell.friday && !cell.muted ? 'hover:bg-red-50 dark:hover:bg-red-950/20' : ''} ${selectedCalendarDate.day === cell.day && selectedCalendarDate.month === cell.selectedMonth && selectedCalendarDate.year === cell.selectedYear ? 'bg-blue-600 text-white opacity-100 hover:bg-blue-700' : ''}`}><span className={`text-sm font-bold ${cell.friday && !(selectedCalendarDate.day === cell.day && selectedCalendarDate.month === cell.selectedMonth && selectedCalendarDate.year === cell.selectedYear) ? 'text-red-600' : ''}`}>{fa(cell.day)}</span><span className={`text-[10px] ${selectedCalendarDate.day === cell.day && selectedCalendarDate.month === cell.selectedMonth && selectedCalendarDate.year === cell.selectedYear ? 'text-blue-100' : 'text-slate-500'}`}>{cell.secondary}</span></button> : <span key={index} className="h-14" />)}</div></div></Card>
+            <div className="grid gap-6 md:grid-cols-2"><Card className="space-y-4 border-0 bg-white p-6 shadow-sm dark:bg-[#161b26]"><div className="flex items-center gap-3"><div className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-100 text-emerald-600"><CalendarDays className="h-5 w-5" /></div><h2 className="text-xl font-bold">راهنمای تبدیل زمان یونیکس (Epoch)</h2></div><p className="text-sm leading-7 text-slate-600 dark:text-slate-400">timestampهای یونیکس را به‌سادگی به تاریخ‌های خوانای میلادی یا شمسی تبدیل کنید و تاریخ‌های تقویمی را دوباره به timestamp برگردانید.</p><Info title="timestamp یونیکس چیست؟" text="تعداد ثانیه‌های سپری‌شده از اول ژانویه ۱۹۷۰ به وقت UTC است و در سیستم‌های نرم‌افزاری و APIها کاربرد فراوان دارد." icon={<Clock3 />} /><Info title="تبدیل بین تقویم‌ها" text="با این ابزار timestamp را در قالب میلادی یا جلالی مشاهده و مقدار را به فرمت‌های استاندارد ISO 8601 و RFC 2822 استخراج کنید." icon={<RefreshCw />} /><Info title="مناسب برای بررسی API و لاگ‌ها" text="تبدیل timestamp به تاریخ خوانا، تحلیل لاگ‌های سرور، رکوردهای پایگاه داده و پاسخ‌های API را سریع‌تر می‌کند." icon={<Zap />} /></Card><Card className="space-y-4 border-0 bg-white p-6 shadow-sm dark:bg-[#161b26]"><div className="flex items-center gap-3"><div className="flex h-8 w-8 items-center justify-center rounded-lg bg-violet-100 text-violet-600"><ShieldCheck className="h-5 w-5" /></div><h2 className="text-xl font-bold">سؤالات متداول</h2></div>{[['آیا تاریخ فارسی یا شمسی دقیقاً پشتیبانی می‌شود؟', 'بله، الگوریتم تبدیل تقویم خورشیدی جلالی با احتساب سال‌های کبیسه، تبدیل دوطرفه را با دقت بالا ارائه می‌دهد.'], ['تفاوت Timestamp ثانیه و میلی‌ثانیه چیست؟', 'سیستم‌های لینوکس و پایگاه‌های داده معمولاً مقدار ۱۰ رقمی برحسب ثانیه دارند؛ JavaScript و Java مقدار ۱۳ رقمی برحسب میلی‌ثانیه تولید می‌کنند و این ابزار هر دو را تشخیص می‌دهد.'], ['آیا داده‌های زمانی به سرور ارسال می‌شوند؟', 'خیر؛ تمامی محاسبات تبدیل تاریخ و فرمت‌ها به‌صورت ۱۰۰٪ محلی در مرورگر انجام می‌شوند و درخواست شبکه‌ای ارسال نمی‌گردد.'], ['چگونه منطقه زمانی روی نتیجه اثر می‌گذارد؟', 'Timestamp یونیکس مستقل از منطقه زمانی و بر پایه UTC است؛ منطقه زمانی فقط نحوه نمایش ساعت محلی را تغییر می‌دهد.']].map(([question, answer], index) => <details key={question} open={index === 0} className="rounded-lg bg-slate-50 p-4 dark:bg-[#0d1117]"><summary className="flex cursor-pointer list-none items-center justify-between font-semibold hover:text-blue-600">{question}<ChevronDown className="h-5 w-5 text-slate-500 transition-transform group-open:rotate-180" /></summary><p className="mt-3 text-sm leading-7 text-slate-600 dark:text-slate-400">{answer}</p></details>)}</Card></div>
         </div>
-    );
+    </div>;
 }
+
+function PanelTitle({ icon, title, children }: { icon: React.ReactNode; title: string; children: React.ReactNode }) { return <div className="flex items-center justify-between bg-slate-100 px-5 py-4 dark:bg-[#0d1117]"><h2 className="flex items-center gap-2 font-semibold"><span className="text-blue-600">{icon}</span>{title}</h2>{children}</div>; }
+function Output({ label, value, suffix }: { label: string; value: string; suffix: string }) { return <div><div className="mb-1 flex justify-between text-xs text-slate-500"><span>{label}</span><span className="text-blue-600">کپی</span></div><div className="flex items-center justify-between rounded-lg bg-slate-50 px-3 py-2 dark:bg-[#0d1117]"><code dir="ltr" className="font-mono font-bold text-blue-600">{value}</code><span className="text-xs text-slate-500">{suffix}</span><CopyButton value={value} /></div></div>; }
+function Result({ title, value, ltr = false }: { title: string; value: string; ltr?: boolean }) { return <div className="rounded-lg bg-slate-50 p-3 dark:bg-[#0d1117]"><span className="block text-xs text-slate-500">{title}</span><strong dir={ltr ? 'ltr' : 'rtl'} className="mt-1 block truncate text-sm">{value}</strong></div>; }
+function Info({ icon, title, text }: { icon: React.ReactNode; title: string; text: string }) { return <div className="rounded-xl bg-slate-50 p-5 dark:bg-[#0d1117]"><div className="mb-3 flex h-9 w-9 items-center justify-center rounded-lg bg-blue-100 text-blue-600">{icon}</div><h3 className="font-semibold">{title}</h3><p className="mt-2 text-sm leading-7 text-slate-600 dark:text-slate-400">{text}</p></div>; }

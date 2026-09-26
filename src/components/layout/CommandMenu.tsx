@@ -15,6 +15,7 @@ interface CommandMenuProps {
     setIsOpen: (isOpen: boolean) => void;
     locale: string;
     dict: Dictionary;
+    shortcutEnabled?: boolean;
 }
 
 const getGroupedTools = (tools: ToolMeta[]) => {
@@ -54,7 +55,7 @@ function renderIcon(Icon: any, className?: string): React.ReactNode {
     return null;
 }
 
-export default function CommandMenu({ isOpen, setIsOpen, locale, dict }: CommandMenuProps) {
+export default function CommandMenu({ isOpen, setIsOpen, locale, dict, shortcutEnabled = true }: CommandMenuProps) {
     const [search, setSearch] = useState('');
     const router = useRouter();
 
@@ -63,14 +64,14 @@ export default function CommandMenu({ isOpen, setIsOpen, locale, dict }: Command
 
     useEffect(() => {
         const down = (e: KeyboardEvent) => {
-            if (e.key === 'k' && (e.metaKey || e.ctrlKey)) {
+            if (shortcutEnabled && e.key === 'k' && (e.metaKey || e.ctrlKey)) {
                 e.preventDefault();
                 setIsOpen(true);
             }
         };
         document.addEventListener('keydown', down);
         return () => document.removeEventListener('keydown', down);
-    }, [setIsOpen]);
+    }, [setIsOpen, shortcutEnabled]);
 
     const getValidPath = (itemPath: string) => {
         let cleanPath = itemPath || '';
