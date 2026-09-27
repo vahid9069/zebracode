@@ -41,9 +41,10 @@ export default function HomePageClient({ dict, locale }: HomePageClientProps) {
     const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
     const [searchTerm, setSearchTerm] = useState('');
     const [activeCategory, setActiveCategory] = useState('all');
-    const [activeTag, setActiveTag] = useState('');
     const [activeMode, setActiveMode] = useState<'dev' | 'general' | 'all'>('dev');
+    const [activeTag, setActiveTag] = useState('');
     const allTools = useMemo(() => Object.values(AllToolsList), []);
+
     const focusSearch = useCallback(() => {
         const input = searchRef.current;
         if (!input) return;
@@ -51,11 +52,24 @@ export default function HomePageClient({ dict, locale }: HomePageClientProps) {
         input.select();
     }, []);
 
+    // 1. تغییر منطق استخراج دسته‌بندی‌ها تا فقط موارد مربوط به تب فعال رو نشون بده
     const categories = useMemo(() => {
         const counts = new Map<string, number>();
-        allTools.forEach((tool) => counts.set(tool.category || 'other', (counts.get(tool.category || 'other') || 0) + 1));
+        allTools.forEach((tool) => {
+            const isDevTool = ['converters', 'encoders', 'generators'].includes(tool.category);
+
+            // بررسی می‌کنیم که آیا این ابزار به تب انتخاب شده تعلق دارد یا خیر
+            const modeMatches =
+                activeMode === 'all' ||
+                (activeMode === 'dev' && isDevTool) ||
+                (activeMode === 'general' && !isDevTool);
+
+            if (modeMatches) {
+                counts.set(tool.category || 'other', (counts.get(tool.category || 'other') || 0) + 1);
+            }
+        });
         return Array.from(counts.entries()).sort(([a], [b]) => a.localeCompare(b));
-    }, [allTools]);
+    }, [allTools, activeMode]);
 
     const filteredTools = useMemo(() => {
         const query = searchTerm.trim().toLowerCase().replace(/→/g, ' ');
@@ -98,10 +112,17 @@ export default function HomePageClient({ dict, locale }: HomePageClientProps) {
     const quickSearches = home.quickSearches || [];
     const quickTags = home.quickTags || [];
     const toolCount = allTools.length;
+
     const modeCounts = {
         dev: allTools.filter((tool) => ['converters', 'encoders', 'generators'].includes(tool.category)).length,
         general: allTools.filter((tool) => !['converters', 'encoders', 'generators'].includes(tool.category)).length,
     };
+
+    // 2. شمارنده دکمه "همه موارد" بر اساس تب انتخاب شده تغییر کند
+    const currentModeTotalCount =
+        activeMode === 'dev' ? modeCounts.dev :
+            activeMode === 'general' ? modeCounts.general :
+                toolCount;
 
     return (
         <div className="home-theme min-h-screen overflow-hidden bg-[#0b0f19] text-[#e3e1ec]">
@@ -180,19 +201,41 @@ export default function HomePageClient({ dict, locale }: HomePageClientProps) {
                 <div className="mt-8 rounded-2xl border border-[#273043] bg-[#161b26] p-2 shadow-sm">
                     <div className="flex flex-col gap-2 rounded-xl border border-[#273043] bg-[#0d1117] p-1.5 lg:flex-row">
                         <div className="flex flex-1 gap-2 overflow-x-auto">
-                            <ModeButton active={activeMode === 'dev'} onClick={() => setActiveMode('dev')} icon={<Terminal className="h-4 w-4" />} label={home.devMode} count={modeCounts.dev} />
-                            <ModeButton active={activeMode === 'general'} onClick={() => setActiveMode('general')} icon={<Sparkles className="h-4 w-4" />} label={home.generalMode} count={modeCounts.general} />
-                            <ModeButton active={activeMode === 'all'} onClick={() => setActiveMode('all')} icon={<Grid2X2 className="h-4 w-4" />} label={home.allMode} count={toolCount} />
+                            {/* 3. ریست کردن دسته بندی به 'all' با تغییر دادن تب */}
+                            <ModeButton
+                                active={activeMode === 'dev'}
+                                onClick={() => { setActiveMode('dev'); setActiveCategory('all'); }}
+                                icon={<Terminal className="h-4 w-4" />}
+                                label={home.devMode}
+                                count={modeCounts.dev}
+                            />
+                            <ModeButton
+                                active={activeMode === 'general'}
+                                onClick={() => { setActiveMode('general'); setActiveCategory('all'); }}
+                                icon={<Sparkles className="h-4 w-4" />}
+                                label={home.generalMode}
+                                count={modeCounts.general}
+                            />
+                            <ModeButton
+                                active={activeMode === 'all'}
+                                onClick={() => { setActiveMode('all'); setActiveCategory('all'); }}
+                                icon={<Grid2X2 className="h-4 w-4" />}
+                                label={home.allMode}
+                                count={toolCount}
+                            />
                         </div>
                         <div className="hidden items-center gap-2 px-3 text-xs text-[#94a3b8] lg:flex"><span className="h-2 w-2 animate-pulse rounded-full bg-[#4edea3]" />{home.modeHint}</div>
                     </div>
                     <div className="mt-2 flex gap-2 overflow-x-auto px-1 pb-1">
-                        <CategoryButton active={activeCategory === 'all'} onClick={() => setActiveCategory('all')} label={home.allCategories} count={toolCount} />
+                        {/* 4. استفاده از currentModeTotalCount برای شمارنده دکمه همه موارد */}
+                        <CategoryButton active={activeCategory === 'all'} onClick={() => setActiveCategory('all')} label={home.allCategories} count={currentModeTotalCount} />
                         {categories.map(([category, count]) => (
                             <CategoryButton key={category} active={activeCategory === category} onClick={() => setActiveCategory(category)} label={localizeCategory(dict.categories, category)} count={count} />
                         ))}
                     </div>
                 </div>
+
+                {/* بقیه کدها بدون تغییر */}
                 <div className="mt-4 flex flex-wrap items-center gap-2 text-xs text-[#94a3b8]">
                     <span>{home.filterByFormat}</span>
                     {quickTags.map((tag) => (
@@ -279,7 +322,7 @@ function ToolCard({ tool, locale, dict, list }: { tool: ToolMeta; locale: 'fa' |
         <Link href={getToolHref(tool, locale)} className={`block p-5 ${list ? 'flex items-center gap-4' : ''}`}>
             <div className={`flex items-start justify-between ${list ? 'shrink-0' : 'mb-4'}`}>
                 <div className="flex h-10 w-10 items-center justify-center rounded-lg border border-blue-800/60 bg-blue-950/60 text-[#b4c5ff]">{renderIcon(Icon, 'h-5 w-5')}</div>
-                {!list && <span className="rounded border border-[#273043] bg-[#1e1f26] px-2 py-0.5 font-mono text-[10px] text-[#94a3b8]">{localizeCategory(dict.categories, tool.subCategory || tool.category)}</span>}
+                {!list && <span className="rounded border border-[#273043] bg-[#1e1f26] px-2 py-0.5 text-[10px] text-[#94a3b8]">{localizeCategory(dict.categories, tool.subCategory || tool.category)}</span>}
             </div>
             <div className={list ? 'min-w-0 flex-1' : ''}>
                 <h3 className="font-semibold text-white transition-colors group-hover:text-[#b4c5ff]">{localizedTool.title}</h3>

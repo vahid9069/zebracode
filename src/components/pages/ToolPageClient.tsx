@@ -41,6 +41,8 @@ export default function ToolPageClient({ toolType, locale = 'fa', dict }: ToolPa
         description: toolTranslation?.description || baseConfig.description,
     };
 
+    const localFaqs = (dict?.common?.faqByTool?.[toolType] || dict?.common?.faq?.[baseConfig.subCategory] || config.extraContent?.faq || []) as Array<{ question: string; answer: string; questionEn?: string; answerEn?: string }>
+
     const dedicatedTool = {
         'lorem-generator': <LoremGenerator locale={locale} dict={dict?.tools} />,
         'password-generator': <PasswordGenerator />,
@@ -64,7 +66,7 @@ export default function ToolPageClient({ toolType, locale = 'fa', dict }: ToolPa
                         toolType={config.type}
                         subCategory={config.subCategory || 'others'}
                         description={config.extraContent?.description || config.description}
-                        customFaq={config.extraContent?.faq}
+                        customFaq={localFaqs}
                         locale={locale}
                     />
                 )}
@@ -81,7 +83,9 @@ export default function ToolPageClient({ toolType, locale = 'fa', dict }: ToolPa
             title={config.title}
             description={config.description}
             category={dict?.categories?.[toolDefinition.category] || toolDefinition.category}
+            faqs={localFaqs}
         />;
+
     }
     
     // حالا Converter دیتای کاملا ترجمه‌شده (یا فال‌بک انگلیسی) را دریافت می‌کند

@@ -4,6 +4,7 @@ import React, { useMemo } from 'react';
 import ConverterWorkbench from '@/components/tools/ConverterWorkbench';
 import type { ToolDefinition, ToolOptionValue } from '@/config/tools';
 import type { Locale } from '@/i18n/getDictionary';
+import type { ToolFaq } from '@/config/tools';
 
 interface UniversalConverterWorkbenchProps {
     tool: ToolDefinition;
@@ -11,6 +12,7 @@ interface UniversalConverterWorkbenchProps {
     title?: string;
     description?: string;
     category?: string;
+    faqs?: ToolFaq[];
 }
 
 export default function UniversalConverterWorkbench({
@@ -19,6 +21,7 @@ export default function UniversalConverterWorkbench({
     title = locale === 'fa' ? tool.persianTitle : tool.title,
     description = tool.description,
     category,
+    faqs,
 }: UniversalConverterWorkbenchProps) {
     const validate = useMemo(() => (source: string) => {
         tool.validate(source);
@@ -48,7 +51,7 @@ export default function UniversalConverterWorkbench({
         toolOptions={tool.options}
         features={tool.features}
         codeSnippets={tool.codeSnippets}
-        faqs={tool.faqs}
+        faqs={faqs}
         validate={validate}
         convert={convert}
         serialize={output => output}
