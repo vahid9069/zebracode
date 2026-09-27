@@ -51,7 +51,7 @@ export default function LoremGenerator({ locale = 'fa', dict }: LoremGeneratorPr
     const [count, setCount] = useState(4);
     const [lengthMode, setLengthMode] = useState<LengthMode>('medium');
     const [wrapHtml, setWrapHtml] = useState(false);
-    const [startWithLorem, setStartWithLorem] = useState(true);
+    const [startWithLorem, setStartWithLorem] = useState(false);
     const [includeHeadings, setIncludeHeadings] = useState(false);
     const [view, setView] = useState<'rich' | 'raw'>('rich');
     const [output, setOutput] = useState('');
@@ -131,7 +131,7 @@ export default function LoremGenerator({ locale = 'fa', dict }: LoremGeneratorPr
 
     const reset = () => {
         setLanguage('fa'); setUnit('paras'); setCount(4); setLengthMode('medium');
-        setWrapHtml(false); setStartWithLorem(true); setIncludeHeadings(false); setView('rich');
+        setWrapHtml(false); setStartWithLorem(false); setIncludeHeadings(false); setView('rich');
     };
     const transformOutput = (kind: 'trim' | 'zwnj' | 'upper' | 'clear') => {
         if (kind === 'clear') return setOutput('');
