@@ -3,6 +3,7 @@
 import { useEffect } from 'react';
 import { AlertTriangle, RotateCcw } from 'lucide-react';
 import { useTheme } from 'next-themes';
+import { useOptionalI18n } from '@/i18n/I18nProvider';
 
 type Props = {
     error: Error;
@@ -10,6 +11,9 @@ type Props = {
 };
 
 export default function Error({ error, reset }: Props) {
+    const i18n = useOptionalI18n();
+    const common = i18n?.dict.common;
+
     useEffect(() => {
         console.error(error);
     }, [error]);
@@ -22,11 +26,11 @@ export default function Error({ error, reset }: Props) {
                 </div>
 
                 <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-                    Oops! Something went wrong
+                    {common?.errorTitle || 'Oops! Something went wrong'}
                 </h1>
 
                 <p className="text-gray-600 dark:text-gray-400">
-                    {error?.message || 'An unexpected error occurred. Please try again later.'}
+                    {error?.message || common?.errorFallback || 'An unexpected error occurred. Please try again later.'}
                 </p>
 
                 <button
@@ -34,7 +38,7 @@ export default function Error({ error, reset }: Props) {
                     className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl transition-colors shadow-md hover:shadow-lg"
                 >
                     <RotateCcw size={18} />
-                    Try Again
+                    {common?.tryAgain || 'Try Again'}
                 </button>
             </div>
         </div>

@@ -9,7 +9,6 @@ import DateTimeSuite from '@/components/tools/DateTimeSuite';
 import TextDiff from '@/components/tools/TextDiff';
 import UniversalConverterWorkbench from '@/components/tools/UniversalConverterWorkbench';
 import { getToolDefinition } from '@/config/tools';
-import SeoContent from '@/components/pages/SeoContent';
 import React from 'react';
 
 interface ToolPageClientProps {
@@ -25,7 +24,7 @@ export default function ToolPageClient({ toolType, locale = 'fa', dict }: ToolPa
     if (!baseConfig) {
         return (
             <div className="flex items-center justify-center min-h-[50vh] text-xl font-semibold text-gray-600 dark:text-gray-300">
-                {locale === 'en' ? 'Tool not found' : 'ابزار پیدا نشد'}
+                {dict?.common?.toolNotFound || (locale === 'en' ? 'Tool not found' : 'ابزار پیدا نشد')}
             </div>
         );
     }
@@ -41,13 +40,11 @@ export default function ToolPageClient({ toolType, locale = 'fa', dict }: ToolPa
         description: toolTranslation?.description || baseConfig.description,
     };
 
-    const localFaqs = (dict?.common?.faqByTool?.[toolType] || dict?.common?.faq?.[baseConfig.subCategory] || config.extraContent?.faq || []) as Array<{ question: string; answer: string; questionEn?: string; answerEn?: string }>
-
     const dedicatedTool = {
         'lorem-generator': <LoremGenerator locale={locale} dict={dict?.tools} />,
         'password-generator': <PasswordGenerator />,
-        'timestamp-converter': <TimestampConverter />,
-        'date-diff': <DateTimeSuite />,
+        'timestamp-converter': <DateTimeSuite />,
+        'date-diff': <TimestampConverter />,
         'text-diff': <TextDiff
             locale={locale}
             title={locale === 'fa' ? 'مقایسه‌گر متن و سورس کد (Text Diff)' : 'Text and Source Code Diff Checker'}
@@ -61,15 +58,6 @@ export default function ToolPageClient({ toolType, locale = 'fa', dict }: ToolPa
         return (
             <div className="min-h-screen bg-background text-foreground">
                 {dedicatedTool}
-                {!['lorem-generator', 'password-generator', 'timestamp-converter', 'date-diff', 'text-diff'].includes(toolType) && (
-                    <SeoContent
-                        toolType={config.type}
-                        subCategory={config.subCategory || 'others'}
-                        description={config.extraContent?.description || config.description}
-                        customFaq={localFaqs}
-                        locale={locale}
-                    />
-                )}
             </div>
         );
     }
@@ -83,9 +71,7 @@ export default function ToolPageClient({ toolType, locale = 'fa', dict }: ToolPa
             title={config.title}
             description={config.description}
             category={dict?.categories?.[toolDefinition.category] || toolDefinition.category}
-            faqs={localFaqs}
         />;
-
     }
     
     // حالا Converter دیتای کاملا ترجمه‌شده (یا فال‌بک انگلیسی) را دریافت می‌کند

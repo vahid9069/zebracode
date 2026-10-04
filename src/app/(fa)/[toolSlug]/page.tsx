@@ -3,7 +3,6 @@ import ToolStructuredData from '@/components/pages/ToolStructuredData';
 import { getDictionary } from '@/i18n/getDictionary';
 import { AllToolsList } from '@/lib/registry/tools';
 import { generateToolMetadata } from '@/lib/seo';
-import { getToolDefinition } from '@/config/tools';
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 
@@ -19,9 +18,9 @@ export async function generateMetadata({ params }: { params: Promise<{ toolSlug:
   const { toolSlug } = await params;
   const foundEntry = Object.entries(AllToolsList).find(([, t]) => t.href.split('/').filter(Boolean).pop() === toolSlug);
   if (!foundEntry) return { title: 'ابزار پیدا نشد', robots: { index: false, follow: false } };
-  const metadata = generateToolMetadata(foundEntry[0], 'fa');
-  const definition = getToolDefinition(toolSlug);
-  return definition ? { ...metadata, description: definition.description } : metadata;
+  const dict = await getDictionary('fa');
+  const localizedCopy = (dict.tools as Record<string, { title?: string; shortDescription?: string; description?: string }>)[foundEntry[0]];
+  return generateToolMetadata(foundEntry[0], 'fa', localizedCopy);
 }
 
 export default async function FaToolPage({ params }: { params: Promise<{ toolSlug: string }> }) {
@@ -42,11 +41,14 @@ export default async function FaToolPage({ params }: { params: Promise<{ toolSlu
     notFound();
   }
 
-  const faqByTool = dict.common.faqByTool as Record<string, { question: string; answer: string }[]>;
-  const faqByCategory = dict.common.faq as Record<string, { question: string; answer: string }[]>;
-  const faq = faqByTool?.[foundEntry[0]] || faqByCategory[AllToolsList[foundEntry[0]].subCategory];
+  const localizedTool = (dict.tools as Record<string, { title?: string; shortDescription?: string; description?: string }>)[foundEntry[0]];
   return <>
-    <ToolStructuredData toolType={foundEntry[0]} locale="fa" faq={faq} />
+    <ToolStructuredData
+      toolType={foundEntry[0]}
+      locale="fa"
+      title={localizedTool?.title}
+      description={localizedTool?.shortDescription || localizedTool?.description}
+    />
     <ToolPageClient toolType={foundEntry[0]} dict={dict} locale="fa" />
   </>;
 }

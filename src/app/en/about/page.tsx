@@ -8,6 +8,7 @@ export const metadata: Metadata = {
     title: 'About Us - ZebraCode',
     description: 'Learn about ZebraCode and its free online developer tools.',
     alternates: { canonical: getLocalizedUrl('/en/about'), languages: { 'fa-IR': getLocalizedUrl('/about'), en: getLocalizedUrl('/en/about'), 'x-default': getLocalizedUrl('/about') } },
+    openGraph: { title: 'About Us - ZebraCode', description: 'Learn about ZebraCode and its free online developer tools.', url: getLocalizedUrl('/en/about'), siteName: 'ZebraCode', locale: 'en_US', type: 'website' },
 };
 
 export default async function EnAboutPage() {
@@ -15,5 +16,13 @@ export default async function EnAboutPage() {
     const dict = await getDictionary('en');
     
     // ارسال دیتای ترجمه‌شده به کامپوننت مشترک
-    return <><SiteStructuredData locale="en" /><AboutView dict={dict.about} /></>;
+    return <>
+        <SiteStructuredData
+            locale="en"
+            path="/en/about"
+            name="About Us - ZebraCode"
+            description="Learn about ZebraCode and its free online developer tools."
+        />
+        <AboutView dict={dict.about} />
+    </>;
 }

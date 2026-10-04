@@ -9,6 +9,7 @@ import { ToolMeta } from '@/types/types';
 import SeoContent from "../pages/SeoContent";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { useOptionalI18n } from '@/i18n/I18nProvider';
 
 type CodeMirrorLanguage = 'json' | 'javascript' | 'html' | 'sql' | 'markdown' | 'text';
 
@@ -38,7 +39,7 @@ export default function Converter({ config, locale = 'en' }: ConverterProps) {
         sampleCodeSimple,
         sampleCodeComplex,
         validateInput,
-        validationErrorMessage = 'Invalid input',
+        validationErrorMessage,
         secondaryTransformFunction,
         secondaryButtonText = 'Toggle Output',
         secondaryOutputLanguage,
@@ -59,6 +60,8 @@ export default function Converter({ config, locale = 'en' }: ConverterProps) {
     const [isValid, setIsValid] = useState(false);
     const [isSecondaryMode, setIsSecondaryMode] = useState(false);
     const { theme } = useTheme();
+    const t = useOptionalI18n()?.dict.common;
+    const validationMessage = validationErrorMessage || t?.invalidInput || 'Invalid input';
 
     const [isInputMaximized, setIsInputMaximized] = useState(false);
     const [isOutputMaximized, setIsOutputMaximized] = useState(false);
@@ -98,7 +101,7 @@ export default function Converter({ config, locale = 'en' }: ConverterProps) {
             setError(null);
         } catch (err: any) {
             console.error('Transformation error:', err);
-            setError(err.message || 'Error during conversion');
+            setError(err.message || t?.conversionError || 'Error during conversion');
             setOutputValue('');
         }
     }, [requiresSecondaryInput]);
@@ -119,7 +122,7 @@ export default function Converter({ config, locale = 'en' }: ConverterProps) {
             const valid = validateInput(text);
             setIsValid(valid);
             if (!valid) {
-                setError(validationErrorMessage);
+                setError(validationMessage);
                 setOutputValue('');
                 return;
             }
@@ -128,7 +131,7 @@ export default function Converter({ config, locale = 'en' }: ConverterProps) {
         }
 
         await performTransformation(text, secondaryInputValue, isSecondaryMode ? 'secondary' : 'primary');
-    }, [validateInput, validationErrorMessage, performTransformation, secondaryInputValue, isSecondaryMode]);
+    }, [validateInput, validationMessage, performTransformation, secondaryInputValue, isSecondaryMode]);
 
     const handleSecondaryInputChange = useCallback((value: string | undefined) => {
         const text = value ?? '';
@@ -158,7 +161,7 @@ export default function Converter({ config, locale = 'en' }: ConverterProps) {
         {
             key: 'toggle-size-input',
             icon: isInputMaximized ? <Minimize size={18} /> : <Maximize size={18} />,
-            title: isInputMaximized ? 'Minimize' : 'Maximize',
+            title: isInputMaximized ? (t?.minimize || 'Minimize') : (t?.maximize || 'Maximize'),
             onClick: () => { setIsOutputMaximized(false); setIsInputMaximized(prev => !prev); },
             disabled: isOutputMaximized,
         },
@@ -169,7 +172,7 @@ export default function Converter({ config, locale = 'en' }: ConverterProps) {
             {
                 key: 'toggle-size-output',
                 icon: isOutputMaximized ? <Minimize size={18} /> : <Maximize size={18} />,
-                title: isOutputMaximized ? 'Minimize' : 'Maximize',
+                title: isOutputMaximized ? (t?.minimize || 'Minimize') : (t?.maximize || 'Maximize'),
                 onClick: () => { setIsInputMaximized(false); setIsOutputMaximized(prev => !prev); },
                 disabled: isInputMaximized,
             },
@@ -178,7 +181,7 @@ export default function Converter({ config, locale = 'en' }: ConverterProps) {
             btns.push({
                 key: 'toggle-secondary',
                 icon: <Table size={18} className={isSecondaryMode ? 'text-blue-500' : 'text-gray-500'} />,
-                title: isSecondaryMode ? 'Switch to primary output' : secondaryButtonText,
+                title: isSecondaryMode ? (t?.switchPrimaryOutput || 'Switch to primary output') : secondaryButtonText,
                 onClick: toggleSecondaryMode,
                 disabled: !inputValue.trim() || (validateInput && !isValid),
             });
@@ -239,13 +242,13 @@ export default function Converter({ config, locale = 'en' }: ConverterProps) {
                                     <div
                                         className="bg-muted/60 px-4 py-2 border-b flex justify-between items-center">
                                         <h2 className="text-sm font-bold text-foreground">
-                                            Input ({inputLanguage.toUpperCase()})
+                                            {t?.input || 'Input'} ({inputLanguage.toUpperCase()})
                                         </h2>
                                     </div>
                                 )}
                                 {!useCardStyle && (
                                     <h2 className="text-xl font-semibold mb-2 dark:text-white border-b pb-2">
-                                        Input ({inputLanguage.toUpperCase()})
+                                        {t?.input || 'Input'} ({inputLanguage.toUpperCase()})
                                         {validateInput && isValid &&
                                             <CheckCircle size={20} className="inline ml-2 text-green-500"/>}
                                     </h2>
@@ -289,7 +292,7 @@ export default function Converter({ config, locale = 'en' }: ConverterProps) {
                                             onClick={handleApplySecondary}
                                         >
                                             <Play size={12}/>
-                                            Apply
+                                            {t?.apply || 'Apply'}
                                         </Button>
                                     </div>
                                     <div className="flex-1">
@@ -315,14 +318,14 @@ export default function Converter({ config, locale = 'en' }: ConverterProps) {
                                 <div
                                     className="bg-muted/60 px-4 py-2 border-b flex justify-between items-center">
                                     <h2 className="text-sm font-bold text-foreground">
-                                        Output ({currentOutputLanguage.toUpperCase()})
-                                        {isSecondaryMode && <span className="text-blue-500 ml-1">(secondary)</span>}
+                                        {t?.output || 'Output'} ({currentOutputLanguage.toUpperCase()})
+                                        {isSecondaryMode && <span className="text-blue-500 ml-1">({t?.secondary || 'secondary'})</span>}
                                     </h2>
                                     </div>
                             )}
                             {!useCardStyle && (
                                 <h2 className="text-xl font-semibold mb-2 dark:text-white border-b pb-2">
-                                    Output ({currentOutputLanguage.toUpperCase()})
+                                    {t?.output || 'Output'} ({currentOutputLanguage.toUpperCase()})
                                 </h2>
                             )}
                             <div
@@ -344,7 +347,7 @@ export default function Converter({ config, locale = 'en' }: ConverterProps) {
                                         className="absolute inset-0 flex items-center justify-center text-gray-400 dark:text-gray-500 pointer-events-none">
                                         <div className="text-center">
                                             <div className="text-2xl mb-2">📄</div>
-                                            <div className="text-sm">Output will appear here</div>
+                                            <div className="text-sm">{t?.outputPlaceholder || 'Output will appear here'}</div>
                                         </div>
                                     </div>
                                 )}
@@ -356,7 +359,7 @@ export default function Converter({ config, locale = 'en' }: ConverterProps) {
                 {/* Features Section */}
                 {features && features.length > 0 && (
                     <div className="mt-12 max-w-4xl mx-auto">
-                        <h3 className="text-2xl font-bold text-center text-gray-900 dark:text-white mb-6">Features</h3>
+                        <h3 className="text-2xl font-bold text-center text-gray-900 dark:text-white mb-6">{t?.features || 'Features'}</h3>
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                             {features.map((f, i) => (
                                 <Card key={i} className="text-center p-6">

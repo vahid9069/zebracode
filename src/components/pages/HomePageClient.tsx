@@ -20,7 +20,6 @@ import {
 import { AllToolsList } from '@/lib/registry/tools';
 import { ToolMeta } from '@/types/types';
 import renderIcon from '@/components/layout/renderIcon';
-import { BASE_URL } from '@/lib/env';
 import type { Dictionary } from '@/i18n/getDictionary';
 import { localizeCategory, localizeTool } from '@/i18n/localize';
 import { Button } from '@/components/ui/button';
@@ -33,7 +32,7 @@ export interface HomePageClientProps {
 }
 
 const getToolHref = (tool: ToolMeta, locale: 'fa' | 'en') =>
-    `${BASE_URL || ''}${locale === 'en' ? `/en${tool.href}` : tool.href}`;
+    `${locale === 'en' ? '/en' : ''}${tool.href}`;
 
 export default function HomePageClient({ dict, locale }: HomePageClientProps) {
     const home = dict.home;
@@ -41,10 +40,9 @@ export default function HomePageClient({ dict, locale }: HomePageClientProps) {
     const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
     const [searchTerm, setSearchTerm] = useState('');
     const [activeCategory, setActiveCategory] = useState('all');
-    const [activeMode, setActiveMode] = useState<'dev' | 'general' | 'all'>('dev');
     const [activeTag, setActiveTag] = useState('');
+    const [activeMode, setActiveMode] = useState<'dev' | 'general' | 'all'>('dev');
     const allTools = useMemo(() => Object.values(AllToolsList), []);
-
     const focusSearch = useCallback(() => {
         const input = searchRef.current;
         if (!input) return;
@@ -52,24 +50,11 @@ export default function HomePageClient({ dict, locale }: HomePageClientProps) {
         input.select();
     }, []);
 
-    // 1. تغییر منطق استخراج دسته‌بندی‌ها تا فقط موارد مربوط به تب فعال رو نشون بده
     const categories = useMemo(() => {
         const counts = new Map<string, number>();
-        allTools.forEach((tool) => {
-            const isDevTool = ['converters', 'encoders', 'generators'].includes(tool.category);
-
-            // بررسی می‌کنیم که آیا این ابزار به تب انتخاب شده تعلق دارد یا خیر
-            const modeMatches =
-                activeMode === 'all' ||
-                (activeMode === 'dev' && isDevTool) ||
-                (activeMode === 'general' && !isDevTool);
-
-            if (modeMatches) {
-                counts.set(tool.category || 'other', (counts.get(tool.category || 'other') || 0) + 1);
-            }
-        });
+        allTools.forEach((tool) => counts.set(tool.category || 'other', (counts.get(tool.category || 'other') || 0) + 1));
         return Array.from(counts.entries()).sort(([a], [b]) => a.localeCompare(b));
-    }, [allTools, activeMode]);
+    }, [allTools]);
 
     const filteredTools = useMemo(() => {
         const query = searchTerm.trim().toLowerCase().replace(/→/g, ' ');
@@ -112,17 +97,10 @@ export default function HomePageClient({ dict, locale }: HomePageClientProps) {
     const quickSearches = home.quickSearches || [];
     const quickTags = home.quickTags || [];
     const toolCount = allTools.length;
-
     const modeCounts = {
         dev: allTools.filter((tool) => ['converters', 'encoders', 'generators'].includes(tool.category)).length,
         general: allTools.filter((tool) => !['converters', 'encoders', 'generators'].includes(tool.category)).length,
     };
-
-    // 2. شمارنده دکمه "همه موارد" بر اساس تب انتخاب شده تغییر کند
-    const currentModeTotalCount =
-        activeMode === 'dev' ? modeCounts.dev :
-            activeMode === 'general' ? modeCounts.general :
-                toolCount;
 
     return (
         <div className="home-theme min-h-screen overflow-hidden bg-[#0b0f19] text-[#e3e1ec]">
@@ -165,7 +143,7 @@ export default function HomePageClient({ dict, locale }: HomePageClientProps) {
                                 }}
                                 onClick={focusSearch}
                                 aria-label={home.focusSearch}
-                                className="hidden cursor-pointer rounded border border-[#334155] bg-[#1e1f26] px-2 py-1 font-mono text-xs text-[#94a3b8] transition hover:border-[#b4c5ff] hover:text-[#b4c5ff] sm:block"
+                                className="hidden cursor-pointer rounded border border-[#334155] bg-[#1e1f26] px-2 py-1 font-sans text-xs text-[#94a3b8] transition hover:border-[#b4c5ff] hover:text-[#b4c5ff] sm:block"
                             >
                                 ⌘ K
                             </button>
@@ -178,14 +156,6 @@ export default function HomePageClient({ dict, locale }: HomePageClientProps) {
                                     <List className="h-4 w-4" />
                                 </Button>
                             </div>
-                        </div>
-                        <div className="mt-3 flex flex-wrap items-center justify-center gap-2 text-sm text-[#64748b]">
-                            <span className="text-[#94a3b8]">{home.popularSearches}</span>
-                            {quickSearches.map((item) => (
-                                <button key={item} type="button" onClick={() => { setSearchTerm(item); setActiveTag(''); }} className="rounded-md border border-[#273043] bg-[#161b26] px-3 py-1.5 font-mono text-xs text-[#94a3b8] transition hover:border-[#b4c5ff]/50 hover:text-[#b4c5ff]">
-                                    {item}
-                                </button>
-                            ))}
                         </div>
                     </div>
 
@@ -201,45 +171,23 @@ export default function HomePageClient({ dict, locale }: HomePageClientProps) {
                 <div className="mt-8 rounded-2xl border border-[#273043] bg-[#161b26] p-2 shadow-sm">
                     <div className="flex flex-col gap-2 rounded-xl border border-[#273043] bg-[#0d1117] p-1.5 lg:flex-row">
                         <div className="flex flex-1 gap-2 overflow-x-auto">
-                            {/* 3. ریست کردن دسته بندی به 'all' با تغییر دادن تب */}
-                            <ModeButton
-                                active={activeMode === 'dev'}
-                                onClick={() => { setActiveMode('dev'); setActiveCategory('all'); }}
-                                icon={<Terminal className="h-4 w-4" />}
-                                label={home.devMode}
-                                count={modeCounts.dev}
-                            />
-                            <ModeButton
-                                active={activeMode === 'general'}
-                                onClick={() => { setActiveMode('general'); setActiveCategory('all'); }}
-                                icon={<Sparkles className="h-4 w-4" />}
-                                label={home.generalMode}
-                                count={modeCounts.general}
-                            />
-                            <ModeButton
-                                active={activeMode === 'all'}
-                                onClick={() => { setActiveMode('all'); setActiveCategory('all'); }}
-                                icon={<Grid2X2 className="h-4 w-4" />}
-                                label={home.allMode}
-                                count={toolCount}
-                            />
+                            <ModeButton active={activeMode === 'dev'} onClick={() => setActiveMode('dev')} icon={<Terminal className="h-4 w-4" />} label={home.devMode} count={modeCounts.dev} />
+                            <ModeButton active={activeMode === 'general'} onClick={() => setActiveMode('general')} icon={<Sparkles className="h-4 w-4" />} label={home.generalMode} count={modeCounts.general} />
+                            <ModeButton active={activeMode === 'all'} onClick={() => setActiveMode('all')} icon={<Grid2X2 className="h-4 w-4" />} label={home.allMode} count={toolCount} />
                         </div>
                         <div className="hidden items-center gap-2 px-3 text-xs text-[#94a3b8] lg:flex"><span className="h-2 w-2 animate-pulse rounded-full bg-[#4edea3]" />{home.modeHint}</div>
                     </div>
                     <div className="mt-2 flex gap-2 overflow-x-auto px-1 pb-1">
-                        {/* 4. استفاده از currentModeTotalCount برای شمارنده دکمه همه موارد */}
-                        <CategoryButton active={activeCategory === 'all'} onClick={() => setActiveCategory('all')} label={home.allCategories} count={currentModeTotalCount} />
+                        <CategoryButton active={activeCategory === 'all'} onClick={() => setActiveCategory('all')} label={home.allCategories} count={toolCount} />
                         {categories.map(([category, count]) => (
                             <CategoryButton key={category} active={activeCategory === category} onClick={() => setActiveCategory(category)} label={localizeCategory(dict.categories, category)} count={count} />
                         ))}
                     </div>
                 </div>
-
-                {/* بقیه کدها بدون تغییر */}
                 <div className="mt-4 flex flex-wrap items-center gap-2 text-xs text-[#94a3b8]">
                     <span>{home.filterByFormat}</span>
                     {quickTags.map((tag) => (
-                        <button key={tag} type="button" onClick={() => setActiveTag(activeTag === tag.toLowerCase() ? '' : tag.toLowerCase())} className={`rounded-full border px-3 py-1.5 font-mono transition ${activeTag === tag.toLowerCase() ? 'border-[#b4c5ff] bg-blue-950/50 text-[#b4c5ff]' : 'border-[#273043] bg-[#161b26] hover:border-[#b4c5ff]/50 hover:text-[#b4c5ff]'}`}>{tag}</button>
+                        <button key={tag} type="button" onClick={() => setActiveTag(activeTag === tag.toLowerCase() ? '' : tag.toLowerCase())} className={`rounded-full border px-3 py-1.5 font-sans transition ${activeTag === tag.toLowerCase() ? 'border-[#b4c5ff] bg-blue-950/50 text-[#b4c5ff]' : 'border-[#273043] bg-[#161b26] hover:border-[#b4c5ff]/50 hover:text-[#b4c5ff]'}`}>{tag}</button>
                     ))}
                 </div>
 
@@ -271,15 +219,15 @@ export default function HomePageClient({ dict, locale }: HomePageClientProps) {
                     <div className="pointer-events-none absolute -bottom-32 -left-20 h-80 w-80 rounded-full bg-blue-600/10 blur-3xl" />
                     <div className="relative grid items-center gap-8 lg:grid-cols-2">
                         <div>
-                            <div className="mb-4 inline-flex items-center gap-2 rounded-md border border-emerald-800/60 bg-emerald-950/60 px-2.5 py-1 font-mono text-xs text-emerald-300"><span className="h-2 w-2 animate-pulse rounded-full bg-[#4edea3]" /> ZERO_LATENCY_ENGINE</div>
+                            <div className="mb-4 inline-flex items-center gap-2 rounded-md border border-emerald-800/60 bg-emerald-950/60 px-2.5 py-1 font-sans text-xs text-emerald-300"><span className="h-2 w-2 animate-pulse rounded-full bg-[#4edea3]" /> ZERO_LATENCY_ENGINE</div>
                             <h2 className="text-2xl font-bold tracking-tight text-white md:text-3xl">{home.privacyHeading}</h2>
                             <p className="mt-4 leading-8 text-[#94a3b8]">{home.privacyDescription}</p>
-                            <div className="mt-6 grid grid-cols-2 gap-3 font-mono text-xs">
+                            <div className="mt-6 grid grid-cols-2 gap-3 font-sans text-xs">
                                 <div className="rounded-xl border border-[#273043] bg-[#0e131d] p-4"><span className="mb-1 block text-[#94a3b8]">{home.firstRun}</span><strong className="text-lg text-[#4edea3]">&lt; 1.8ms</strong></div>
                                 <div className="rounded-xl border border-[#273043] bg-[#0e131d] p-4"><span className="mb-1 block text-[#94a3b8]">{home.transmission}</span><strong className="text-lg text-white">0 Bytes / Local</strong></div>
                             </div>
                         </div>
-                        <div className="overflow-hidden rounded-xl border border-slate-800 bg-slate-950 font-mono text-xs shadow-2xl" dir="ltr">
+                        <div className="overflow-hidden rounded-xl border border-slate-800 bg-slate-950 font-sans text-xs shadow-2xl" dir="ltr">
                             <div className="flex items-center justify-between border-b border-slate-800 bg-[#0a0d14] px-4 py-3"><span className="text-slate-400">zebracode-client.ts</span><span className="rounded border border-emerald-800/60 bg-emerald-950/60 px-2 py-0.5 text-emerald-400">Client-side</span></div>
                             <pre className="overflow-x-auto p-5 leading-7 text-slate-300"><code><span className="text-slate-500">// Your data stays in your browser</span>{'\n'}<span className="text-pink-400">const</span> result = <span className="text-blue-400">await</span> tool.transform(input);{'\n'}<span className="text-pink-400">return</span> result; <span className="text-slate-500">// instant & secure</span></code></pre>
                         </div>
@@ -290,7 +238,7 @@ export default function HomePageClient({ dict, locale }: HomePageClientProps) {
             <footer className="border-t border-[#273043] bg-[#0d1117]">
                 <div className="mx-auto grid max-w-7xl gap-8 px-4 py-12 md:grid-cols-2 md:px-8 lg:grid-cols-4">
                     <div className="lg:col-span-2">
-                        <div className="flex items-center gap-2 text-white"><span className="flex h-8 w-8 items-center justify-center rounded-lg border border-[#273043] bg-[#161b26] text-[#b4c5ff]"><Terminal className="h-4 w-4" /></span><strong>ZebraCode</strong><span className="rounded border border-[#273043] bg-[#161b26] px-1.5 py-0.5 font-mono text-[10px] text-[#94a3b8]">/dev</span></div>
+                        <div className="flex items-center gap-2 text-white"><span className="flex h-8 w-8 items-center justify-center rounded-lg border border-[#273043] bg-[#161b26] text-[#b4c5ff]"><Terminal className="h-4 w-4" /></span><strong>ZebraCode</strong><span className="rounded border border-[#273043] bg-[#161b26] px-1.5 py-0.5 font-sans text-[10px] text-[#94a3b8]">/dev</span></div>
                         <p className="mt-4 max-w-md text-sm leading-7 text-[#94a3b8]">{home.footerDescription}</p>
                         <div className="mt-5 flex gap-2"><a href="https://github.com/vahid9069/zebracode" target="_blank" rel="noreferrer" aria-label="GitHub" className="rounded-lg border border-[#273043] bg-[#161b26] p-2 text-[#94a3b8] transition hover:text-[#b4c5ff]"><Github className="h-4 w-4" /></a><span className="rounded-lg border border-[#273043] bg-[#161b26] p-2 text-[#94a3b8]"><LockKeyhole className="h-4 w-4" /></span></div>
                     </div>
@@ -308,11 +256,11 @@ function Assurance({ icon: Icon, color, text }: { icon: React.ComponentType<{ cl
 }
 
 function CategoryButton({ active, onClick, label, count }: { active: boolean; onClick: () => void; label: string; count: number }) {
-    return <button type="button" onClick={onClick} className={`flex shrink-0 items-center gap-2 rounded-lg px-4 py-2.5 text-sm font-semibold transition ${active ? 'bg-[#2563eb] text-white shadow-md' : 'text-[#94a3b8] hover:bg-[#161b26] hover:text-white'}`}><span>{label}</span><span className={`rounded-full px-1.5 py-0.5 font-mono text-[11px] ${active ? 'bg-white/20' : 'bg-[#1e1f26] text-[#64748b]'}`}>{count}</span></button>;
+    return <button type="button" onClick={onClick} className={`flex shrink-0 items-center gap-2 rounded-lg px-4 py-2.5 text-sm font-semibold transition ${active ? 'bg-[#2563eb] text-white shadow-md' : 'text-[#94a3b8] hover:bg-[#161b26] hover:text-white'}`}><span>{label}</span><span className={`rounded-full px-1.5 py-0.5 font-sans text-[11px] ${active ? 'bg-white/20' : 'bg-[#1e1f26] text-[#64748b]'}`}>{count}</span></button>;
 }
 
 function ModeButton({ active, onClick, icon, label, count }: { active: boolean; onClick: () => void; icon: React.ReactNode; label: string; count: number }) {
-    return <button type="button" onClick={onClick} className={`flex min-w-max flex-1 items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-semibold transition ${active ? 'bg-[#2563eb] text-white shadow-md' : 'text-[#94a3b8] hover:bg-[#161b26] hover:text-white'}`}>{icon}<span>{label}</span><span className={`rounded-full px-2 py-0.5 font-mono text-[11px] ${active ? 'bg-white/20' : 'bg-[#1e1f26] text-[#64748b]'}`}>{count}</span></button>;
+    return <button type="button" onClick={onClick} className={`flex min-w-max flex-1 items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-semibold transition ${active ? 'bg-[#2563eb] text-white shadow-md' : 'text-[#94a3b8] hover:bg-[#161b26] hover:text-white'}`}>{icon}<span>{label}</span><span className={`rounded-full px-2 py-0.5 font-sans text-[11px] ${active ? 'bg-white/20' : 'bg-[#1e1f26] text-[#64748b]'}`}>{count}</span></button>;
 }
 
 function ToolCard({ tool, locale, dict, list }: { tool: ToolMeta; locale: 'fa' | 'en'; dict: Dictionary; list: boolean }) {
@@ -322,7 +270,7 @@ function ToolCard({ tool, locale, dict, list }: { tool: ToolMeta; locale: 'fa' |
         <Link href={getToolHref(tool, locale)} className={`block p-5 ${list ? 'flex items-center gap-4' : ''}`}>
             <div className={`flex items-start justify-between ${list ? 'shrink-0' : 'mb-4'}`}>
                 <div className="flex h-10 w-10 items-center justify-center rounded-lg border border-blue-800/60 bg-blue-950/60 text-[#b4c5ff]">{renderIcon(Icon, 'h-5 w-5')}</div>
-                {!list && <span className="rounded border border-[#273043] bg-[#1e1f26] px-2 py-0.5 text-[10px] text-[#94a3b8]">{localizeCategory(dict.categories, tool.subCategory || tool.category)}</span>}
+                {!list && <span className="rounded border border-[#273043] bg-[#1e1f26] px-2 py-0.5 font-sans text-[10px] text-[#94a3b8]">{localizeCategory(dict.categories, tool.subCategory || tool.category)}</span>}
             </div>
             <div className={list ? 'min-w-0 flex-1' : ''}>
                 <h3 className="font-semibold text-white transition-colors group-hover:text-[#b4c5ff]">{localizedTool.title}</h3>

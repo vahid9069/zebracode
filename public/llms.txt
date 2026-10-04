@@ -1,39 +1,160 @@
-# ZebraCode - Free Online Developer Tools
-> ZebraCode provides a collection of free, browser-based utilities for converting, formatting, and generating data. All tools process data locally.
+# ZebraCode
+> Free, browser-based developer utilities for data conversion and processing.
 
-## JSON Tools
-- JSON Format: /json-format
-- JSON to TypeScript: /json-to-typescript
-- JSON to Go: /json-to-go
-- JSON to Rust: /json-to-rust-serde
-- JSON to Kotlin: /json-to-kotlin
-- JSON to Java: /json-to-java
-- JSON to YAML: /json-to-yaml
-- JSON to TOML: /json-to-toml
-- JSON to XML: (available via /xml-to-json reverse)
-- JSON to CSV: /json-to-csv
-- JSON to Zod: /json-to-zod
+## Persian (fa-IR)
+- [خانه زبرا کد](https://zebracode.ir/): ابزارهای رایگان توسعه‌دهندگان. ابزارهای آنلاین رایگان برای تبدیل و پردازش داده؛ عملیات در مرورگر انجام می‌شود.
+- [درباره زبرا کد](https://zebracode.ir/about/): درباره ZebraCode و ابزارهای توسعه‌دهندگان آن.
+- [مرتب‌ساز JSON](https://zebracode.ir/json-format/): زیباسازی و مرتب‌سازی داده‌های JSON شما
+- [تبدیل JSON به BigQuery](https://zebracode.ir/json-to-big-query/): تبدیل JSON به اسکیمای جداول BigQuery
+- [تبدیل JSON به Flow](https://zebracode.ir/json-to-flow/): تولید تایپ‌های Flow از روی داده‌های JSON
+- [تبدیل JSON به Go](https://zebracode.ir/json-to-go/): تبدیل JSON به ساختارهای (Struct) زبان Go
+- [تبدیل JSON به Go BSON](https://zebracode.ir/json-to-go-bson/): ایجاد ساختارهای Go با تگ‌های BSON از JSON
+- [تبدیل JSON به GraphQL](https://zebracode.ir/json-to-graphql/): تبدیل یک آبجکت JSON به اسکیمای GraphQL
+- [تبدیل JSON به io-ts](https://zebracode.ir/json-to-io-ts/): تولید کدهای اعتبارسنجی io-ts از روی JSON
+- [تبدیل JSON به Java](https://zebracode.ir/json-to-java/): تولید کلاس‌های POJO جاوا از داده‌های JSON
+- [تبدیل JSON به JSDoc](https://zebracode.ir/json-to-jsdoc/): تولید حاشیه‌نویسی‌ها و تایپ‌های JSDoc از روی JSON
+- [تبدیل JSON به JSON Schema](https://zebracode.ir/json-to-json-schema/): استنتاج و تولید خودکار JSON Schema از یک نمونه JSON
+- [تبدیل JSON به Kotlin](https://zebracode.ir/json-to-kotlin/): ایجاد کلاس‌های داده‌ای (Data Classes) کاتلین از JSON
+- [تبدیل JSON به MST](https://zebracode.ir/json-to-mobx-state-tree/): تولید مدل‌های MobX State Tree از داده‌های JSON
+- [تبدیل JSON به Mongoose](https://zebracode.ir/json-to-mongoose/): تبدیل آبجکت JSON به اسکیمای Mongoose
+- [تبدیل JSON به MySQL](https://zebracode.ir/json-to-mysql/): تبدیل JSON به اسکریپت‌های CREATE TABLE در MySQL
+- [تبدیل JSON به PropTypes](https://zebracode.ir/json-to-proptypes/): تولید اعتبارسنجی React PropTypes از داده‌های JSON
+- [تبدیل JSON به Rust Serde](https://zebracode.ir/json-to-rust-serde/): ساخت Struct های Rust با ویژگی Serde از JSON
+- [تبدیل JSON به Sarcastic](https://zebracode.ir/json-to-sarcastic/): تولید تایپ‌های کنایه‌آمیز (طنز) از داده‌های JSON
+- [تبدیل JSON به Case Class اسکالا](https://zebracode.ir/json-to-scala-case-class/): ایجاد Case Class های زبان اسکالا از روی JSON
+- [تبدیل JSON به TOML](https://zebracode.ir/json-to-toml/): تبدیل فایل‌های کانفیگ JSON به فرمت TOML
+- [تبدیل JSON به TypeScript](https://zebracode.ir/json-to-typescript/): تولید اینترفیس‌های تایپ‌اسکریپت از روی نمونه JSON
+- [تبدیل JSON به YAML](https://zebracode.ir/json-to-yaml/): تبدیل سریع داده‌های JSON به YAML به صورت آنلاین
+- [تبدیل JSON به Zod](https://zebracode.ir/json-to-zod/): تولید اسکیمای اعتبارسنجی Zod از داده‌های JSON
+- [تبدیل ES5 به ES6](https://zebracode.ir/es5-to-es6/): تبدیل جاوااسکریپت ES5 به سینتکس مدرن ES6+
+- [تبدیل ES6 به ES5](https://zebracode.ir/es6-to-es5/): ترنسپایل ES6+ به ES5 برای سازگاری
+- [تبدیل JS به JSON](https://zebracode.ir/js-to-json/): تبدیل آبجکت جاوااسکریپت به JSON
+- [تبدیل JS به تایپ‌اسکریپت](https://zebracode.ir/js-to-typescript/): تبدیل جاوااسکریپت به TypeScript با حاشیه‌نویسی تایپ
+- [تبدیل CSS به JS](https://zebracode.ir/css-to-js/): تبدیل CSS به آبجکت جاوااسکریپت
+- [تبدیل CSS به SCSS](https://zebracode.ir/css-to-scss/): تبدیل CSS به SCSS (Sassy CSS)
+- [تبدیل CSS به Tailwind](https://zebracode.ir/css-to-tailwind/): تبدیل کلاس‌های CSS به utilityهای Tailwind
+- [تبدیل SCSS به CSS](https://zebracode.ir/scss-to-css/): کامپایل SCSS به CSS استاندارد
+- [تبدیل HTML به JSX](https://zebracode.ir/html-to-jsx/): تبدیل HTML به JSX برای React
+- [تبدیل HTML به Pug](https://zebracode.ir/html-to-pug/): تبدیل HTML به قالب Pug
+- [تبدیل GraphQL به Flow](https://zebracode.ir/graphql-to-flow/): تبدیل اسکیمای GraphQL به تایپ‌های Flow
+- [تبدیل GraphQL به تایپ‌اسکریپت](https://zebracode.ir/graphql-to-typescript/): تولید تایپ‌های TypeScript از اسکیمای GraphQL
+- [تبدیل GraphQL به Java](https://zebracode.ir/graphql-to-java/): نگاشت اسکیمای GraphQL به کلاس‌های جاوا
+- [تبدیل GraphQL به مدل MongoDB تایپ‌اسکریپت](https://zebracode.ir/graphql-to-typescript-mongodb/): تولید مدل‌های TypeScript برای MongoDB از GraphQL
+- [AST اسکیمای GraphQL](https://zebracode.ir/graphql-to-schema-ast/): خروجی درخت نحوی انتزاعی اسکیمای GraphQL
+- [امضای Resolverهای GraphQL](https://zebracode.ir/graphql-to-resolvers-signature/): تولید امضای توابع resolver از اسکیمای GraphQL
+- [JSON اینتروسپکشن GraphQL](https://zebracode.ir/graphql-to-introspection-json/): تبدیل اسکیمای GraphQL به JSON اینتروسپکشن
+- [Fragment Matcher برای GraphQL](https://zebracode.ir/graphql-to-fragment-matcher/): تولید تنظیمات fragment matcher از اسکیما
+- [تبدیل GraphQL به کامپوننت](https://zebracode.ir/graphql-to-components/): تولید کامپوننت React/Vue از اسکیمای GraphQL
+- [فشرده‌سازی JSON-LD](https://zebracode.ir/jsonld-to-compacted/): فشرده کردن سند JSON-LD با یک context
+- [تخت‌سازی JSON-LD](https://zebracode.ir/jsonld-to-flattened/): تبدیل سند JSON-LD به گراف مبتنی بر نود
+- [فریم کردن JSON-LD](https://zebracode.ir/jsonld-to-framed/): شکل‌دهی سند JSON-LD با اعمال frame
+- [نرمال‌سازی JSON-LD](https://zebracode.ir/jsonld-to-normalized/): نرمال‌سازی سند JSON-LD (RDF Dataset Normalization)
+- [تبدیل JSON-LD به N-Quads](https://zebracode.ir/jsonld-to-nquads/): تبدیل سند JSON-LD به فرمت N-Quads
+- [تبدیل JSON Schema به OpenAPI](https://zebracode.ir/json-schema-to-openapi-schema/): تبدیل تعریف JSON Schema به مشخصات OpenAPI
+- [تبدیل JSON Schema به تایپ‌اسکریپت](https://zebracode.ir/json-schema-to-typescript/): تولید تایپ‌های TypeScript از JSON Schema
+- [تبدیل JSON Schema به Zod](https://zebracode.ir/json-schema-to-zod/): تبدیل JSON Schema به اسکیمای اعتبارسنجی Zod
+- [تبدیل JSON Schema به Protobuf](https://zebracode.ir/json-schema-to-protobuf/): تولید تعریف Protocol Buffers از JSON Schema
+- [تبدیل تایپ‌اسکریپت به Flow](https://zebracode.ir/typescript-to-flow/): تبدیل تایپ‌های TypeScript به حاشیه‌نویسی Flow
+- [تبدیل تایپ‌اسکریپت به جاوااسکریپت](https://zebracode.ir/typescript-to-javascript/): کامپایل TypeScript به جاوااسکریپت خالص آنلاین
+- [تبدیل تایپ‌اسکریپت به JSON Schema](https://zebracode.ir/typescript-to-json-schema/): تولید JSON Schema از اینترفیس‌های TypeScript
+- [تبدیل تایپ‌اسکریپت به فایل Declaration](https://zebracode.ir/typescript-to-typescript-declaration/): تولید فایل .d.ts از سورس TypeScript
+- [تبدیل تایپ‌اسکریپت به Zod](https://zebracode.ir/typescript-to-zod/): تولید اسکیمای Zod از تایپ‌های TypeScript
+- [تبدیل SVG به JSX](https://zebracode.ir/svg-to-jsx/): تبدیل فایل SVG به JSX برای کامپوننت React
+- [تبدیل SVG به React Native](https://zebracode.ir/svg-to-react-native/): تبدیل SVG به کامپوننت react-native-svg
+- [تبدیل Cadence به Go](https://zebracode.ir/cadence-to-go/): تبدیل تعریف workflowهای Cadence به کد Go
+- [تبدیل Markdown به HTML](https://zebracode.ir/markdown-to-html/): تبدیل Markdown به HTML تمیز و معنایی
+- [TOML to JSON](https://zebracode.ir/toml-to-json/): Convert TOML configuration files to JSON online
+- [XML to JSON](https://zebracode.ir/xml-to-json/): Parse and convert XML data to JSON format
+- [YAML to JSON](https://zebracode.ir/yaml-to-json/): Convert YAML configs to JSON instantly
+- [YAML to TOML](https://zebracode.ir/yaml-to-toml/): Convert YAML files to TOML format
+- [تبدیل TOML به YAML](https://zebracode.ir/toml-to-yaml/): تبدیل فایل‌های TOML به فرمت YAML
+- [دیکد Base64](https://zebracode.ir/base64-decode/): تبدیل رشته‌های Base64 به متن ساده
+- [انکد Base64](https://zebracode.ir/base64-encode/): رمزگذاری متن یا فایل به فرمت Base64
+- [دیکدر JWT](https://zebracode.ir/jwt-decoder/): دیکد و بررسی توکن‌های JWT
+- [تبدیل Flow به جاوااسکریپت](https://zebracode.ir/flow-to-javascript/): حذف تایپ‌های Flow و دریافت جاوااسکریپت خالص
+- [تبدیل Flow به تایپ‌اسکریپت](https://zebracode.ir/flow-to-typescript/): تبدیل تایپ‌های Flow به TypeScript
+- [تبدیل Flow به Declaration تایپ‌اسکریپت](https://zebracode.ir/flow-to-typescript-declaration/): تولید فایل‌های .d.ts از تایپ‌های Flow
+- [مبدل Timestamp یونیکس](https://zebracode.ir/timestamp/): تبدیل timestamp یونیکس به تاریخ شمسی و میلادی
+- [جعبه ابزار تاریخ و زمان](https://zebracode.ir/date-diff/): تبدیل timestamp، محاسبه اختلاف تاریخ و جمع/تفریق تاریخ
+- [تولیدکننده رمز عبور](https://zebracode.ir/password-generator/): تولید رمزهای قوی و امن به‌صورت آنلاین
+- [تولیدکننده لورم ایپسوم](https://zebracode.ir/lorem-generator/): تولید متن ساختگی چندزبانه برای طراحی
+- [مقایسه‌گر متن](https://zebracode.ir/text-diff/): مقایسه خط‌به‌خط دو متن و مشاهده تفاوت‌ها
 
-## CSS Tools
-- CSS to JS: /css-to-js
-- CSS to SCSS: /css-to-scss
-- CSS to Tailwind: /css-to-tailwind
-- SCSS to CSS: /scss-to-css
-
-## GraphQL Tools
-- GraphQL to TypeScript: /graphql-to-typescript
-- GraphQL to Flow: /graphql-to-flow
-- GraphQL to Java: /graphql-to-java
-- GraphQL to MongoDB: /graphql-to-typescript-mongodb
-
-## Generators
-- Password Generator: /password-generator
-- Lorem Ipsum Generator: /lorem-generator
-
-## Text Tools
-- Text Diff Checker: /text-diff
-- Markdown to HTML: /markdown-to-html
-
-## Other Tools
-- Base64 Decode: /base64-decode
-- JWT Decoder: /jwt-decoder
+## English (en)
+- [ZebraCode Home](https://zebracode.ir/en/): ZebraCode Free Developer Tools. Free online tools for data conversion and processing. Operations run in your browser.
+- [About ZebraCode](https://zebracode.ir/en/about/): Learn about ZebraCode and its developer tools.
+- [JSON Format](https://zebracode.ir/en/json-format/): Prettify and format your JSON data
+- [JSON to BigQuery](https://zebracode.ir/en/json-to-big-query/): Convert JSON to BigQuery table schema
+- [JSON to Flow](https://zebracode.ir/en/json-to-flow/): Generate Flow type definitions from JSON
+- [JSON to Go](https://zebracode.ir/en/json-to-go/): Convert JSON to Go struct definitions
+- [JSON to Go BSON](https://zebracode.ir/en/json-to-go-bson/): Create Go structs with BSON tags from JSON
+- [JSON to GraphQL](https://zebracode.ir/en/json-to-graphql/): Turn a JSON object into a GraphQL schema
+- [JSON to io-ts](https://zebracode.ir/en/json-to-io-ts/): Generate io-ts codec definitions from JSON
+- [JSON to Java](https://zebracode.ir/en/json-to-java/): Create Java POJOs from JSON data
+- [JSON to JSDoc](https://zebracode.ir/en/json-to-jsdoc/): Generate JSDoc type annotations from JSON
+- [JSON to JSON Schema](https://zebracode.ir/en/json-to-json-schema/): Infer a JSON Schema from a JSON sample
+- [JSON to Kotlin](https://zebracode.ir/en/json-to-kotlin/): Create Kotlin data classes from JSON
+- [JSON to MobX State Tree](https://zebracode.ir/en/json-to-mobx-state-tree/): Generate MobX State Tree models from JSON
+- [JSON to Mongoose](https://zebracode.ir/en/json-to-mongoose/): Convert JSON to Mongoose schemas
+- [JSON to MySQL](https://zebracode.ir/en/json-to-mysql/): Turn JSON into MySQL CREATE TABLE scripts
+- [JSON to PropTypes](https://zebracode.ir/en/json-to-proptypes/): Generate React PropTypes from JSON data
+- [JSON to Rust Serde](https://zebracode.ir/en/json-to-rust-serde/): Create Rust structs with Serde attributes from JSON
+- [JSON to Sarcastic](https://zebracode.ir/en/json-to-sarcastic/): Generate Sarcastic type definitions from JSON (humorous tool)
+- [JSON to Scala Case Class](https://zebracode.ir/en/json-to-scala-case-class/): Create Scala case classes from JSON
+- [JSON to TOML](https://zebracode.ir/en/json-to-toml/): Convert JSON data to TOML format
+- [JSON to TypeScript](https://zebracode.ir/en/json-to-typescript/): Generate TypeScript interfaces from JSON
+- [JSON to YAML](https://zebracode.ir/en/json-to-yaml/): Convert JSON to YAML online
+- [JSON to Zod](https://zebracode.ir/en/json-to-zod/): Generate Zod schemas from your JSON data
+- [ES5 to ES6](https://zebracode.ir/en/es5-to-es6/): Convert ES5 JavaScript code to modern ES6+ syntax
+- [ES6 to ES5](https://zebracode.ir/en/es6-to-es5/): Transpile ES6+ JavaScript down to ES5 for compatibility
+- [JS to JSON](https://zebracode.ir/en/js-to-json/): Extract or convert a JavaScript object to JSON
+- [JS to TypeScript](https://zebracode.ir/en/js-to-typescript/): Convert JavaScript code to TypeScript with type annotations
+- [CSS to JS](https://zebracode.ir/en/css-to-js/): Convert CSS to a JavaScript object
+- [CSS to SCSS](https://zebracode.ir/en/css-to-scss/): Convert CSS to SCSS (Sassy CSS)
+- [CSS to Tailwind](https://zebracode.ir/en/css-to-tailwind/): Convert CSS classes to Tailwind CSS utilities
+- [SCSS to CSS](https://zebracode.ir/en/scss-to-css/): Compile SCSS to standard CSS
+- [HTML to JSX](https://zebracode.ir/en/html-to-jsx/): Convert HTML to JSX for React
+- [HTML to Pug](https://zebracode.ir/en/html-to-pug/): Transform HTML into Pug (formerly Jade) templates
+- [GraphQL to Flow](https://zebracode.ir/en/graphql-to-flow/): Convert GraphQL schema to Flow type definitions
+- [GraphQL to TypeScript](https://zebracode.ir/en/graphql-to-typescript/): Generate TypeScript types from a GraphQL schema
+- [GraphQL to Java](https://zebracode.ir/en/graphql-to-java/): Map your GraphQL schema to Java classes
+- [GraphQL to TypeScript MongoDB](https://zebracode.ir/en/graphql-to-typescript-mongodb/): Generate TypeScript models for MongoDB from GraphQL schema
+- [GraphQL Schema AST](https://zebracode.ir/en/graphql-to-schema-ast/): Output the Abstract Syntax Tree of your GraphQL schema
+- [GraphQL Resolvers Signature](https://zebracode.ir/en/graphql-to-resolvers-signature/): Generate resolver function signatures from GraphQL schema
+- [GraphQL Introspection JSON](https://zebracode.ir/en/graphql-to-introspection-json/): Convert GraphQL schema to introspection JSON
+- [GraphQL Fragment Matcher](https://zebracode.ir/en/graphql-to-fragment-matcher/): Generate a fragment matcher config from a GraphQL schema
+- [GraphQL to Components](https://zebracode.ir/en/graphql-to-components/): Generate React/Vue components from GraphQL schema
+- [JSON-LD to Compacted](https://zebracode.ir/en/jsonld-to-compacted/): Compact a JSON-LD document with a given context
+- [JSON-LD to Flattened](https://zebracode.ir/en/jsonld-to-flattened/): Flatten a JSON-LD document to a node-based graph
+- [JSON-LD to Framed](https://zebracode.ir/en/jsonld-to-framed/): Shape a JSON-LD document by applying a frame
+- [JSON-LD to Normalized](https://zebracode.ir/en/jsonld-to-normalized/): Normalize a JSON-LD document (RDF Dataset Normalization)
+- [JSON-LD to N-Quads](https://zebracode.ir/en/jsonld-to-nquads/): Convert JSON-LD document to N-Quads format
+- [JSON Schema to OpenAPI](https://zebracode.ir/en/json-schema-to-openapi-schema/): Convert JSON Schema definitions to OpenAPI specifications
+- [JSON Schema to TypeScript](https://zebracode.ir/en/json-schema-to-typescript/): Generate TypeScript types from a JSON Schema
+- [JSON Schema to Zod](https://zebracode.ir/en/json-schema-to-zod/): Turn a JSON Schema into a Zod validation schema
+- [JSON Schema to Protobuf](https://zebracode.ir/en/json-schema-to-protobuf/): Generate Protocol Buffers definitions from JSON Schema
+- [TypeScript to Flow](https://zebracode.ir/en/typescript-to-flow/): Convert TypeScript types to Flow type annotations
+- [TypeScript to JavaScript](https://zebracode.ir/en/typescript-to-javascript/): Compile TypeScript to plain JavaScript online
+- [TypeScript to JSON Schema](https://zebracode.ir/en/typescript-to-json-schema/): Generate JSON Schema from TypeScript interfaces
+- [TypeScript to Declaration (.d.ts)](https://zebracode.ir/en/typescript-to-typescript-declaration/): Generate .d.ts declaration files from TypeScript source
+- [TypeScript to Zod](https://zebracode.ir/en/typescript-to-zod/): Generate Zod validation schemas from TypeScript types
+- [SVG to JSX](https://zebracode.ir/en/svg-to-jsx/): Convert SVG files to JSX for React components
+- [SVG to React Native](https://zebracode.ir/en/svg-to-react-native/): Convert SVGs to React Native SVG components
+- [Cadence to Go](https://zebracode.ir/en/cadence-to-go/): Convert Cadence workflow definitions to Go code
+- [Markdown to HTML](https://zebracode.ir/en/markdown-to-html/): Convert Markdown to clean, semantic HTML
+- [TOML to JSON](https://zebracode.ir/en/toml-to-json/): Convert TOML configuration files to JSON online
+- [XML to JSON](https://zebracode.ir/en/xml-to-json/): Parse and convert XML data to JSON format
+- [YAML to JSON](https://zebracode.ir/en/yaml-to-json/): Convert YAML configs to JSON instantly
+- [YAML to TOML](https://zebracode.ir/en/yaml-to-toml/): Convert YAML files to TOML format
+- [TOML to YAML](https://zebracode.ir/en/toml-to-yaml/): Convert TOML files to YAML format
+- [Base64 Decode](https://zebracode.ir/en/base64-decode/): Decode Base64 encoded strings to plain text
+- [Base64 Encode](https://zebracode.ir/en/base64-encode/): Encode text or files to Base64 format
+- [Jwt Decoder](https://zebracode.ir/en/jwt-decoder/): Decode and inspect JWT tokens
+- [Flow to JavaScript](https://zebracode.ir/en/flow-to-javascript/): Strip Flow type annotations to get plain JavaScript
+- [Flow to TypeScript](https://zebracode.ir/en/flow-to-typescript/): Convert Flow type definitions to TypeScript
+- [Flow to TypeScript Declaration](https://zebracode.ir/en/flow-to-typescript-declaration/): Generate TypeScript declaration files from Flow types
+- [Unix Timestamp Converter](https://zebracode.ir/en/timestamp/): Convert Unix timestamp to Persian (Shamsi) and Gregorian date
+- [Date & Time Toolbox](https://zebracode.ir/en/date-diff/): Timestamp converter, date difference calculator and date add/subtract
+- [Password Generator](https://zebracode.ir/en/password-generator/): Generate strong, cryptographically secure passwords online
+- [Lorem Ipsum Generator](https://zebracode.ir/en/lorem-generator/): Generate Lorem Ipsum placeholder text for your designs in multiple languages
+- [Text Diff Checker](https://zebracode.ir/en/text-diff/): Compare two texts line by line and see the differences instantly

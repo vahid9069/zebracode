@@ -1,25 +1,20 @@
 import { getToolConfig } from "@/components/utils/tools/helper";
-import { getDefaultFaq, getLocalizedToolPath, getLocalizedUrl } from "@/lib/seo";
-
-type FAQ = { question: string; answer: string };
+import { getLocalizedToolPath, getLocalizedUrl } from "@/lib/seo";
 
 type Props = {
     toolType: string;
     locale: 'fa' | 'en';
-    faq?: FAQ[];
+    title?: string;
+    description?: string;
 };
 
-export default function ToolStructuredData({ toolType, locale, faq: localizedFaq }: Props) {
+export default function ToolStructuredData({ toolType, locale, title, description }: Props) {
     const tool = getToolConfig(toolType);
     if (!tool) return null;
 
     const path = getLocalizedToolPath(toolType, locale) || '/';
     const url = getLocalizedUrl(path);
-    const faq = localizedFaq && localizedFaq.length > 0
-        ? localizedFaq
-        : tool.extraContent?.faq?.length
-            ? tool.extraContent.faq
-            : getDefaultFaq(tool.subCategory || 'others', locale);
+    const websiteUrl = getLocalizedUrl(locale === 'en' ? '/en' : '/');
     const graph: Record<string, unknown>[] = [
         {
             "@type": "Organization",
@@ -29,25 +24,26 @@ export default function ToolStructuredData({ toolType, locale, faq: localizedFaq
         },
         {
             "@type": "WebSite",
-            "@id": `${getLocalizedUrl('/')}#website`,
-            "url": getLocalizedUrl('/'),
+            "@id": `${websiteUrl}#website`,
+            "url": websiteUrl,
             "name": "ZebraCode",
             "publisher": { "@id": `${getLocalizedUrl('/')}#organization` },
+            "inLanguage": locale === 'fa' ? 'fa-IR' : 'en-US',
         },
         {
             "@type": "WebPage",
             "@id": `${url}#webpage`,
             "url": url,
-            "name": tool.title,
+            "name": title || tool.title,
             "inLanguage": locale === 'fa' ? 'fa-IR' : 'en-US',
-            "isPartOf": { "@id": `${getLocalizedUrl('/')}#website` },
+            "isPartOf": { "@id": `${websiteUrl}#website` },
         },
         {
             ...(tool.structuredData || {}),
             "@type": "SoftwareApplication",
             "@id": `${url}#application`,
-            "name": tool.title,
-            "description": tool.shortDescription || tool.description,
+            "name": title || tool.title,
+            "description": description || tool.shortDescription || tool.description,
             "applicationCategory": "DeveloperApplication",
             "operatingSystem": "Any",
             "url": url,
@@ -58,21 +54,10 @@ export default function ToolStructuredData({ toolType, locale, faq: localizedFaq
             "@id": `${url}#breadcrumb`,
             "itemListElement": [
                 { "@type": "ListItem", "position": 1, "name": "ZebraCode", "item": getLocalizedUrl(locale === 'en' ? '/en' : '/') },
-                { "@type": "ListItem", "position": 2, "name": tool.title, "item": url },
+                { "@type": "ListItem", "position": 2, "name": title || tool.title, "item": url },
             ],
         },
     ];
-    if (faq.length > 0) {
-        graph.push({
-            "@type": "FAQPage",
-            "@id": `${url}#faq`,
-            "mainEntity": faq.map((item) => ({
-                "@type": "Question",
-                "name": item.question,
-                "acceptedAnswer": { "@type": "Answer", "text": item.answer },
-            })),
-        });
-    }
 
     return (
         <script

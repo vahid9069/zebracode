@@ -8,6 +8,7 @@ import {
     Braces, FileCode2, ListTree, Network, Package, ShieldCheck, Table, Workflow,
 } from 'lucide-react';
 import type { ToolCodeSnippet, ToolFaq, ToolFeature, ToolOption, ToolOptionValue } from '@/config/tools';
+import { useOptionalI18n } from '@/i18n/I18nProvider';
 
 export type ConverterOptions = Record<string, ToolOptionValue>;
 
@@ -51,6 +52,7 @@ const featureIcons = {
 
 const fa = {
     home: 'خانه',
+    breadcrumb: 'مسیر راهنما',
     category: 'مبدل‌های داده و کانفیگ',
     local: 'موتور آفلاین (پردازش محلی)',
     sample: 'نمونه داده واقعی',
@@ -101,10 +103,15 @@ const fa = {
     spec: 'سازگار با TOML',
     error: 'خطا در تبدیل ورودی',
     confirmClear: 'ورودی و خروجی پاک شوند؟',
+    settings: 'تنظیمات مبدل',
+    editors: 'ویرایشگرهای مبدل',
+    copySnippet: 'کپی قطعه کد',
+    downloadOutput: 'دانلود خروجی',
 };
 
 const en = {
     home: 'Home',
+    breadcrumb: 'Breadcrumb',
     category: 'Data & Config Converters',
     local: 'Offline engine (processed locally)',
     sample: 'Load sample',
@@ -155,14 +162,17 @@ const en = {
     spec: 'TOML compliant',
     error: 'Input conversion failed',
     confirmClear: 'Clear the input and output?',
+    settings: 'Converter settings',
+    editors: 'Converter editors',
+    copySnippet: 'Copy code snippet',
+    downloadOutput: 'Download output',
 };
 
 function formatBytes(bytes: number) {
     return bytes < 1024 ? `${bytes} B` : `${(bytes / 1024).toFixed(2)} KB`;
 }
 
-function StatusBar({ value, locale, trailing }: { value: string; locale: 'fa' | 'en'; trailing?: React.ReactNode }) {
-    const text = locale === 'fa' ? fa : en;
+function StatusBar({ value, text, trailing }: { value: string; text: typeof en; trailing?: React.ReactNode }) {
     return <div className="flex flex-wrap items-center justify-between gap-2 border-t border-slate-200 bg-slate-50 px-3 py-2 text-[10px] text-slate-500 dark:border-slate-800 dark:bg-slate-900">
         <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
             <span>{text.lines}: {value ? value.split('\n').length : 0}</span>
@@ -175,7 +185,7 @@ function StatusBar({ value, locale, trailing }: { value: string; locale: 'fa' | 
 }
 
 function EditorPanel({
-    title, language, value, onChange, readOnly, isValid, locale, actions, emptyText, footer,
+    title, language, value, onChange, readOnly, isValid, text, actions, emptyText, footer,
 }: {
     title: string;
     language: string;
@@ -183,12 +193,11 @@ function EditorPanel({
     onChange?: (value: string) => void;
     readOnly?: boolean;
     isValid?: boolean | null;
-    locale: 'fa' | 'en';
+    text: typeof en;
     actions: React.ReactNode;
     emptyText?: string;
     footer?: React.ReactNode;
 }) {
-    const text = locale === 'fa' ? fa : en;
     const lineCount = Math.max(1, value.split('\n').length);
     return <section className="flex min-h-[460px] min-w-0 flex-col overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-950">
         <header className="flex min-h-12 items-center justify-between gap-2 border-b border-slate-200 bg-slate-50 px-3 py-2 dark:border-slate-800 dark:bg-slate-900">
@@ -198,7 +207,7 @@ function EditorPanel({
                     <i className="h-2 w-2 rounded-full bg-amber-400" />
                     <i className="h-2 w-2 rounded-full bg-emerald-400" />
                 </span>
-                <span className="rounded bg-blue-100 px-2 py-1 font-mono text-[10px] font-bold text-blue-700 dark:bg-blue-950 dark:text-blue-300" dir="ltr">{language.toUpperCase()}</span>
+                <span className="rounded bg-blue-100 px-2 py-1 font-sans text-[10px] font-bold text-blue-700 dark:bg-blue-950 dark:text-blue-300" dir="ltr">{language.toUpperCase()}</span>
                 <span className="truncate text-xs font-semibold text-slate-700 dark:text-slate-200">{title}</span>
                 {isValid !== undefined && <span className={`hidden items-center gap-1 rounded-full px-2 py-1 text-[10px] sm:inline-flex ${isValid ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300' : 'bg-red-100 text-red-700 dark:bg-red-950 dark:text-red-300'}`}>
                     {isValid ? <Check className="h-3 w-3" /> : <CircleAlert className="h-3 w-3" />}{isValid ? text.valid : text.invalid}
@@ -207,10 +216,10 @@ function EditorPanel({
             <div className="flex shrink-0 items-center gap-1">{actions}</div>
         </header>
         <div className="relative flex flex-1 overflow-hidden bg-white dark:bg-[#0b1020]">
-            <div aria-hidden="true" className="select-none overflow-hidden border-l border-slate-100 bg-slate-50 px-2 py-3 text-right font-mono text-xs leading-6 text-slate-400 dark:border-slate-800 dark:bg-slate-900/60">
+            <div aria-hidden="true" className="select-none overflow-hidden border-l border-slate-100 bg-slate-50 px-2 py-3 text-right font-sans text-xs leading-6 text-slate-400 dark:border-slate-800 dark:bg-slate-900/60">
                 {Array.from({ length: lineCount }, (_, index) => <div key={index}>{index + 1}</div>)}
             </div>
-            {readOnly ? <pre dir="ltr" aria-label={`${title} ${language} output`} className="min-w-0 flex-1 overflow-auto whitespace-pre p-3 font-mono text-[13px] leading-6 text-slate-800 dark:text-slate-200">
+            {readOnly ? <pre dir="ltr" aria-label={`${title} ${language} output`} className="min-w-0 flex-1 overflow-auto whitespace-pre p-3 font-sans text-[13px] leading-6 text-slate-800 dark:text-slate-200">
                 {value || <span className="flex h-full min-h-64 items-center justify-center gap-2 whitespace-normal text-center font-sans text-sm text-slate-400"><Code2 className="h-5 w-5" />{emptyText}</span>}
             </pre> : <textarea
                 dir="ltr"
@@ -219,10 +228,10 @@ function EditorPanel({
                 spellCheck={false}
                 autoComplete="off"
                 aria-label={`${title} ${language} input`}
-                className="min-w-0 flex-1 resize-none overflow-auto bg-transparent p-3 font-mono text-[13px] leading-6 text-slate-800 outline-none selection:bg-blue-100 dark:text-slate-200 dark:selection:bg-blue-900"
+                className="min-w-0 flex-1 resize-none overflow-auto bg-transparent p-3 font-sans text-[13px] leading-6 text-slate-800 outline-none selection:bg-blue-100 dark:text-slate-200 dark:selection:bg-blue-900"
             />}
         </div>
-        <StatusBar value={value} locale={locale} trailing={footer} />
+        <StatusBar value={value} text={text} trailing={footer} />
     </section>;
 }
 
@@ -232,7 +241,8 @@ export default function ConverterWorkbench<InputType = string, OutputType = stri
     toolOptions = [], features = [], codeSnippets = [], faqs = [],
     validate, convert, serialize, sampleInput = initialInput,
 }: ConverterWorkbenchProps<InputType, OutputType>) {
-    const text = locale === 'fa' ? fa : en;
+    const workbench = useOptionalI18n()?.dict.common.workbench;
+    const text: typeof en = { ...(locale === 'fa' ? fa : en), ...(workbench || {}) };
     const [inputText, setInputText] = useState(initialInput);
     const [outputText, setOutputText] = useState('');
     const [isLiveSync, setIsLiveSync] = useState(true);
@@ -371,7 +381,7 @@ export default function ConverterWorkbench<InputType = string, OutputType = stri
             value={inputText}
             onChange={setInputText}
             isValid={isValid}
-            locale={locale}
+            text={text}
             actions={
                 <>
                     {formatSupported && <>
@@ -383,14 +393,14 @@ export default function ConverterWorkbench<InputType = string, OutputType = stri
                     <button type="button" onClick={() => setIsFullscreen(value => !value)} title={text.fullscreen} aria-label={text.fullscreen} className="rounded p-1.5 text-slate-500 hover:bg-slate-200 dark:hover:bg-slate-800"><Maximize2 className="h-4 w-4" /></button>
                 </>
             }
-            footer={toolOptions.some(option => option.id === 'indentSpaces') ? <span>Spaces: {indentSpaces}</span> : null}
+            footer={toolOptions.some(option => option.id === 'indentSpaces') ? <span>{text.spaces}: {indentSpaces}</span> : null}
         />
         <EditorPanel
             title={`${text.output} (${outputLanguage.toUpperCase()})`}
             language={outputLanguage}
             value={outputText}
             readOnly
-            locale={locale}
+            text={text}
             emptyText={text.empty}
             actions={
                 <>
@@ -405,7 +415,7 @@ export default function ConverterWorkbench<InputType = string, OutputType = stri
                         anchor.download = `converted.${outputExtension.replace(/^\./, '')}`;
                         anchor.click();
                         URL.revokeObjectURL(url);
-                    }} disabled={!outputText} title="Download" aria-label="Download output" className="rounded p-1.5 text-slate-500 hover:bg-slate-200 disabled:opacity-50 dark:hover:bg-slate-800"><Download className="h-4 w-4" /></button>
+                    }} disabled={!outputText} title={text.downloadOutput} aria-label={text.downloadOutput} className="rounded p-1.5 text-slate-500 hover:bg-slate-200 disabled:opacity-50 dark:hover:bg-slate-800"><Download className="h-4 w-4" /></button>
                     <button type="button" onClick={() => setIsFullscreen(value => !value)} title={text.fullscreen} aria-label={text.fullscreen} className="rounded p-1.5 text-slate-500 hover:bg-slate-200 dark:hover:bg-slate-800"><Maximize2 className="h-4 w-4" /></button>
                 </>
             }
@@ -421,7 +431,7 @@ export default function ConverterWorkbench<InputType = string, OutputType = stri
     return <main dir={locale === 'fa' ? 'rtl' : 'ltr'} className="min-h-screen bg-[#f8f9ff] px-4 py-6 text-slate-900 dark:bg-slate-950 dark:text-slate-100 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-7xl space-y-6">
             <div className="flex flex-wrap items-center justify-between gap-3">
-                <nav aria-label="Breadcrumb" className="flex items-center gap-2 text-xs text-slate-500">
+                <nav aria-label={text.breadcrumb} className="flex items-center gap-2 text-xs text-slate-500">
                     <span>{text.home}</span><span aria-hidden="true">/</span><span>{category || text.category}</span><span aria-hidden="true">/</span><span className="font-medium text-slate-700 dark:text-slate-300">{title}</span>
                 </nav>
                 <div className="flex flex-wrap items-center gap-2">
@@ -435,7 +445,7 @@ export default function ConverterWorkbench<InputType = string, OutputType = stri
                     <div className="flex flex-wrap items-center gap-3">
                         <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-blue-600 text-white"><ArrowLeftRight className="h-5 w-5" /></span>
                         <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">{title}</h1>
-                        <span className="rounded-full bg-slate-100 px-2 py-1 font-mono text-[10px] text-slate-500 dark:bg-slate-800">{version}</span>
+                        <span className="rounded-full bg-slate-100 px-2 py-1 font-sans text-[10px] text-slate-500 dark:bg-slate-800">{version}</span>
                     </div>
                     <p className="text-sm leading-7 text-slate-600 dark:text-slate-300">{description}</p>
                 </div>
@@ -447,7 +457,7 @@ export default function ConverterWorkbench<InputType = string, OutputType = stri
                 </div>
             </header>
 
-            <section aria-label="Converter settings" className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-slate-200 bg-slate-50/80 p-2.5 shadow-sm dark:border-slate-800 dark:bg-slate-900/80">
+            <section aria-label={text.settings} className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-slate-200 bg-slate-50/80 p-2.5 shadow-sm dark:border-slate-800 dark:bg-slate-900/80">
                 <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-xs">
                     {toolOptions.map(option => <label key={option.id} className="flex items-center gap-2">
                         {option.type === 'boolean' ? <input
@@ -475,12 +485,12 @@ export default function ConverterWorkbench<InputType = string, OutputType = stri
                         {isConverting ? <span className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-white/40 border-t-white" /> : <Play className="h-3.5 w-3.5" />}
                         {text.convert}<kbd className="hidden rounded bg-white/20 px-1.5 py-0.5 text-[9px] sm:inline">Ctrl+Enter</kbd>
                     </button>
-                    <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-1 font-mono text-[10px] text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300"><Zap className="h-3 w-3" />{isConverting ? '…' : `${conversionTime?.toFixed(2) ?? '—'}ms`}</span>
+                    <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-1 font-sans text-[10px] text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300"><Zap className="h-3 w-3" />{isConverting ? '…' : `${conversionTime?.toFixed(2) ?? '—'}ms`}</span>
                 </div>
             </section>
 
             {error && <div role="alert" className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 dark:border-red-900 dark:bg-red-950/40 dark:text-red-300">{error}</div>}
-            <section aria-label="Converter editors">{editorArea()}</section>
+            <section aria-label={text.editors}>{editorArea()}</section>
 
             {isFullscreen && <div role="dialog" aria-modal="true" aria-label={text.fullscreen} className="fixed inset-0 z-50 overflow-auto bg-[#f8f9ff] p-4 dark:bg-slate-950 sm:p-6">
                 <div className="mx-auto flex min-h-full max-w-[1800px] flex-col gap-4">
@@ -507,10 +517,10 @@ export default function ConverterWorkbench<InputType = string, OutputType = stri
                     <h2 className="text-sm font-semibold">{text.quickstart}</h2>
                     <div className="flex items-center gap-1">
                         {codeSnippets.map((snippet, index) => <button key={`${snippet.languageTab}-${index}`} type="button" onClick={() => setCodeTab(index)} className={`rounded-md px-2.5 py-1 text-xs ${codeTab === index ? 'bg-blue-100 text-blue-700 dark:bg-blue-950 dark:text-blue-300' : 'text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800'}`}>{snippet.languageTab}</button>)}
-                        <button type="button" onClick={() => void copyText(selectedSnippet.code, true)} aria-label="Copy code snippet" className="rounded-md p-2 text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800">{codeCopied ? <Check className="h-4 w-4" /> : <Clipboard className="h-4 w-4" />}</button>
+                        <button type="button" onClick={() => void copyText(selectedSnippet.code, true)} aria-label={text.copySnippet} className="rounded-md p-2 text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800">{codeCopied ? <Check className="h-4 w-4" /> : <Clipboard className="h-4 w-4" />}</button>
                     </div>
                 </div>
-                <pre dir="ltr" className="overflow-x-auto p-4 text-left font-mono text-xs leading-6 text-slate-700 dark:text-slate-200"><code>{selectedSnippet.code}</code></pre>
+                <pre dir="ltr" className="overflow-x-auto p-4 text-left font-sans text-xs leading-6 text-slate-700 dark:text-slate-200"><code>{selectedSnippet.code}</code></pre>
             </section>}
 
             {faqs.length > 0 && <section className="space-y-3">

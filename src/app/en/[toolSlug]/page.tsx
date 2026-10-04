@@ -3,7 +3,6 @@ import ToolStructuredData from '@/components/pages/ToolStructuredData';
 import { getDictionary } from '@/i18n/getDictionary';
 import { AllToolsList } from '@/lib/registry/tools';
 import { generateToolMetadata } from '@/lib/seo';
-import { getToolDefinition } from '@/config/tools';
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 
@@ -18,9 +17,9 @@ export async function generateMetadata({ params }: { params: Promise<{ toolSlug:
   const { toolSlug } = await params;
   const foundEntry = Object.entries(AllToolsList).find(([, t]) => t.href.split('/').filter(Boolean).pop() === toolSlug);
   if (!foundEntry) return { title: 'Tool not found', robots: { index: false, follow: false } };
-  const metadata = generateToolMetadata(foundEntry[0], 'en');
-  const definition = getToolDefinition(toolSlug);
-  return definition ? { ...metadata, title: `${definition.title} | ZebraCode` } : metadata;
+  const dict = await getDictionary('en');
+  const localizedCopy = (dict.tools as Record<string, { title?: string; shortDescription?: string; description?: string }>)[foundEntry[0]];
+  return generateToolMetadata(foundEntry[0], 'en', localizedCopy);
 }
 
 export default async function EnToolPage({ params }: { params: Promise<{ toolSlug: string }> }) {
@@ -36,8 +35,14 @@ export default async function EnToolPage({ params }: { params: Promise<{ toolSlu
     notFound();
   }
 
+  const localizedTool = (dict.tools as Record<string, { title?: string; shortDescription?: string; description?: string }>)[foundEntry[0]];
   return <>
-    <ToolStructuredData toolType={foundEntry[0]} locale="en" faq={(dict.common.faqByTool as Record<string, { question: string; answer: string }[]> | undefined)?.[foundEntry[0]]} />
+    <ToolStructuredData
+      toolType={foundEntry[0]}
+      locale="en"
+      title={localizedTool?.title}
+      description={localizedTool?.shortDescription || localizedTool?.description}
+    />
     <ToolPageClient toolType={foundEntry[0]} dict={dict} locale="en" />
   </>;
 }
