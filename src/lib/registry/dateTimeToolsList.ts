@@ -17,6 +17,13 @@ export const DateTimeToolsList: Record<string, ToolMeta> = {
         outputLanguage: 'text',
         transformFunction: (input: string) => input,
         gradientClasses: 'from-indigo-50 to-blue-50 dark:from-gray-900 dark:to-gray-800',
+        extraContent: {
+            faq: [
+                { question: "What is a Unix timestamp?", answer: "A Unix timestamp represents the number of seconds that have elapsed since January 1, 1970 (UTC), often used in programming for time representation." },
+                { question: "Does this tool support Persian (Shamsi) dates?", answer: "Yes, you can easily convert Unix timestamps to both Gregorian and Persian (Jalali/Shamsi) calendar formats." },
+                { question: "Is the conversion accurate?", answer: "Yes, the tool uses standard JavaScript date libraries to ensure high precision in time conversions across different calendar systems." }
+            ]
+        }
     },
     'date-diff': {
         type: 'date-diff',
@@ -32,5 +39,12 @@ export const DateTimeToolsList: Record<string, ToolMeta> = {
         outputLanguage: 'text',
         transformFunction: () => '',
         gradientClasses: 'from-indigo-50 to-violet-50 dark:from-gray-900 dark:to-gray-800',
+        extraContent: {
+            faq: [
+                { question: "Can I calculate the difference between two dates in days?", answer: "Yes, you can easily input two dates to find the exact number of days, hours, and minutes between them." },
+                { question: "Does it support adding time to a date?", answer: "Yes, the tool allows you to add or subtract years, months, days, and time units from a specific date." },
+                { question: "Is this tool offline-capable?", answer: "Yes, like all our tools, it runs completely in your browser, meaning it works even without an internet connection once loaded." }
+            ]
+        }
     },
 };

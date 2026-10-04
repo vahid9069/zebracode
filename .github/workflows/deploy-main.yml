@@ -2,12 +2,16 @@ name: Build and Deploy via FTP
 
 on:
   push:
-    branches: [ develop ]
+    branches: [ main ]
 
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
 
+    environment:
+      name: production
+    env:
+      NEXT_PUBLIC_BASE_URL: ${{ vars.NEXT_PUBLIC_BASE_URL }}
     steps:
       - name: 📥 Checkout repository
         uses: actions/checkout@v4
@@ -28,8 +32,8 @@ jobs:
         uses: SamKirkland/FTP-Deploy-Action@v4.3.4
         with:
           server: ${{ secrets.FTP_SERVER }}
-          username: ${{ secrets.FTP_USERNAME }}
-          password: ${{ secrets.FTP_PASSWORD }}
+          username: ${{ secrets.FTP_USER_MAIN }}
+          password: ${{ secrets.FTP_PASS_MAIN }}
           local-dir: ./out/
           server-dir: /
-          dangerous-clean-slate: true
+          dangerous-clean-slate: false

@@ -1,8 +1,14 @@
 import AboutView from '@/components/pages/AboutView';
+import SiteStructuredData from '@/components/pages/SiteStructuredData';
 import { getDictionary } from '@/i18n/getDictionary';
+import type { Metadata } from 'next';
+import { getLocalizedUrl } from '@/lib/seo';
 
-export const metadata = {
+export const metadata: Metadata = {
     title: 'درباره ما - زبرا کد',
+    description: 'با ZebraCode و مجموعه ابزارهای رایگان آنلاین آن آشنا شوید.',
+    alternates: { canonical: getLocalizedUrl('/about'), languages: { 'fa-IR': getLocalizedUrl('/about'), en: getLocalizedUrl('/en/about'), 'x-default': getLocalizedUrl('/about') } },
+    openGraph: { title: 'درباره ما - زبرا کد', description: 'با ZebraCode و مجموعه ابزارهای رایگان آنلاین آن آشنا شوید.', url: getLocalizedUrl('/about'), siteName: 'ZebraCode', locale: 'fa_IR', type: 'website' },
 };
 
 export default async function FaAboutPage() {
@@ -10,5 +16,13 @@ export default async function FaAboutPage() {
     const dict = await getDictionary('fa');
     
     // ارسال دیتای ترجمه‌شده به کامپوننت مشترک
-    return <AboutView dict={dict.about} />;
+    return <>
+        <SiteStructuredData
+            locale="fa"
+            path="/about"
+            name="درباره ما - زبرا کد"
+            description="با ZebraCode و مجموعه ابزارهای رایگان آنلاین آن آشنا شوید."
+        />
+        <AboutView dict={dict.about} />
+    </>;
 }

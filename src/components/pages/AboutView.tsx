@@ -1,120 +1,231 @@
-import React from 'react';
-import { Metadata } from 'next';
-import { Code2, Globe, Zap, Shield, Users, Heart } from 'lucide-react';
+'use client';
 
+import Link from 'next/link';
+import {
+    ArrowLeft,
+    ArrowRight,
+    CheckCircle2,
+    Code2,
+    GitBranch,
+    Github,
+    Heart,
+    History,
+    LockKeyhole,
+    Rocket,
+    ShieldCheck,
+    Sparkles,
+    Terminal,
+    Users,
+    WifiOff,
+    Zap,
+} from 'lucide-react';
 
 interface AboutViewProps {
-    dict: {
-        title: string;
-        description: string;
-        mission: string;
-        privacy: string;
-    };
+    dict: any;
 }
 
-export const metadata: Metadata = {
-    title: 'About ZebraCode - Free Online Developer Tools',
-    description:
-        'ZebraCode provides free, fast, and privacy-focused online converter tools for developers. JSON, CSS, GraphQL, and more — all processed locally in your browser.',
-    alternates: {
-        canonical: 'https://zebracode.ir/about',
-    },
-    robots: {
-        index: true,
-        follow: true,
-    },
-    openGraph: {
-        title: 'About ZebraCode',
-        description: 'Free online developer tools — no sign-up, no ads, fully client‑side.',
-        url: 'https://zebracode.ir/about',
-        siteName: 'ZebraCode',
-        type: 'website',
-    },
+const icons = {
+    instant: Zap,
+    privacy: ShieldCheck,
+    opensource: Github,
+    developers: Users,
+    range: Code2,
+    community: Heart,
 };
 
-export default function AboutPage({ dict }: AboutViewProps) {
-    return (
-        <div className="min-h-screen bg-white dark:bg-[#0d1117] text-gray-900 dark:text-gray-100">
-            {/* Hero */}
-            <section className="relative bg-gradient-to-b from-blue-50 to-white dark:from-gray-900 dark:to-[#0d1117] py-20 px-4">
-                <div className="max-w-4xl mx-auto text-center">
-                    <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight mb-4">
-                        About <span className="text-blue-600 dark:text-blue-400">ZebraCode</span>
-                    </h1>
-                    <p className="text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
-                        We build free, fast, and beautiful developer tools that respect your privacy.
-                    </p>
-                </div>
-            </section>
+export default function AboutView({ dict }: AboutViewProps) {
+    const d = dict;
+    const features = d.features || [];
+    const metrics = d.metrics || [];
+    const pillars = d.pillars || [];
+    const comparison = d.comparison || {};
+    const faqs = d.faqs || [];
 
-            {/* Mission & Story */}
-            <section className="max-w-4xl mx-auto px-4 py-16 space-y-12">
-                <div className="grid md:grid-cols-2 gap-8 items-center">
-                    <div>
-                        <h2 className="text-2xl font-bold mb-4">Our Mission</h2>
-                        <p className="text-gray-600 dark:text-gray-400 leading-relaxed">
-                            ZebraCode was created to provide developers with a set of essential online utilities
-                            that work instantly, without ads, tracking, or registration. Every tool runs entirely
-                            in your browser — your data never leaves your device.
-                        </p>
-                    </div>
-                    <div className="flex justify-center">
-                        <div className="w-24 h-24 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
-                            <Code2 size={48} className="text-blue-600 dark:text-blue-400" />
+    return (
+        <div className="about-theme min-h-screen bg-[#0b0f19] text-[#e3e1ec] transition-colors">
+            <main>
+                <section className="relative overflow-hidden border-b border-[#273043] bg-gradient-to-b from-[#0d1117] via-[#0e1422] to-[#0b0f19]">
+                    <div className="pointer-events-none absolute -right-24 -top-24 h-96 w-96 rounded-full bg-blue-600/10 blur-3xl" />
+                    <div className="pointer-events-none absolute left-10 top-48 h-72 w-72 rounded-full bg-emerald-500/10 blur-3xl" />
+                    <div className="relative mx-auto max-w-7xl px-4 pb-14 pt-10 md:px-8 md:pb-20">
+                        <nav className="mb-8 flex items-center gap-2 text-sm text-[#64748b]" aria-label={d.breadcrumbLabel}>
+                            <Link href="/" className="flex items-center gap-1 transition hover:text-[#b4c5ff]">
+                                <Terminal className="h-4 w-4" />
+                                {d.homeLabel}
+                            </Link>
+                            <ArrowLeft className="h-3.5 w-3.5 rtl:hidden" />
+                            <ArrowRight className="hidden h-3.5 w-3.5 rtl:block" />
+                            <span className="text-[#e3e1ec]">{d.aboutLabel}</span>
+                        </nav>
+                        <div className="inline-flex items-center gap-2 rounded-full border border-[#273043] bg-[#161b26] px-4 py-1.5 text-sm text-[#94a3b8]">
+                            <span className="h-2 w-2 animate-pulse rounded-full bg-[#4edea3]" />
+                            <span>{d.missionBadge}</span>
+                            <span className="text-[#64748b]">•</span>
+                            <span className="font-sans text-xs">Story &amp; Mission</span>
+                        </div>
+                        <div className="mt-6 max-w-4xl">
+                            <h1 className="text-4xl font-bold leading-tight tracking-tight text-white md:text-6xl">
+                                {d.heroTitle}
+                                <span className="bg-gradient-to-l from-[#b4c5ff] via-[#4f8cff] to-[#4edea3] bg-clip-text text-transparent"> {d.heroAccent}</span>
+                            </h1>
+                            <p className="mt-5 max-w-3xl text-base leading-8 text-[#94a3b8] md:text-lg">{d.heroDescription}</p>
+                        </div>
+                        <div className="mt-10 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                            {metrics.map((metric: any) => (
+                                <div key={metric.id} className="group rounded-xl border border-[#273043] bg-[#161b26] p-5 transition hover:-translate-y-1 hover:bg-[#1e1f26]">
+                                    <div className="flex items-center justify-between">
+                                        <MetricIcon id={metric.id} />
+                                        <span className="rounded border border-[#273043] bg-[#1e1f26] px-2 py-0.5 font-sans text-[10px] text-[#94a3b8]">{metric.badge}</span>
+                                    </div>
+                                    <div className="mt-5 font-sans text-3xl font-bold tracking-tight text-white" dir="ltr">{metric.value}</div>
+                                    <div className="mt-1 font-semibold text-white">{metric.title}</div>
+                                    <p className="mt-1 text-sm leading-6 text-[#94a3b8]">{metric.description}</p>
+                                </div>
+                            ))}
                         </div>
                     </div>
-                </div>
-            </section>
+                </section>
 
-            {/* Features */}
-            <section className="bg-gray-50 dark:bg-[#161b22] py-16 px-4">
-                <div className="max-w-6xl mx-auto">
-                    <h2 className="text-2xl font-bold text-center mb-12">Why Choose ZebraCode?</h2>
-                    <div className="grid md:grid-cols-3 gap-8">
-                        {[
-                            { icon: Zap, title: 'Instant & Free', desc: 'All tools work directly in your browser with zero configuration and no fees.' },
-                            { icon: Shield, title: 'Privacy First', desc: 'Your data is processed locally and never uploaded to any server.' },
-                            { icon: Globe, title: 'Open Source', desc: 'Our code is open for anyone to inspect, contribute, or improve.' },
-                            { icon: Users, title: 'For Developers', desc: 'Built by developers, for developers — with real‑world use cases in mind.' },
-                            { icon: Code2, title: 'Wide Range', desc: 'From JSON to CSS, GraphQL to Timestamps, we cover the most needed conversions.' },
-                            { icon: Heart, title: 'Community Driven', desc: 'We listen to feedback and continuously add new tools and features.' },
-                        ].map(({ icon: Icon, title, desc }) => (
-                            <div key={title} className="bg-white dark:bg-[#0d1117] border border-gray-200 dark:border-gray-700 rounded-xl p-6 text-center hover:shadow-lg transition-shadow">
-                                <div className="inline-flex h-12 w-12 items-center justify-center rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 mb-4">
-                                    <Icon size={24} />
+                <section className="mx-auto max-w-7xl px-4 py-16 md:px-8 md:py-24">
+                    <div className="grid items-stretch gap-10 lg:grid-cols-12">
+                        <div className="flex flex-col justify-between lg:col-span-7">
+                            <div>
+                                <div className="flex items-center gap-2 font-sans text-xs font-semibold uppercase tracking-wider text-[#b4c5ff]">
+                                    <History className="h-4 w-4" />
+                                    {d.storyLabel}
                                 </div>
-                                <h3 className="font-semibold text-lg mb-2">{title}</h3>
-                                <p className="text-sm text-gray-500 dark:text-gray-400">{desc}</p>
+                                <h2 className="mt-3 text-2xl font-bold leading-relaxed text-white md:text-3xl">{d.storyTitle}</h2>
+                                <div className="mt-6 space-y-4 leading-8 text-[#94a3b8]">
+                                    {(d.storyParagraphs || []).map((paragraph: string) => <p key={paragraph}>{paragraph}</p>)}
+                                </div>
                             </div>
-                        ))}
+                            <div className="mt-8 rounded-xl border border-[#273043] bg-[#161b26] p-5">
+                                <div className="flex items-start gap-4">
+                                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[#1e1f26] text-[#b4c5ff]"><Sparkles className="h-5 w-5" /></div>
+                                    <div>
+                                        <p className="text-lg font-semibold italic leading-8 text-white">«{d.manifesto}»</p>
+                                        <p className="mt-2 text-xs text-[#64748b]">{d.manifestoCaption}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <ArchitectureCard d={d} />
                     </div>
-                </div>
-            </section>
+                </section>
 
-            {/* Tech Stack */}
-            <section className="max-w-4xl mx-auto px-4 py-16 text-center">
-                <h2 className="text-2xl font-bold mb-4">Built with Modern Tech</h2>
-                <p className="text-gray-500 dark:text-gray-400 mb-8">
-                    Next.js 15 · React · TypeScript · Tailwind CSS · Lucide Icons · Jalaali-js
-                </p>
-            </section>
+                <section className="border-y border-[#273043] bg-[#0d1117]">
+                    <div className="mx-auto max-w-7xl px-4 py-16 md:px-8 md:py-24">
+                        <div className="mb-10 max-w-3xl">
+                            <div className="flex items-center gap-2 font-sans text-xs font-semibold uppercase tracking-wider text-[#b4c5ff]"><ShieldCheck className="h-4 w-4" /> {d.pillarsLabel}</div>
+                            <h2 className="mt-3 text-2xl font-bold text-white md:text-3xl">{d.pillarsTitle}</h2>
+                            <p className="mt-3 leading-7 text-[#94a3b8]">{d.pillarsDescription}</p>
+                        </div>
+                        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
+                            {pillars.map((pillar: any, index: number) => (
+                                <div key={pillar.id || index} className="flex flex-col justify-between rounded-xl border border-[#273043] bg-[#161b26] p-6 transition hover:-translate-y-1 hover:border-[#b4c5ff]/50">
+                                    <div>
+                                        <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-[#1e1f26] text-[#b4c5ff]"><PillarIcon index={index} /></div>
+                                        <h3 className="mt-5 text-lg font-semibold text-white">{pillar.title}</h3>
+                                        <p className="mt-2 text-sm leading-7 text-[#94a3b8]">{pillar.description}</p>
+                                    </div>
+                                    <div className="mt-6 font-sans text-xs font-semibold text-[#4edea3]" dir="ltr">&gt; {pillar.code}</div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </section>
 
-            {/* Contribute */}
-            {/*<section className="bg-blue-600 dark:bg-blue-700 py-16 px-4 text-white text-center">*/}
-            {/*    <h2 className="text-2xl font-bold mb-4">Want to Contribute?</h2>*/}
-            {/*    <p className="mb-6 max-w-xl mx-auto opacity-90">*/}
-            {/*        ZebraCode is open source! Help us add new tools, improve the UI, or translate the site.*/}
-            {/*    </p>*/}
-            {/*    <a*/}
-            {/*        href="https://github.com/your-org/zebracode"*/}
-            {/*        target="_blank"*/}
-            {/*        rel="noopener noreferrer"*/}
-            {/*        className="inline-flex items-center gap-2 bg-white text-blue-600 px-6 py-3 rounded-xl font-semibold hover:bg-gray-100 transition-colors"*/}
-            {/*    >*/}
-            {/*        <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.438 9.8 8.205 11.387.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61-.546-1.387-1.333-1.757-1.333-1.757-1.09-.745.083-.73.083-.73 1.205.085 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 21.795 24 17.295 24 12c0-6.63-5.37-12-12-12z" /></svg>*/}
-            {/*        View on GitHub*/}
-            {/*    </a>*/}
-            {/*</section>*/}
+                <section className="mx-auto max-w-7xl px-4 py-16 md:px-8 md:py-24">
+                    <div className="mb-10 max-w-3xl">
+                        <div className="flex items-center gap-2 font-sans text-xs font-semibold uppercase tracking-wider text-[#b4c5ff]"><GitBranch className="h-4 w-4" /> {d.comparisonLabel}</div>
+                        <h2 className="mt-3 text-2xl font-bold text-white md:text-3xl">{d.comparisonTitle}</h2>
+                        <p className="mt-3 leading-7 text-[#94a3b8]">{d.comparisonDescription}</p>
+                    </div>
+                    <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
+                        <ComparisonCard title={comparison.legacyTitle} badge={comparison.legacyBadge} description={comparison.legacyDescription} steps={comparison.legacySteps} danger />
+                        <ComparisonCard title={comparison.localTitle} badge={comparison.localBadge} description={comparison.localDescription} steps={comparison.localSteps} />
+                    </div>
+                </section>
+
+                <section className="border-y border-[#273043] bg-[#0d1117]">
+                    <div className="mx-auto max-w-4xl px-4 py-16 md:px-8 md:py-24">
+                        <div className="mb-10 text-center">
+                            <div className="inline-flex items-center gap-2 font-sans text-xs font-semibold uppercase tracking-wider text-[#64748b]"><Sparkles className="h-4 w-4" /> {d.faqLabel}</div>
+                            <h2 className="mt-3 text-2xl font-bold text-white md:text-3xl">{d.faqTitle}</h2>
+                        </div>
+                        <div className="space-y-3">
+                            {faqs.map((faq: any, index: number) => (
+                                <details key={faq.question} open={index === 0} className="group rounded-xl border border-[#273043] bg-[#161b26] p-5">
+                                    <summary className="cursor-pointer list-none font-semibold text-white marker:hidden">{faq.question}<span className="float-left text-[#64748b] transition group-open:rotate-180">⌄</span></summary>
+                                    <p className="mt-4 leading-8 text-[#94a3b8]">{faq.answer}</p>
+                                </details>
+                            ))}
+                        </div>
+                    </div>
+                </section>
+
+                <section className="mx-auto max-w-7xl px-4 py-16 md:px-8 md:py-24">
+                    <div className="relative overflow-hidden rounded-2xl border border-[#273043] bg-gradient-to-b from-[#161b26] to-[#0d1117] p-8 text-center shadow-xl md:p-14">
+                        <div className="pointer-events-none absolute inset-0 opacity-20 [background-image:radial-gradient(#2563eb_1px,transparent_1px)] [background-size:16px_16px]" />
+                        <div className="relative mx-auto flex max-w-2xl flex-col items-center">
+                            <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-blue-600/20 text-[#b4c5ff]"><Rocket className="h-7 w-7" /></div>
+                            <h2 className="mt-6 text-2xl font-bold text-white md:text-3xl">{d.ctaTitle}</h2>
+                            <p className="mt-3 leading-8 text-[#94a3b8]">{d.ctaDescription}</p>
+                            <div className="mt-8 flex flex-wrap justify-center gap-3">
+                                <Link href="/" className="inline-flex items-center gap-2 rounded-lg bg-[#2563eb] px-5 py-3 font-semibold text-white transition hover:bg-blue-600"><span>{d.ctaPrimary}</span><ArrowLeft className="h-4 w-4" /></Link>
+                                <a href="https://github.com/vahid9069/zebracode" target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 rounded-lg border border-[#273043] bg-[#1e1f26] px-5 py-3 font-semibold text-white transition hover:border-[#b4c5ff]"><Github className="h-4 w-4" /><span>{d.ctaSecondary}</span></a>
+                            </div>
+                            <div className="mt-7 flex flex-wrap justify-center gap-5 text-xs text-[#94a3b8]">
+                                <span className="flex items-center gap-1"><CheckCircle2 className="h-4 w-4 text-[#4edea3]" />{d.ctaGuarantees.safe}</span>
+                                <span className="flex items-center gap-1"><CheckCircle2 className="h-4 w-4 text-[#4edea3]" />{d.ctaGuarantees.free}</span>
+                                <span className="flex items-center gap-1"><WifiOff className="h-4 w-4 text-[#4edea3]" />{d.ctaGuarantees.offline}</span>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </main>
         </div>
     );
+}
+
+function MetricIcon({ id }: { id: string }) {
+    const Icon = id === 'zero-net' ? WifiOff : id === 'tools' ? Code2 : id === 'latency' ? Zap : ShieldCheck;
+    return <Icon className="h-6 w-6 text-[#4edea3]" />;
+}
+
+function PillarIcon({ index }: { index: number }) {
+    const Icon = [LockKeyhole, Zap, Sparkles, Terminal][index] || Code2;
+    return <Icon className="h-6 w-6" />;
+}
+
+function ArchitectureCard({ d }: { d: any }) {
+    return <div className="flex flex-col justify-center rounded-2xl border border-[#273043] bg-[#161b26] p-6 shadow-lg lg:col-span-5">
+        <div className="flex items-center justify-between border-b border-[#273043] pb-4">
+            <div className="flex items-center gap-1.5"><span className="h-3 w-3 rounded-full bg-red-400" /><span className="h-3 w-3 rounded-full bg-amber-400" /><span className="h-3 w-3 rounded-full bg-emerald-400" /><span className="ml-2 font-sans text-xs text-[#64748b]">runtime-sandbox.wasm</span></div>
+            <span className="rounded bg-[#1e1f26] px-2 py-0.5 font-sans text-[11px] text-[#4edea3]">Sandbox Active</span>
+        </div>
+        <div className="mt-5 rounded-xl border border-[#273043] bg-[#0d1117] p-5">
+            <div className="flex items-center justify-between font-sans text-xs text-[#64748b]"><span className="text-[#b4c5ff]">Browser Memory Heap</span><span className="text-[#4edea3]">100% In-Memory</span></div>
+            <div className="my-8 flex items-center justify-between gap-2 font-sans text-[10px] text-center">
+                <Node label={d.architecture?.input || 'User Input'} />
+                <span className="text-blue-400">━━▶</span>
+                <Node label="WASM / V8" active />
+                <span className="text-emerald-400">━━▶</span>
+                <Node label={d.architecture?.output || 'Result'} />
+            </div>
+            <div className="border-t border-[#273043] pt-4 text-center font-sans text-xs text-[#4edea3]">{d.architecture?.caption || 'Local isolation · zero egress'}</div>
+        </div>
+    </div>;
+}
+
+function Node({ label, active = false }: { label: string; active?: boolean }) {
+    return <div className={`rounded-lg border px-3 py-3 ${active ? 'border-blue-500 bg-blue-950/40 text-[#b4c5ff]' : 'border-[#273043] bg-[#161b26] text-[#94a3b8]'}`}>{label}</div>;
+}
+
+function ComparisonCard({ title, badge, description, steps, danger = false }: { title: string; badge: string; description: string; steps: string[]; danger?: boolean }) {
+    return <div className="rounded-2xl border border-[#273043] bg-[#161b26] p-6">
+        <div className="flex items-center justify-between gap-3"><div className="flex items-center gap-3"><div className={`flex h-9 w-9 items-center justify-center rounded-lg ${danger ? 'bg-red-950/50 text-red-400' : 'bg-emerald-950/50 text-emerald-400'}`}>{danger ? <ShieldCheck className="h-5 w-5" /> : <CheckCircle2 className="h-5 w-5" />}</div><h3 className="font-semibold text-white">{title}</h3></div><span className={`rounded px-2 py-0.5 font-sans text-[10px] ${danger ? 'bg-red-950/50 text-red-300' : 'bg-emerald-950/50 text-emerald-300'}`}>{badge}</span></div>
+        <p className="mt-4 text-sm leading-7 text-[#94a3b8]">{description}</p>
+        <div className="mt-5 space-y-3">{(steps || []).map((step, index) => <div key={step} className="flex items-start gap-3 rounded-lg bg-[#1e1f26] p-3 text-sm leading-6"><span className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full font-sans text-xs ${danger && index === 1 ? 'bg-red-500/20 text-red-300' : 'bg-[#161b26] text-[#94a3b8]'}`}>{index + 1}</span><span className={danger && index === 1 ? 'text-red-300' : 'text-[#e3e1ec]'}>{step}</span></div>)}</div>
+    </div>;
 }

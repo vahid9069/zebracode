@@ -77,6 +77,13 @@ export const JsonToolsList: Record<string, ToolMeta> = {
         outputLanguage: 'sql',           // خروجی شبیه SQL DDL
         transformFunction: jsonToBigQuery,
         gradientClasses: 'from-green-50 to-emerald-50 dark:from-gray-900 dark:to-gray-800',
+        extraContent: {
+            faq: [
+                { question: "What is the benefit of BigQuery schema from JSON?", answer: "It automates the tedious task of defining schema fields, saving hours of manual labor when loading JSON data into Google BigQuery." },
+                { question: "How does it handle nested objects?", answer: "The converter flattens the structure or creates RECORD types in the BigQuery schema definition, ensuring nested data is correctly represented." },
+                { question: "Is the output standard SQL?", answer: "Yes, it produces standard SQL DDL (Data Definition Language) that you can run directly in the BigQuery console." }
+            ]
+        }
     },
     jsonToFlow: {
         type: 'jsonToFlow',
@@ -92,6 +99,13 @@ export const JsonToolsList: Record<string, ToolMeta> = {
         outputLanguage: 'flow',          // خروجی Flow types
         transformFunction: jsonToFlow,
         gradientClasses: 'from-pink-50 to-rose-50 dark:from-gray-900 dark:to-gray-800',
+        extraContent: {
+            faq: [
+                { question: "How accurate are the generated Flow types?", answer: "The tool creates highly accurate types by inspecting your provided JSON object and inferring the corresponding Flow types." },
+                { question: "Can I use these types in existing projects?", answer: "Yes, they are standard Flow type declarations ready for use in any React or JavaScript project using Flow." },
+                { question: "Does it handle arrays?", answer: "Absolutely, it detects array structures and generates corresponding Array<T> type definitions." }
+            ]
+        }
     },
     jsonToGo: {
         type: 'jsonToGo',
@@ -107,6 +121,13 @@ export const JsonToolsList: Record<string, ToolMeta> = {
         outputLanguage: 'go',            // یا 'text' چون CodeMirror گو را مستقیماً پشتیبانی نمی‌کند؛ بگذاریم 'text'
         transformFunction: jsonToGo,
         gradientClasses: 'from-cyan-50 to-blue-50 dark:from-gray-900 dark:to-gray-800',
+        extraContent: {
+            faq: [
+                { question: "How to convert JSON to Go structs?", answer: "Simply paste your JSON into the input field, and the tool will automatically generate Go struct definitions, including necessary `json` tags for unmarshalling." },
+                { question: "Does it handle nested JSON objects?", answer: "Yes, it recursively maps nested JSON objects to corresponding nested Go structs." },
+                { question: "Is this suitable for production Go projects?", answer: "Yes, the generated structs follow standard Go conventions and are ready for use in your production API clients." }
+            ]
+        }
     },
     jsonToGoBson: {
         type: 'jsonToGoBson',
@@ -137,6 +158,13 @@ export const JsonToolsList: Record<string, ToolMeta> = {
         outputLanguage: 'graphql',       // خروجی SDL
         transformFunction: jsonToGraphQL,
         gradientClasses: 'from-pink-50 to-fuchsia-50 dark:from-gray-900 dark:to-gray-800',
+        extraContent: {
+            faq: [
+                { question: "Can I generate a full GraphQL schema from JSON?", answer: "Yes, this tool infers types and relationships from your JSON object to generate a valid GraphQL SDL (Schema Definition Language)." },
+                { question: "Is the output compatible with all GraphQL servers?", answer: "Yes, the generated schema uses standard GraphQL syntax that is compatible with any server-side GraphQL implementation." },
+                { question: "Does it support GraphQL list types?", answer: "Yes, it automatically identifies array fields in your JSON and converts them into GraphQL list types." }
+            ]
+        }
     },
     jsonToIoTs: {
         type: 'jsonToIoTs',
@@ -152,6 +180,13 @@ export const JsonToolsList: Record<string, ToolMeta> = {
         outputLanguage: 'typescript',    // io-ts در TypeScript استفاده می‌شود
         transformFunction: jsonToIoTS,
         gradientClasses: 'from-blue-50 to-indigo-50 dark:from-gray-900 dark:to-gray-800',
+        extraContent: {
+            faq: [
+                { question: "What is io-ts useful for?", answer: "io-ts is excellent for runtime type validation in TypeScript, ensuring your API responses match your expected data shapes." },
+                { question: "Does this tool handle optional fields?", answer: "Yes, it detects potentially missing or nullable fields and uses io-ts partials and optionals for robust validation." },
+                { question: "Can I use the output directly in my TS project?", answer: "Absolutely, the generated codecs are standard io-ts definitions that you can import and use for your API validation layers." }
+            ]
+        }
     },
     jsonToJava: {
         type: 'jsonToJava',
@@ -164,9 +199,16 @@ export const JsonToolsList: Record<string, ToolMeta> = {
         icon: Code,
         href: '/json-to-java',
         inputLanguage: 'json',
-        outputLanguage: 'java',          // یا 'text'
+        outputLanguage: 'java',
         transformFunction: jsonToJava,
         gradientClasses: 'from-red-50 to-orange-50 dark:from-gray-900 dark:to-gray-800',
+        extraContent: {
+            faq: [
+                { question: "Does this support Jackson annotations?", answer: "Yes, the generated POJOs include Jackson annotations like @JsonProperty for easy JSON deserialization in Java." },
+                { question: "Can it handle complex nested JSON?", answer: "Yes, it creates separate Java classes for nested objects to maintain clean and modular code structure." },
+                { question: "Is it suitable for Android development?", answer: "Definitely, the POJO output is fully compatible with common Android JSON parsing libraries." }
+            ]
+        }
     },
     jsonToJsdoc: {
         type: 'jsonToJsdoc',
@@ -179,9 +221,16 @@ export const JsonToolsList: Record<string, ToolMeta> = {
         icon: Code,
         href: '/json-to-jsdoc',
         inputLanguage: 'json',
-        outputLanguage: 'javascript',    // JSDoc در JS استفاده می‌شود
+        outputLanguage: 'javascript',
         transformFunction: jsonToJSDoc,
         gradientClasses: 'from-yellow-50 to-amber-50 dark:from-gray-900 dark:to-gray-800',
+        extraContent: {
+            faq: [
+                { question: "Why use JSDoc over TypeScript?", answer: "JSDoc is a lightweight way to get IDE type checking and autocompletion in standard JavaScript files without the complexity of a build step." },
+                { question: "Will IDEs recognize the output?", answer: "Yes, VS Code and many other editors natively support JSDoc for enhanced IntelliSense and code navigation." },
+                { question: "Does it support nested structures?", answer: "Yes, it maps nested JSON to complex JSDoc @typedef definitions." }
+            ]
+        }
     },
     jsonToJsonSchema: {
         type: 'jsonToJsonSchema',

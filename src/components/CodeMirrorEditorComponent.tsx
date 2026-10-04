@@ -16,6 +16,7 @@ import {
     Clipboard, ClipboardPaste, Save, FolderOpen,
     Link, Upload, X, XCircle, Code, Eraser,
 } from 'lucide-react';
+import { useOptionalI18n } from '@/i18n/I18nProvider';
 
 /* ---------- types ---------- */
 type ToolbarButton = {
@@ -143,6 +144,8 @@ const CodeMirrorEditorComponent: React.FC<Props> = ({
 
     const isDark = theme === 'dark';
     const editorBgClass = isDark ? 'bg-gray-900' : 'bg-white';
+    const dict = useOptionalI18n()?.dict;
+    const editor = dict?.common?.editor;
 
     const displayNotification = useCallback((message: string, type: 'success' | 'error') => {
         setShowNotification({ message, type });
@@ -160,16 +163,16 @@ const CodeMirrorEditorComponent: React.FC<Props> = ({
         });
     };
 
-    const handleCopy   = async () => { try { await navigator.clipboard.writeText(value || ''); displayNotification('Copied!', 'success'); } catch { displayNotification('Copy failed', 'error'); } };
-    const handlePaste  = async () => { if (!viewRef.current) return; try { const text = await navigator.clipboard.readText(); replaceDocumentContent(text); displayNotification('Pasted!', 'success'); } catch { displayNotification('Paste failed', 'error'); } };
-    const handleSave   = () => { if (!value) { displayNotification('No content to save', 'error'); return; } const blob = new Blob([value], { type: 'text/plain' }); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = `code-${Date.now()}.${language === 'json' ? 'json' : 'txt'}`; document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url); displayNotification('File saved', 'success'); };
-    const handleSample1 = () => { if (sampleCodeOne) { replaceDocumentContent(sampleCodeOne); displayNotification('Sample loaded', 'success'); } };
-    const handleSample2 = () => { if (sampleCodeTwo) { replaceDocumentContent(sampleCodeTwo); displayNotification('Sample 2 loaded', 'success'); } };
-    const handleClear   = () => { replaceDocumentContent(''); displayNotification('Content cleared', 'success'); };
+    const handleCopy   = async () => { try { await navigator.clipboard.writeText(value || ''); displayNotification(editor?.copied || 'Copied!', 'success'); } catch { displayNotification(editor?.copyFailed || 'Copy failed', 'error'); } };
+    const handlePaste  = async () => { if (!viewRef.current) return; try { const text = await navigator.clipboard.readText(); replaceDocumentContent(text); displayNotification(editor?.pasted || 'Pasted!', 'success'); } catch { displayNotification(editor?.pasteFailed || 'Paste failed', 'error'); } };
+    const handleSave   = () => { if (!value) { displayNotification(editor?.noContent || 'No content to save', 'error'); return; } const blob = new Blob([value], { type: 'text/plain' }); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = `code-${Date.now()}.${language === 'json' ? 'json' : 'txt'}`; document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url); displayNotification(editor?.saved || 'File saved', 'success'); };
+    const handleSample1 = () => { if (sampleCodeOne) { replaceDocumentContent(sampleCodeOne); displayNotification(editor?.sampleLoaded || 'Sample loaded', 'success'); } };
+    const handleSample2 = () => { if (sampleCodeTwo) { replaceDocumentContent(sampleCodeTwo); displayNotification(editor?.sample2Loaded || 'Sample 2 loaded', 'success'); } };
+    const handleClear   = () => { replaceDocumentContent(''); displayNotification(editor?.cleared || 'Content cleared', 'success'); };
 
     /* ---------- file / url ---------- */
-    const handleFileLoad = (e: React.ChangeEvent<HTMLInputElement>) => { const file = e.target.files?.[0]; if (!file) return; const reader = new FileReader(); reader.onload = (event) => { const content = event.target?.result as string; replaceDocumentContent(content); displayNotification('File loaded', 'success'); setShowOpenModal(false); }; reader.onerror = () => setFileError('File read error'); reader.readAsText(file); };
-    const handleUrlLoad  = async () => { setFileError(null); try { const response = await fetch(urlInput); if (!response.ok) throw new Error('URL fetch failed'); const text = await response.text(); replaceDocumentContent(text); displayNotification('URL loaded', 'success'); setShowOpenModal(false); } catch { setFileError('URL fetch error'); } };
+    const handleFileLoad = (e: React.ChangeEvent<HTMLInputElement>) => { const file = e.target.files?.[0]; if (!file) return; const reader = new FileReader(); reader.onload = (event) => { const content = event.target?.result as string; replaceDocumentContent(content); displayNotification(editor?.fileLoaded || 'File loaded', 'success'); setShowOpenModal(false); }; reader.onerror = () => setFileError(editor?.fileReadError || 'File read error'); reader.readAsText(file); };
+    const handleUrlLoad  = async () => { setFileError(null); try { const response = await fetch(urlInput); if (!response.ok) throw new Error('URL fetch failed'); const text = await response.text(); replaceDocumentContent(text); displayNotification(editor?.urlLoaded || 'URL loaded', 'success'); setShowOpenModal(false); } catch { setFileError(editor?.urlFetchError || 'URL fetch error'); } };
 
     /* ---------- update listener ---------- */
     const updateListener = EditorView.updateListener.of((update) => {
@@ -228,7 +231,7 @@ const CodeMirrorEditorComponent: React.FC<Props> = ({
     }, [language, isDark, readOnly, direction]);
 
     /* ---------- drag & drop ---------- */
-    const handleDrop = (e: DragEvent<HTMLDivElement>) => { e.preventDefault(); const file = e.dataTransfer.files[0]; if (file) { const reader = new FileReader(); reader.onload = (event) => { replaceDocumentContent(event.target?.result as string); displayNotification('File loaded via drop', 'success'); }; reader.onerror = () => displayNotification('File read error', 'error'); reader.readAsText(file); } };
+    const handleDrop = (e: DragEvent<HTMLDivElement>) => { e.preventDefault(); const file = e.dataTransfer.files[0]; if (file) { const reader = new FileReader(); reader.onload = (event) => { replaceDocumentContent(event.target?.result as string); displayNotification(editor?.dropped || 'File loaded via drop', 'success'); }; reader.onerror = () => displayNotification(editor?.fileReadError || 'File read error', 'error'); reader.readAsText(file); } };
     const handleDragOver = (e: DragEvent<HTMLDivElement>) => { e.preventDefault(); };
 
     /* ---------- JSX ---------- */
@@ -238,13 +241,13 @@ const CodeMirrorEditorComponent: React.FC<Props> = ({
             {/* toolbar */}
             <div className="flex justify-between p-1 bg-gray-200 border-b border-gray-300 text-gray-800 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-200">
                 <div className="flex gap-1">
-                    {!readOnly && toolbarConfig.clear  && <button onClick={handleClear} className="p-2 text-gray-700 text-sm rounded hover:bg-gray-300 transition duration-150 dark:text-gray-300 dark:hover:bg-gray-700" title="Clear"><Eraser size={18} /></button>}
-                    {toolbarConfig.copy                     && <button onClick={handleCopy} className="p-2 text-gray-700 text-sm rounded hover:bg-gray-300 transition duration-150 dark:text-gray-300 dark:hover:bg-gray-700" title="Copy"><Clipboard size={18} /></button>}
-                    {!readOnly && toolbarConfig.paste  && <button onClick={handlePaste} className="p-2 text-gray-700 text-sm rounded hover:bg-gray-300 transition duration-150 dark:text-gray-300 dark:hover:bg-gray-700" title="Paste"><ClipboardPaste size={18} /></button>}
-                    {toolbarConfig.save                    && <button onClick={handleSave} className="p-2 text-gray-700 text-sm rounded hover:bg-gray-300 transition duration-150 dark:text-gray-300 dark:hover:bg-gray-700" title="Save"><Save size={18} /></button>}
-                    {!readOnly && toolbarConfig.open   && <button onClick={() => setShowOpenModal(true)} className="p-2 text-gray-700 text-sm rounded hover:bg-gray-300 transition duration-150 dark:text-gray-300 dark:hover:bg-gray-700" title="Open"><FolderOpen size={18} /></button>}
-                    {!readOnly && toolbarConfig.sample && sampleCodeOne && <button onClick={handleSample1} className="p-2 text-gray-700 text-sm rounded hover:bg-gray-300 transition duration-150 dark:text-gray-300 dark:hover:bg-gray-700" title="Sample 1"><Code size={18} /></button>}
-                    {!readOnly && toolbarConfig.sample && sampleCodeTwo && <button onClick={handleSample2} className="p-2 text-gray-700 text-sm rounded hover:bg-gray-300 transition duration-150 dark:text-gray-300 dark:hover:bg-gray-700" title="Sample 2"><Code size={18} /></button>}
+                    {!readOnly && toolbarConfig.clear  && <button onClick={handleClear} className="p-2 text-gray-700 text-sm rounded hover:bg-gray-300 transition duration-150 dark:text-gray-300 dark:hover:bg-gray-700" title={editor?.clear || 'Clear'}><Eraser size={18} /></button>}
+                    {toolbarConfig.copy                     && <button onClick={handleCopy} className="p-2 text-gray-700 text-sm rounded hover:bg-gray-300 transition duration-150 dark:text-gray-300 dark:hover:bg-gray-700" title={editor?.copy || 'Copy'}><Clipboard size={18} /></button>}
+                    {!readOnly && toolbarConfig.paste  && <button onClick={handlePaste} className="p-2 text-gray-700 text-sm rounded hover:bg-gray-300 transition duration-150 dark:text-gray-300 dark:hover:bg-gray-700" title={editor?.paste || 'Paste'}><ClipboardPaste size={18} /></button>}
+                    {toolbarConfig.save                    && <button onClick={handleSave} className="p-2 text-gray-700 text-sm rounded hover:bg-gray-300 transition duration-150 dark:text-gray-300 dark:hover:bg-gray-700" title={editor?.save || 'Save'}><Save size={18} /></button>}
+                    {!readOnly && toolbarConfig.open   && <button onClick={() => setShowOpenModal(true)} className="p-2 text-gray-700 text-sm rounded hover:bg-gray-300 transition duration-150 dark:text-gray-300 dark:hover:bg-gray-700" title={editor?.open || 'Open'}><FolderOpen size={18} /></button>}
+                    {!readOnly && toolbarConfig.sample && sampleCodeOne && <button onClick={handleSample1} className="p-2 text-gray-700 text-sm rounded hover:bg-gray-300 transition duration-150 dark:text-gray-300 dark:hover:bg-gray-700" title={editor?.sample1 || 'Sample 1'}><Code size={18} /></button>}
+                    {!readOnly && toolbarConfig.sample && sampleCodeTwo && <button onClick={handleSample2} className="p-2 text-gray-700 text-sm rounded hover:bg-gray-300 transition duration-150 dark:text-gray-300 dark:hover:bg-gray-700" title={editor?.sample2 || 'Sample 2'}><Code size={18} /></button>}
                 </div>
                 <div className="flex gap-1">
                     {rightToolbarButtons.map(btn => (
@@ -271,34 +274,34 @@ const CodeMirrorEditorComponent: React.FC<Props> = ({
             {showOpenModal && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75">
                     <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-2xl w-full max-w-sm">
-                        <div className="flex justify-between items-center mb-4">
-                            <h3 className="text-xl font-semibold text-gray-900 dark:text-white">Open File</h3>
+                                        <div className="flex justify-between items-center mb-4">
+                            <h3 className="text-xl font-semibold text-gray-900 dark:text-white">{dict?.common?.openFile || 'Open file'}</h3>
                             <button onClick={() => { setShowOpenModal(false); setFileError(null); setUrlInput(''); }} className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"><X size={24} /></button>
                         </div>
                         <label className="block mb-4">
-                            <span className="text-gray-700 dark:text-gray-300">Upload a file</span>
+                            <span className="text-gray-700 dark:text-gray-300">{dict?.common?.uploadFile || 'Upload file'}</span>
                             <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md dark:border-gray-600">
                                 <div className="space-y-1 text-center">
                                     <Upload className="mx-auto h-12 w-12 text-gray-400" />
                                     <div className="flex text-sm text-gray-600 dark:text-gray-400">
                                         <label className="relative cursor-pointer bg-white dark:bg-gray-800 rounded-md font-medium text-blue-600 hover:text-blue-500 focus-within:outline-none">
-                                            <span>Select a file</span>
+                                            <span>{dict?.common?.selectFile || 'Select a file'}</span>
                                             <input type="file" className="sr-only" onChange={handleFileLoad} accept=".json,.txt,.sql,.md,.js,.html" />
                                         </label>
-                                        <p className="pl-1">or drag and drop</p>
+                                        <p className="pl-1">{dict?.common?.orDragAndDrop || 'or drag and drop'}</p>
                                     </div>
                                     <p className="text-xs text-gray-500">JSON, TXT, SQL, MD, JS, HTML</p>
                                 </div>
                             </div>
                         </label>
                         <div className="mb-4">
-                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Load from URL</label>
+                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">{dict?.common?.loadFromUrl || 'Load from URL'}</label>
                             <div className="mt-1 flex shadow-sm">
                                 <input type="url" value={urlInput} onChange={e => setUrlInput(e.target.value)} placeholder="https://example.com/file.json"
                                        className="flex-1 block w-full rounded-l-md border-gray-300 p-2 dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
                                 <button onClick={handleUrlLoad} disabled={!urlInput}
                                         className="inline-flex items-center px-4 py-2 border border-l-0 border-gray-300 bg-gray-50 text-sm font-medium text-gray-700 rounded-r-md hover:bg-gray-100 dark:bg-gray-600 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-500 disabled:opacity-50">
-                                    <Link size={18} className="mr-2" />Load</button>
+                                    <Link size={18} className="mr-2" />{dict?.common?.load || 'Load'}</button>
                             </div>
                         </div>
                         {fileError && <p className="text-red-500 text-sm mt-2 flex items-center"><XCircle size={16} className="mr-1" /> {fileError}</p>}

@@ -25,6 +25,13 @@ export const GraphqlToolsList: Record<string, ToolMeta> = {
         outputLanguage: 'flow',
         transformFunction: (input) => advancedGraphqlTransform(input, 'flow'),
         gradientClasses: 'from-yellow-50 to-orange-50 dark:from-gray-900 dark:to-gray-800',
+        extraContent: {
+            faq: [
+                { question: "Why convert GraphQL schema to Flow?", answer: "If your React project uses Flow for type checking, converting your GraphQL schema ensures type safety for queries and mutations throughout your application." },
+                { question: "Is the generated code ready for production?", answer: "Yes, it produces standard Flow type declarations that you can use immediately in your frontend codebase." },
+                { question: "Does it support GraphQL unions?", answer: "Yes, the tool maps GraphQL unions and interfaces to Flow union and intersection types accurately." }
+            ]
+        }
     },
     graphqlToTypeScript: {
         type: 'graphqlToTypeScript',
@@ -40,6 +47,13 @@ export const GraphqlToolsList: Record<string, ToolMeta> = {
         outputLanguage: 'typescript',
         transformFunction: (input) => advancedGraphqlTransform(input, 'typescript'),
         gradientClasses: 'from-blue-50 to-cyan-50 dark:from-gray-900 dark:to-gray-800',
+        extraContent: {
+            faq: [
+                { question: "Why use generated types from GraphQL?", answer: "Generated types prevent desynchronization between your frontend and backend by keeping your TypeScript interfaces perfectly aligned with the API schema." },
+                { question: "Does this support Apollo Client?", answer: "Yes, the generated types are standard TypeScript definitions compatible with Apollo Client, Relay, and URQL." },
+                { question: "Can I use custom scalars?", answer: "Yes, the tool handles custom scalars and maps them to standard TypeScript types (or you can map them manually in your config)." }
+            ]
+        }
     },
     graphqlToJava: {
         type: 'graphqlToJava',
@@ -55,6 +69,13 @@ export const GraphqlToolsList: Record<string, ToolMeta> = {
         outputLanguage: 'java',
         transformFunction: (input) => advancedGraphqlTransform(input, 'java'),
         gradientClasses: 'from-red-50 to-rose-50 dark:from-gray-900 dark:to-gray-800',
+        extraContent: {
+            faq: [
+                { question: "Is this suitable for Spring Boot apps?", answer: "Yes, the generated POJOs can easily be integrated into Spring Boot applications for GraphQL data fetching." },
+                { question: "Does it support GraphQL Enums?", answer: "Yes, it maps GraphQL Enums directly to Java Enums, ensuring type safety in your backend." },
+                { question: "How are relationships handled?", answer: "The tool creates Java references/list structures in the POJOs to represent the relationships defined in your GraphQL schema." }
+            ]
+        }
     },
 
     // ---------- ابزارهای جدید ----------
@@ -72,6 +93,13 @@ export const GraphqlToolsList: Record<string, ToolMeta> = {
         outputLanguage: 'typescript',
         transformFunction: (input) => advancedGraphqlTransform(input, 'typescript-mongodb'),
         gradientClasses: 'from-green-50 to-emerald-50 dark:from-gray-900 dark:to-gray-800',
+        extraContent: {
+            faq: [
+                { question: "Does it support Mongoose schemas?", answer: "Yes, the generated output is tailored to be compatible with Mongoose model definitions." },
+                { question: "Can I use this for existing MongoDB collections?", answer: "This tool helps you generate the TypeScript interfaces; you may need to map them manually to your existing database documents." },
+                { question: "Why link GraphQL to Mongo models?", answer: "It ensures your database records match your GraphQL API types, reducing errors in your data layer." }
+            ]
+        }
     },
     graphqlSchemaAst: {
         type: 'graphqlSchemaAst',
@@ -87,23 +115,13 @@ export const GraphqlToolsList: Record<string, ToolMeta> = {
         outputLanguage: 'json',
         transformFunction: (input) => advancedGraphqlTransform(input, 'schema-ast'),
         gradientClasses: 'from-purple-50 to-violet-50 dark:from-gray-900 dark:to-gray-800',
-        sampleCodeSimple: `type Query {
-  hello: String
-}`,
-        sampleCodeComplex: `scalar DateTime
-enum Role { ADMIN EDITOR VIEWER }
-interface Node { id: ID! }
-type User implements Node {
-  id: ID!
-  name: String!
-  posts: [Post!]!
-}
-type Post implements Node {
-  id: ID!
-  title: String!
-  author: User!
-}
-type Query { user(id: ID!): User }`,
+        extraContent: {
+            faq: [
+                { question: "What is an AST?", answer: "An Abstract Syntax Tree is a tree representation of the abstract syntactic structure of source code, used for analysis and transformation." },
+                { question: "Can I use the output for code generation?", answer: "Yes, the JSON AST is the standard format used by many programmatic GraphQL tools to generate custom code." },
+                { question: "Is it suitable for large schemas?", answer: "Yes, the tool is designed to handle complex, production-sized schemas without performance degradation." }
+            ]
+        }
     },
     graphqlResolversSignature: {
         type: 'graphqlResolversSignature',

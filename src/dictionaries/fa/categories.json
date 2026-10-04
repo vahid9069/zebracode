@@ -17,5 +17,9 @@
   "text": "متن",
   "others": "سایر",
   "other": "سایر",
-  "general": "عمومی"
+  "general": "عمومی",
+  "workflows": "گردش‌کار",
+  "markup": "نشانه‌گذاری",
+  "config-data": "تنظیمات و داده",
+  "data-formats": "فرمت‌های داده"
 }

@@ -6,6 +6,57 @@
   "whyTitle": "Why Choose ZebraCode?",
   "techTitle": "Built with Modern Tech",
   "techDescription": "Next.js 15 · React · TypeScript · Tailwind CSS · Lucide Icons · Jalaali-js",
+  "aboutLabel": "About us",
+  "homeLabel": "Home",
+  "breadcrumbLabel": "Breadcrumb",
+  "missionBadge": "Our story and mission",
+  "heroTitle": "Modern tools,",
+  "heroAccent": "without the slowdown and with privacy by default.",
+  "storyLabel": "How the project started",
+  "storyTitle": "Built by engineers who were tired of slow and unsafe tools",
+  "storyParagraphs": [
+    "For years, engineers have relied on old, slow, ad-filled websites for everyday tasks like converting Base64, inspecting JWTs, or validating regular expressions.",
+    "The bigger risk is sending sensitive JSON, API keys, and configuration files to unknown servers without knowing who stores or analyzes them.",
+    "ZebraCode was created to set a new standard: a fast, beautiful, local toolbox that stays useful even when the internet is unavailable."
+  ],
+  "manifesto": "Privacy is not an option you enable in settings; it is the foundation of every technical tool.",
+  "manifestoCaption": "ZebraCode technical manifesto · Zero Egress architecture",
+  "metrics": [
+    { "id": "zero-net", "value": "0 Bytes", "badge": "ZERO-NET", "title": "Zero data transfer", "description": "No processing logs, telemetry, or code uploads." },
+    { "id": "tools", "value": "+50 Tools", "badge": "ALL-IN-ONE", "title": "Specialized tools", "description": "Formatters, encoders, converters, and generators." },
+    { "id": "latency", "value": "< 2.0 ms", "badge": "LATENCY", "title": "Instant response", "description": "Local processing without network round trips." },
+    { "id": "free", "value": "100% Free", "badge": "FREE / MIT", "title": "Free and ad-free", "description": "Open source and independent by design." }
+  ],
+  "architecture": { "input": "User input", "output": "Final result", "caption": "Local isolation · zero egress" },
+  "pillarsLabel": "Engineering principles",
+  "pillarsTitle": "Why is ZebraCode different?",
+  "pillarsDescription": "Every product decision is guided by speed, data safety, and a clean developer experience.",
+  "pillars": [
+    { "id": "privacy", "title": "Privacy by design", "description": "Your data, tokens, and keys never leave your device.", "code": "Zero Egress Architecture" },
+    { "id": "speed", "title": "Sub-millisecond performance", "description": "Local execution means no network round trips and instant feedback.", "code": "Native Local Execution" },
+    { "id": "design", "title": "Ergonomic design", "description": "Inspired by shadcn/ui and minimal interfaces, without distractions.", "code": "Keyboard-Driven UI" },
+    { "id": "open", "title": "Transparent and open source", "description": "The code is available for review, contribution, and new tools.", "code": "Public MIT Repository" }
+  ],
+  "comparisonLabel": "Data flow comparison",
+  "comparisonTitle": "Why is ZebraCode safer by design than traditional online services?",
+  "comparisonDescription": "The key difference is where processing happens: on an unknown server, or right inside your browser.",
+  "comparison": {
+    "legacyTitle": "Traditional web utilities", "legacyBadge": "HIGH RISK", "legacyDescription": "Many free services send your request to their backend using HTTP POST.", "legacySteps": ["Paste a token, private key, or sensitive JSON", "Send the complete payload over the internet", "Process and return data with server dependency and latency"],
+    "localTitle": "ZebraCode isolated architecture", "localBadge": "SAFE & LOCAL", "localDescription": "Tools run locally and keep data in the active browser tab's temporary memory.", "localSteps": ["Enter data in the browser editor", "Process locally without sending a single byte", "Get an instant result ready to copy"]
+  },
+  "faqLabel": "Frequently asked questions",
+  "faqTitle": "Clear answers to common concerns",
+  "faqs": [
+    { "question": "Is any information really sent to your servers?", "answer": "No. Conversion and processing tools run in your browser, so the data itself is not sent to a processing server." },
+    { "question": "Why is ZebraCode free?", "answer": "Processing runs on the user's device, so we do not need expensive central processing infrastructure. The tools can remain free and independent." },
+    { "question": "How can I contribute?", "answer": "The project is open source. Fork the GitHub repository, add a tool, report a bug, or suggest a feature." },
+    { "question": "Can I use it without an internet connection?", "answer": "Many tools process data locally after the initial page load and do not need an internet connection for conversions." }
+  ],
+  "ctaTitle": "Ready to experience real speed and privacy in your daily workflow?",
+  "ctaDescription": "Join developers who have replaced old, risky utilities with ZebraCode.",
+  "ctaPrimary": "Explore the toolbox",
+  "ctaSecondary": "Star on GitHub",
+  "ctaGuarantees": { "safe": "100% browser-based", "free": "No sign-up required", "offline": "Local processing" },
   "features": [
     { "id": "instant", "title": "Instant & Free", "desc": "All tools work directly in your browser with zero configuration and no fees." },
     { "id": "privacy", "title": "Privacy First", "desc": "Your data is processed locally and never uploaded to any server." },

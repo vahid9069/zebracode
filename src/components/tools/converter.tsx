@@ -7,6 +7,9 @@ import { Maximize, Minimize, Table, CheckCircle, Play } from 'lucide-react';
 import CodeMirrorEditorComponent from '@/components/CodeMirrorEditorComponent';
 import { ToolMeta } from '@/types/types';
 import SeoContent from "../pages/SeoContent";
+import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { useOptionalI18n } from '@/i18n/I18nProvider';
 
 type CodeMirrorLanguage = 'json' | 'javascript' | 'html' | 'sql' | 'markdown' | 'text';
 
@@ -22,9 +25,10 @@ const mapToCodeMirrorLang = (lang: string): CodeMirrorLanguage => {
 
 interface ConverterProps {
     config: ToolMeta;
+    locale?: 'fa' | 'en';
 }
 
-export default function Converter({ config }: ConverterProps) {
+export default function Converter({ config, locale = 'en' }: ConverterProps) {
     const {
         title,
         description,
@@ -35,7 +39,7 @@ export default function Converter({ config }: ConverterProps) {
         sampleCodeSimple,
         sampleCodeComplex,
         validateInput,
-        validationErrorMessage = 'Invalid input',
+        validationErrorMessage,
         secondaryTransformFunction,
         secondaryButtonText = 'Toggle Output',
         secondaryOutputLanguage,
@@ -56,6 +60,8 @@ export default function Converter({ config }: ConverterProps) {
     const [isValid, setIsValid] = useState(false);
     const [isSecondaryMode, setIsSecondaryMode] = useState(false);
     const { theme } = useTheme();
+    const t = useOptionalI18n()?.dict.common;
+    const validationMessage = validationErrorMessage || t?.invalidInput || 'Invalid input';
 
     const [isInputMaximized, setIsInputMaximized] = useState(false);
     const [isOutputMaximized, setIsOutputMaximized] = useState(false);
@@ -95,7 +101,7 @@ export default function Converter({ config }: ConverterProps) {
             setError(null);
         } catch (err: any) {
             console.error('Transformation error:', err);
-            setError(err.message || 'Error during conversion');
+            setError(err.message || t?.conversionError || 'Error during conversion');
             setOutputValue('');
         }
     }, [requiresSecondaryInput]);
@@ -116,7 +122,7 @@ export default function Converter({ config }: ConverterProps) {
             const valid = validateInput(text);
             setIsValid(valid);
             if (!valid) {
-                setError(validationErrorMessage);
+                setError(validationMessage);
                 setOutputValue('');
                 return;
             }
@@ -125,7 +131,7 @@ export default function Converter({ config }: ConverterProps) {
         }
 
         await performTransformation(text, secondaryInputValue, isSecondaryMode ? 'secondary' : 'primary');
-    }, [validateInput, validationErrorMessage, performTransformation, secondaryInputValue, isSecondaryMode]);
+    }, [validateInput, validationMessage, performTransformation, secondaryInputValue, isSecondaryMode]);
 
     const handleSecondaryInputChange = useCallback((value: string | undefined) => {
         const text = value ?? '';
@@ -155,7 +161,7 @@ export default function Converter({ config }: ConverterProps) {
         {
             key: 'toggle-size-input',
             icon: isInputMaximized ? <Minimize size={18} /> : <Maximize size={18} />,
-            title: isInputMaximized ? 'Minimize' : 'Maximize',
+            title: isInputMaximized ? (t?.minimize || 'Minimize') : (t?.maximize || 'Maximize'),
             onClick: () => { setIsOutputMaximized(false); setIsInputMaximized(prev => !prev); },
             disabled: isOutputMaximized,
         },
@@ -166,7 +172,7 @@ export default function Converter({ config }: ConverterProps) {
             {
                 key: 'toggle-size-output',
                 icon: isOutputMaximized ? <Minimize size={18} /> : <Maximize size={18} />,
-                title: isOutputMaximized ? 'Minimize' : 'Maximize',
+                title: isOutputMaximized ? (t?.minimize || 'Minimize') : (t?.maximize || 'Maximize'),
                 onClick: () => { setIsInputMaximized(false); setIsOutputMaximized(prev => !prev); },
                 disabled: isInputMaximized,
             },
@@ -175,7 +181,7 @@ export default function Converter({ config }: ConverterProps) {
             btns.push({
                 key: 'toggle-secondary',
                 icon: <Table size={18} className={isSecondaryMode ? 'text-blue-500' : 'text-gray-500'} />,
-                title: isSecondaryMode ? 'Switch to primary output' : secondaryButtonText,
+                title: isSecondaryMode ? (t?.switchPrimaryOutput || 'Switch to primary output') : secondaryButtonText,
                 onClick: toggleSecondaryMode,
                 disabled: !inputValue.trim() || (validateInput && !isValid),
             });
@@ -205,15 +211,17 @@ export default function Converter({ config }: ConverterProps) {
     const outputHeight = isOutputMaximized ? maxHeight : normalHeight;
 
     return (
-        <div className={`w-full min-h-screen bg-gradient-to-br pb-12 ${gradientClasses}`}>
+        <div className="w-full min-h-screen bg-background pb-12 text-foreground">
             <div className="container mx-auto px-4 py-8">
                 {/* Header */}
-                <div className="text-center mb-8">
-                    <h1 className="text-4xl font-extrabold text-gray-900 dark:text-white mb-2 flex items-center justify-center gap-3">
-                        <IconComponent size={32}/>
+                <div className="relative mb-8 overflow-hidden rounded-2xl border bg-gradient-to-br from-primary/10 via-background to-background px-6 py-10 text-center">
+                    <div className="relative">
+                    <h1 className="text-4xl font-extrabold text-foreground mb-2 flex items-center justify-center gap-3">
+                        <IconComponent size={32} className="text-primary"/>
                         {title}
                     </h1>
-                    <p className="text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">{description}</p>
+                    <p className="text-lg text-muted-foreground max-w-2xl mx-auto">{description}</p>
+                    </div>
                 </div>
 
                 {/* Error */}
@@ -229,19 +237,18 @@ export default function Converter({ config }: ConverterProps) {
                     {/* Input Section */}
                     {!isOutputMaximized && (
                         <div className={`flex flex-col gap-4 ${isInputMaximized ? 'lg:col-span-2' : ''}`}>
-                            <div
-                                className={`flex flex-col ${cardClasses} ${requiresSecondaryInput ? 'flex-1' : 'h-full'}`}>
+                            <Card className={`flex flex-col overflow-hidden ${requiresSecondaryInput ? 'flex-1' : 'h-full'}`}>
                                 {useCardStyle && (
                                     <div
-                                        className="bg-gray-100 dark:bg-gray-800 px-4 py-2 border-b flex justify-between items-center">
-                                        <h2 className="text-sm font-bold text-gray-800 dark:text-gray-200">
-                                            Input ({inputLanguage.toUpperCase()})
+                                        className="bg-muted/60 px-4 py-2 border-b flex justify-between items-center">
+                                        <h2 className="text-sm font-bold text-foreground">
+                                            {t?.input || 'Input'} ({inputLanguage.toUpperCase()})
                                         </h2>
                                     </div>
                                 )}
                                 {!useCardStyle && (
                                     <h2 className="text-xl font-semibold mb-2 dark:text-white border-b pb-2">
-                                        Input ({inputLanguage.toUpperCase()})
+                                        {t?.input || 'Input'} ({inputLanguage.toUpperCase()})
                                         {validateInput && isValid &&
                                             <CheckCircle size={20} className="inline ml-2 text-green-500"/>}
                                     </h2>
@@ -269,23 +276,24 @@ export default function Converter({ config }: ConverterProps) {
                                         rightToolbarButtons={customInputButtons}
                                     />
                                 </div>
-                            </div>
+                            </Card>
 
                             {/* Secondary Input */}
                             {requiresSecondaryInput && (
-                                <div className={`flex flex-col flex-1 ${cardClasses}`}>
+                                <Card className="flex flex-col flex-1 overflow-hidden">
                                     <div
-                                        className="bg-gray-100 dark:bg-gray-800 px-4 py-2 border-b flex justify-between items-center">
-                                        <h2 className="text-sm font-bold text-gray-800 dark:text-gray-200">
+                                        className="bg-muted/60 px-4 py-2 border-b flex justify-between items-center">
+                                        <h2 className="text-sm font-bold text-foreground">
                                             {secondaryInputTitle}
                                         </h2>
-                                        <button
+                                        <Button
+                                            type="button"
+                                            size="sm"
                                             onClick={handleApplySecondary}
-                                            className="inline-flex items-center gap-1 px-3 py-1 text-xs font-medium bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
                                         >
                                             <Play size={12}/>
-                                            Apply
-                                        </button>
+                                            {t?.apply || 'Apply'}
+                                        </Button>
                                     </div>
                                     <div className="flex-1">
                                         <CodeMirrorEditorComponent
@@ -298,26 +306,26 @@ export default function Converter({ config }: ConverterProps) {
                                             rightToolbarButtons={[]}
                                         />
                                     </div>
-                                </div>
+                                    </Card>
                             )}
                         </div>
                     )}
 
                     {/* Output Section */}
                     {!isInputMaximized && (
-                        <div className={`flex flex-col ${isOutputMaximized ? 'lg:col-span-2' : ''} ${cardClasses}`}>
+                        <Card className={`flex flex-col overflow-hidden ${isOutputMaximized ? 'lg:col-span-2' : ''}`}>
                             {useCardStyle && (
                                 <div
-                                    className="bg-gray-100 dark:bg-gray-800 px-4 py-2 border-b flex justify-between items-center">
-                                    <h2 className="text-sm font-bold text-gray-800 dark:text-gray-200">
-                                        Output ({currentOutputLanguage.toUpperCase()})
-                                        {isSecondaryMode && <span className="text-blue-500 ml-1">(secondary)</span>}
+                                    className="bg-muted/60 px-4 py-2 border-b flex justify-between items-center">
+                                    <h2 className="text-sm font-bold text-foreground">
+                                        {t?.output || 'Output'} ({currentOutputLanguage.toUpperCase()})
+                                        {isSecondaryMode && <span className="text-blue-500 ml-1">({t?.secondary || 'secondary'})</span>}
                                     </h2>
-                                </div>
+                                    </div>
                             )}
                             {!useCardStyle && (
                                 <h2 className="text-xl font-semibold mb-2 dark:text-white border-b pb-2">
-                                    Output ({currentOutputLanguage.toUpperCase()})
+                                    {t?.output || 'Output'} ({currentOutputLanguage.toUpperCase()})
                                 </h2>
                             )}
                             <div
@@ -339,26 +347,26 @@ export default function Converter({ config }: ConverterProps) {
                                         className="absolute inset-0 flex items-center justify-center text-gray-400 dark:text-gray-500 pointer-events-none">
                                         <div className="text-center">
                                             <div className="text-2xl mb-2">📄</div>
-                                            <div className="text-sm">Output will appear here</div>
+                                            <div className="text-sm">{t?.outputPlaceholder || 'Output will appear here'}</div>
                                         </div>
                                     </div>
                                 )}
                             </div>
-                        </div>
+                        </Card>
                     )}
                 </div>
 
                 {/* Features Section */}
                 {features && features.length > 0 && (
                     <div className="mt-12 max-w-4xl mx-auto">
-                        <h3 className="text-2xl font-bold text-center text-gray-900 dark:text-white mb-6">Features</h3>
+                        <h3 className="text-2xl font-bold text-center text-gray-900 dark:text-white mb-6">{t?.features || 'Features'}</h3>
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                             {features.map((f, i) => (
-                                <div key={i} className="text-center p-6 bg-white dark:bg-gray-800 rounded-lg shadow">
+                                <Card key={i} className="text-center p-6">
                                     <div className="text-3xl mb-3">{f.icon}</div>
                                     <h4 className="font-semibold text-gray-900 dark:text-white mb-2">{f.title}</h4>
                                     <p className="text-gray-600 dark:text-gray-300 text-sm">{f.description}</p>
-                                </div>
+                                </Card>
                             ))}
                         </div>
                     </div>
@@ -367,9 +375,11 @@ export default function Converter({ config }: ConverterProps) {
             <div className="yn-bnr" id="ynpos-18249"></div>
             {/* ========== محتوای سئو (خودکار) ========== */}
             <SeoContent
+                toolType={config.type}
                 subCategory={config.subCategory || 'others'}
-                description={config.extraContent?.description}
+                description={config.extraContent?.description || config.description}
                 customFaq={config.extraContent?.faq}
+                locale={locale}
             />
         </div>
     );

@@ -1,377 +1,527 @@
 [
   {
     "path": "json-format",
-    "title": "JSON Format",
-    "lastmod": "2026-09-15"
+    "titleFa": "مرتب‌ساز JSON",
+    "descriptionFa": "زیباسازی و مرتب‌سازی داده‌های JSON شما",
+    "titleEn": "JSON Format",
+    "descriptionEn": "Prettify and format your JSON data"
   },
   {
     "path": "json-to-big-query",
-    "title": "JSON to BigQuery",
-    "lastmod": "2026-09-15"
+    "titleFa": "تبدیل JSON به BigQuery",
+    "descriptionFa": "تبدیل JSON به اسکیمای جداول BigQuery",
+    "titleEn": "JSON to BigQuery",
+    "descriptionEn": "Convert JSON to BigQuery table schema"
   },
   {
     "path": "json-to-flow",
-    "title": "JSON to Flow",
-    "lastmod": "2026-09-15"
+    "titleFa": "تبدیل JSON به Flow",
+    "descriptionFa": "تولید تایپ‌های Flow از روی داده‌های JSON",
+    "titleEn": "JSON to Flow",
+    "descriptionEn": "Generate Flow type definitions from JSON"
   },
   {
     "path": "json-to-go",
-    "title": "JSON to Go",
-    "lastmod": "2026-09-15"
+    "titleFa": "تبدیل JSON به Go",
+    "descriptionFa": "تبدیل JSON به ساختارهای (Struct) زبان Go",
+    "titleEn": "JSON to Go",
+    "descriptionEn": "Convert JSON to Go struct definitions"
   },
   {
     "path": "json-to-go-bson",
-    "title": "JSON to Go BSON",
-    "lastmod": "2026-09-15"
+    "titleFa": "تبدیل JSON به Go BSON",
+    "descriptionFa": "ایجاد ساختارهای Go با تگ‌های BSON از JSON",
+    "titleEn": "JSON to Go BSON",
+    "descriptionEn": "Create Go structs with BSON tags from JSON"
   },
   {
     "path": "json-to-graphql",
-    "title": "JSON to GraphQL",
-    "lastmod": "2026-09-15"
+    "titleFa": "تبدیل JSON به GraphQL",
+    "descriptionFa": "تبدیل یک آبجکت JSON به اسکیمای GraphQL",
+    "titleEn": "JSON to GraphQL",
+    "descriptionEn": "Turn a JSON object into a GraphQL schema"
   },
   {
     "path": "json-to-io-ts",
-    "title": "JSON to io-ts",
-    "lastmod": "2026-09-15"
+    "titleFa": "تبدیل JSON به io-ts",
+    "descriptionFa": "تولید کدهای اعتبارسنجی io-ts از روی JSON",
+    "titleEn": "JSON to io-ts",
+    "descriptionEn": "Generate io-ts codec definitions from JSON"
   },
   {
     "path": "json-to-java",
-    "title": "JSON to Java",
-    "lastmod": "2026-09-15"
+    "titleFa": "تبدیل JSON به Java",
+    "descriptionFa": "تولید کلاس‌های POJO جاوا از داده‌های JSON",
+    "titleEn": "JSON to Java",
+    "descriptionEn": "Create Java POJOs from JSON data"
   },
   {
     "path": "json-to-jsdoc",
-    "title": "JSON to JSDoc",
-    "lastmod": "2026-09-15"
+    "titleFa": "تبدیل JSON به JSDoc",
+    "descriptionFa": "تولید حاشیه‌نویسی‌ها و تایپ‌های JSDoc از روی JSON",
+    "titleEn": "JSON to JSDoc",
+    "descriptionEn": "Generate JSDoc type annotations from JSON"
   },
   {
     "path": "json-to-json-schema",
-    "title": "JSON to JSON Schema",
-    "lastmod": "2026-09-15"
+    "titleFa": "تبدیل JSON به JSON Schema",
+    "descriptionFa": "استنتاج و تولید خودکار JSON Schema از یک نمونه JSON",
+    "titleEn": "JSON to JSON Schema",
+    "descriptionEn": "Infer a JSON Schema from a JSON sample"
   },
   {
     "path": "json-to-kotlin",
-    "title": "JSON to Kotlin",
-    "lastmod": "2026-09-15"
+    "titleFa": "تبدیل JSON به Kotlin",
+    "descriptionFa": "ایجاد کلاس‌های داده‌ای (Data Classes) کاتلین از JSON",
+    "titleEn": "JSON to Kotlin",
+    "descriptionEn": "Create Kotlin data classes from JSON"
   },
   {
     "path": "json-to-mobx-state-tree",
-    "title": "JSON to MobX State Tree",
-    "lastmod": "2026-09-15"
+    "titleFa": "تبدیل JSON به MST",
+    "descriptionFa": "تولید مدل‌های MobX State Tree از داده‌های JSON",
+    "titleEn": "JSON to MobX State Tree",
+    "descriptionEn": "Generate MobX State Tree models from JSON"
   },
   {
     "path": "json-to-mongoose",
-    "title": "JSON to Mongoose",
-    "lastmod": "2026-09-15"
+    "titleFa": "تبدیل JSON به Mongoose",
+    "descriptionFa": "تبدیل آبجکت JSON به اسکیمای Mongoose",
+    "titleEn": "JSON to Mongoose",
+    "descriptionEn": "Convert JSON to Mongoose schemas"
   },
   {
     "path": "json-to-mysql",
-    "title": "JSON to MySQL",
-    "lastmod": "2026-09-15"
+    "titleFa": "تبدیل JSON به MySQL",
+    "descriptionFa": "تبدیل JSON به اسکریپت‌های CREATE TABLE در MySQL",
+    "titleEn": "JSON to MySQL",
+    "descriptionEn": "Turn JSON into MySQL CREATE TABLE scripts"
   },
   {
     "path": "json-to-proptypes",
-    "title": "JSON to PropTypes",
-    "lastmod": "2026-09-15"
+    "titleFa": "تبدیل JSON به PropTypes",
+    "descriptionFa": "تولید اعتبارسنجی React PropTypes از داده‌های JSON",
+    "titleEn": "JSON to PropTypes",
+    "descriptionEn": "Generate React PropTypes from JSON data"
   },
   {
     "path": "json-to-rust-serde",
-    "title": "JSON to Rust Serde",
-    "lastmod": "2026-09-15"
+    "titleFa": "تبدیل JSON به Rust Serde",
+    "descriptionFa": "ساخت Struct های Rust با ویژگی Serde از JSON",
+    "titleEn": "JSON to Rust Serde",
+    "descriptionEn": "Create Rust structs with Serde attributes from JSON"
   },
   {
     "path": "json-to-sarcastic",
-    "title": "JSON to Sarcastic",
-    "lastmod": "2026-09-15"
+    "titleFa": "تبدیل JSON به Sarcastic",
+    "descriptionFa": "تولید تایپ‌های کنایه‌آمیز (طنز) از داده‌های JSON",
+    "titleEn": "JSON to Sarcastic",
+    "descriptionEn": "Generate Sarcastic type definitions from JSON (humorous tool)"
   },
   {
     "path": "json-to-scala-case-class",
-    "title": "JSON to Scala Case Class",
-    "lastmod": "2026-09-15"
+    "titleFa": "تبدیل JSON به Case Class اسکالا",
+    "descriptionFa": "ایجاد Case Class های زبان اسکالا از روی JSON",
+    "titleEn": "JSON to Scala Case Class",
+    "descriptionEn": "Create Scala case classes from JSON"
   },
   {
     "path": "json-to-toml",
-    "title": "JSON to TOML",
-    "lastmod": "2026-09-15"
+    "titleFa": "تبدیل JSON به TOML",
+    "descriptionFa": "تبدیل فایل‌های کانفیگ JSON به فرمت TOML",
+    "titleEn": "JSON to TOML",
+    "descriptionEn": "Convert JSON data to TOML format"
   },
   {
     "path": "json-to-typescript",
-    "title": "JSON to TypeScript",
-    "lastmod": "2026-09-15"
+    "titleFa": "تبدیل JSON به TypeScript",
+    "descriptionFa": "تولید اینترفیس‌های تایپ‌اسکریپت از روی نمونه JSON",
+    "titleEn": "JSON to TypeScript",
+    "descriptionEn": "Generate TypeScript interfaces from JSON"
   },
   {
     "path": "json-to-yaml",
-    "title": "JSON to YAML",
-    "lastmod": "2026-09-15"
+    "titleFa": "تبدیل JSON به YAML",
+    "descriptionFa": "تبدیل سریع داده‌های JSON به YAML به صورت آنلاین",
+    "titleEn": "JSON to YAML",
+    "descriptionEn": "Convert JSON to YAML online"
   },
   {
     "path": "json-to-zod",
-    "title": "JSON to Zod",
-    "lastmod": "2026-09-15"
+    "titleFa": "تبدیل JSON به Zod",
+    "descriptionFa": "تولید اسکیمای اعتبارسنجی Zod از داده‌های JSON",
+    "titleEn": "JSON to Zod",
+    "descriptionEn": "Generate Zod schemas from your JSON data"
   },
   {
     "path": "es5-to-es6",
-    "title": "ES5 to ES6",
-    "lastmod": "2026-09-15"
+    "titleFa": "تبدیل ES5 به ES6",
+    "descriptionFa": "تبدیل جاوااسکریپت ES5 به سینتکس مدرن ES6+",
+    "titleEn": "ES5 to ES6",
+    "descriptionEn": "Convert ES5 JavaScript code to modern ES6+ syntax"
   },
   {
     "path": "es6-to-es5",
-    "title": "ES6 to ES5",
-    "lastmod": "2026-09-15"
+    "titleFa": "تبدیل ES6 به ES5",
+    "descriptionFa": "ترنسپایل ES6+ به ES5 برای سازگاری",
+    "titleEn": "ES6 to ES5",
+    "descriptionEn": "Transpile ES6+ JavaScript down to ES5 for compatibility"
   },
   {
     "path": "js-to-json",
-    "title": "JS to JSON",
-    "lastmod": "2026-09-15"
+    "titleFa": "تبدیل JS به JSON",
+    "descriptionFa": "تبدیل آبجکت جاوااسکریپت به JSON",
+    "titleEn": "JS to JSON",
+    "descriptionEn": "Extract or convert a JavaScript object to JSON"
   },
   {
     "path": "js-to-typescript",
-    "title": "JS to TypeScript",
-    "lastmod": "2026-09-15"
+    "titleFa": "تبدیل JS به تایپ‌اسکریپت",
+    "descriptionFa": "تبدیل جاوااسکریپت به TypeScript با حاشیه‌نویسی تایپ",
+    "titleEn": "JS to TypeScript",
+    "descriptionEn": "Convert JavaScript code to TypeScript with type annotations"
   },
   {
     "path": "css-to-js",
-    "title": "CSS to JS",
-    "lastmod": "2026-09-15"
+    "titleFa": "تبدیل CSS به JS",
+    "descriptionFa": "تبدیل CSS به آبجکت جاوااسکریپت",
+    "titleEn": "CSS to JS",
+    "descriptionEn": "Convert CSS to a JavaScript object"
   },
   {
     "path": "css-to-scss",
-    "title": "CSS to SCSS",
-    "lastmod": "2026-09-15"
+    "titleFa": "تبدیل CSS به SCSS",
+    "descriptionFa": "تبدیل CSS به SCSS (Sassy CSS)",
+    "titleEn": "CSS to SCSS",
+    "descriptionEn": "Convert CSS to SCSS (Sassy CSS)"
   },
   {
     "path": "css-to-tailwind",
-    "title": "CSS to Tailwind",
-    "lastmod": "2026-09-15"
+    "titleFa": "تبدیل CSS به Tailwind",
+    "descriptionFa": "تبدیل کلاس‌های CSS به utilityهای Tailwind",
+    "titleEn": "CSS to Tailwind",
+    "descriptionEn": "Convert CSS classes to Tailwind CSS utilities"
   },
   {
     "path": "scss-to-css",
-    "title": "SCSS to CSS",
-    "lastmod": "2026-09-15"
+    "titleFa": "تبدیل SCSS به CSS",
+    "descriptionFa": "کامپایل SCSS به CSS استاندارد",
+    "titleEn": "SCSS to CSS",
+    "descriptionEn": "Compile SCSS to standard CSS"
   },
   {
     "path": "html-to-jsx",
-    "title": "HTML to JSX",
-    "lastmod": "2026-09-15"
+    "titleFa": "تبدیل HTML به JSX",
+    "descriptionFa": "تبدیل HTML به JSX برای React",
+    "titleEn": "HTML to JSX",
+    "descriptionEn": "Convert HTML to JSX for React"
   },
   {
     "path": "html-to-pug",
-    "title": "HTML to Pug",
-    "lastmod": "2026-09-15"
+    "titleFa": "تبدیل HTML به Pug",
+    "descriptionFa": "تبدیل HTML به قالب Pug",
+    "titleEn": "HTML to Pug",
+    "descriptionEn": "Transform HTML into Pug (formerly Jade) templates"
   },
   {
     "path": "graphql-to-flow",
-    "title": "GraphQL to Flow",
-    "lastmod": "2026-09-15"
+    "titleFa": "تبدیل GraphQL به Flow",
+    "descriptionFa": "تبدیل اسکیمای GraphQL به تایپ‌های Flow",
+    "titleEn": "GraphQL to Flow",
+    "descriptionEn": "Convert GraphQL schema to Flow type definitions"
   },
   {
     "path": "graphql-to-typescript",
-    "title": "GraphQL to TypeScript",
-    "lastmod": "2026-09-15"
+    "titleFa": "تبدیل GraphQL به تایپ‌اسکریپت",
+    "descriptionFa": "تولید تایپ‌های TypeScript از اسکیمای GraphQL",
+    "titleEn": "GraphQL to TypeScript",
+    "descriptionEn": "Generate TypeScript types from a GraphQL schema"
   },
   {
     "path": "graphql-to-java",
-    "title": "GraphQL to Java",
-    "lastmod": "2026-09-15"
+    "titleFa": "تبدیل GraphQL به Java",
+    "descriptionFa": "نگاشت اسکیمای GraphQL به کلاس‌های جاوا",
+    "titleEn": "GraphQL to Java",
+    "descriptionEn": "Map your GraphQL schema to Java classes"
   },
   {
     "path": "graphql-to-typescript-mongodb",
-    "title": "GraphQL to TypeScript MongoDB",
-    "lastmod": "2026-09-15"
+    "titleFa": "تبدیل GraphQL به مدل MongoDB تایپ‌اسکریپت",
+    "descriptionFa": "تولید مدل‌های TypeScript برای MongoDB از GraphQL",
+    "titleEn": "GraphQL to TypeScript MongoDB",
+    "descriptionEn": "Generate TypeScript models for MongoDB from GraphQL schema"
   },
   {
     "path": "graphql-to-schema-ast",
-    "title": "GraphQL Schema AST",
-    "lastmod": "2026-09-15"
+    "titleFa": "AST اسکیمای GraphQL",
+    "descriptionFa": "خروجی درخت نحوی انتزاعی اسکیمای GraphQL",
+    "titleEn": "GraphQL Schema AST",
+    "descriptionEn": "Output the Abstract Syntax Tree of your GraphQL schema"
   },
   {
     "path": "graphql-to-resolvers-signature",
-    "title": "GraphQL Resolvers Signature",
-    "lastmod": "2026-09-15"
+    "titleFa": "امضای Resolverهای GraphQL",
+    "descriptionFa": "تولید امضای توابع resolver از اسکیمای GraphQL",
+    "titleEn": "GraphQL Resolvers Signature",
+    "descriptionEn": "Generate resolver function signatures from GraphQL schema"
   },
   {
     "path": "graphql-to-introspection-json",
-    "title": "GraphQL Introspection JSON",
-    "lastmod": "2026-09-15"
+    "titleFa": "JSON اینتروسپکشن GraphQL",
+    "descriptionFa": "تبدیل اسکیمای GraphQL به JSON اینتروسپکشن",
+    "titleEn": "GraphQL Introspection JSON",
+    "descriptionEn": "Convert GraphQL schema to introspection JSON"
   },
   {
     "path": "graphql-to-fragment-matcher",
-    "title": "GraphQL Fragment Matcher",
-    "lastmod": "2026-09-15"
+    "titleFa": "Fragment Matcher برای GraphQL",
+    "descriptionFa": "تولید تنظیمات fragment matcher از اسکیما",
+    "titleEn": "GraphQL Fragment Matcher",
+    "descriptionEn": "Generate a fragment matcher config from a GraphQL schema"
   },
   {
     "path": "graphql-to-components",
-    "title": "GraphQL to Components",
-    "lastmod": "2026-09-15"
+    "titleFa": "تبدیل GraphQL به کامپوننت",
+    "descriptionFa": "تولید کامپوننت React/Vue از اسکیمای GraphQL",
+    "titleEn": "GraphQL to Components",
+    "descriptionEn": "Generate React/Vue components from GraphQL schema"
   },
   {
     "path": "jsonld-to-compacted",
-    "title": "JSON-LD to Compacted",
-    "lastmod": "2026-09-15"
+    "titleFa": "فشرده‌سازی JSON-LD",
+    "descriptionFa": "فشرده کردن سند JSON-LD با یک context",
+    "titleEn": "JSON-LD to Compacted",
+    "descriptionEn": "Compact a JSON-LD document with a given context"
   },
   {
     "path": "jsonld-to-flattened",
-    "title": "JSON-LD to Flattened",
-    "lastmod": "2026-09-15"
+    "titleFa": "تخت‌سازی JSON-LD",
+    "descriptionFa": "تبدیل سند JSON-LD به گراف مبتنی بر نود",
+    "titleEn": "JSON-LD to Flattened",
+    "descriptionEn": "Flatten a JSON-LD document to a node-based graph"
   },
   {
     "path": "jsonld-to-framed",
-    "title": "JSON-LD to Framed",
-    "lastmod": "2026-09-15"
+    "titleFa": "فریم کردن JSON-LD",
+    "descriptionFa": "شکل‌دهی سند JSON-LD با اعمال frame",
+    "titleEn": "JSON-LD to Framed",
+    "descriptionEn": "Shape a JSON-LD document by applying a frame"
   },
   {
     "path": "jsonld-to-normalized",
-    "title": "JSON-LD to Normalized",
-    "lastmod": "2026-09-15"
+    "titleFa": "نرمال‌سازی JSON-LD",
+    "descriptionFa": "نرمال‌سازی سند JSON-LD (RDF Dataset Normalization)",
+    "titleEn": "JSON-LD to Normalized",
+    "descriptionEn": "Normalize a JSON-LD document (RDF Dataset Normalization)"
   },
   {
     "path": "jsonld-to-nquads",
-    "title": "JSON-LD to N-Quads",
-    "lastmod": "2026-09-15"
+    "titleFa": "تبدیل JSON-LD به N-Quads",
+    "descriptionFa": "تبدیل سند JSON-LD به فرمت N-Quads",
+    "titleEn": "JSON-LD to N-Quads",
+    "descriptionEn": "Convert JSON-LD document to N-Quads format"
   },
   {
     "path": "json-schema-to-openapi-schema",
-    "title": "JSON Schema to OpenAPI",
-    "lastmod": "2026-09-15"
+    "titleFa": "تبدیل JSON Schema به OpenAPI",
+    "descriptionFa": "تبدیل تعریف JSON Schema به مشخصات OpenAPI",
+    "titleEn": "JSON Schema to OpenAPI",
+    "descriptionEn": "Convert JSON Schema definitions to OpenAPI specifications"
   },
   {
     "path": "json-schema-to-typescript",
-    "title": "JSON Schema to TypeScript",
-    "lastmod": "2026-09-15"
+    "titleFa": "تبدیل JSON Schema به تایپ‌اسکریپت",
+    "descriptionFa": "تولید تایپ‌های TypeScript از JSON Schema",
+    "titleEn": "JSON Schema to TypeScript",
+    "descriptionEn": "Generate TypeScript types from a JSON Schema"
   },
   {
     "path": "json-schema-to-zod",
-    "title": "JSON Schema to Zod",
-    "lastmod": "2026-09-15"
+    "titleFa": "تبدیل JSON Schema به Zod",
+    "descriptionFa": "تبدیل JSON Schema به اسکیمای اعتبارسنجی Zod",
+    "titleEn": "JSON Schema to Zod",
+    "descriptionEn": "Turn a JSON Schema into a Zod validation schema"
   },
   {
     "path": "json-schema-to-protobuf",
-    "title": "JSON Schema to Protobuf",
-    "lastmod": "2026-09-15"
+    "titleFa": "تبدیل JSON Schema به Protobuf",
+    "descriptionFa": "تولید تعریف Protocol Buffers از JSON Schema",
+    "titleEn": "JSON Schema to Protobuf",
+    "descriptionEn": "Generate Protocol Buffers definitions from JSON Schema"
   },
   {
     "path": "typescript-to-flow",
-    "title": "TypeScript to Flow",
-    "lastmod": "2026-09-15"
+    "titleFa": "تبدیل تایپ‌اسکریپت به Flow",
+    "descriptionFa": "تبدیل تایپ‌های TypeScript به حاشیه‌نویسی Flow",
+    "titleEn": "TypeScript to Flow",
+    "descriptionEn": "Convert TypeScript types to Flow type annotations"
   },
   {
     "path": "typescript-to-javascript",
-    "title": "TypeScript to JavaScript",
-    "lastmod": "2026-09-15"
+    "titleFa": "تبدیل تایپ‌اسکریپت به جاوااسکریپت",
+    "descriptionFa": "کامپایل TypeScript به جاوااسکریپت خالص آنلاین",
+    "titleEn": "TypeScript to JavaScript",
+    "descriptionEn": "Compile TypeScript to plain JavaScript online"
   },
   {
     "path": "typescript-to-json-schema",
-    "title": "TypeScript to JSON Schema",
-    "lastmod": "2026-09-15"
+    "titleFa": "تبدیل تایپ‌اسکریپت به JSON Schema",
+    "descriptionFa": "تولید JSON Schema از اینترفیس‌های TypeScript",
+    "titleEn": "TypeScript to JSON Schema",
+    "descriptionEn": "Generate JSON Schema from TypeScript interfaces"
   },
   {
     "path": "typescript-to-typescript-declaration",
-    "title": "TypeScript to Declaration (.d.ts)",
-    "lastmod": "2026-09-15"
+    "titleFa": "تبدیل تایپ‌اسکریپت به فایل Declaration",
+    "descriptionFa": "تولید فایل .d.ts از سورس TypeScript",
+    "titleEn": "TypeScript to Declaration (.d.ts)",
+    "descriptionEn": "Generate .d.ts declaration files from TypeScript source"
   },
   {
     "path": "typescript-to-zod",
-    "title": "TypeScript to Zod",
-    "lastmod": "2026-09-15"
+    "titleFa": "تبدیل تایپ‌اسکریپت به Zod",
+    "descriptionFa": "تولید اسکیمای Zod از تایپ‌های TypeScript",
+    "titleEn": "TypeScript to Zod",
+    "descriptionEn": "Generate Zod validation schemas from TypeScript types"
   },
   {
     "path": "svg-to-jsx",
-    "title": "SVG to JSX",
-    "lastmod": "2026-09-15"
+    "titleFa": "تبدیل SVG به JSX",
+    "descriptionFa": "تبدیل فایل SVG به JSX برای کامپوننت React",
+    "titleEn": "SVG to JSX",
+    "descriptionEn": "Convert SVG files to JSX for React components"
   },
   {
     "path": "svg-to-react-native",
-    "title": "SVG to React Native",
-    "lastmod": "2026-09-15"
+    "titleFa": "تبدیل SVG به React Native",
+    "descriptionFa": "تبدیل SVG به کامپوننت react-native-svg",
+    "titleEn": "SVG to React Native",
+    "descriptionEn": "Convert SVGs to React Native SVG components"
   },
   {
     "path": "cadence-to-go",
-    "title": "Cadence to Go",
-    "lastmod": "2026-09-15"
+    "titleFa": "تبدیل Cadence به Go",
+    "descriptionFa": "تبدیل تعریف workflowهای Cadence به کد Go",
+    "titleEn": "Cadence to Go",
+    "descriptionEn": "Convert Cadence workflow definitions to Go code"
   },
   {
     "path": "markdown-to-html",
-    "title": "Markdown to HTML",
-    "lastmod": "2026-09-15"
+    "titleFa": "تبدیل Markdown به HTML",
+    "descriptionFa": "تبدیل Markdown به HTML تمیز و معنایی",
+    "titleEn": "Markdown to HTML",
+    "descriptionEn": "Convert Markdown to clean, semantic HTML"
   },
   {
     "path": "toml-to-json",
-    "title": "TOML to JSON",
-    "lastmod": "2026-09-15"
+    "titleFa": "TOML to JSON",
+    "descriptionFa": "Convert TOML configuration files to JSON online",
+    "titleEn": "TOML to JSON",
+    "descriptionEn": "Convert TOML configuration files to JSON online"
   },
   {
     "path": "xml-to-json",
-    "title": "XML to JSON",
-    "lastmod": "2026-09-15"
+    "titleFa": "XML to JSON",
+    "descriptionFa": "Parse and convert XML data to JSON format",
+    "titleEn": "XML to JSON",
+    "descriptionEn": "Parse and convert XML data to JSON format"
   },
   {
     "path": "yaml-to-json",
-    "title": "YAML to JSON",
-    "lastmod": "2026-09-15"
+    "titleFa": "YAML to JSON",
+    "descriptionFa": "Convert YAML configs to JSON instantly",
+    "titleEn": "YAML to JSON",
+    "descriptionEn": "Convert YAML configs to JSON instantly"
   },
   {
     "path": "yaml-to-toml",
-    "title": "YAML to TOML",
-    "lastmod": "2026-09-15"
+    "titleFa": "YAML to TOML",
+    "descriptionFa": "Convert YAML files to TOML format",
+    "titleEn": "YAML to TOML",
+    "descriptionEn": "Convert YAML files to TOML format"
   },
   {
     "path": "toml-to-yaml",
-    "title": "TOML to YAML",
-    "lastmod": "2026-09-15"
+    "titleFa": "تبدیل TOML به YAML",
+    "descriptionFa": "تبدیل فایل‌های TOML به فرمت YAML",
+    "titleEn": "TOML to YAML",
+    "descriptionEn": "Convert TOML files to YAML format"
   },
   {
     "path": "base64-decode",
-    "title": "Base64 Decode",
-    "lastmod": "2026-09-15"
+    "titleFa": "دیکد Base64",
+    "descriptionFa": "تبدیل رشته‌های Base64 به متن ساده",
+    "titleEn": "Base64 Decode",
+    "descriptionEn": "Decode Base64 encoded strings to plain text"
   },
   {
     "path": "base64-encode",
-    "title": "Base64 Encode",
-    "lastmod": "2026-09-15"
+    "titleFa": "انکد Base64",
+    "descriptionFa": "رمزگذاری متن یا فایل به فرمت Base64",
+    "titleEn": "Base64 Encode",
+    "descriptionEn": "Encode text or files to Base64 format"
   },
   {
     "path": "jwt-decoder",
-    "title": "Jwt Decoder",
-    "lastmod": "2026-09-15"
+    "titleFa": "دیکدر JWT",
+    "descriptionFa": "دیکد و بررسی توکن‌های JWT",
+    "titleEn": "Jwt Decoder",
+    "descriptionEn": "Decode and inspect JWT tokens"
   },
   {
     "path": "flow-to-javascript",
-    "title": "Flow to JavaScript",
-    "lastmod": "2026-09-15"
+    "titleFa": "تبدیل Flow به جاوااسکریپت",
+    "descriptionFa": "حذف تایپ‌های Flow و دریافت جاوااسکریپت خالص",
+    "titleEn": "Flow to JavaScript",
+    "descriptionEn": "Strip Flow type annotations to get plain JavaScript"
   },
   {
     "path": "flow-to-typescript",
-    "title": "Flow to TypeScript",
-    "lastmod": "2026-09-15"
+    "titleFa": "تبدیل Flow به تایپ‌اسکریپت",
+    "descriptionFa": "تبدیل تایپ‌های Flow به TypeScript",
+    "titleEn": "Flow to TypeScript",
+    "descriptionEn": "Convert Flow type definitions to TypeScript"
   },
   {
     "path": "flow-to-typescript-declaration",
-    "title": "Flow to TypeScript Declaration",
-    "lastmod": "2026-09-15"
+    "titleFa": "تبدیل Flow به Declaration تایپ‌اسکریپت",
+    "descriptionFa": "تولید فایل‌های .d.ts از تایپ‌های Flow",
+    "titleEn": "Flow to TypeScript Declaration",
+    "descriptionEn": "Generate TypeScript declaration files from Flow types"
   },
   {
     "path": "timestamp",
-    "title": "Unix Timestamp Converter",
-    "lastmod": "2026-09-15"
+    "titleFa": "مبدل Timestamp یونیکس",
+    "descriptionFa": "تبدیل timestamp یونیکس به تاریخ شمسی و میلادی",
+    "titleEn": "Unix Timestamp Converter",
+    "descriptionEn": "Convert Unix timestamp to Persian (Shamsi) and Gregorian date"
   },
   {
     "path": "date-diff",
-    "title": "Date & Time Toolbox",
-    "lastmod": "2026-09-15"
+    "titleFa": "جعبه ابزار تاریخ و زمان",
+    "descriptionFa": "تبدیل timestamp، محاسبه اختلاف تاریخ و جمع/تفریق تاریخ",
+    "titleEn": "Date & Time Toolbox",
+    "descriptionEn": "Timestamp converter, date difference calculator and date add/subtract"
   },
   {
     "path": "password-generator",
-    "title": "Password Generator",
-    "lastmod": "2026-09-15"
+    "titleFa": "تولیدکننده رمز عبور",
+    "descriptionFa": "تولید رمزهای قوی و امن به‌صورت آنلاین",
+    "titleEn": "Password Generator",
+    "descriptionEn": "Generate strong, cryptographically secure passwords online"
   },
   {
     "path": "lorem-generator",
-    "title": "Lorem Ipsum Generator",
-    "lastmod": "2026-09-15"
+    "titleFa": "تولیدکننده لورم ایپسوم",
+    "descriptionFa": "تولید متن ساختگی چندزبانه برای طراحی",
+    "titleEn": "Lorem Ipsum Generator",
+    "descriptionEn": "Generate Lorem Ipsum placeholder text for your designs in multiple languages"
   },
   {
     "path": "text-diff",
-    "title": "Text Diff Checker",
-    "lastmod": "2026-09-15"
+    "titleFa": "مقایسه‌گر متن",
+    "descriptionFa": "مقایسه خط‌به‌خط دو متن و مشاهده تفاوت‌ها",
+    "titleEn": "Text Diff Checker",
+    "descriptionEn": "Compare two texts line by line and see the differences instantly"
   }
 ]
