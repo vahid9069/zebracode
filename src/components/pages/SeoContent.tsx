@@ -53,7 +53,7 @@ export default function SeoContent({ toolType, subCategory, description, customF
                 {(description || seoCopy) && (
                     <Card className="prose dark:prose-invert max-w-none p-8">
                         <h2 className="text-2xl font-bold mb-4">
-                            {seoCopy?.title || (locale === 'fa' ? 'راهنمای این ابزار' : 'About this tool')}
+                            {seoCopy?.title || i18n?.dict.common.aboutThisTool || (locale === 'fa' ? 'راهنمای این ابزار' : 'About this tool')}
                         </h2>
                         {seoCopy ? (
                             <>

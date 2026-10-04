@@ -8,7 +8,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "postbuild": "tsx scripts/export-tools.ts && node scripts/generate-sitemap.mjs",
+    "postbuild": "tsx scripts/export-tools.ts && node scripts/generate-sitemap.mjs && node scripts/generate-llms.mjs",
     "test": "vitest"
   },
   "dependencies": {

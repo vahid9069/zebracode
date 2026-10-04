@@ -1,7 +1,13 @@
 // src/lib/seo.ts
-import { Metadata } from 'next';
+import type { Metadata } from 'next';
 import { getToolConfig } from "@/components/utils/tools/helper";
 import { BASE_URL } from "@/lib/env";
+
+type LocalizedToolCopy = {
+    title?: string;
+    shortDescription?: string;
+    description?: string;
+};
 
 export function getLocalizedToolPath(toolType: string, locale: 'fa' | 'en'): string | undefined {
     const tool = getToolConfig(toolType);
@@ -12,10 +18,16 @@ export function getLocalizedToolPath(toolType: string, locale: 'fa' | 'en'): str
 }
 
 export function getLocalizedUrl(path: string): string {
-    return `${BASE_URL.replace(/\/$/, '')}${path.startsWith('/') ? path : `/${path}`}`;
+    const origin = BASE_URL.replace(/\/+$/, '');
+    const normalizedPath = `/${path.split('/').filter(Boolean).join('/')}`;
+    return `${origin}${normalizedPath === '/' ? '/' : `${normalizedPath}/`}`;
 }
 
-export function generateToolMetadata(toolType: string, locale: 'fa' | 'en' = 'en'): Metadata {
+export function generateToolMetadata(
+    toolType: string,
+    locale: 'fa' | 'en' = 'en',
+    localizedCopy?: LocalizedToolCopy,
+): Metadata {
     const tool = getToolConfig(toolType);
     if (!tool) {
         return {
@@ -24,12 +36,13 @@ export function generateToolMetadata(toolType: string, locale: 'fa' | 'en' = 'en
         };
     }
 
-    const title = `${tool.title} – ${locale === 'fa' ? 'ابزار آنلاین رایگان' : 'Free Online Tool'} | ZebraCode`;
-    const description = tool.shortDescription || tool.description;
+    const localizedTitle = localizedCopy?.title || tool.title;
+    const title = `${localizedTitle} – ${locale === 'fa' ? 'ابزار آنلاین رایگان' : 'Free Online Tool'} | ZebraCode`;
+    const description = localizedCopy?.shortDescription || localizedCopy?.description || tool.shortDescription || tool.description;
     const path = getLocalizedToolPath(toolType, locale) || '/';
     const url = getLocalizedUrl(path);
-    const alternateLocale = locale === 'fa' ? 'en' : 'fa';
-    const alternatePath = getLocalizedToolPath(toolType, alternateLocale) || '/';
+    const faUrl = getLocalizedUrl(getLocalizedToolPath(toolType, 'fa') || '/');
+    const enUrl = getLocalizedUrl(getLocalizedToolPath(toolType, 'en') || '/');
 
     return {
         title,
@@ -37,9 +50,9 @@ export function generateToolMetadata(toolType: string, locale: 'fa' | 'en' = 'en
         alternates: {
             canonical: url,
             languages: {
-                'fa-IR': locale === 'fa' ? url : getLocalizedUrl(alternatePath),
-                en: locale === 'en' ? url : getLocalizedUrl(alternatePath),
-                'x-default': getLocalizedUrl(alternatePath),
+                'fa-IR': faUrl,
+                en: enUrl,
+                'x-default': faUrl,
             },
         },
         robots: { index: true, follow: true },

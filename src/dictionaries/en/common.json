@@ -1,4 +1,634 @@
 {
+  "openFile": "Open file",
+  "uploadFile": "Upload file",
+  "selectFile": "Select a file",
+  "orDragAndDrop": "or drag and drop",
+  "loadFromUrl": "Load from URL",
+  "load": "Load",
+  "download": "Download",
+  "editor": {
+    "clear": "Clear editor",
+    "copy": "Copy",
+    "paste": "Paste",
+    "save": "Save file",
+    "open": "Open file",
+    "sample1": "Simple sample",
+    "sample2": "Complex sample",
+    "copied": "Copied!",
+    "copyFailed": "Copy failed",
+    "pasted": "Pasted!",
+    "pasteFailed": "Paste failed",
+    "noContent": "No content to save",
+    "saved": "File saved",
+    "sampleLoaded": "Simple sample loaded",
+    "sample2Loaded": "Complex sample loaded",
+    "cleared": "Content cleared",
+    "fileLoaded": "File loaded",
+    "fileReadError": "File read error",
+    "urlLoaded": "URL content loaded",
+    "urlFetchError": "URL fetch error",
+    "dropped": "File loaded via drop"
+  },
+  "workbench": {
+    "home": "Home",
+    "breadcrumb": "Breadcrumb",
+    "category": "Data & Config Converters",
+    "local": "Offline engine (processed locally)",
+    "sample": "Load sample",
+    "upload": "Upload file",
+    "clear": "Clear workspace",
+    "live": "Live sync",
+    "convert": "Convert",
+    "input": "Input",
+    "output": "Output",
+    "valid": "Valid",
+    "invalid": "Invalid",
+    "generated": "Auto-generated",
+    "copyResult": "Copy result",
+    "copied": "Copied!",
+    "format": "Format",
+    "minify": "Minify",
+    "copy": "Copy input",
+    "fullscreen": "Fullscreen",
+    "empty": "Converted output will appear here",
+    "lines": "lines",
+    "chars": "chars",
+    "size": "Size",
+    "spaces": "spaces",
+    "utf8": "UTF-8",
+    "guideTitle": "Tool guide",
+    "quickstart": "Read the result in your project",
+    "faqTitle": "Frequently asked questions",
+    "reduce": "Size change",
+    "spec": "TOML compliant",
+    "error": "Input conversion failed",
+    "confirmClear": "Clear the input and output?",
+    "settings": "Converter settings",
+    "editors": "Converter editors",
+    "copySnippet": "Copy code snippet",
+    "downloadOutput": "Download output"
+  },
+  "toolsUi": {
+    "shared": {
+      "copy": "Copy",
+      "copied": "Copied",
+      "copiedToClipboard": "Copied to clipboard",
+      "now": "Now",
+      "today": "Today",
+      "yesterday": "Yesterday",
+      "tomorrow": "Tomorrow",
+      "nextWeek": "Next week",
+      "nextMonth": "Next month",
+      "quickJumpTitle": "Quick date jump",
+      "switchToJalali": "Switch calendar to Jalali",
+      "switchToGregorian": "Switch calendar to Gregorian",
+      "jalali": "Jalali (Solar)",
+      "gregorian": "Gregorian (AD)",
+      "selectMonth": "Select month",
+      "selectYear": "Select year",
+      "prevMonth": "Previous month",
+      "nextMonthLabel": "Next month",
+      "todayButton": "Today",
+      "monthDays": "{days} days",
+      "leapYear": "Leap year",
+      "commonYear": "Common year",
+      "yearDays": "{days} days in year",
+      "parallelHint": "Cross-calendar date under every day",
+      "weekdaysJalali": [
+        "Sa",
+        "Su",
+        "Mo",
+        "Tu",
+        "We",
+        "Th",
+        "Fr"
+      ],
+      "weekdaysGregorian": [
+        "Sa",
+        "Su",
+        "Mo",
+        "Tu",
+        "We",
+        "Th",
+        "Fr"
+      ],
+      "weekdayNames": [
+        "Saturday",
+        "Sunday",
+        "Monday",
+        "Tuesday",
+        "Wednesday",
+        "Thursday",
+        "Friday"
+      ],
+      "weekendBadge": "Weekend (Thursday or Friday)",
+      "jalaliMonths": [
+        "Farvardin",
+        "Ordibehesht",
+        "Khordad",
+        "Tir",
+        "Mordad",
+        "Shahrivar",
+        "Mehr",
+        "Aban",
+        "Azar",
+        "Dey",
+        "Bahman",
+        "Esfand"
+      ],
+      "gregorianMonths": [
+        "January",
+        "February",
+        "March",
+        "April",
+        "May",
+        "June",
+        "July",
+        "August",
+        "September",
+        "October",
+        "November",
+        "December"
+      ],
+      "gregorianShortMonths": [
+        "Jan",
+        "Feb",
+        "Mar",
+        "Apr",
+        "May",
+        "Jun",
+        "Jul",
+        "Aug",
+        "Sep",
+        "Oct",
+        "Nov",
+        "Dec"
+      ],
+      "rel": {
+        "now": "right now",
+        "past": "{value} {unit} ago",
+        "future": "in {value} {unit}",
+        "units": {
+          "second": {
+            "one": "second",
+            "many": "seconds"
+          },
+          "minute": {
+            "one": "minute",
+            "many": "minutes"
+          },
+          "hour": {
+            "one": "hour",
+            "many": "hours"
+          },
+          "day": {
+            "one": "day",
+            "many": "days"
+          },
+          "month": {
+            "one": "month",
+            "many": "months"
+          },
+          "year": {
+            "one": "year",
+            "many": "years"
+          }
+        }
+      },
+      "dateLabel": "Date",
+      "timeLabel": "Exact time (HH:MM:SS)",
+      "utcShort": "UTC+3.5",
+      "copyCode": "Copy Code",
+      "systemOrigin": "Reference clock: UTC+3:30"
+    },
+    "timestamp": {
+      "home": "Home",
+      "tools": "Tools",
+      "category": "Converters & Calendar",
+      "pageTitle": "Unix Timestamp Converter",
+      "badge": "100% client-side processing in your browser",
+      "description": "Convert Unix timestamps to Jalali, Gregorian and ISO 8601 dates and back again. Every calculation runs locally with second-level precision and zero network requests.",
+      "timezoneLabel": "Timezone",
+      "timezoneValue": "Asia/Tehran (UTC+03:30)",
+      "precisionLabel": "Precision",
+      "precisionValue": "Millisecond",
+      "liveEpochLabel": "Live epoch",
+      "copySeconds": "Copy seconds",
+      "copyMilliseconds": "Copy milliseconds",
+      "pause": "Pause ticking",
+      "resume": "Resume ticking",
+      "calendarTitle": "Dual Jalali / Gregorian calendar",
+      "calendarHint": "Pick a day — every change is applied to the timestamp instantly.",
+      "selectedTitle": "Timestamp of the selected date",
+      "selectedHint": "Computed from your browser's local clock.",
+      "copyTimestamp": "Copy timestamp",
+      "copyFormatted": "Copy readable date",
+      "clockHours": "Hours",
+      "clockMinutes": "Minutes",
+      "clockSeconds": "Seconds",
+      "eventsTitle": "Day events & holidays",
+      "eventsHint": "National, Jalali and international observances for this day",
+      "noEvents": "No event is recorded for this day in the local dataset.",
+      "officialBadge": "Official holiday",
+      "officialYes": "Official holiday: yes (closed)",
+      "officialNo": "Official holiday: no (working day)",
+      "nonOfficialBadge": "Observance",
+      "internationalBadge": "International day",
+      "customBadge": "Your holiday",
+      "addHolidayTitle": "Add a custom holiday (lunar, religious or company day off)",
+      "addHolidayPlaceholder": "Holiday name…",
+      "addHolidayButton": "Add to this day",
+      "removeHoliday": "Remove",
+      "holidayCustomNote": "Lunar holidays shift every year — add them once here and they are included in business-day math. Stored in this browser only.",
+      "dateToEpochTitle": "Date → timestamp",
+      "year": "Year",
+      "month": "Month",
+      "day": "Day",
+      "hour": "Hour",
+      "minute": "Minute",
+      "second": "Second",
+      "epochSecondsOut": "Seconds epoch",
+      "epochMillisecondsOut": "Milliseconds epoch",
+      "startOfDay": "Start of day (00:00)",
+      "endOfDay": "End of day (23:59)",
+      "nowButton": "Now",
+      "epochToDateTitle": "Timestamp → date",
+      "epochInputPlaceholder": "e.g. 1798666666",
+      "convertButton": "Convert",
+      "detectedSeconds": "Detected unit: seconds",
+      "detectedMilliseconds": "Detected unit: milliseconds",
+      "invalidEpoch": "That input is not valid — enter a whole number.",
+      "jalaliDateOut": "Jalali (Solar Hijri) date",
+      "gregorianDateOut": "Gregorian date",
+      "isoOut": "ISO 8601 (UTC)",
+      "relativeOut": "Relative time",
+      "snippetsTitle": "Ready-to-use timestamp snippets",
+      "snippetsHint": "Get the current epoch in your language of choice",
+      "snippetJs": "JavaScript / TypeScript",
+      "snippetPython": "Python",
+      "snippetGo": "Go",
+      "snippetPhp": "PHP",
+      "guidesTitle": "Understanding the Unix timestamp",
+      "guidesIntro": "A Unix timestamp counts the seconds elapsed since midnight on 1 January 1970 UTC. It describes one absolute instant for every machine on earth, regardless of timezone.",
+      "guides": [
+        {
+          "title": "Why a Unix timestamp?",
+          "text": "It is a single unambiguous integer: sorting, comparing and storing it in a database is lighter and safer than any formatted date string."
+        },
+        {
+          "title": "Seconds or milliseconds?",
+          "text": "JavaScript and Java produce 13 digits (milliseconds), while Python, PHP and Go produce 10 (seconds). This tool detects the unit from the length of the number."
+        },
+        {
+          "title": "Leap seconds",
+          "text": "27 leap seconds have been added to UTC so far. Unix time ignores them, so its drift against atomic clocks stays negligible for everyday calculations."
+        }
+      ],
+      "faqTitle": "Frequently asked questions",
+      "faqs": [
+        {
+          "question": "How is the Iranian timezone handled?",
+          "answer": "Iran dropped daylight saving time in 2022, so Asia/Tehran is a fixed UTC+03:30. This tool reads your browser's local clock first and then renders the same absolute instant in UTC and ISO 8601."
+        },
+        {
+          "question": "Is any of my data uploaded?",
+          "answer": "No. There is not a single network request: the conversion is plain JavaScript on the instant your browser already knows."
+        },
+        {
+          "question": "Why can the Jalali result differ by a day?",
+          "answer": "Conversion uses the Khayyam astronomical algorithm (jalaali-js), which starts the year at the vernal equinox. Hand-made calendars can disagree by one day in a handful of years."
+        },
+        {
+          "question": "What does a negative timestamp mean?",
+          "answer": "Negative values point to dates before 1 January 1970. This tool supports them and shows the equivalent date."
+        }
+      ],
+      "editableBadge": "Editable",
+      "epochValueLabel": "Epoch timestamp value",
+      "epochToDateHint": "Enter Unix seconds or milliseconds",
+      "dateToEpochHint": "Set the exact year, month, day, hour, minute and second",
+      "recalculateButton": "Recalculate",
+      "epochReference": "UTC Epoch Reference"
+    },
+    "dateDiff": {
+      "home": "Home",
+      "tools": "Tools",
+      "category": "Converters & Calendar",
+      "badgeLocal": "100% offline & local",
+      "badgePrecision": "Second-level precision",
+      "badgeBusiness": "Iranian business days",
+      "title": "Date & Time Difference Calculator",
+      "subtitle": "Measure the exact distance between two moments — including working days, hours and seconds — with simultaneous support for the Solar Hijri (Jalali) and Gregorian calendars.",
+      "timezone": "Reference timezone: Asia/Tehran (UTC+03:30)",
+      "modeDiff": "Difference of two dates",
+      "modeShift": "Add / subtract a duration",
+      "modeCountdown": "Event countdown",
+      "startTitle": "Start date & time",
+      "endTitle": "End date & time",
+      "swap": "Swap start and end",
+      "swapHint": "Exchange the start and end values",
+      "presetLabel": "Quick presets",
+      "presetNow": "Right now",
+      "presetStartOfToday": "Start of today",
+      "presetFirstOfMonth": "First of month",
+      "presetEndOfYear": "End of current year",
+      "presetPlus30Days": "+30 days",
+      "presetPlus6Months": "+6 months",
+      "fieldYear": "Year",
+      "fieldMonth": "Month",
+      "fieldDay": "Day",
+      "fieldHour": "Hour",
+      "fieldMinute": "Minute",
+      "fieldSecond": "Second",
+      "equivalentJalali": "Jalali equivalent",
+      "equivalentGregorian": "Gregorian equivalent",
+      "miniCalendar": "Calendar for this date",
+      "reversedWarning": "The end date is earlier than the start date; the absolute distance is shown.",
+      "heroTitle": "Exact distance between the two moments",
+      "years": "years",
+      "months": "months",
+      "weeks": "weeks",
+      "days": "days",
+      "hours": "hours",
+      "minutes": "minutes",
+      "seconds": "seconds",
+      "and": "and",
+      "summaryPattern": "This covers {days} whole calendar days between {start} and {end}.",
+      "copySummary": "Copy summary",
+      "metricTotalDays": "Total days",
+      "metricBusinessDays": "Iranian business days",
+      "metricWeeks": "Weeks",
+      "metricHours": "Total hours",
+      "metricMinutes": "Total minutes",
+      "metricSeconds": "Total seconds",
+      "hintTotalDays": "whole calendar days",
+      "hintBusinessDays": "excluding Thursdays, Fridays & official holidays",
+      "hintWeeks": "complete calendar weeks",
+      "hintHours": "elapsed hours",
+      "hintMinutes": "elapsed minutes",
+      "hintSeconds": "exact seconds",
+      "businessPercentOf": "{percent}%",
+      "insightComposition": "Composition of the range",
+      "insightCompositionHint": "Working days, weekend days and official holidays",
+      "legendWorking": "Regular working days",
+      "legendWeekend": "Thursdays & Fridays",
+      "legendHoliday": "Official holidays",
+      "emptyRange": "Nothing to analyse — choose two different dates.",
+      "insightLeap": "Leap years inside this range",
+      "insightLeapHint": "366-day Jalali years and Gregorian years with a 29 February",
+      "leapJalaliLabel": "Jalali leap years",
+      "leapGregorianLabel": "Gregorian leap years",
+      "leapJalaliCount": "{count} years",
+      "leapGregorianCount": "{count} years",
+      "leapNone": "No leap year falls inside this range",
+      "leapAlgorithm": "Khayyam algorithm, accurate to one day in ~5000 years",
+      "insightEpoch": "Unix epoch of both endpoints",
+      "insightEpochHint": "Seconds elapsed since 1 January 1970 UTC",
+      "startEpoch": "Start",
+      "endEpoch": "End",
+      "deltaSeconds": "Exact delta (Δ seconds)",
+      "progressTitle": "Where today sits inside the range",
+      "progressElapsed": "{percent}% of this range has elapsed",
+      "progressBefore": "Today is before the range starts",
+      "progressAfter": "The range has already ended",
+      "progressNow": "In progress",
+      "countdownTitle": "Countdown to the end moment",
+      "countdownHint": "Time remaining, refreshed every second — entirely inside your browser",
+      "countdownDays": "Days",
+      "countdownHours": "Hours",
+      "countdownMinutes": "Minutes",
+      "countdownSeconds": "Seconds",
+      "countdownPassed": "This event has already passed",
+      "countdownFinished": "The event is happening right now",
+      "mathTitle": "Add or subtract a duration",
+      "baseDate": "Base date",
+      "addTime": "Add duration",
+      "toFuture": "Move into the future",
+      "subTime": "Subtract duration",
+      "toPast": "Move into the past",
+      "resultTitle": "Result",
+      "finalAnswer": "Final answer",
+      "calendarLabel": "Date in",
+      "calendarJalali": "Jalali calendar",
+      "calendarGregorian": "Gregorian calendar",
+      "unixTimestamp": "Unix timestamp",
+      "snippetsTitle": "Copy-paste snippets for the exact difference",
+      "snippetsHint": "Each snippet is pre-filled with the dates you selected above",
+      "snippetJs": "JavaScript / TypeScript",
+      "snippetPython": "Python",
+      "snippetPhp": "PHP",
+      "snippetGo": "Go",
+      "privacyTitle": "Holiday logic & data privacy",
+      "privacyIntro": "The fixed Iranian solar holidays (Nowruz, 22 Bahman, 29 Esfand, …) ship as a local dataset inside this app, and Thursday plus Friday are removed from working days as the Iranian weekend.",
+      "privacyPoints": [
+        {
+          "title": "Shifting lunar holidays",
+          "text": "Religious holidays move every year and are announced by the official calendar authority, so they are never guessed. Add them from the “Day events” card on the timestamp tool to make business-day math exact."
+        },
+        {
+          "title": "Browser-only storage",
+          "text": "Your custom holidays live in this browser's localStorage. Nothing is uploaded, tracked or analysed."
+        },
+        {
+          "title": "No network dependency",
+          "text": "Every calculation keeps working with the network disconnected, because the page never talks to a server."
+        }
+      ],
+      "faqTitle": "Frequently asked questions",
+      "faqs": [
+        {
+          "question": "How are Iranian working days counted?",
+          "answer": "Any day in the range that is neither a Thursday nor a Friday and is not on the official holiday list counts as a working day. Add your own holidays and they join that list too."
+        },
+        {
+          "question": "How is the year/month difference derived?",
+          "answer": "With calendar borrowing: years and months follow the real calendar lengths, and the remaining hours, minutes and seconds come from a clock subtraction."
+        },
+        {
+          "question": "How do you know a Jalali year is a leap year?",
+          "answer": "The Khayyam algorithm evaluates the vernal equinox; a year is leap when Esfand has 30 days. Gregorian leap years follow the 4/100/400 rule."
+        },
+        {
+          "question": "Why can the distance differ slightly from manual counting?",
+          "answer": "Ranges with different clock times (say 14:00 → 09:00) split a day. The metric cards therefore show both the raw distance (total seconds) and the whole calendar days."
+        }
+      ],
+      "presetsLabel": "Quick",
+      "summaryLabel": "Time difference summary:",
+      "swapNote": "Swap start and end",
+      "copySummaryShort": "Copy summary",
+      "timelineTitle": "Range length and progress (Progress Timeline)",
+      "timelineStart": "Start:",
+      "timelineEnd": "End:",
+      "timelineToday": "Today (now)",
+      "timezoneFooter": "Timezone: Asia/Tehran (+03:30 standard)",
+      "codeFileName": "date-difference-jalaali.ts",
+      "codeCopyLabel": "Copy Code",
+      "codeCommentTitle": "Jalali date difference and business-day conversion with dayjs",
+      "codeCommentRange": "Selected range",
+      "codeCommentUnits": "Deltas in days, hours and seconds",
+      "leapRowJalali": "Jalali leap years",
+      "leapRowGregorian": "Gregorian leap years",
+      "leapCommonJalali": "Common Jalali years",
+      "leapCommonGregorian": "Common Gregorian years",
+      "leapBadgeJalali": "Leap year",
+      "leapBadgeGregorian": "Leap Year (Feb 29)",
+      "epochStartShort": "Start Epoch",
+      "epochEndShort": "End Epoch",
+      "deltaUnit": "sec",
+      "notesTitle": "Technical notes"
+    },
+    "password": {
+      "home": "Home",
+      "tools": "Tools",
+      "category": "Secure passwords",
+      "badgeApi": "Web Crypto API (CSPRNG)",
+      "badgeLocal": "100% local processing in your browser",
+      "title": "Secure random password generator",
+      "version": "v2.4.0",
+      "description": "Generate durable cryptographic keys with a uniform entropy distribution, nothing stored, and compatibility with DevOps and identity management systems.",
+      "metricEntropy": "Entropy rate",
+      "metricCrackTime": "Estimated crack time",
+      "metricRandom": "Randomness source",
+      "webCrypto": "Web Crypto",
+      "generatedTitle": "Generated password",
+      "lengthPrefix": "Length:",
+      "charsUnit": "characters",
+      "legendUpper": "Uppercase (A-Z)",
+      "legendLower": "Lowercase (a-z)",
+      "legendNumbers": "Numbers (0-9)",
+      "legendSymbols": "Symbols (!@#$)",
+      "regenerate": "Regenerate password",
+      "copyToClipboard": "Copy to clipboard",
+      "copied": "Copied",
+      "bruteForceLabel": "Brute-force resilience score:",
+      "resistantNote": "Resistant to rainbow-table and GPU attacks",
+      "shaResistant": "SHA-256 Resistant",
+      "strength": [
+        {
+          "label": "Weak (guessable)",
+          "time": "a few seconds"
+        },
+        {
+          "label": "Moderate (needs care)",
+          "time": "days or months"
+        },
+        {
+          "label": "Very strong",
+          "time": "centuries"
+        },
+        {
+          "label": "Impenetrable and quantum-grade",
+          "time": "billions of years"
+        }
+      ],
+      "historyTitle": "Passwords from this session",
+      "clearHistory": "Clear history",
+      "noHistory": "No history recorded yet.",
+      "bulkTitle": "Bulk generation for server and DevOps management",
+      "bulkPlaceholder": "Click the generate list button...",
+      "bulkGenerate": "Generate list",
+      "bulkCopyAll": "Copy all",
+      "bulkDownload": "Download txt",
+      "modes": {
+        "password": "Random characters",
+        "passphrase": "Word passphrase",
+        "pin": "Numeric PIN"
+      },
+      "lengthTitle": "Password length (number of characters)",
+      "wordsTitle": "Number of words in the passphrase",
+      "wordsUnit": "words",
+      "pinTitle": "Numeric PIN length",
+      "digitsUnit": "digits",
+      "charsetsTitle": "Allowed character sets",
+      "charsets": [
+        {
+          "label": "Latin uppercase letters",
+          "hint": "A-Z"
+        },
+        {
+          "label": "Latin lowercase letters",
+          "hint": "a-z"
+        },
+        {
+          "label": "Decimal digits",
+          "hint": "0-9"
+        },
+        {
+          "label": "Special characters and symbols",
+          "hint": "!@#$%^&*"
+        }
+      ],
+      "filtersTitle": "Filters and readability tuning",
+      "filters": [
+        {
+          "label": "Avoid similar, confusing characters",
+          "hint": "I, l, 1, O, 0, o"
+        },
+        {
+          "label": "Avoid characters that clash with the Linux shell",
+          "hint": "{} [] () /"
+        },
+        {
+          "label": "No consecutive duplicate characters",
+          "hint": "No Duplicate Consecutive"
+        }
+      ],
+      "separatorLabel": "Word separator",
+      "separators": [
+        "Hyphen ( - )",
+        "Dot ( . )",
+        "Underscore ( _ )",
+        "Empty space"
+      ],
+      "capitalize": "Capitalize the first letter of each word (TitleCase)",
+      "addNumber": "Append a random number to the end of the passphrase",
+      "uniqueDigits": "Fully unique digits (Unique Digits)",
+      "reset": "Reset settings to defaults",
+      "securityLabel": "ZEBRACODE SECURITY STANDARDS",
+      "securityTitle": "Why is our password generator safe?",
+      "securityBadges": [
+        "NIST SP 800-63B Compliant",
+        "Zero Server Telemetry"
+      ],
+      "security": [
+        {
+          "title": "Hardware-grade CSPRNG",
+          "text": "Uses the browser's window.crypto.getRandomValues to produce unpredictable values."
+        },
+        {
+          "title": "Air-gapped from any server",
+          "text": "No data is sent to a server, API, or logging service, and the tool works fully offline."
+        },
+        {
+          "title": "Accurate entropy calculation",
+          "text": "Each password's entropy is computed from its length and the size of the character set."
+        }
+      ],
+      "faqLabel": "ANSWERS TO COMMON QUESTIONS",
+      "faqTitle": "Frequently asked questions about password security",
+      "faqs": [
+        {
+          "question": "How is this different from Math.random()?",
+          "answer": "Math.random is not suitable for security; this tool uses the browser's Web Crypto API directly, so its output is not designed to be predictable."
+        },
+        {
+          "question": "How long should a standard password be?",
+          "answer": "At least 16 random characters is recommended for general use; more length increases the key space and resistance to guessing."
+        },
+        {
+          "question": "Is a multi-word passphrase secure?",
+          "answer": "Yes. Random 4- or 5-word passphrases are both secure and memorable thanks to their length and huge number of combinations."
+        },
+        {
+          "question": "Why is there an option to avoid similar characters?",
+          "answer": "To prevent mistakes when reading or typing characters such as 1 and l, or 0 and O."
+        }
+      ],
+      "toastCopied": "Password copied successfully!",
+      "toastReset": "Settings were reset to their defaults."
+    }
+  },
   "toolNotFound": "Tool not found",
   "input": "Input",
   "output": "Output",

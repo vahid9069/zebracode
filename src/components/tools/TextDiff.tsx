@@ -398,7 +398,7 @@ export default function TextDiff({ locale = 'fa', title, description }: TextDiff
             ref={element => {
                 if (side === 'old') rowRefs.current[index] = element;
             }}
-            className={`flex min-h-7 min-w-max items-start font-mono text-xs leading-7 ${rowClass(row, side)}`}
+            className={`flex min-h-7 min-w-max items-start font-sans text-xs leading-7 ${rowClass(row, side)}`}
             dir="ltr"
             aria-label={`${row.type} line ${lineNumber ?? ''}`}
         >
@@ -431,7 +431,7 @@ export default function TextDiff({ locale = 'fa', title, description }: TextDiff
                     {!original && diffRows.some(row => row.type !== 'unchanged') && <span className="hidden rounded-full bg-amber-100 px-2 py-0.5 text-[9px] font-medium text-amber-800 dark:bg-amber-950 dark:text-amber-200 sm:inline-flex">{locale === 'fa' ? 'تغییر یافته' : 'Changed'}</span>}
                 </div>
                 <div className="flex shrink-0 items-center gap-1">
-                    <span className="hidden rounded bg-blue-100 px-2 py-1 font-mono text-[10px] font-bold text-blue-700 dark:bg-blue-950 dark:text-blue-300 sm:inline-flex">{language}</span>
+                    <span className="hidden rounded bg-blue-100 px-2 py-1 font-sans text-[10px] font-bold text-blue-700 dark:bg-blue-950 dark:text-blue-300 sm:inline-flex">{language}</span>
                     <button type="button" onClick={() => void copyValue(value, original ? 'original' : 'modified')} title={text.copy} aria-label={`${text.copy} ${original ? text.original : text.modified}`} className="rounded p-1.5 text-slate-500 hover:bg-slate-200 dark:hover:bg-slate-800">{copied === (original ? 'original' : 'modified') ? <Check className="h-4 w-4" /> : <Clipboard className="h-4 w-4" />}</button>
                     <button type="button" onClick={() => fileInput.current?.click()} title={text.upload} aria-label={`${text.upload} ${original ? text.original : text.modified}`} className="rounded p-1.5 text-slate-500 hover:bg-slate-200 dark:hover:bg-slate-800"><FileUp className="h-4 w-4" /></button>
                     <input ref={fileInput} type="file" className="hidden" onChange={event => handleLoadFile(event.target.files?.[0], setter)} />
@@ -466,7 +466,7 @@ export default function TextDiff({ locale = 'fa', title, description }: TextDiff
                 </nav>
                 <div className="flex flex-wrap items-center gap-2">
                     <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-2.5 py-1 text-[10px] text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300"><i className="h-2 w-2 animate-pulse rounded-full bg-emerald-500" />{text.local}</span>
-                    <span className="rounded-full bg-slate-100 px-2.5 py-1 font-mono text-[10px] text-slate-600 dark:bg-slate-800 dark:text-slate-300" dir="ltr">{text.engine}</span>
+                    <span className="rounded-full bg-slate-100 px-2.5 py-1 font-sans text-[10px] text-slate-600 dark:bg-slate-800 dark:text-slate-300" dir="ltr">{text.engine}</span>
                 </div>
             </div>
 
@@ -475,12 +475,12 @@ export default function TextDiff({ locale = 'fa', title, description }: TextDiff
                     <div className="flex flex-wrap items-center gap-3">
                         <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-blue-600 text-white"><GitCompareArrows className="h-5 w-5" /></span>
                         <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">{heading}</h1>
-                        <span className="rounded-full bg-blue-50 px-2 py-1 font-mono text-[10px] text-blue-700 dark:bg-blue-950 dark:text-blue-300" dir="ltr">Diff Checker</span>
+                        <span className="rounded-full bg-blue-50 px-2 py-1 font-sans text-[10px] text-blue-700 dark:bg-blue-950 dark:text-blue-300" dir="ltr">Diff Checker</span>
                     </div>
                     <p className="text-sm leading-7 text-slate-600 dark:text-slate-300">{subheading}</p>
                 </div>
                 <div className="flex flex-wrap gap-2">
-                    <button type="button" onClick={() => { setOriginalText(SAMPLE_ORIGINAL); setModifiedText(SAMPLE_MODIFIED); setLanguage('typescript'); }} className="inline-flex h-9 items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 text-xs font-medium shadow-sm hover:bg-slate-50 dark:border-slate-800 dark:bg-slate-900 dark:hover:bg-slate-800"><span className="font-mono text-blue-600">{'{}'}</span>{text.sample}</button>
+                    <button type="button" onClick={() => { setOriginalText(SAMPLE_ORIGINAL); setModifiedText(SAMPLE_MODIFIED); setLanguage('typescript'); }} className="inline-flex h-9 items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 text-xs font-medium shadow-sm hover:bg-slate-50 dark:border-slate-800 dark:bg-slate-900 dark:hover:bg-slate-800"><span className="font-sans text-blue-600">{'{}'}</span>{text.sample}</button>
                     <button type="button" onClick={() => { setOriginalText(modifiedText); setModifiedText(originalText); }} className="inline-flex h-9 items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 text-xs font-medium shadow-sm hover:bg-slate-50 dark:border-slate-800 dark:bg-slate-900 dark:hover:bg-slate-800"><ArrowLeftRight className="h-4 w-4 text-blue-600" />{text.swap}</button>
                     <button type="button" onClick={handleClear} className="inline-flex h-9 items-center gap-2 rounded-lg border border-rose-200 bg-white px-3 text-xs font-medium text-rose-700 shadow-sm hover:bg-rose-50 dark:border-rose-900 dark:bg-slate-900 dark:text-rose-300 dark:hover:bg-rose-950"><Trash2 className="h-4 w-4" />{text.clear}</button>
                 </div>
@@ -507,7 +507,7 @@ export default function TextDiff({ locale = 'fa', title, description }: TextDiff
                         <label className="flex items-center gap-1.5 text-[11px] text-slate-600 dark:text-slate-300"><input type="checkbox" checked={ignoreWhitespace} onChange={event => setIgnoreWhitespace(event.target.checked)} className="accent-blue-600" />{text.ignoreWhitespace}</label>
                         <label className="flex items-center gap-1.5 text-[11px] text-slate-600 dark:text-slate-300"><input type="checkbox" checked={caseSensitive} onChange={event => setCaseSensitive(event.target.checked)} className="accent-blue-600" />{text.caseSensitive}</label>
                         <button type="button" onClick={() => compare()} className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-3 py-2 text-xs font-semibold text-white shadow-sm hover:bg-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"><GitCompareArrows className="h-3.5 w-3.5" />{text.compare}<kbd className="hidden rounded bg-white/20 px-1 py-0.5 text-[9px] sm:inline">Ctrl+↵</kbd></button>
-                        <span className="inline-flex items-center gap-1 rounded-full bg-blue-50 px-2.5 py-1 font-mono text-[10px] text-blue-700 dark:bg-blue-950 dark:text-blue-300" dir="ltr"><Zap className="h-3 w-3" />{text.execution}: {executionTimeMs.toFixed(2)}ms</span>
+                        <span className="inline-flex items-center gap-1 rounded-full bg-blue-50 px-2.5 py-1 font-sans text-[10px] text-blue-700 dark:bg-blue-950 dark:text-blue-300" dir="ltr"><Zap className="h-3 w-3" />{text.execution}: {executionTimeMs.toFixed(2)}ms</span>
                     </div>
                 </div>
                 <div className="flex flex-wrap items-center justify-between gap-3 border-t border-slate-100 pt-3 dark:border-slate-800">
@@ -515,8 +515,8 @@ export default function TextDiff({ locale = 'fa', title, description }: TextDiff
                         <div className="flex items-center gap-1">
                             <button type="button" onClick={() => navigateDiff(-1)} disabled={!changes.length} aria-label={text.previous} className="rounded-md border border-slate-200 p-1.5 text-slate-600 hover:bg-slate-100 disabled:opacity-40 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800"><ArrowUp className="h-4 w-4" /></button>
                             <button type="button" onClick={() => navigateDiff(1)} disabled={!changes.length} aria-label={text.next} className="rounded-md border border-slate-200 p-1.5 text-slate-600 hover:bg-slate-100 disabled:opacity-40 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800"><ArrowDown className="h-4 w-4" /></button>
-                            <span className="min-w-16 text-center font-mono text-[10px] text-slate-500" dir="ltr">{changePosition} {text.of} {changes.length} {text.changes}</span>
-                            <span className="hidden font-mono text-[9px] text-slate-400 lg:inline" dir="ltr">Alt+P / Alt+N</span>
+                            <span className="min-w-16 text-center font-sans text-[10px] text-slate-500" dir="ltr">{changePosition} {text.of} {changes.length} {text.changes}</span>
+                            <span className="hidden font-sans text-[9px] text-slate-400 lg:inline" dir="ltr">Alt+P / Alt+N</span>
                         </div>
                         <span className="rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-1 text-xs font-semibold text-emerald-700 dark:border-emerald-900 dark:bg-emerald-950/50 dark:text-emerald-300">+{summary.addedLines} {text.added}</span>
                         <span className="rounded-full border border-rose-200 bg-rose-50 px-2.5 py-1 text-xs font-semibold text-rose-700 dark:border-rose-900 dark:bg-rose-950/50 dark:text-rose-300">−{summary.removedLines} {text.removed}</span>
@@ -525,7 +525,7 @@ export default function TextDiff({ locale = 'fa', title, description }: TextDiff
                     <div className="flex min-w-52 flex-1 items-center justify-end gap-2 sm:flex-none">
                         <span className="text-[11px] text-slate-500">{text.similarity}</span>
                         <div className="h-2 w-16 overflow-hidden rounded-full bg-slate-200 dark:bg-slate-700" role="progressbar" aria-label={text.similarity} aria-valuenow={summary.similarityPercentage} aria-valuemin={0} aria-valuemax={100}><div className="h-full rounded-full bg-blue-600 transition-[width]" style={{ width: `${summary.similarityPercentage}%` }} /></div>
-                        <span className="font-mono text-xs font-semibold text-blue-700 dark:text-blue-300" dir="ltr">{summary.similarityPercentage}%</span>
+                        <span className="font-sans text-xs font-semibold text-blue-700 dark:text-blue-300" dir="ltr">{summary.similarityPercentage}%</span>
                     </div>
                 </div>
             </section>
@@ -547,7 +547,7 @@ export default function TextDiff({ locale = 'fa', title, description }: TextDiff
                     <div className="flex items-center gap-2">
                         <button type="button" onClick={() => setHideUnchanged(value => !value)} className="inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs text-slate-600 hover:bg-slate-200/70 dark:text-slate-300 dark:hover:bg-slate-800"><Eye className="h-3.5 w-3.5" />{hideUnchanged ? text.showUnchanged : text.hideUnchanged}</button>
                         <button type="button" onClick={() => setIsFullscreen(value => !value)} aria-label={text.fullscreen} className="rounded-md p-1.5 text-slate-500 hover:bg-slate-200 dark:hover:bg-slate-800">{isFullscreen ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}</button>
-                        <span className="hidden rounded bg-slate-200 px-2 py-1 font-mono text-[10px] text-slate-600 dark:bg-slate-800 dark:text-slate-300 sm:inline" dir="ltr">Alt+F</span>
+                        <span className="hidden rounded bg-slate-200 px-2 py-1 font-sans text-[10px] text-slate-600 dark:bg-slate-800 dark:text-slate-300 sm:inline" dir="ltr">Alt+F</span>
                     </div>
                 </header>
                 {diffRows.length === 0 ? <div className="flex min-h-24 items-center justify-center px-4 text-sm text-slate-500">{text.noChanges}</div> : (

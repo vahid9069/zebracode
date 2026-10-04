@@ -1,336 +1,1135 @@
 'use client';
 
-import React, { useEffect, useMemo, useState } from 'react';
-import { isValidJalaaliDate, toGregorian, toJalaali } from 'jalaali-js';
-import { CalendarDays, Check, ChevronDown, Clock3, Copy, Globe2, Minus, Plus, Timer, Zap } from 'lucide-react';
-import { Card } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { toJalaali } from 'jalaali-js';
+import {
+  AlarmClock,
+  ArrowLeftRight,
+  BarChart3,
+  BriefcaseBusiness,
+  CalendarDays,
+  CalendarRange,
+  CheckCircle2,
+  ChevronDown,
+  Clock3,
+  Code2,
+  Globe2,
+  Hash,
+  Layers,
+  Plus,
+  ShieldCheck,
+  Sparkles,
+  Timer,
+  TimerReset,
+  TrendingUp,
+} from 'lucide-react';
+import { cn } from '@/lib/utils';
+import { useI18n } from '@/i18n/I18nProvider';
+import type { Dictionary } from '@/i18n/getDictionary';
+import { ToastViewport, ValueRow, writeToClipboard, useToasts } from '@/components/tools/shared/feedback';
+import DualCalendarWidget, { type CalendarWidgetLabels } from '@/components/tools/shared/DualCalendarWidget';
+import { buildCalendarLabels } from '@/components/tools/shared/calendarLabels';
+import { DonutChart } from '@/components/tools/shared/DonutChart';
+import {
+  Badge,
+  CodeCard,
+  FieldGroup,
+  MetricCard,
+  ModeTile,
+  NoteCard,
+  NumberField,
+  PresetPill,
+  SectionCard,
+  SystemToggle,
+  TimeCell,
+  TimeFields,
+} from '@/components/tools/shared/fields';
+import {
+  type CalendarSystem,
+  type DateParts,
+  MS_PER_DAY,
+  addDays,
+  addMonths,
+  civilDifference,
+  dateToParts,
+  daysInMonth,
+  epochSeconds,
+  formatClock,
+  formatCount,
+  formatIsoDate,
+  formatJalaliNumeric,
+  formatNumber,
+  localiseDigits,
+  partsToDate,
+  toInt,
+  totalsBetween,
+} from '@/lib/datetime/jalali';
+import { type CustomHoliday, businessDayStats, leapYearsInRange, readCustomHolidays } from '@/lib/datetime/holidays';
 
-type CalendarMode = 'jalali' | 'gregorian';
-type Parts = { year: number; month: number; day: number; hour: number; minute: number; second: number; millisecond: number };
-type Shift = { [key: string]: number; years: number; months: number; weeks: number; days: number; hours: number; minutes: number; seconds: number };
+type Ui = Dictionary['common']['toolsUi']['dateDiff'];
+type Shared = Dictionary['common']['toolsUi']['shared'];
+type FieldKey = 'year' | 'month' | 'day' | 'hour' | 'minute' | 'second';
+type Mode = 'diff' | 'shift' | 'countdown';
+type Endpoint = 'start' | 'end';
 
-const jalaliMonths = ['فروردین', 'اردیبهشت', 'خرداد', 'تیر', 'مرداد', 'شهریور', 'مهر', 'آبان', 'آذر', 'دی', 'بهمن', 'اسفند'];
-const gregorianMonths = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
-const faNumber = (value: number) => value.toLocaleString('fa-IR');
-const TIME_ZONE = 'Asia/Tehran';
-const zonedDateFormatter = new Intl.DateTimeFormat('en-GB', {
-    timeZone: TIME_ZONE,
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-    hour: '2-digit',
-    minute: '2-digit',
-    second: '2-digit',
-    fractionalSecondDigits: 3,
-    hourCycle: 'h23',
-});
-
-function getZonedParts(date: Date): Parts {
-    const values = Object.fromEntries(zonedDateFormatter.formatToParts(date).map(({ type, value }) => [type, Number(value)]));
-    return { year: values.year, month: values.month, day: values.day, hour: values.hour, minute: values.minute, second: values.second, millisecond: values.fractionalSecond };
-}
-
-function utcTime(parts: Parts): number {
-    const date = new Date(0);
-    date.setUTCFullYear(parts.year, parts.month - 1, parts.day);
-    date.setUTCHours(parts.hour, parts.minute, parts.second, parts.millisecond);
-    return date.getTime();
-}
-
-function fromGregorianParts(parts: Parts, mode: CalendarMode): Parts {
-    if (mode === 'jalali') {
-        if (parts.year < 560 || parts.year > 3798) return { ...parts, year: Number.NaN, month: Number.NaN, day: Number.NaN };
-        const j = toJalaali(parts.year, parts.month, parts.day);
-        return { ...parts, year: j.jy, month: j.jm, day: j.jd };
-    }
-    return parts;
-}
-
-function fromDate(date: Date, mode: CalendarMode): Parts {
-    return fromGregorianParts(getZonedParts(date), mode);
-}
-
-function daysInGregorianMonth(year: number, month: number): number {
-    const date = new Date(0);
-    date.setUTCFullYear(year, month, 0);
-    return date.getUTCDate();
-}
-
-function isValidParts(parts: Parts, mode: CalendarMode): boolean {
-    if (!Object.values(parts).every(Number.isInteger)
-        || parts.hour < 0 || parts.hour > 23
-        || parts.minute < 0 || parts.minute > 59
-        || parts.second < 0 || parts.second > 59
-        || parts.millisecond < 0 || parts.millisecond > 999) return false;
-
-    if (mode === 'jalali') return isValidJalaaliDate(parts.year, parts.month, parts.day);
-    return parts.year >= 1 && parts.year <= 9999
-        && parts.month >= 1 && parts.month <= 12
-        && parts.day >= 1 && parts.day <= daysInGregorianMonth(parts.year, parts.month);
-}
-
-function toDate(parts: Parts, mode: CalendarMode): Date {
-    if (!isValidParts(parts, mode)) return new Date(Number.NaN);
-    const g = mode === 'jalali'
-        ? toGregorian(parts.year, parts.month, parts.day)
-        : { gy: parts.year, gm: parts.month, gd: parts.day };
-    const desired = { ...parts, year: g.gy, month: g.gm, day: g.gd };
-    const target = utcTime(desired);
-    let timestamp = target;
-    for (let attempt = 0; attempt < 4; attempt += 1) {
-        const represented = utcTime(getZonedParts(new Date(timestamp)));
-        const adjustment = target - represented;
-        timestamp += adjustment;
-        if (adjustment === 0) break;
-    }
-    return new Date(timestamp);
-}
-
-function daysInMonth(year: number, month: number, mode: CalendarMode): number {
-    if (mode === 'jalali') return month <= 6 ? 31 : month <= 11 ? 30 : isValidJalaaliDate(year, month, 30) ? 30 : 29;
-    return daysInGregorianMonth(year, month);
-}
-
-function addCalendarMonths(parts: Parts, amount: number, mode: CalendarMode): Parts {
-    const monthIndex = parts.year * 12 + parts.month - 1 + amount;
-    const year = Math.floor(monthIndex / 12);
-    const month = ((monthIndex % 12) + 12) % 12 + 1;
-    return { ...parts, year, month, day: Math.min(parts.day, daysInMonth(year, month, mode)) };
-}
-
-function addCalendarDays(parts: Parts, amount: number, mode: CalendarMode): Parts {
-    if (!isValidParts(parts, mode)) return { ...parts, year: Number.NaN, month: Number.NaN, day: Number.NaN };
-    const g = mode === 'jalali'
-        ? toGregorian(parts.year, parts.month, parts.day)
-        : { gy: parts.year, gm: parts.month, gd: parts.day };
-    const date = new Date(0);
-    date.setUTCFullYear(g.gy, g.gm - 1, g.gd + amount);
-    date.setUTCHours(parts.hour, parts.minute, parts.second, parts.millisecond);
-    return fromGregorianParts({
-        year: date.getUTCFullYear(),
-        month: date.getUTCMonth() + 1,
-        day: date.getUTCDate(),
-        hour: date.getUTCHours(),
-        minute: date.getUTCMinutes(),
-        second: date.getUTCSeconds(),
-        millisecond: date.getUTCMilliseconds(),
-    }, mode);
-}
-
-function calendarDayNumber(parts: Parts, mode: CalendarMode): number {
-    const g = mode === 'jalali'
-        ? toGregorian(parts.year, parts.month, parts.day)
-        : { gy: parts.year, gm: parts.month, gd: parts.day };
-    const date = new Date(0);
-    date.setUTCFullYear(g.gy, g.gm - 1, g.gd);
-    return Math.floor(date.getTime() / 86400000);
-}
-
-function formatUnixTimestamp(parts: Parts, mode: CalendarMode): string {
-    if (!isValidParts(parts, mode)) return '';
-    const timestamp = toDate(parts, mode).getTime();
-    return String(parts.millisecond === 0 ? Math.floor(timestamp / 1000) : timestamp);
-}
-
-function InputParts({ value, onChange, mode }: { value: Parts; onChange: (value: Parts) => void; mode: CalendarMode }) {
-    const labels = mode === 'jalali' ? ['سال', 'ماه', 'روز'] : ['Year', 'Month', 'Day'];
-    const update = (key: keyof Parts, raw: string) => onChange({ ...value, [key]: Number(raw) || 0 });
-    return <div className="grid grid-cols-3 gap-2 sm:grid-cols-4 lg:grid-cols-7">
-        {(['year', 'month', 'day', 'hour', 'minute', 'second', 'millisecond'] as (keyof Parts)[]).map((key, index) => (
-            <label key={key} className="text-[11px] text-slate-500">
-                {index < 3 ? labels[index] : ['ساعت', 'دقیقه', 'ثانیه', 'میلی‌ثانیه'][index - 3]}
-                <input type="number" step="1" value={value[key]} min={key === 'month' || key === 'day' ? 1 : 0} max={key === 'month' ? 12 : key === 'day' ? daysInMonth(value.year, value.month, mode) : key === 'hour' ? 23 : key === 'minute' || key === 'second' ? 59 : key === 'millisecond' ? 999 : undefined} aria-invalid={!isValidParts(value, mode)} onChange={(event) => update(key, event.target.value)} className="mt-1 h-10 w-full rounded-lg bg-white px-2 text-center font-mono text-sm text-slate-800 shadow-sm outline-none ring-blue-500 focus:ring-2 aria-[invalid=true]:ring-red-500 dark:bg-[#161b26] dark:text-white" />
-            </label>
-        ))}
-        {!isValidParts(value, mode) && <p className="col-span-full text-xs text-red-600">تاریخ یا ساعت واردشده معتبر نیست.</p>}
-    </div>;
-}
-
-function CopyButton({ value, disabled = false }: { value: string; disabled?: boolean }) {
-    const [copied, setCopied] = useState(false);
-    const [failed, setFailed] = useState(false);
-    const copy = async () => {
-        try {
-            await navigator.clipboard.writeText(value);
-            setCopied(true);
-            setFailed(false);
-        } catch {
-            setCopied(false);
-            setFailed(true);
-        }
-        window.setTimeout(() => { setCopied(false); setFailed(false); }, 1200);
-    };
-    return <button type="button" disabled={disabled} aria-label={failed ? 'کپی انجام نشد' : copied ? 'کپی شد' : 'کپی'} onClick={copy} className="rounded-lg bg-white p-2 text-slate-500 shadow-sm hover:text-blue-600 disabled:cursor-not-allowed disabled:opacity-40 dark:bg-[#161b26]">{failed ? <span className="text-xs text-red-600">خطا</span> : copied ? <Check className="h-4 w-4 text-emerald-600" /> : <Copy className="h-4 w-4" />}</button>;
-}
-
-function Metric({ title, value, subtitle }: { title: string; value: string; subtitle: string }) {
-    return <div className="flex flex-col justify-between gap-2 rounded-xl bg-white p-4 shadow-sm dark:bg-[#161b26]"><span className="text-xs text-slate-500">{title}</span><div className="flex items-center justify-between"><strong className="text-xl font-bold text-slate-900 dark:text-white">{value}</strong><CopyButton value={value} /></div><span className="text-[11px] text-slate-500">{subtitle}</span></div>;
-}
+const DATE_FIELDS: readonly Extract<FieldKey, 'year' | 'month' | 'day'>[] = ['year', 'month', 'day'];
+const DEFAULT_SHIFT = { years: 0, months: 3, weeks: 2, days: 10, hour: 4, minute: 30, second: 0 };
 
 export default function TimestampConverter() {
-    const now = useMemo(() => new Date(), []);
-    const [tab, setTab] = useState<'diff' | 'math'>('diff');
-    const [mode, setMode] = useState<CalendarMode>('jalali');
-    const [start, setStart] = useState<Parts>(() => fromDate(new Date(now.getTime() - 621 * 86400000), 'jalali'));
-    const [end, setEnd] = useState<Parts>(() => fromDate(now, 'jalali'));
-    const [inclusive, setInclusive] = useState(true);
-    const [base, setBase] = useState<Parts>(() => fromDate(now, 'jalali'));
-    const [operation, setOperation] = useState<'add' | 'sub'>('add');
-    const [shift, setShift] = useState<Shift>({ years: 0, months: 3, weeks: 2, days: 10, hours: 4, minutes: 30, seconds: 0 });
+  const { locale, dict } = useI18n();
+  const ui = dict.common.toolsUi.dateDiff;
+  const shared = dict.common.toolsUi.shared;
+  const { toasts, push } = useToasts();
 
-    const difference = useMemo(() => {
-        if (!isValidParts(start, mode) || !isValidParts(end, mode)) return null;
-        const startDate = toDate(start, mode);
-        const endDate = toDate(end, mode);
-        if (endDate < startDate) return null;
-        const inclusiveEnd = inclusive ? addCalendarDays(end, 1, mode) : end;
-        if (!isValidParts(inclusiveEnd, mode)) return null;
-        const milliseconds = toDate(inclusiveEnd, mode).getTime() - startDate.getTime();
-        const totalSeconds = Math.floor(milliseconds / 1000);
-        const days = Math.floor(totalSeconds / 86400);
-        const remainder = totalSeconds % 86400;
-        const hours = Math.floor(remainder / 3600);
-        const minutes = Math.floor((remainder % 3600) / 60);
-        const seconds = remainder % 60;
-        let totalMonths = (inclusiveEnd.year - start.year) * 12 + inclusiveEnd.month - start.month;
-        let monthCursor = addCalendarMonths(start, totalMonths, mode);
-        while (totalMonths > 0 && toDate(monthCursor, mode) > toDate(inclusiveEnd, mode)) {
-            totalMonths -= 1;
-            monthCursor = addCalendarMonths(start, totalMonths, mode);
-        }
-        const years = Math.floor(totalMonths / 12);
-        const months = totalMonths % 12;
-        const remainingDays = calendarDayNumber(inclusiveEnd, mode) - calendarDayNumber(monthCursor, mode);
-        return { days, hours, minutes, seconds, years, months, remainingDays, totalHours: Math.floor(totalSeconds / 3600), totalMinutes: Math.floor(totalSeconds / 60), totalSeconds, milliseconds };
-    }, [end, inclusive, mode, start]);
+  const num = useCallback((input: number) => formatNumber(input, locale), [locale]);
+  const count = useCallback((input: number) => formatCount(input, locale), [locale]);
+  const clock = useCallback((value: string | number) => localiseDigits(String(value), locale), [locale]);
+  const widgetLabels = useMemo<CalendarWidgetLabels>(() => buildCalendarLabels(shared), [shared]);
 
-    const shifted = useMemo(() => {
-        if (!isValidParts(base, mode)) return { date: new Date(Number.NaN), parts: base, timestamp: Number.NaN };
-        const date = toDate(base, mode);
-        const sign = operation === 'add' ? 1 : -1;
-        const shiftedMonths = addCalendarMonths(base, sign * (shift.years * 12 + shift.months), mode);
-        if (!isValidParts(shiftedMonths, mode)) return { date: new Date(Number.NaN), parts: shiftedMonths, timestamp: Number.NaN };
-        const shiftedDays = addCalendarDays(shiftedMonths, sign * (shift.weeks * 7 + shift.days), mode);
-        if (!isValidParts(shiftedDays, mode)) return { date: new Date(Number.NaN), parts: shiftedDays, timestamp: Number.NaN };
-        const shiftedDate = toDate(shiftedDays, mode);
-        const amount = (shift.hours * 3600 + shift.minutes * 60 + shift.seconds) * 1000;
-        shiftedDate.setTime(shiftedDate.getTime() + sign * amount);
-        return { date: shiftedDate, parts: fromDate(shiftedDate, mode), timestamp: Math.floor(shiftedDate.getTime() / 1000) };
-    }, [base, mode, operation, shift]);
+  const fieldLabels: Record<FieldKey, string> = {
+    year: ui.fieldYear,
+    month: ui.fieldMonth,
+    day: ui.fieldDay,
+    hour: ui.fieldHour,
+    minute: ui.fieldMinute,
+    second: ui.fieldSecond,
+  };
 
-    const updateMode = (next: CalendarMode) => {
-        if (next === mode) return;
-        const convert = (parts: Parts) => isValidParts(parts, mode) ? fromDate(toDate(parts, mode), next) : parts;
-        setStart(convert(start));
-        setEnd(convert(end));
-        setBase(convert(base));
-        setMode(next);
+  /* ------------------------------ state -------------------------------- */
+  const [mounted, setMounted] = useState(false);
+  const [mode, setMode] = useState<Mode>('diff');
+  const [start, setStart] = useState<Date | null>(null);
+  const [end, setEnd] = useState<Date | null>(null);
+  const [startSystem, setStartSystem] = useState<CalendarSystem>('jalali');
+  const [endSystem, setEndSystem] = useState<CalendarSystem>('jalali');
+  const [draft, setDraft] = useState<{ start: Partial<Record<FieldKey, string>>; end: Partial<Record<FieldKey, string>> }>({ start: {}, end: {} });
+  const [customHolidays, setCustomHolidays] = useState<CustomHoliday[]>([]);
+  const [tick, setTick] = useState<Date | null>(null);
+
+  useEffect(() => {
+    const instant = new Date();
+    setStart(addDays(instant, -621));
+    setEnd(instant);
+    setTick(instant);
+    setCustomHolidays(readCustomHolidays());
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (mode !== 'countdown') return;
+    const timer = window.setInterval(() => setTick(new Date()), 1000);
+    return () => window.clearInterval(timer);
+  }, [mode]);
+
+  /**
+   * Entering countdown mode with an already-elapsed target would immediately
+   * read "event passed", so a month ahead is used as the starting point.
+   */
+  const changeMode = useCallback((next: Mode) => {
+    if (next === 'countdown') {
+      const instant = new Date();
+      setEnd((current) => (!current || current.getTime() - instant.getTime() < 5000 ? addDays(instant, 30) : current));
+    }
+    setMode(next);
+  }, []);
+
+  /* --------------------------- endpoint helpers ------------------------- */
+  const startParts = useMemo(() => (start ? dateToParts(start, startSystem) : null), [start, startSystem]);
+  const endParts = useMemo(() => (end ? dateToParts(end, endSystem) : null), [end, endSystem]);
+
+  const endpointParts = (endpoint: Endpoint) => (endpoint === 'start' ? startParts : endParts);
+
+  const commitField = (endpoint: Endpoint, key: FieldKey, raw: string) => {
+    setDraft((current) => ({ ...current, [endpoint]: { ...current[endpoint], [key]: raw } }));
+    const current = endpointParts(endpoint);
+    const currentDate = endpoint === 'start' ? start : end;
+    const system = endpoint === 'start' ? startSystem : endSystem;
+    if (!current || !currentDate) return;
+    const numeric = toInt(raw, NaN);
+    if (!Number.isFinite(numeric)) return;
+    const next = partsToDate({ ...current, [key]: numeric }, system);
+    if (endpoint === 'start') setStart(next);
+    else setEnd(next);
+  };
+
+  const clearDraft = (endpoint: Endpoint, key: FieldKey) =>
+    setDraft((current) => ({ ...current, [endpoint]: { ...current[endpoint], [key]: undefined } }));
+
+  const setEndpoint = (endpoint: Endpoint, next: Date) => {
+    setDraft((current) => ({ ...current, [endpoint]: {} }));
+    if (endpoint === 'start') setStart(next);
+    else setEnd(next);
+  };
+
+  const applyPreset = (endpoint: Endpoint, preset: 'now' | 'startOfToday' | 'firstOfMonth' | 'endOfYear' | 'plus30' | 'plus6m') => {
+    const base = tick ?? new Date();
+    const system = endpoint === 'start' ? startSystem : endSystem;
+    let next: Date;
+    if (preset === 'now') next = base;
+    else if (preset === 'startOfToday') next = new Date(base.getFullYear(), base.getMonth(), base.getDate(), 0, 0, 0, 0);
+    else if (preset === 'plus30') next = addDays(base, 30);
+    else if (preset === 'plus6m') next = addMonths(base, 6);
+    else {
+      const parts = dateToParts(base, system);
+      if (preset === 'firstOfMonth') next = partsToDate({ ...parts, day: 1, hour: 0, minute: 0, second: 0 }, system);
+      else next = partsToDate({ ...parts, month: 12, day: daysInMonth(system, parts.year, 12), hour: 23, minute: 59, second: 59 }, system);
+    }
+    setEndpoint(endpoint, next);
+  };
+
+  const swap = () => {
+    const previousStart = start;
+    const previousEnd = end;
+    const previousStartSystem = startSystem;
+    setStart(previousEnd);
+    setEnd(previousStart);
+    setStartSystem(endSystem);
+    setEndSystem(previousStartSystem);
+    setDraft({ start: {}, end: {} });
+  };
+
+  /* ------------------------------ results ------------------------------ */
+  const diff = useMemo(() => (start && end ? civilDifference(start, end) : null), [end, start]);
+  const totals = useMemo(() => (start && end ? totalsBetween(start, end) : null), [end, start]);
+  const business = useMemo(() => (start && end ? businessDayStats(start, end, customHolidays) : null), [customHolidays, end, start]);
+  const leap = useMemo(() => (start && end ? leapYearsInRange(start, end) : null), [end, start]);
+
+  const businessPercent = business && business.total > 0 ? Math.round((business.working / business.total) * 100) : 0;
+
+  const progress = useMemo(() => {
+    if (!start || !end || !tick) return null;
+    const from = Math.min(start.getTime(), end.getTime());
+    const to = Math.max(start.getTime(), end.getTime());
+    const span = to - from;
+    if (span <= 0) return { percent: 100, state: 'done' as const };
+    if (tick.getTime() <= from) return { percent: 0, state: 'before' as const };
+    if (tick.getTime() >= to) return { percent: 100, state: 'done' as const };
+    return { percent: Math.round(((tick.getTime() - from) / span) * 1000) / 10, state: 'active' as const };
+  }, [end, start, tick]);
+
+  const countdown = useMemo(() => {
+    if (!end || !tick) return null;
+    const delta = end.getTime() - tick.getTime();
+    const abs = Math.abs(delta);
+    return {
+      negative: delta < 0,
+      days: Math.floor(abs / MS_PER_DAY),
+      hours: Math.floor((abs % MS_PER_DAY) / 3_600_000),
+      minutes: Math.floor((abs % 3_600_000) / 60_000),
+      seconds: Math.floor((abs % 60_000) / 1000),
     };
-    const quick = (target: 'start' | 'end', kind: 'now' | 'today' | 'year') => {
-        const current = fromDate(new Date(), mode);
-        const value = kind === 'now' ? current : kind === 'today'
-            ? { ...current, hour: 0, minute: 0, second: 0, millisecond: 0 }
-            : { ...current, month: 1, day: 1, hour: 0, minute: 0, second: 0, millisecond: 0 };
-        target === 'start' ? setStart(value) : setEnd(value);
+  }, [end, tick]);
+
+  /** Both endpoints in both calendars — used by the hero, timeline and snippets. */
+  const rangeLabels = useMemo(() => {
+    if (!start || !end) return null;
+    const parts = (date: Date) => {
+      const j = toJalaali(date.getFullYear(), date.getMonth() + 1, date.getDate());
+      return {
+        jalali: `${num(j.jd)} ${shared.jalaliMonths[j.jm - 1]} ${num(j.jy)}`,
+        gregorian: formatIsoDate(date),
+        jalaliParts: { year: j.jy, month: j.jm, day: j.jd, hour: 0, minute: 0, second: 0 } as DateParts,
+      };
     };
-    const dateLabel = (parts: Parts) => mode === 'jalali' ? `${faNumber(parts.year)}/${String(parts.month).padStart(2, '0')}/${String(parts.day).padStart(2, '0')}` : `${parts.year}/${String(parts.month).padStart(2, '0')}/${String(parts.day).padStart(2, '0')}`;
-    const shiftedLabel = Number.isNaN(shifted.date.getTime()) ? 'تاریخ پایه معتبر نیست' : shifted.date.toLocaleString('fa-IR', { dateStyle: 'full', timeStyle: 'medium', timeZone: TIME_ZONE, calendar: mode === 'jalali' ? 'persian' : 'gregory' });
+    const a = parts(start);
+    const b = parts(end);
+    const today = tick ?? new Date();
+    const tj = toJalaali(today.getFullYear(), today.getMonth() + 1, today.getDate());
+    return {
+      start: a,
+      end: b,
+      today: { jalali: `${num(tj.jd)} ${shared.jalaliMonths[tj.jm - 1]} ${num(tj.jy)}`, gregorian: formatIsoDate(today) },
+    };
+  }, [end, num, shared.jalaliMonths, start, tick]);
 
-    return <div dir="rtl" className="min-h-screen bg-[#f8f9ff] px-4 py-6 text-[#0b1c30] dark:bg-[#0b0f19] dark:text-white md:px-6">
-        <div className="mx-auto max-w-7xl space-y-6">
-            <div className="flex flex-wrap items-center justify-between gap-3 text-sm text-slate-500"><div className="flex items-center gap-2"><a href="/">خانه</a><ChevronDown className="h-4 w-4 -rotate-90" /><span>ابزارها</span><ChevronDown className="h-4 w-4 -rotate-90" /><span className="font-semibold text-slate-800 dark:text-white">تاریخ و زمان</span></div><div className="flex gap-2"><Badge text="پردازش ۱۰۰٪ محلی در مرورگر" /><Badge text="دقت میلی‌ثانیه" blue /></div></div>
-            <div className="flex flex-wrap items-center justify-between gap-4"><div className="flex items-center gap-4"><div className="flex h-12 w-12 items-center justify-center rounded-xl bg-slate-100 text-blue-600"><CalendarDays /></div><div><h1 className="text-2xl font-bold">جعبه ابزار و محاسبه اختلاف تاریخ و زمان</h1><p className="mt-1 text-sm text-slate-600 dark:text-slate-400">محاسبه دقیق فاصله زمانی، روزهای کاری، ساعت، دقیقه و تبدیل همزمان شمسی و میلادی</p></div></div></div>
-            <div className="flex flex-wrap items-center justify-between gap-2 rounded-xl bg-slate-100 p-1 dark:bg-[#0d1117]"><div className="flex gap-1"><button type="button" onClick={() => setTab('diff')} className={`flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold ${tab === 'diff' ? 'bg-white text-blue-600 shadow-sm dark:bg-[#161b26]' : 'text-slate-500'}`}><Timer className="h-4 w-4" />محاسبه اختلاف دو تاریخ</button><button type="button" onClick={() => setTab('math')} className={`flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold ${tab === 'math' ? 'bg-white text-blue-600 shadow-sm dark:bg-[#161b26]' : 'text-slate-500'}`}><Plus className="h-4 w-4" />افزودن یا کاستن زمان</button></div><code className="hidden px-3 text-xs text-slate-500 sm:block">منطقهٔ زمانی: Asia/Tehran</code></div>
+  const summaryText = useMemo(() => {
+    if (!totals || !rangeLabels) return '';
+    const human = (date: Date) => {
+      const monthIndex = date.getMonth();
+      return `${num(date.getDate())} ${shared.gregorianMonths[monthIndex]} ${date.getFullYear()}`;
+    };
+    const from = start && end && start.getTime() > end.getTime() ? end : start;
+    const to = start && end && start.getTime() > end.getTime() ? start : end;
+    if (!from || !to) return '';
+    return ui.summaryPattern.replace('{days}', count(totals.days)).replace('{start}', human(from)).replace('{end}', human(to));
+  }, [count, end, rangeLabels, num, shared.gregorianMonths, start, totals, ui.summaryPattern]);
 
-            {tab === 'diff' ? <div className="grid items-start gap-6 lg:grid-cols-12"><Card className="space-y-5 border-0 bg-white p-6 shadow-sm dark:bg-[#161b26] lg:col-span-6"><div className="flex flex-wrap items-center justify-between gap-3"><h2 className="flex items-center gap-2 text-lg font-bold"><Clock3 className="h-5 w-5 text-blue-600" />پارامترهای ورودی</h2><div className="flex rounded-lg bg-slate-100 p-1 text-xs dark:bg-[#0d1117]"><button type="button" onClick={() => updateMode('jalali')} className={`rounded px-3 py-1 ${mode === 'jalali' ? 'bg-white text-blue-600 shadow-sm dark:bg-[#161b26]' : 'text-slate-500'}`}>شمسی</button><button type="button" onClick={() => updateMode('gregorian')} className={`rounded px-3 py-1 ${mode === 'gregorian' ? 'bg-white text-blue-600 shadow-sm dark:bg-[#161b26]' : 'text-slate-500'}`}>میلادی</button></div></div><DateBlock title="تاریخ و ساعت شروع (مبدأ)" value={start} onChange={setStart} mode={mode} onTimestampApply={setStart} actions={<><button type="button" onClick={() => quick('start', 'now')}>اکنون</button><button type="button" onClick={() => quick('start', 'today')}>شروع امروز</button><button type="button" onClick={() => quick('start', 'year')}>شروع سال</button></>} /><DateBlock title="تاریخ و ساعت پایان" value={end} onChange={setEnd} mode={mode} onTimestampApply={setEnd} actions={<><button type="button" onClick={() => quick('end', 'now')}>اکنون</button><button type="button" onClick={() => setEnd(start)}>تطبیق با شروع</button></>} /><div className="flex flex-wrap items-center justify-between gap-3"><label className="flex items-center gap-2 text-sm text-slate-600"><input type="checkbox" checked={inclusive} onChange={(event) => setInclusive(event.target.checked)} className="accent-blue-600" />شامل روز پایانی در محاسبه</label><Button type="button" onClick={() => { setStart(end); setEnd(start); }} className="bg-blue-600"><Zap className="h-4 w-4" />جابه‌جایی تاریخ‌ها</Button></div>{!isValidParts(start, mode) || !isValidParts(end, mode) ? <p className="text-sm text-red-600">لطفاً تاریخ و ساعت معتبر وارد کنید.</p> : toDate(end, mode) < toDate(start, mode) ? <p className="text-sm text-red-600">زمان پایان نباید پیش از زمان شروع باشد.</p> : null}</Card>{difference ? <ResultCard difference={difference} start={dateLabel(start)} end={dateLabel(end)} /> : <Card className="flex min-h-40 items-center justify-center border-0 bg-white p-6 text-sm text-slate-500 shadow-sm dark:bg-[#161b26] lg:col-span-6">برای مشاهدهٔ نتیجه، ورودی‌ها را اصلاح کنید.</Card>}</div> : <MathView mode={mode} base={base} setBase={setBase} operation={operation} setOperation={setOperation} shift={shift} setShift={setShift} shifted={shifted} shiftedLabel={shiftedLabel} />}
+  const heroYmd = useMemo(() => {
+    if (!diff) return '';
+    return [`${num(diff.years)} ${ui.years}`, `${num(diff.months)} ${ui.months}`, `${num(diff.days)} ${ui.days}`].join(` ${ui.and} `);
+  }, [diff, num, ui.and, ui.days, ui.months, ui.years]);
 
-            <Card className="space-y-5 border-0 bg-white p-6 shadow-sm dark:bg-[#161b26]"><div><span className="text-xs font-bold uppercase tracking-wider text-blue-600">راهنمای کاربردی</span><h2 className="mt-1 text-xl font-bold">همه چیز درباره محاسبه تاریخ و زمان</h2><p className="mt-1 text-sm text-slate-500">تبدیل دقیق تقویم جلالی و میلادی، محاسبه بازه‌ها و مدیریت زمان به‌صورت محلی در مرورگر.</p></div><div className="grid gap-4 md:grid-cols-3"><Info title="تقویم شمسی و میلادی" text="تاریخ‌ها را در هر دو تقویم وارد کنید و نتیجه را بدون نیاز به تبدیل دستی ببینید." icon={<Globe2 />} /><Info title="جزئیات بازه زمانی" text="مقدار فاصله به روز، ساعت، دقیقه، ثانیه و میلی‌ثانیه محاسبه می‌شود." icon={<Clock3 />} /><Info title="پردازش خصوصی" text="همه محاسبات در مرورگر انجام می‌شود و داده‌های تاریخ شما ارسال نمی‌گردد." icon={<Check />} /></div></Card>
-            <section className="mx-auto max-w-4xl space-y-4 pb-8"><h2 className="text-center text-2xl font-bold">راهنمای کاربردی و سؤالات متداول</h2>{[['چگونه سال‌های کبیسه در تقویم جلالی محاسبه می‌شوند؟', 'تبدیل تاریخ با الگوریتم استاندارد jalaali-js انجام می‌شود و طول ماه‌ها و سال‌های کبیسه در نتیجه لحاظ می‌گردد.'], ['گزینه شامل روز پایانی چه تأثیری دارد؟', 'با فعال بودن این گزینه، روز پایانی نیز به تعداد کل روزها اضافه می‌شود؛ این حالت برای قراردادها و محاسبات بازه‌های تقویمی کاربردی است.'], ['آیا داده‌های واردشده به سرور ارسال می‌شوند؟', 'خیر. محاسبات مستقیماً در مرورگر انجام می‌شوند و هیچ درخواست شبکه‌ای برای تاریخ‌های شما ارسال نمی‌شود.']].map(([question, answer], index) => <details key={question} open={index === 0} className="group rounded-xl bg-white p-5 shadow-sm dark:bg-[#161b26]"><summary className="flex cursor-pointer list-none items-center justify-between font-semibold">{question}<ChevronDown className="h-5 w-5 text-slate-500 transition-transform group-open:rotate-180" /></summary><p className="mt-3 text-sm leading-7 text-slate-600 dark:text-slate-400">{answer}</p></details>)}</section>
+  const heroClock = diff ? clock(`${String(diff.hours).padStart(2, '0')}:${String(diff.minutes).padStart(2, '0')}:${String(diff.seconds).padStart(2, '0')}`) : '';
+
+  /* ------------------------------- shift -------------------------------- */
+  const [shift, setShift] = useState(DEFAULT_SHIFT);
+  const [operation, setOperation] = useState<'add' | 'sub'>('add');
+  const [baseDate, setBaseDate] = useState<Date | null>(null);
+  useEffect(() => {
+    if (start && !baseDate) setBaseDate(start);
+  }, [baseDate, start]);
+
+  const baseParts = useMemo(() => (baseDate ? dateToParts(baseDate, startSystem) : null), [baseDate, startSystem]);
+  const shifted = useMemo(() => {
+    if (!baseDate) return null;
+    const value = new Date(baseDate);
+    const sign = operation === 'add' ? 1 : -1;
+    value.setFullYear(value.getFullYear() + sign * shift.years);
+    value.setMonth(value.getMonth() + sign * shift.months);
+    const amount = (shift.weeks * 7 + shift.days) * MS_PER_DAY + (shift.hour * 3600 + shift.minute * 60 + shift.second) * 1000;
+    value.setTime(value.getTime() + sign * amount);
+    const asJalali = toJalaali(value.getFullYear(), value.getMonth() + 1, value.getDate());
+    return {
+      date: value,
+      jalali: `${num(asJalali.jd)} ${shared.jalaliMonths[asJalali.jm - 1]} ${num(asJalali.jy)}`,
+      gregorian: `${formatIsoDate(value)} ${formatClock(value)}`,
+    };
+  }, [baseDate, num, operation, shared.jalaliMonths, shift]);
+
+  /* ------------------------------ snippets ------------------------------ */
+  const snippets = useMemo(() => {
+    if (!start || !end || !totals) return [];
+    const startIso = `${formatIsoDate(start)} ${formatClock(start)}`;
+    const endIso = `${formatIsoDate(end)} ${formatClock(end)}`;
+    const startEpoch = epochSeconds(start);
+    const endEpoch = epochSeconds(end);
+    const jalaliStart = rangeLabels ? formatJalaliNumeric(rangeLabels.start.jalaliParts, 'en') : '';
+    const jalaliEnd = rangeLabels ? formatJalaliNumeric(rangeLabels.end.jalaliParts, 'en') : '';
+
+    return [
+      {
+        key: 'js',
+        label: ui.snippetJs,
+        file: ui.codeFileName,
+        code: `// ${ui.codeCommentTitle}
+// ${ui.codeCommentRange}: ${jalaliStart} -> ${jalaliEnd}
+import dayjs from 'dayjs';
+import jalaliday from 'jalaliday';
+
+dayjs.extend(jalaliday);
+
+// ${ui.codeCommentUnits}
+const start = dayjs('${startIso}', { jalali: false }); // ${startEpoch}
+const end = dayjs('${endIso}', { jalali: false }); // ${endEpoch}
+
+const diffDays = end.diff(start, 'day'); // ${totals.days}
+const diffHours = end.diff(start, 'hour'); // ${totals.hours}
+const diffSeconds = end.diff(start, 'second'); // ${totals.seconds}
+
+console.log({ diffDays, diffHours, diffSeconds });`,
+      },
+      {
+        key: 'python',
+        label: ui.snippetPython,
+        file: 'date_difference_jalali.py',
+        code: `# ${ui.codeCommentTitle}
+# ${ui.codeCommentRange}: ${jalaliStart} -> ${jalaliEnd}
+from datetime import datetime
+import jdatetime
+
+start = datetime(${start.getFullYear()}, ${start.getMonth() + 1}, ${start.getDate()}, ${start.getHours()}, ${start.getMinutes()}, ${start.getSeconds()})
+end = datetime(${end.getFullYear()}, ${end.getMonth() + 1}, ${end.getDate()}, ${end.getHours()}, ${end.getMinutes()}, ${end.getSeconds()})
+
+delta = end - start
+print(delta.days)              # ${totals.days}
+print(int(delta.total_seconds()))  # ${totals.seconds}
+
+print(jdatetime.date.fromgregorian(date=start.date()).strftime('%Y/%m/%d'))`,
+      },
+      {
+        key: 'php',
+        label: ui.snippetPhp,
+        file: 'date_difference_jalali.php',
+        code: `<?php
+// ${ui.codeCommentTitle}
+use Morilog\\Jalali\\Jalalian;
+
+$start = new DateTimeImmutable('${startIso}');   // ${startEpoch}
+$end = new DateTimeImmutable('${endIso}');     // ${endEpoch}
+
+$diff = $start->diff($end);
+echo $diff->format('%y / %m / %d') . PHP_EOL;
+echo ($end->getTimestamp() - $start->getTimestamp()) . ' ${ui.deltaUnit}' . PHP_EOL;
+
+echo Jalalian::fromDateTime($start)->format('%Y/%m/%d') . PHP_EOL;`,
+      },
+      {
+        key: 'go',
+        label: ui.snippetGo,
+        file: 'date_difference_jalali.go',
+        code: `package main
+
+// ${ui.codeCommentTitle}
+import (
+	"fmt"
+	"time"
+)
+
+func main() {
+	start := time.Unix(${startEpoch}, 0) // ${jalaliStart}
+	end := time.Unix(${endEpoch}, 0)   // ${jalaliEnd}
+
+	diff := end.Sub(start)
+	fmt.Println(int(diff.Hours() / 24)) // ${totals.days}
+	fmt.Println(int64(diff.Seconds()))  // ${totals.seconds}
+}`,
+      },
+    ];
+  }, [end, rangeLabels, start, totals, ui]);
+
+  const [snippetTab, setSnippetTab] = useState('js');
+  const activeSnippet = snippets.find((snippet) => snippet.key === snippetTab) ?? snippets[0];
+
+  const copy = () => push(shared.copiedToClipboard);
+  const direction = locale === 'fa' ? 'rtl' : 'ltr';
+  const shiftLabels: Array<{ key: keyof typeof DEFAULT_SHIFT; label: string }> = [
+    { key: 'years', label: ui.years },
+    { key: 'months', label: ui.months },
+    { key: 'weeks', label: ui.weeks },
+    { key: 'days', label: ui.days },
+    { key: 'hour', label: ui.fieldHour },
+    { key: 'minute', label: ui.fieldMinute },
+    { key: 'second', label: ui.fieldSecond },
+  ];
+
+  /* ------------------------------- render ------------------------------- */
+  return (
+    <div dir={direction} className="min-h-screen bg-[#f7f8fa] px-4 py-6 text-slate-900 dark:bg-[#0b0f19] dark:text-white md:px-6">
+      <div className="mx-auto max-w-5xl space-y-5">
+        {/* breadcrumbs + guarantee pill */}
+        <div className="flex flex-wrap items-center justify-between gap-3 text-xs text-slate-500">
+          <nav className="flex flex-wrap items-center gap-1.5">
+            <a href={locale === 'en' ? '/en' : '/'} className="hover:text-blue-600">
+              {ui.home}
+            </a>
+            <span className="text-slate-300">›</span>
+            <span>{ui.tools}</span>
+            <span className="text-slate-300">›</span>
+            <b className="font-semibold text-slate-700 dark:text-slate-200">{ui.category}</b>
+          </nav>
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-3 py-1 text-[11px] font-semibold text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300">
+            <ShieldCheck className="h-3.5 w-3.5" />
+            {ui.badgeLocal}
+          </span>
         </div>
-    </div>;
-}
 
-function DateBlock({ title, value, onChange, mode, actions, onTimestampApply }: { title: string; value: Parts; onChange: (value: Parts) => void; mode: CalendarMode; actions: React.ReactNode; onTimestampApply?: (value: Parts) => void }) {
-    const currentTimestamp = formatUnixTimestamp(value, mode);
-    const [timestampInput, setTimestampInput] = useState(currentTimestamp);
-    const [timestampError, setTimestampError] = useState('');
+        {/* title */}
+        <div className="flex items-start gap-3">
+          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-blue-600 text-white">
+            <CalendarDays className="h-5 w-5" />
+          </div>
+          <div className="min-w-0">
+            <h1 className="text-xl font-bold sm:text-2xl">{ui.title}</h1>
+            <p className="mt-1 text-xs leading-6 text-slate-500 sm:text-sm">{ui.subtitle}</p>
+          </div>
+        </div>
 
-    useEffect(() => {
-        setTimestampInput(currentTimestamp);
-        setTimestampError('');
-    }, [currentTimestamp]);
+        {/* mode tiles */}
+        <div className="flex flex-wrap items-stretch gap-2">
+          <ModeTile active={mode === 'diff'} icon={<CalendarRange className="h-4 w-4" />} label={ui.modeDiff} onClick={() => changeMode('diff')} />
+          <ModeTile active={mode === 'shift'} icon={<Plus className="h-4 w-4" />} label={ui.modeShift} onClick={() => changeMode('shift')} />
+          <ModeTile active={mode === 'countdown'} icon={<TimerReset className="h-4 w-4" />} label={ui.modeCountdown} onClick={() => changeMode('countdown')} />
+          <span className="ms-auto hidden items-center gap-1.5 self-center rounded-full bg-white px-3 py-1.5 text-[11px] text-slate-500 ring-1 ring-slate-200 lg:inline-flex dark:bg-[#161b26] dark:ring-white/10">
+            <Clock3 className="h-3.5 w-3.5 text-emerald-500" />
+            <code dir="ltr" className="font-sans">
+              {shared.utcShort}
+            </code>
+          </span>
+        </div>
 
-    const applyTimestamp = () => {
-        const raw = timestampInput.trim();
-        if (!/^-?\d+$/.test(raw)) {
-            setTimestampError('یک تایم‌استمپ صحیح وارد کنید.');
-            return;
-        }
-        const numeric = Number(raw);
-        const timestamp = Math.abs(numeric) >= 100_000_000_000 ? numeric : numeric * 1000;
-        const date = new Date(timestamp);
-        if (!Number.isFinite(timestamp) || Number.isNaN(date.getTime())) {
-            setTimestampError('مقدار تایم‌استمپ خارج از محدودهٔ قابل پشتیبانی است.');
-            return;
-        }
-        const parts = fromDate(date, mode);
-        if (!isValidParts(parts, mode)) {
-            setTimestampError('تاریخ این تایم‌استمپ در محدودهٔ تقویم قابل پشتیبانی نیست.');
-            return;
-        }
-        onTimestampApply?.(parts);
-        setTimestampError('');
-    };
-
-    return <div className="space-y-3 rounded-xl bg-slate-50 p-4 dark:bg-[#0d1117]">
-        <div className="flex flex-wrap items-center justify-between gap-2"><strong className="flex items-center gap-2 text-sm"><span className="h-2.5 w-2.5 rounded-full bg-blue-600" />{title}</strong><div className="flex gap-2 text-xs text-slate-500">{actions}</div></div>
-        <InputParts value={value} onChange={onChange} mode={mode} />
-        {onTimestampApply && <div className="space-y-1.5 border-t border-slate-200 pt-3 dark:border-slate-700">
-            <label className="block text-xs font-semibold text-slate-600 dark:text-slate-300">تایم‌استمپ یونیکس (ثانیه یا میلی‌ثانیه)
-                <div className="mt-1 flex gap-2">
-                    <input type="text" inputMode="numeric" dir="ltr" value={timestampInput} onChange={(event) => { setTimestampInput(event.target.value); setTimestampError(''); }} placeholder="مثلاً 1790502786 یا 1790502786000" className="h-10 min-w-0 flex-1 rounded-lg bg-white px-3 font-mono text-sm outline-none focus:ring-2 focus:ring-blue-500 dark:bg-[#161b26] dark:text-white" />
-                    <Button type="button" onClick={applyTimestamp} className="shrink-0 bg-blue-600">اعمال</Button>
+        {mode === 'shift' ? (
+          <div className="grid items-start gap-5 lg:grid-cols-12">
+            <div className="lg:col-span-7">
+              <SectionCard icon={<Timer className="h-4 w-4" />} title={ui.mathTitle} hint={shared.systemOrigin}>
+                <div className="space-y-3">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <SystemToggle system={startSystem} onChange={setStartSystem} labels={{ jalali: shared.jalali, gregorian: shared.gregorian }} />
+                  </div>
+                  <FieldGroup label={shared.dateLabel}>
+                    <div className="grid grid-cols-3 gap-2">
+                      {DATE_FIELDS.map((key) => (
+                        <NumberField
+                          key={key}
+                          label={fieldLabels[key]}
+                          value={baseParts ? baseParts[key] : null}
+                          draft={draft.start[key]}
+                          max={key === 'month' ? 12 : baseParts ? daysInMonth(startSystem, baseParts.year, baseParts.month) : 31}
+                          onChange={(raw) => commitField('start', key, raw)}
+                          onBlur={() => clearDraft('start', key)}
+                        />
+                      ))}
+                    </div>
+                  </FieldGroup>
+                  <FieldGroup label={shared.timeLabel}>
+                    <TimeFields
+                      hour={baseParts?.hour ?? null}
+                      minute={baseParts?.minute ?? null}
+                      second={baseParts?.second ?? null}
+                      labels={{ hour: ui.fieldHour, minute: ui.fieldMinute, second: ui.fieldSecond }}
+                      onChange={(key, raw) => commitField('start', key, raw)}
+                      draft={draft.start}
+                      onBlur={(key) => clearDraft('start', key)}
+                    />
+                  </FieldGroup>
+                  {baseParts ? (
+                    <DualCalendarWidget
+                      value={partsToDate(baseParts, startSystem)}
+                      onChange={(next) => {
+                        setBaseDate(next);
+                        (['year', 'month', 'day', 'hour', 'minute', 'second'] as FieldKey[]).forEach((key) => clearDraft('start', key));
+                      }}
+                      system={startSystem}
+                      onSystemChange={setStartSystem}
+                      labels={widgetLabels}
+                      today={null}
+                      locale={locale}
+                      variant="compact"
+                    />
+                  ) : null}
+                  <div className="grid grid-cols-2 gap-2">
+                    <OperationButton
+                      active={operation === 'add'}
+                      icon={<Plus className="h-4 w-4" />}
+                      title={ui.addTime}
+                      hint={ui.toFuture}
+                      onClick={() => setOperation('add')}
+                    />
+                    <OperationButton
+                      active={operation === 'sub'}
+                      icon={<span className="text-base leading-none">−</span>}
+                      title={ui.subTime}
+                      hint={ui.toPast}
+                      onClick={() => setOperation('sub')}
+                    />
+                  </div>
+                  <FieldGroup label={ui.modeShift}>
+                    <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+                      {shiftLabels.map(({ key, label }) => (
+                        <label key={key} className="block">
+                          <span className="mb-1 block truncate text-[10px] font-medium text-slate-400">{label}</span>
+                          <input
+                            dir="ltr"
+                            inputMode="numeric"
+                            value={String(shift[key])}
+                            onChange={(event) => {
+                              const numeric = toInt(event.target.value.replace(/[^\d]/g, ''), 0);
+                              setShift((current) => ({ ...current, [key]: numeric }));
+                            }}
+                            className="h-9 w-full rounded-md border border-slate-200 bg-white px-2 text-center font-sans text-sm tabular-nums outline-none focus-visible:border-blue-500 focus-visible:ring-2 focus-visible:ring-blue-500/30 dark:border-white/10 dark:bg-[#0d1117]"
+                          />
+                        </label>
+                      ))}
+                    </div>
+                  </FieldGroup>
                 </div>
-            </label>
-            {timestampError && <p role="alert" className="text-xs text-red-600">{timestampError}</p>}
-        </div>}
-    </div>;
-}
-
-function ResultCard({ difference, start, end }: { difference: { days: number; hours: number; minutes: number; seconds: number; years: number; months: number; remainingDays: number; totalHours: number; totalMinutes: number; totalSeconds: number; milliseconds: number }; start: string; end: string }) {
-    return <div className="space-y-4 lg:col-span-6">
-        <Card className="space-y-5 border-0 bg-white p-6 shadow-sm dark:bg-[#161b26]">
-            <div className="flex items-center justify-between text-xs text-slate-500"><span>خلاصه کل فاصله زمانی</span><span className="rounded-full bg-emerald-100 px-2 py-1 font-semibold text-emerald-700">محاسبه معتبر</span></div>
-            <div className="rounded-xl bg-blue-50 p-5 dark:bg-blue-950/30"><span className="text-xs font-semibold text-blue-600">مدت زمان به زبان طبیعی:</span><h2 className="mt-2 text-2xl font-bold">{faNumber(difference.years)} سال و {faNumber(difference.months)} ماه و {faNumber(difference.remainingDays)} روز</h2><p className="mt-2 text-sm text-slate-600 dark:text-slate-400">معادل <b>{faNumber(difference.days)} روز کامل</b> و {faNumber(difference.hours)} ساعت و {faNumber(difference.minutes)} دقیقه و {faNumber(difference.seconds)} ثانیه</p></div>
-            <div className="flex items-center justify-between text-xs text-slate-500"><span>{start}</span><span className="font-semibold text-blue-600">بازهٔ محاسبه‌شده</span><span>{end}</span></div>
-        </Card>
-        <div className="grid grid-cols-2 gap-4"><Metric title="روزهای کامل سپری‌شده" value={faNumber(difference.days)} subtitle="هر روز برابر ۲۴ ساعت" /><Metric title="کل ساعت‌ها" value={faNumber(difference.totalHours)} subtitle="ساعت سپری‌شده" /><Metric title="کل دقیقه‌ها" value={faNumber(difference.totalMinutes)} subtitle="دقیقه استاندارد" /><Metric title="ثانیه و میلی‌ثانیه" value={faNumber(difference.totalSeconds)} subtitle={`${faNumber(difference.milliseconds)} ms`} /></div>
-    </div>;
-}
-
-function MathView({ mode, base, setBase, operation, setOperation, shift, setShift, shifted, shiftedLabel }: { mode: CalendarMode; base: Parts; setBase: (value: Parts) => void; operation: 'add' | 'sub'; setOperation: (value: 'add' | 'sub') => void; shift: Shift; setShift: React.Dispatch<React.SetStateAction<Shift>>; shifted: { timestamp: number; parts: Parts }; shiftedLabel: string }) {
-    const labels: Record<keyof Shift, string> = { years: 'سال', months: 'ماه', weeks: 'هفته', days: 'روز', hours: 'ساعت', minutes: 'دقیقه', seconds: 'ثانیه' };
-    const fields = Object.keys(shift) as (keyof Shift)[];
-    return <div className="grid items-start gap-6 lg:grid-cols-12">
-        <Card className="space-y-5 border-0 bg-white p-6 shadow-sm dark:bg-[#161b26] lg:col-span-7">
-            <h2 className="flex items-center gap-2 text-lg font-bold"><Timer className="h-5 w-5 text-blue-600" />افزودن یا کاستن زمان از تاریخ مبدأ</h2>
-            <DateBlock title="انتخاب تاریخ پایه" value={base} onChange={setBase} mode={mode} actions={null} />
-            <div className="grid grid-cols-2 gap-3">
-                <button type="button" onClick={() => setOperation('add')} className={`rounded-xl p-4 text-right ${operation === 'add' ? 'bg-blue-50 text-blue-700 ring-2 ring-blue-500' : 'bg-slate-50 text-slate-600'}`}><Plus className="mb-2 h-5 w-5" /><b>افزودن زمان (+)</b><small className="mt-1 block">حرکت به آینده</small></button>
-                <button type="button" onClick={() => setOperation('sub')} className={`rounded-xl p-4 text-right ${operation === 'sub' ? 'bg-blue-50 text-blue-700 ring-2 ring-blue-500' : 'bg-slate-50 text-slate-600'}`}><Minus className="mb-2 h-5 w-5" /><b>کاستن زمان (-)</b><small className="mt-1 block">حرکت به گذشته</small></button>
+              </SectionCard>
             </div>
-            <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-                {fields.map((key) => <label key={key} className="text-xs text-slate-500">{labels[key]}<input type="number" min="0" step="1" value={shift[key]} onChange={(event) => setShift((current) => ({ ...current, [key]: Math.max(0, Math.floor(Number(event.target.value) || 0)) }))} className="mt-1 h-10 w-full rounded-lg bg-slate-50 px-2 text-center font-mono dark:bg-[#0d1117]" /></label>)}
+            <div className="lg:col-span-5">
+              <SectionCard icon={<Sparkles className="h-4 w-4" />} title={ui.resultTitle} badge={<Badge text={ui.finalAnswer} />}>
+                <div className="space-y-3">
+                  <div className="rounded-lg bg-blue-50 p-4 dark:bg-blue-950/30">
+                    <span className="text-[11px] font-semibold text-blue-600">
+                      {ui.calendarLabel} {startSystem === 'jalali' ? ui.calendarJalali : ui.calendarGregorian}
+                    </span>
+                    <h2 className="mt-1.5 text-lg font-bold">{shifted ? shifted.jalali : '—'}</h2>
+                    <p dir="ltr" className="mt-1 font-sans text-[11px] text-slate-600 dark:text-slate-300">
+                      {shifted ? shifted.gregorian : '—'}
+                    </p>
+                  </div>
+                  <ValueRow
+                    label={ui.unixTimestamp}
+                    value={shifted ? String(epochSeconds(shifted.date)) : '—'}
+                    copyLabel={shared.copy}
+                    onCopied={copy}
+                    ltr
+                    tone="primary"
+                  />
+                </div>
+              </SectionCard>
             </div>
-        </Card>
-        <Card className="space-y-4 border-0 bg-white p-6 shadow-sm dark:bg-[#161b26] lg:col-span-5">
-            <div className="flex justify-between text-xs text-slate-500"><span>تاریخ و زمان حاصل‌شده</span><span className="rounded-full bg-emerald-100 px-2 py-1 text-emerald-700">پاسخ نهایی</span></div>
-            <div className="rounded-xl bg-blue-50 p-5 dark:bg-blue-950/30"><span className="text-xs text-blue-600">تقویم {mode === 'jalali' ? 'خورشیدی (جلالی)' : 'میلادی'}:</span><h2 className="mt-2 text-xl font-bold">{shiftedLabel}</h2></div>
-            <div className="flex items-center justify-between rounded-lg bg-slate-50 p-3 dark:bg-[#0d1117]"><span className="text-xs text-slate-500">تایم‌استمپ یونیکس</span><strong dir="ltr" className="font-mono">{Number.isFinite(shifted.timestamp) ? shifted.timestamp : '—'}</strong><CopyButton value={Number.isFinite(shifted.timestamp) ? String(shifted.timestamp) : ''} disabled={!Number.isFinite(shifted.timestamp)} /></div>
-        </Card>
-    </div>;
+          </div>
+        ) : (
+          <>
+            {/* endpoint cards */}
+            <div className="grid gap-5 lg:grid-cols-2">
+              <EndpointCard
+                endpoint="start"
+                title={ui.startTitle}
+                ui={ui}
+                shared={shared}
+                fieldLabels={fieldLabels}
+                widgetLabels={widgetLabels}
+                locale={locale}
+                system={startSystem}
+                onSystemChange={setStartSystem}
+                value={start}
+                parts={startParts}
+                draft={draft.start}
+                onCommitField={(key, raw) => commitField('start', key, raw)}
+                onClearDraft={(key) => clearDraft('start', key)}
+                onPreset={(preset) => applyPreset('start', preset)}
+                onDateChange={(next) => setEndpoint('start', next)}
+                num={num}
+              />
+              <EndpointCard
+                endpoint="end"
+                title={mode === 'countdown' ? ui.countdownTitle : ui.endTitle}
+                ui={ui}
+                shared={shared}
+                fieldLabels={fieldLabels}
+                widgetLabels={widgetLabels}
+                locale={locale}
+                system={endSystem}
+                onSystemChange={setEndSystem}
+                value={end}
+                parts={endParts}
+                draft={draft.end}
+                onCommitField={(key, raw) => commitField('end', key, raw)}
+                onClearDraft={(key) => clearDraft('end', key)}
+                onPreset={(preset) => applyPreset('end', preset)}
+                onDateChange={(next) => setEndpoint('end', next)}
+                num={num}
+              />
+            </div>
+
+            {/* action row */}
+            <div className="flex flex-wrap items-center justify-center gap-2">
+              <button
+                type="button"
+                onClick={async () => {
+                  const ok = await writeToClipboard(summaryText);
+                  if (ok) push(shared.copiedToClipboard);
+                }}
+                className="inline-flex h-9 items-center gap-1.5 rounded-md border border-slate-200 bg-white px-4 text-xs font-semibold text-slate-600 transition-colors hover:border-blue-200 hover:text-blue-600 dark:border-white/10 dark:bg-[#161b26] dark:text-slate-300"
+              >
+                <Hash className="h-3.5 w-3.5" />
+                {ui.copySummaryShort}
+              </button>
+              <button
+                type="button"
+                onClick={swap}
+                title={ui.swapHint}
+                className="inline-flex h-9 items-center gap-1.5 rounded-md bg-blue-600 px-4 text-xs font-semibold text-white transition-colors hover:bg-blue-700"
+              >
+                <ArrowLeftRight className="h-3.5 w-3.5" />
+                {ui.swap}
+              </button>
+            </div>
+
+            {mode === 'countdown' ? (
+              <SectionCard icon={<TimerReset className="h-4 w-4" />} title={ui.countdownTitle} hint={ui.countdownHint}>
+                <div dir="ltr" className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+                  <TimeCell label={ui.countdownDays} value={countdown ? clock(countdown.days) : '--'} />
+                  <TimeCell label={ui.countdownHours} value={countdown ? clock(String(countdown.hours).padStart(2, '0')) : '--'} />
+                  <TimeCell label={ui.countdownMinutes} value={countdown ? clock(String(countdown.minutes).padStart(2, '0')) : '--'} />
+                  <TimeCell label={ui.countdownSeconds} value={countdown ? clock(String(countdown.seconds).padStart(2, '0')) : '--'} />
+                </div>
+                {countdown?.negative ? (
+                  <p className="mt-3 rounded-md bg-amber-50 px-3 py-2 text-[11px] font-medium text-amber-700 dark:bg-amber-950/30 dark:text-amber-300">
+                    {ui.countdownPassed}
+                  </p>
+                ) : null}
+                {countdown && !countdown.negative && countdown.days === 0 && countdown.hours === 0 && countdown.minutes === 0 && countdown.seconds < 1 ? (
+                  <p className="mt-3 rounded-md bg-emerald-50 px-3 py-2 text-[11px] font-medium text-emerald-700 dark:bg-emerald-950/30 dark:text-emerald-300">
+                    {ui.countdownFinished}
+                  </p>
+                ) : null}
+              </SectionCard>
+            ) : null}
+
+            {mounted && diff && totals && business && leap && start && end && rangeLabels ? (
+              <>
+                {diff.reversed ? (
+                  <p className="rounded-md bg-amber-50 px-4 py-2.5 text-[11px] font-medium text-amber-700 dark:bg-amber-950/30 dark:text-amber-300">
+                    {ui.reversedWarning}
+                  </p>
+                ) : null}
+
+                {/* hero summary */}
+                <div className="rounded-lg border border-slate-200 bg-white p-4 sm:p-5 dark:border-white/10 dark:bg-[#161b26]">
+                  <span className="flex items-center gap-1.5 text-[11px] font-semibold text-slate-400">
+                    <Sparkles className="h-3.5 w-3.5 text-blue-600" />
+                    {ui.summaryLabel}
+                  </span>
+                  <p className="mt-2 text-xl font-bold leading-relaxed sm:text-2xl">
+                    {heroYmd} {ui.and}{' '}
+                    <span dir="ltr" className="inline-block font-sans tabular-nums text-blue-600 dark:text-blue-400">
+                      {heroClock}
+                    </span>
+                  </p>
+                  <p className="mt-2 text-xs leading-6 text-slate-500">{summaryText}</p>
+                </div>
+
+                {/* 6 metric cards */}
+                <div className="grid grid-cols-2 gap-2 md:grid-cols-3 lg:grid-cols-6">
+                  <MetricCard
+                    icon={<CalendarDays className="h-3.5 w-3.5" />}
+                    label={ui.metricTotalDays}
+                    value={count(totals.days)}
+                    hint={ui.hintTotalDays}
+                    copyLabel={shared.copy}
+                    onCopied={copy}
+                  />
+                  <MetricCard
+                    icon={<BriefcaseBusiness className="h-3.5 w-3.5" />}
+                    label={ui.metricBusinessDays}
+                    value={count(business.working)}
+                    hint={ui.hintBusinessDays}
+                    badge={ui.businessPercentOf.replace('{percent}', num(businessPercent))}
+                    copyLabel={shared.copy}
+                    onCopied={copy}
+                  />
+                  <MetricCard
+                    icon={<BarChart3 className="h-3.5 w-3.5" />}
+                    label={ui.metricWeeks}
+                    value={formatCount(totals.weeksDecimal, locale)}
+                    hint={ui.hintWeeks}
+                    copyLabel={shared.copy}
+                    onCopied={copy}
+                  />
+                  <MetricCard
+                    icon={<Clock3 className="h-3.5 w-3.5" />}
+                    label={ui.metricHours}
+                    value={count(totals.hours)}
+                    hint={ui.hintHours}
+                    copyLabel={shared.copy}
+                    onCopied={copy}
+                  />
+                  <MetricCard
+                    icon={<Timer className="h-3.5 w-3.5" />}
+                    label={ui.metricMinutes}
+                    value={count(totals.minutes)}
+                    hint={ui.hintMinutes}
+                    copyLabel={shared.copy}
+                    onCopied={copy}
+                  />
+                  <MetricCard
+                    icon={<AlarmClock className="h-3.5 w-3.5" />}
+                    label={ui.metricSeconds}
+                    value={count(totals.seconds)}
+                    hint={ui.hintSeconds}
+                    copyLabel={shared.copy}
+                    onCopied={copy}
+                  />
+                </div>
+
+                {/* timeline */}
+                <SectionCard
+                  icon={<TrendingUp className="h-4 w-4" />}
+                  title={ui.timelineTitle}
+                  badge={
+                    progress ? (
+                      <Badge
+                        tone="emerald"
+                        text={ui.progressElapsed.replace('{percent}', num(Math.round(progress.percent * 10) / 10))}
+                      />
+                    ) : null
+                  }
+                >
+                  <div className="mb-2 text-center text-[11px] text-slate-500">
+                    {progress?.state === 'active' ? ui.progressNow : progress?.state === 'before' ? ui.progressBefore : ui.progressAfter}
+                    <span className="mx-1 text-slate-300">•</span>
+                    <b className="font-semibold text-slate-600 dark:text-slate-300">{ui.timelineToday}</b>
+                    <span className="mx-1 text-slate-300">/</span>
+                    <span className="tabular-nums">{rangeLabels.today.jalali}</span>
+                  </div>
+                  <div className="relative h-2.5 overflow-hidden rounded-full bg-slate-100 dark:bg-[#0d1117]">
+                    <div
+                      className="h-full rounded-full bg-gradient-to-r from-blue-500 to-emerald-500 transition-[width] duration-700"
+                      style={{ width: `${progress ? Math.min(100, Math.max(0, progress.percent)) : 0}%` }}
+                    />
+                  </div>
+                  <div className="mt-3 flex flex-wrap items-start justify-between gap-3 text-[11px] text-slate-500">
+                    <span className="flex flex-col gap-0.5">
+                      <b className="font-semibold text-slate-600 dark:text-slate-300">{ui.timelineStart}</b>
+                      <span className="tabular-nums">{rangeLabels.start.jalali}</span>
+                      <code dir="ltr" className="font-sans text-[10px] text-slate-400">
+                        {rangeLabels.start.gregorian}
+                      </code>
+                    </span>
+                    <span className="flex flex-col items-end gap-0.5 text-end">
+                      <b className="font-semibold text-slate-600 dark:text-slate-300">{ui.timelineEnd}</b>
+                      <span className="tabular-nums">{rangeLabels.end.jalali}</span>
+                      <code dir="ltr" className="font-sans text-[10px] text-slate-400">
+                        {rangeLabels.end.gregorian}
+                      </code>
+                    </span>
+                  </div>
+                </SectionCard>
+
+                {/* insights */}
+                <div className="grid items-start gap-5 lg:grid-cols-3">
+                  <SectionCard icon={<Layers className="h-4 w-4" />} title={ui.insightComposition} hint={ui.insightCompositionHint}>
+                    {business.total > 0 ? (
+                      <DonutChart
+                        slices={[
+                          { key: 'working', label: ui.legendWorking, value: business.working, color: '#2563eb' },
+                          { key: 'weekend', label: ui.legendWeekend, value: business.weekend, color: '#f59e0b' },
+                          { key: 'holiday', label: ui.legendHoliday, value: business.holiday, color: '#dc2626' },
+                        ]}
+                        centerValue={count(business.working)}
+                        centerLabel={ui.legendWorking}
+                        valueFormatter={(value) => count(value)}
+                        size={150}
+                        thickness={18}
+                      />
+                    ) : (
+                      <p className="rounded-md bg-slate-50 px-3 py-4 text-[11px] text-slate-500 dark:bg-[#0d1117]">{ui.emptyRange}</p>
+                    )}
+                  </SectionCard>
+
+                  <SectionCard icon={<CalendarRange className="h-4 w-4" />} title={ui.insightLeap} hint={ui.insightLeapHint}>
+                    <div className="space-y-2.5">
+                      <LeapRow
+                        label={ui.leapRowJalali}
+                        badge={ui.leapBadgeJalali}
+                        tone="amber"
+                        years={leap.jalaliYears}
+                        unit={`${num(366)} ${ui.days}`}
+                        format={(year) => num(year)}
+                        empty={ui.leapNone}
+                      />
+                      <LeapRow
+                        label={ui.leapRowGregorian}
+                        badge={ui.leapBadgeGregorian}
+                        tone="blue"
+                        years={leap.gregorianYears}
+                        unit="Feb 29"
+                        format={(year) => String(year)}
+                        empty={ui.leapNone}
+                      />
+                      <LeapRow
+                        label={ui.leapCommonJalali}
+                        tone="slate"
+                        years={leap.jalaliCommon}
+                        unit={`${num(365)} ${ui.days}`}
+                        format={(year) => num(year)}
+                        empty={ui.leapNone}
+                      />
+                      <LeapRow
+                        label={ui.leapCommonGregorian}
+                        tone="slate"
+                        years={leap.gregorianCommon}
+                        unit={`${num(365)} ${ui.days}`}
+                        format={(year) => String(year)}
+                        empty={ui.leapNone}
+                      />
+                      <p className="flex items-start gap-1.5 rounded-md bg-slate-50 px-3 py-2 text-[10px] leading-5 text-slate-500 dark:bg-[#0d1117]">
+                        <CheckCircle2 className="mt-0.5 h-3 w-3 shrink-0 text-emerald-500" />
+                        {ui.leapAlgorithm}
+                      </p>
+                    </div>
+                  </SectionCard>
+
+                  <SectionCard icon={<Globe2 className="h-4 w-4" />} title={ui.insightEpoch} hint={ui.insightEpochHint}>
+                    <div className="space-y-2">
+                      <ValueRow
+                        label={ui.epochStartShort}
+                        value={String(epochSeconds(start))}
+                        copyLabel={shared.copy}
+                        onCopied={copy}
+                        ltr
+                      />
+                      <ValueRow label={ui.epochEndShort} value={String(epochSeconds(end))} copyLabel={shared.copy} onCopied={copy} ltr />
+                      <div className="flex items-center justify-between gap-2 rounded-md bg-blue-50 px-3 py-2 dark:bg-blue-950/30">
+                        <span className="text-[11px] font-semibold text-blue-700 dark:text-blue-300">{ui.deltaSeconds}</span>
+                        <span className="flex items-center gap-1">
+                          <code dir="ltr" className="font-sans text-sm font-bold tabular-nums text-blue-700 dark:text-blue-300">
+                            {count(totals.seconds)}
+                          </code>
+                          <span className="text-[10px] text-blue-500">{ui.deltaUnit}</span>
+                        </span>
+                      </div>
+                      <p dir="ltr" className="pt-1 text-center font-sans text-[10px] text-slate-400">
+                        {ui.timezoneFooter}
+                      </p>
+                    </div>
+                  </SectionCard>
+                </div>
+
+                {/* developer snippets */}
+                {activeSnippet ? (
+                  <SectionCard
+                    icon={<Code2 className="h-4 w-4" />}
+                    title={ui.snippetsTitle}
+                    hint={ui.snippetsHint}
+                    bodyClassName="p-3 sm:p-4"
+                  >
+                    <div className="mb-3 flex flex-wrap gap-1.5">
+                      {snippets.map((snippet) => (
+                        <button
+                          key={snippet.key}
+                          type="button"
+                          onClick={() => setSnippetTab(snippet.key)}
+                          className={cn(
+                            'rounded-full border px-3 py-1.5 text-[11px] font-semibold transition-colors',
+                            snippetTab === snippet.key
+                              ? 'border-blue-200 bg-blue-50 text-blue-700 dark:border-blue-900 dark:bg-blue-950/40 dark:text-blue-300'
+                              : 'border-slate-200 bg-white text-slate-500 hover:text-slate-700 dark:border-white/10 dark:bg-[#161b26] dark:hover:text-slate-300',
+                          )}
+                        >
+                          {snippet.label}
+                        </button>
+                      ))}
+                    </div>
+
+                    <CodeCard
+                      code={activeSnippet.code}
+                      file={activeSnippet.file}
+                      copyLabel={ui.codeCopyLabel}
+                      onCopy={async () => {
+                        const ok = await writeToClipboard(activeSnippet.code);
+                        if (ok) push(shared.copiedToClipboard);
+                      }}
+                    />
+                  </SectionCard>
+                ) : null}
+              </>
+            ) : (
+              <div className="grid gap-5 lg:grid-cols-3">
+                {[0, 1, 2].map((index) => (
+                  <div key={index} className="h-40 animate-pulse rounded-lg border border-slate-200 bg-white dark:border-white/10 dark:bg-[#161b26]" />
+                ))}
+              </div>
+            )}
+          </>
+        )}
+
+        {/* numbered notes: privacy + FAQ */}
+        <div className="space-y-3">
+          <NoteCard index={1} title={ui.privacyTitle} icon={<ShieldCheck className="h-4 w-4" />}>
+            <p className="text-[11px] leading-6 text-slate-500">{ui.privacyIntro}</p>
+            <ul className="mt-3 space-y-2">
+              {ui.privacyPoints.map((point) => (
+                <li key={point.title} className="rounded-md bg-slate-50 px-3 py-2 dark:bg-[#0d1117]">
+                  <b className="block text-[11px] font-semibold text-slate-700 dark:text-slate-200">{point.title}</b>
+                  <span className="mt-1 block text-[11px] leading-5 text-slate-500">{point.text}</span>
+                </li>
+              ))}
+            </ul>
+          </NoteCard>
+          {ui.faqs.map((faq, index) => (
+            <NoteCard key={faq.question} index={index + 2} title={faq.question} icon={<Layers className="h-4 w-4" />}>
+              <p className="text-[11px] leading-6 text-slate-500">{faq.answer}</p>
+            </NoteCard>
+          ))}
+        </div>
+      </div>
+
+      <ToastViewport toasts={toasts} />
+    </div>
+  );
 }
 
-function Badge({ text, blue = false }: { text: string; blue?: boolean }) { return <span className={`rounded-full px-3 py-1 text-xs ${blue ? 'bg-blue-100 text-blue-700' : 'bg-emerald-100 text-emerald-700'}`}>{text}</span>; }
-function Info({ icon, title, text }: { icon: React.ReactNode; title: string; text: string }) { return <div className="rounded-xl bg-slate-50 p-5 dark:bg-[#0d1117]"><div className="mb-3 flex h-9 w-9 items-center justify-center rounded-lg bg-blue-100 text-blue-600">{icon}</div><h3 className="font-semibold">{title}</h3><p className="mt-2 text-sm leading-7 text-slate-600 dark:text-slate-400">{text}</p></div>; }
+/* ------------------------------------------------------------------ *
+ * sub-components
+ * ------------------------------------------------------------------ */
+
+function OperationButton({ active, icon, title, hint, onClick }: { active: boolean; icon: React.ReactNode; title: string; hint: string; onClick: () => void }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={cn(
+        'rounded-lg border p-3 text-start transition-all',
+        active
+          ? 'border-blue-300 bg-blue-50 text-blue-700 dark:border-blue-900 dark:bg-blue-950/40 dark:text-blue-300'
+          : 'border-slate-200 bg-white text-slate-500 hover:border-blue-200 dark:border-white/10 dark:bg-[#161b26]',
+      )}
+    >
+      <span className="mb-1.5 block">{icon}</span>
+      <b className="block text-xs font-semibold">{title}</b>
+      <small className="mt-0.5 block text-[10px] opacity-80">{hint}</small>
+    </button>
+  );
+}
+
+function LeapRow({
+  label,
+  badge,
+  tone,
+  years,
+  unit,
+  format,
+  empty,
+}: {
+  label: string;
+  badge?: string;
+  tone: 'amber' | 'blue' | 'slate';
+  years: readonly number[];
+  unit: string;
+  format: (year: number) => string;
+  empty: string;
+}) {
+  const tones = {
+    amber: 'bg-amber-50 text-amber-700 dark:bg-amber-950/40 dark:text-amber-300',
+    blue: 'bg-blue-50 text-blue-700 dark:bg-blue-950/40 dark:text-blue-300',
+    slate: 'bg-slate-100 text-slate-500 dark:bg-[#0d1117] dark:text-slate-400',
+  } as const;
+
+  return (
+    <div className="rounded-md bg-slate-50 p-3 dark:bg-[#0d1117]">
+      <div className="flex flex-wrap items-center gap-2">
+        <span className="flex items-center gap-1.5 text-[11px] font-semibold text-slate-600 dark:text-slate-300">
+          <span className={cn('h-1.5 w-1.5 rounded-full', tone === 'amber' ? 'bg-amber-500' : tone === 'blue' ? 'bg-blue-500' : 'bg-slate-300')} />
+          {label}
+        </span>
+        {badge ? <span className={cn('rounded-full px-2 py-0.5 text-[10px] font-semibold', tones[tone])}>{badge}</span> : null}
+      </div>
+      <div className="mt-2 flex flex-wrap gap-1.5">
+        {years.length === 0 ? (
+          <span className="text-[10px] text-slate-400">{empty}</span>
+        ) : (
+          years.map((year) => (
+            <span
+              key={year}
+              className={cn(
+                'rounded-md px-2 py-0.5 font-sans text-[10px] font-semibold tabular-nums',
+                tone === 'amber'
+                  ? 'bg-amber-100 text-amber-700 dark:bg-amber-950/40 dark:text-amber-300'
+                  : tone === 'blue'
+                    ? 'bg-blue-100 text-blue-700 dark:bg-blue-950/40 dark:text-blue-300'
+                    : 'bg-slate-200/70 text-slate-600 dark:bg-[#202634] dark:text-slate-300',
+              )}
+            >
+              {format(year)} <span className="font-sans font-normal opacity-70">({unit})</span>
+            </span>
+          ))
+        )}
+      </div>
+    </div>
+  );
+}
+
+function EndpointCard({
+  endpoint,
+  title,
+  ui,
+  shared,
+  fieldLabels,
+  widgetLabels,
+  locale,
+  system,
+  onSystemChange,
+  value,
+  parts,
+  draft,
+  onCommitField,
+  onClearDraft,
+  onPreset,
+  onDateChange,
+  num,
+}: {
+  endpoint: Endpoint;
+  title: string;
+  ui: Ui;
+  shared: Shared;
+  fieldLabels: Record<FieldKey, string>;
+  widgetLabels: CalendarWidgetLabels;
+  locale: string;
+  system: CalendarSystem;
+  onSystemChange: (next: CalendarSystem) => void;
+  value: Date | null;
+  parts: DateParts | null;
+  draft: Partial<Record<FieldKey, string>>;
+  onCommitField: (key: FieldKey, raw: string) => void;
+  onClearDraft: (key: FieldKey) => void;
+  onPreset: (preset: 'now' | 'startOfToday' | 'firstOfMonth' | 'endOfYear' | 'plus30' | 'plus6m') => void;
+  onDateChange: (next: Date) => void;
+  num: (input: number) => string;
+}) {
+  const parallel = useMemo(() => {
+    if (!value) return null;
+    const jalali = toJalaali(value.getFullYear(), value.getMonth() + 1, value.getDate());
+    return `${num(jalali.jy)}/${num(jalali.jm)}/${num(jalali.jd)}`;
+  }, [num, value]);
+
+  return (
+    <div className="overflow-hidden rounded-lg border border-slate-200 bg-white dark:border-white/10 dark:bg-[#161b26]">
+      {/* header */}
+      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-200 px-4 py-3 dark:border-white/10">
+        <strong className="flex items-center gap-2 text-xs font-bold text-slate-700 dark:text-slate-100">
+          <span className="h-2 w-2 rounded-full bg-emerald-500" />
+          {title}
+        </strong>
+        <SystemToggle system={system} onChange={onSystemChange} labels={{ jalali: shared.jalali, gregorian: shared.gregorian }} />
+      </div>
+
+      <div className="space-y-3 p-4">
+        {/* presets */}
+        <div className="flex flex-wrap items-center gap-1">
+          <span className="me-0.5 text-[10px] font-semibold text-slate-400">{ui.presetsLabel}</span>
+          <PresetPill label={ui.presetNow} onClick={() => onPreset('now')} />
+          <PresetPill label={ui.presetStartOfToday} onClick={() => onPreset('startOfToday')} />
+          <PresetPill label={ui.presetFirstOfMonth} onClick={() => onPreset('firstOfMonth')} />
+          <PresetPill label={ui.presetEndOfYear} onClick={() => onPreset('endOfYear')} />
+          <PresetPill label={ui.presetPlus30Days} onClick={() => onPreset('plus30')} />
+          <PresetPill label={ui.presetPlus6Months} onClick={() => onPreset('plus6m')} />
+        </div>
+
+        <FieldGroup label={shared.dateLabel}>
+          <div className="grid grid-cols-3 gap-2">
+            {DATE_FIELDS.map((key) => (
+              <NumberField
+                key={key}
+                label={fieldLabels[key]}
+                value={parts ? parts[key] : null}
+                draft={draft[key]}
+                max={key === 'month' ? 12 : parts ? daysInMonth(system, parts.year, parts.month) : 31}
+                onChange={(raw) => onCommitField(key, raw)}
+                onBlur={() => onClearDraft(key)}
+              />
+            ))}
+          </div>
+        </FieldGroup>
+
+        <FieldGroup label={shared.timeLabel}>
+          <TimeFields
+            hour={parts?.hour ?? null}
+            minute={parts?.minute ?? null}
+            second={parts?.second ?? null}
+            labels={{ hour: ui.fieldHour, minute: ui.fieldMinute, second: ui.fieldSecond }}
+            onChange={(key, raw) => onCommitField(key, raw)}
+            draft={draft}
+            onBlur={(key) => onClearDraft(key)}
+          />
+        </FieldGroup>
+
+        {value ? (
+          <DualCalendarWidget
+            value={value}
+            onChange={onDateChange}
+            system={system}
+            onSystemChange={onSystemChange}
+            labels={widgetLabels}
+            today={null}
+            locale={locale}
+            variant="compact"
+          />
+        ) : (
+          <div className="h-56 animate-pulse rounded-md bg-slate-100 dark:bg-[#0d1117]" />
+        )}
+
+        {/* equivalent instant */}
+        <div className="flex flex-wrap items-center justify-between gap-2 rounded-md bg-slate-50 px-3 py-2 dark:bg-[#0d1117]">
+          <span className="flex min-w-0 items-center gap-2 text-[11px] text-slate-500">
+            <Clock3 className="h-3.5 w-3.5 shrink-0 text-emerald-500" />
+            <span className="shrink-0">{ui.equivalentGregorian}</span>
+            <code dir="ltr" className="truncate font-sans text-[11px] font-semibold text-slate-700 dark:text-slate-200">
+              {value ? `${formatIsoDate(value)} ${formatClock(value)}` : '—'}
+            </code>
+          </span>
+          <span className="flex shrink-0 items-center gap-1.5">
+            <code className="rounded-full bg-emerald-50 px-2 py-0.5 font-sans text-[10px] font-semibold text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300">
+              {shared.utcShort}
+            </code>
+            {parallel ? <span className="text-[10px] text-slate-400 tabular-nums">{parallel}</span> : null}
+          </span>
+        </div>
+
+      </div>
+    </div>
+  );
+}
+
+

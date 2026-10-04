@@ -17,5 +17,9 @@
   "text": "Text",
   "others": "Others",
   "other": "Other",
-  "general": "General"
+  "general": "General",
+  "workflows": "Workflows",
+  "markup": "Markup",
+  "config-data": "Configuration & Data",
+  "data-formats": "Data Formats"
 }

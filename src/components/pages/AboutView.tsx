@@ -61,7 +61,7 @@ export default function AboutView({ dict }: AboutViewProps) {
                             <span className="h-2 w-2 animate-pulse rounded-full bg-[#4edea3]" />
                             <span>{d.missionBadge}</span>
                             <span className="text-[#64748b]">•</span>
-                            <span className="font-mono text-xs">Story &amp; Mission</span>
+                            <span className="font-sans text-xs">Story &amp; Mission</span>
                         </div>
                         <div className="mt-6 max-w-4xl">
                             <h1 className="text-4xl font-bold leading-tight tracking-tight text-white md:text-6xl">
@@ -75,9 +75,9 @@ export default function AboutView({ dict }: AboutViewProps) {
                                 <div key={metric.id} className="group rounded-xl border border-[#273043] bg-[#161b26] p-5 transition hover:-translate-y-1 hover:bg-[#1e1f26]">
                                     <div className="flex items-center justify-between">
                                         <MetricIcon id={metric.id} />
-                                        <span className="rounded border border-[#273043] bg-[#1e1f26] px-2 py-0.5 font-mono text-[10px] text-[#94a3b8]">{metric.badge}</span>
+                                        <span className="rounded border border-[#273043] bg-[#1e1f26] px-2 py-0.5 font-sans text-[10px] text-[#94a3b8]">{metric.badge}</span>
                                     </div>
-                                    <div className="mt-5 font-mono text-3xl font-bold tracking-tight text-white" dir="ltr">{metric.value}</div>
+                                    <div className="mt-5 font-sans text-3xl font-bold tracking-tight text-white" dir="ltr">{metric.value}</div>
                                     <div className="mt-1 font-semibold text-white">{metric.title}</div>
                                     <p className="mt-1 text-sm leading-6 text-[#94a3b8]">{metric.description}</p>
                                 </div>
@@ -90,7 +90,7 @@ export default function AboutView({ dict }: AboutViewProps) {
                     <div className="grid items-stretch gap-10 lg:grid-cols-12">
                         <div className="flex flex-col justify-between lg:col-span-7">
                             <div>
-                                <div className="flex items-center gap-2 font-mono text-xs font-semibold uppercase tracking-wider text-[#b4c5ff]">
+                                <div className="flex items-center gap-2 font-sans text-xs font-semibold uppercase tracking-wider text-[#b4c5ff]">
                                     <History className="h-4 w-4" />
                                     {d.storyLabel}
                                 </div>
@@ -116,7 +116,7 @@ export default function AboutView({ dict }: AboutViewProps) {
                 <section className="border-y border-[#273043] bg-[#0d1117]">
                     <div className="mx-auto max-w-7xl px-4 py-16 md:px-8 md:py-24">
                         <div className="mb-10 max-w-3xl">
-                            <div className="flex items-center gap-2 font-mono text-xs font-semibold uppercase tracking-wider text-[#b4c5ff]"><ShieldCheck className="h-4 w-4" /> {d.pillarsLabel}</div>
+                            <div className="flex items-center gap-2 font-sans text-xs font-semibold uppercase tracking-wider text-[#b4c5ff]"><ShieldCheck className="h-4 w-4" /> {d.pillarsLabel}</div>
                             <h2 className="mt-3 text-2xl font-bold text-white md:text-3xl">{d.pillarsTitle}</h2>
                             <p className="mt-3 leading-7 text-[#94a3b8]">{d.pillarsDescription}</p>
                         </div>
@@ -128,7 +128,7 @@ export default function AboutView({ dict }: AboutViewProps) {
                                         <h3 className="mt-5 text-lg font-semibold text-white">{pillar.title}</h3>
                                         <p className="mt-2 text-sm leading-7 text-[#94a3b8]">{pillar.description}</p>
                                     </div>
-                                    <div className="mt-6 font-mono text-xs font-semibold text-[#4edea3]" dir="ltr">&gt; {pillar.code}</div>
+                                    <div className="mt-6 font-sans text-xs font-semibold text-[#4edea3]" dir="ltr">&gt; {pillar.code}</div>
                                 </div>
                             ))}
                         </div>
@@ -137,7 +137,7 @@ export default function AboutView({ dict }: AboutViewProps) {
 
                 <section className="mx-auto max-w-7xl px-4 py-16 md:px-8 md:py-24">
                     <div className="mb-10 max-w-3xl">
-                        <div className="flex items-center gap-2 font-mono text-xs font-semibold uppercase tracking-wider text-[#b4c5ff]"><GitBranch className="h-4 w-4" /> {d.comparisonLabel}</div>
+                        <div className="flex items-center gap-2 font-sans text-xs font-semibold uppercase tracking-wider text-[#b4c5ff]"><GitBranch className="h-4 w-4" /> {d.comparisonLabel}</div>
                         <h2 className="mt-3 text-2xl font-bold text-white md:text-3xl">{d.comparisonTitle}</h2>
                         <p className="mt-3 leading-7 text-[#94a3b8]">{d.comparisonDescription}</p>
                     </div>
@@ -150,7 +150,7 @@ export default function AboutView({ dict }: AboutViewProps) {
                 <section className="border-y border-[#273043] bg-[#0d1117]">
                     <div className="mx-auto max-w-4xl px-4 py-16 md:px-8 md:py-24">
                         <div className="mb-10 text-center">
-                            <div className="inline-flex items-center gap-2 font-mono text-xs font-semibold uppercase tracking-wider text-[#64748b]"><Sparkles className="h-4 w-4" /> {d.faqLabel}</div>
+                            <div className="inline-flex items-center gap-2 font-sans text-xs font-semibold uppercase tracking-wider text-[#64748b]"><Sparkles className="h-4 w-4" /> {d.faqLabel}</div>
                             <h2 className="mt-3 text-2xl font-bold text-white md:text-3xl">{d.faqTitle}</h2>
                         </div>
                         <div className="space-y-3">
@@ -201,19 +201,19 @@ function PillarIcon({ index }: { index: number }) {
 function ArchitectureCard({ d }: { d: any }) {
     return <div className="flex flex-col justify-center rounded-2xl border border-[#273043] bg-[#161b26] p-6 shadow-lg lg:col-span-5">
         <div className="flex items-center justify-between border-b border-[#273043] pb-4">
-            <div className="flex items-center gap-1.5"><span className="h-3 w-3 rounded-full bg-red-400" /><span className="h-3 w-3 rounded-full bg-amber-400" /><span className="h-3 w-3 rounded-full bg-emerald-400" /><span className="ml-2 font-mono text-xs text-[#64748b]">runtime-sandbox.wasm</span></div>
-            <span className="rounded bg-[#1e1f26] px-2 py-0.5 font-mono text-[11px] text-[#4edea3]">Sandbox Active</span>
+            <div className="flex items-center gap-1.5"><span className="h-3 w-3 rounded-full bg-red-400" /><span className="h-3 w-3 rounded-full bg-amber-400" /><span className="h-3 w-3 rounded-full bg-emerald-400" /><span className="ml-2 font-sans text-xs text-[#64748b]">runtime-sandbox.wasm</span></div>
+            <span className="rounded bg-[#1e1f26] px-2 py-0.5 font-sans text-[11px] text-[#4edea3]">Sandbox Active</span>
         </div>
         <div className="mt-5 rounded-xl border border-[#273043] bg-[#0d1117] p-5">
-            <div className="flex items-center justify-between font-mono text-xs text-[#64748b]"><span className="text-[#b4c5ff]">Browser Memory Heap</span><span className="text-[#4edea3]">100% In-Memory</span></div>
-            <div className="my-8 flex items-center justify-between gap-2 font-mono text-[10px] text-center">
+            <div className="flex items-center justify-between font-sans text-xs text-[#64748b]"><span className="text-[#b4c5ff]">Browser Memory Heap</span><span className="text-[#4edea3]">100% In-Memory</span></div>
+            <div className="my-8 flex items-center justify-between gap-2 font-sans text-[10px] text-center">
                 <Node label={d.architecture?.input || 'User Input'} />
                 <span className="text-blue-400">━━▶</span>
                 <Node label="WASM / V8" active />
                 <span className="text-emerald-400">━━▶</span>
                 <Node label={d.architecture?.output || 'Result'} />
             </div>
-            <div className="border-t border-[#273043] pt-4 text-center font-mono text-xs text-[#4edea3]">{d.architecture?.caption || 'Local isolation · zero egress'}</div>
+            <div className="border-t border-[#273043] pt-4 text-center font-sans text-xs text-[#4edea3]">{d.architecture?.caption || 'Local isolation · zero egress'}</div>
         </div>
     </div>;
 }
@@ -224,8 +224,8 @@ function Node({ label, active = false }: { label: string; active?: boolean }) {
 
 function ComparisonCard({ title, badge, description, steps, danger = false }: { title: string; badge: string; description: string; steps: string[]; danger?: boolean }) {
     return <div className="rounded-2xl border border-[#273043] bg-[#161b26] p-6">
-        <div className="flex items-center justify-between gap-3"><div className="flex items-center gap-3"><div className={`flex h-9 w-9 items-center justify-center rounded-lg ${danger ? 'bg-red-950/50 text-red-400' : 'bg-emerald-950/50 text-emerald-400'}`}>{danger ? <ShieldCheck className="h-5 w-5" /> : <CheckCircle2 className="h-5 w-5" />}</div><h3 className="font-semibold text-white">{title}</h3></div><span className={`rounded px-2 py-0.5 font-mono text-[10px] ${danger ? 'bg-red-950/50 text-red-300' : 'bg-emerald-950/50 text-emerald-300'}`}>{badge}</span></div>
+        <div className="flex items-center justify-between gap-3"><div className="flex items-center gap-3"><div className={`flex h-9 w-9 items-center justify-center rounded-lg ${danger ? 'bg-red-950/50 text-red-400' : 'bg-emerald-950/50 text-emerald-400'}`}>{danger ? <ShieldCheck className="h-5 w-5" /> : <CheckCircle2 className="h-5 w-5" />}</div><h3 className="font-semibold text-white">{title}</h3></div><span className={`rounded px-2 py-0.5 font-sans text-[10px] ${danger ? 'bg-red-950/50 text-red-300' : 'bg-emerald-950/50 text-emerald-300'}`}>{badge}</span></div>
         <p className="mt-4 text-sm leading-7 text-[#94a3b8]">{description}</p>
-        <div className="mt-5 space-y-3">{(steps || []).map((step, index) => <div key={step} className="flex items-start gap-3 rounded-lg bg-[#1e1f26] p-3 text-sm leading-6"><span className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full font-mono text-xs ${danger && index === 1 ? 'bg-red-500/20 text-red-300' : 'bg-[#161b26] text-[#94a3b8]'}`}>{index + 1}</span><span className={danger && index === 1 ? 'text-red-300' : 'text-[#e3e1ec]'}>{step}</span></div>)}</div>
+        <div className="mt-5 space-y-3">{(steps || []).map((step, index) => <div key={step} className="flex items-start gap-3 rounded-lg bg-[#1e1f26] p-3 text-sm leading-6"><span className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full font-sans text-xs ${danger && index === 1 ? 'bg-red-500/20 text-red-300' : 'bg-[#161b26] text-[#94a3b8]'}`}>{index + 1}</span><span className={danger && index === 1 ? 'text-red-300' : 'text-[#e3e1ec]'}>{step}</span></div>)}</div>
     </div>;
 }

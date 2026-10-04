@@ -5,7 +5,6 @@ import { useRouter } from 'next/navigation';
 import { Search, X } from 'lucide-react';
 import { AllToolsList } from '@/lib/registry/tools';
 import { ToolMeta } from '@/types/types';
-import {BASE_URL} from "@/lib/env";
 
 import { localizeTool } from "@/i18n/localize";
 import { Dictionary } from "@/i18n/getDictionary";
@@ -74,9 +73,8 @@ export default function CommandMenu({ isOpen, setIsOpen, locale, dict, shortcutE
     }, [setIsOpen, shortcutEnabled]);
 
     const getValidPath = (itemPath: string) => {
-        let cleanPath = itemPath || '';
-        if (!cleanPath.startsWith('/')) cleanPath = '/' + cleanPath;
-        return `${BASE_URL}${cleanPath}`;
+        const cleanPath = itemPath.trim().replace(/^\/+|\/+$/g, '');
+        return `${locale === 'en' ? '/en' : ''}/${cleanPath}/`;
     };
 
     const filteredCategories = groupedToolsList.map(category => ({

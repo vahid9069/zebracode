@@ -1,16 +1,12 @@
-import localFont from 'next/font/local';
+import "@/app/globals.css";
 import { Providers } from "@/components/layout/Providers";
 import AppLayout from "@/components/layout/AppLayout";
 import { getDictionary } from '@/i18n/getDictionary';
+import { BASE_URL } from '@/lib/env';
+import type { Metadata } from 'next';
 
-const iransans = localFont({
-  src: '../../../public/fonts/IRANSansWeb.woff2',
-  display: 'swap',
-  variable: '--font-fa',
-  fallback: ['Tahoma', 'Segoe UI', 'sans-serif'],
-});
-
-export const metadata = {
+export const metadata: Metadata = {
+  metadataBase: new URL(BASE_URL),
   title: 'زبرا کد - ابزارهای توسعه‌دهندگان',
   description: 'مجموعه‌ای از ابزارهای آنلاین برنامه‌نویسی',
 };
@@ -20,12 +16,27 @@ export default async function FaRootLayout({ children }: { children: React.React
   const dict = await getDictionary('fa');
 
   return (
-    <div dir="rtl" className={`${iransans.className} ${iransans.variable}`}>
+    <html lang="fa-IR" dir="rtl" suppressHydrationWarning>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: `
+          (function() {
+            try {
+              var theme = localStorage.getItem('zebracode-theme');
+              if (theme === 'dark' || (!theme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                document.documentElement.classList.add('dark');
+              }
+            } catch (e) {}
+          })();
+        ` }} />
+      </head>
+      <body className="font-sans antialiased">
         <Providers>
+          {/* ارسال دیکشنری layout به AppLayout */}
           <AppLayout locale="fa" dict={dict}>
             {children}
           </AppLayout>
         </Providers>
-    </div>
+      </body>
+    </html>
   );
 }
