@@ -35,5 +35,5 @@ jobs:
           username: ${{ secrets.FTP_USER_MAIN }}
           password: ${{ secrets.FTP_PASS_MAIN }}
           local-dir: ./out/
-          server-dir: /public_html/main/
+          server-dir: ./
           dangerous-clean-slate: false
