@@ -199,6 +199,11 @@
     "shortDescription": "Prettify and format your JSON data",
     "description": "Format, beautify, and indent your minified or messy JSON with a single click. This free online JSON formatter makes your data readable, validates syntax, and highlights errors. Perfect for debugging APIs, configuration files, and log entries. Works entirely in your browser—no registration required."
   },
+  "json-format": {
+    "title": "JSON Format",
+    "shortDescription": "Prettify and format your JSON data",
+    "description": "Format, beautify, and indent your minified or messy JSON with a single click. This free online JSON formatter makes your data readable, validates syntax, and highlights errors. Perfect for debugging APIs, configuration files, and log entries. Works entirely in your browser—no registration required."
+  },
   "jsonToBigQuery": {
     "title": "JSON to BigQuery",
     "shortDescription": "Convert JSON to BigQuery table schema",
@@ -314,22 +319,22 @@
     "shortDescription": "Convert Markdown to clean, semantic HTML",
     "description": "Transform your Markdown into clean, responsive HTML with our free online converter. Supports tables, code blocks (with syntax highlighting), GitHub-flavored Markdown, and custom CSS. Ideal for developers, content creators, and anyone building static sites. Works instantly in your browser, no account needed."
   },
-  "tomlToJson": {
+  "toml-to-json": {
     "title": "TOML to JSON",
     "shortDescription": "Convert TOML files to JSON online",
     "description": "Easily convert your TOML configuration files into structured JSON. This free online tool preserves arrays, nested tables, and inline objects, making it perfect for migrating configs between Rust, Python, and JavaScript ecosystems. Fast, client-side, and requires no installation or sign-up."
   },
-  "xmlToJson": {
+  "xml-to-json": {
     "title": "XML to JSON",
     "shortDescription": "Convert XML data to JSON format",
     "description": "Transform XML documents into JSON with a single click. Our converter handles attributes, nested elements, and arrays intelligently, producing clean JSON perfect for APIs, web services, or data interchange. Free, secure, and works entirely in your browser—no XML file touches a server."
   },
-  "yamlToJson": {
+  "yaml-to-json": {
     "title": "YAML to JSON",
     "shortDescription": "Convert YAML to JSON instantly",
     "description": "Quickly translate your YAML configuration or data files into valid JSON. This free online converter supports all YAML types, anchors, and multiline strings. Ideal for migrating from Docker Compose, Kubernetes manifests, or CI/CD pipelines to JSON-based tools. No registration required, completely client-side."
   },
-  "yamlToToml": {
+  "yaml-to-toml": {
     "title": "YAML to TOML",
     "shortDescription": "Convert YAML files to TOML format",
     "description": "Effortlessly convert your YAML files into clean, readable TOML. This free converter handles nested tables, arrays of tables, and preserves comments where possible. Perfect for teams moving configuration from YAML to TOML for better readability in Python or Rust projects. Works online, no download needed."
