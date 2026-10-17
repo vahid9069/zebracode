@@ -17,7 +17,7 @@ export default function LanguageSwitcher() {
     return (
         <Link
             href={togglePath}
-            className="px-3 py-1 border rounded-md text-sm font-medium hover:bg-gray-100 dark:hover:bg-gray-800"
+            className="px-3 py-1 border border-border-strong bg-surface text-sm font-medium text-text-muted transition-colors hover:bg-action-soft hover:text-action dark:hover:text-focus focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2 focus-visible:ring-offset-surface"
         >
             {isEnglish ? 'فارسی' : 'English'}
         </Link>

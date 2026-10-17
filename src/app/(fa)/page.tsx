@@ -6,7 +6,7 @@ import { getLocalizedUrl } from '@/lib/seo';
 
 export const metadata: Metadata = {
   title: 'زبرا کد | ابزارهای آنلاین برنامه‌نویسی',
-  description: 'مجموعه‌ای رایگان از ابزارهای آنلاین برنامه‌نویسی و تبدیل داده.',
+  description: 'مجموعه‌ای رایگان از ابزارهای آنلاین برنامه‌نویسی با پردازش محلی در مرورگر برای تبدیل داده.',
   alternates: { canonical: getLocalizedUrl('/') , languages: { 'fa-IR': getLocalizedUrl('/'), en: getLocalizedUrl('/en'), 'x-default': getLocalizedUrl('/') } },
   openGraph: { title: 'زبرا کد | ابزارهای آنلاین برنامه‌نویسی', description: 'ابزارهای رایگان توسعه‌دهندگان', url: getLocalizedUrl('/'), siteName: 'ZebraCode', locale: 'fa_IR', type: 'website' },
 };
@@ -15,5 +15,5 @@ export default async function FaHomePage() {
   const dict = await getDictionary('fa');
   
   // ارسال بخش home از دیکشنری به کلاینت کامپوننت
-  return <><SiteStructuredData locale="fa" /><HomePageClient dict={dict} locale="fa" /></>;
+  return <><SiteStructuredData locale="fa" name={dict.home.heroHeading} description={dict.home.heroDescription} /><HomePageClient dict={dict} locale="fa" /></>;
 }

@@ -6,15 +6,16 @@ import React from 'react';
 import { Copy } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { CopyButton } from './feedback';
+import { IconButton } from '@/components/ui/icon-button';
 
 export function PanelTitle({ icon, title, hint, children }: { icon: React.ReactNode; title: string; hint?: string; children?: React.ReactNode }) {
   return (
-    <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 pb-3 dark:border-white/5">
+    <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border-strong pb-3">
       <div className="flex items-center gap-2">
-        <span className="text-blue-600">{icon}</span>
+        <span className="text-action dark:text-focus">{icon}</span>
         <div>
           <h2 className="text-sm font-bold">{title}</h2>
-          {hint ? <p className="text-[11px] text-slate-500">{hint}</p> : null}
+          {hint ? <p className="text-[11px] text-text-subtle">{hint}</p> : null}
         </div>
       </div>
       {children}
@@ -24,17 +25,17 @@ export function PanelTitle({ icon, title, hint, children }: { icon: React.ReactN
 
 export function SectionHeading({ icon, title, hint, tone = 'blue' }: { icon: React.ReactNode; title: string; hint?: string; tone?: 'blue' | 'emerald' | 'violet' | 'amber' }) {
   const tones = {
-    blue: 'bg-blue-100 text-blue-600 dark:bg-blue-950/40 dark:text-blue-300',
-    emerald: 'bg-emerald-100 text-emerald-600 dark:bg-emerald-950/40 dark:text-emerald-300',
+    blue: 'bg-action-soft text-action dark:text-focus',
+    emerald: 'bg-success-soft text-success',
     violet: 'bg-violet-100 text-violet-600 dark:bg-violet-950/40 dark:text-violet-300',
-    amber: 'bg-amber-100 text-amber-600 dark:bg-amber-950/40 dark:text-amber-300',
+    amber: 'bg-warning-soft text-warning',
   } as const;
   return (
     <div className="flex items-center gap-3">
       <div className={cn('flex h-9 w-9 shrink-0 items-center justify-center rounded-lg', tones[tone])}>{icon}</div>
       <div className="min-w-0">
         <h2 className="text-lg font-bold leading-tight">{title}</h2>
-        {hint ? <p className="text-xs text-slate-500">{hint}</p> : null}
+        {hint ? <p className="text-xs text-text-subtle">{hint}</p> : null}
       </div>
     </div>
   );
@@ -68,7 +69,7 @@ export function NumberField({
 }) {
   return (
     <label className={cn('block', className)}>
-      <span className="mb-1 block truncate text-[10px] font-medium text-slate-400">{label}</span>
+      <span className="mb-1 block truncate text-[10px] font-medium text-text-subtle">{label}</span>
       <input
         dir="ltr"
         inputMode="numeric"
@@ -76,7 +77,7 @@ export function NumberField({
         max={max}
         onChange={(event) => onChange(event.target.value.replace(/[^\d]/g, ''))}
         onBlur={onBlur}
-        className="h-9 w-full rounded-md border border-slate-200 bg-white px-2 text-center font-sans text-sm tabular-nums text-slate-800 outline-none transition-colors focus-visible:border-blue-500 focus-visible:ring-2 focus-visible:ring-blue-500/30 dark:border-white/10 dark:bg-[#0d1117] dark:text-slate-100"
+        className="h-9 w-full rounded-md border border-border-strong bg-surface px-2 text-center font-sans text-sm tabular-nums text-text outline-none transition-colors focus-visible:border-focus focus-visible:ring-2 focus-visible:ring-focus/30"
       />
     </label>
   );
@@ -85,8 +86,8 @@ export function NumberField({
 /** Bordered group with a caption — the reference's date/time field cluster. */
 export function FieldGroup({ label, children, className }: { label?: string; children: React.ReactNode; className?: string }) {
   return (
-    <div className={cn('rounded-lg border border-slate-200 bg-white p-3 dark:border-white/10 dark:bg-[#161b26]', className)}>
-      {label ? <span className="mb-2 block text-[10px] font-semibold text-slate-400">{label}</span> : null}
+    <div className={cn('rounded-lg border border-border-strong bg-surface p-3', className)}>
+      {label ? <span className="mb-2 block text-[10px] font-semibold text-text-subtle">{label}</span> : null}
       {children}
     </div>
   );
@@ -121,16 +122,16 @@ export function TimeFields({
       value={draft?.[key] ?? (value === null ? '' : String(value).padStart(2, '0'))}
       onChange={(event) => onChange(key, event.target.value.replace(/[^\d]/g, ''))}
       onBlur={() => onBlur?.(key)}
-      className="h-9 w-12 rounded-md border border-slate-200 bg-white text-center font-sans text-sm tabular-nums text-slate-800 outline-none transition-colors focus-visible:border-blue-500 focus-visible:ring-2 focus-visible:ring-blue-500/30 dark:border-white/10 dark:bg-[#0d1117] dark:text-slate-100"
+      className="h-9 w-12 rounded-md border border-border-strong bg-surface text-center font-sans text-sm tabular-nums text-text outline-none transition-colors focus-visible:border-focus focus-visible:ring-2 focus-visible:ring-focus/30"
     />
   );
 
   return (
     <div dir="ltr" className="flex items-center justify-center gap-1">
       {cell('hour', hour, 23)}
-      <span className="font-sans text-sm text-slate-400">:</span>
+      <span className="font-sans text-sm text-text-subtle">:</span>
       {cell('minute', minute, 59)}
-      <span className="font-sans text-sm text-slate-400">:</span>
+      <span className="font-sans text-sm text-text-subtle">:</span>
       {cell('second', second, 59)}
     </div>
   );
@@ -142,10 +143,10 @@ export function PresetButton({ label, onClick, icon, active }: { label: string; 
       type="button"
       onClick={onClick}
       className={cn(
-        'inline-flex h-8 items-center gap-1.5 rounded-full px-3 text-[11px] font-medium transition-all hover:-translate-y-0.5',
+        'inline-flex h-8 items-center gap-1.5 rounded-full px-3 text-[11px] font-medium transition-all hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus',
         active
-          ? 'bg-blue-600 text-white shadow-sm'
-          : 'bg-slate-100 text-slate-600 hover:bg-blue-50 hover:text-blue-700 dark:bg-[#0d1117] dark:text-slate-300 dark:hover:bg-blue-950/40 dark:hover:text-blue-300',
+          ? 'bg-action text-action-foreground shadow-sm'
+          : 'bg-surface-inset text-text-muted hover:bg-action-soft hover:text-action dark:hover:text-focus',
       )}
     >
       {icon}
@@ -172,21 +173,21 @@ export function MetricCard({
   badge?: string;
 }) {
   return (
-    <div className="group flex flex-col gap-2 rounded-lg border border-slate-200 bg-white p-3 transition-all hover:-translate-y-0.5 hover:border-blue-200 hover:shadow-sm dark:border-white/10 dark:bg-[#161b26] dark:hover:border-blue-900">
+    <div className="group flex flex-col gap-2 rounded-lg border border-border-strong bg-surface p-3 transition-all hover:-translate-y-0.5 hover:border-action/40 hover:shadow-sm">
       <div className="flex items-center justify-between gap-1">
         <span className="flex min-w-0 items-center gap-1.5">
-          {icon ? <span className="shrink-0 text-slate-400 transition-colors group-hover:text-blue-500">{icon}</span> : null}
-          <span className="truncate text-[11px] font-medium text-slate-500">{label}</span>
+          {icon ? <span className="shrink-0 text-text-subtle transition-colors group-hover:text-action">{icon}</span> : null}
+          <span className="truncate text-[11px] font-medium text-text-muted">{label}</span>
         </span>
-        <button type="button" aria-label={copyLabel} title={copyLabel} onClick={onCopied} className="shrink-0 text-slate-300 transition-colors hover:text-blue-600">
+        <IconButton type="button" size="sm" aria-label={copyLabel} title={copyLabel} onClick={onCopied} className="text-text-subtle hover:text-action">
           <Copy className="h-3.5 w-3.5" />
-        </button>
+        </IconButton>
       </div>
-      <span className="font-sans text-lg font-bold tabular-nums text-slate-900 dark:text-white">{value}</span>
+      <span className="font-sans text-lg font-bold tabular-nums text-text">{value}</span>
       <div className="flex items-end justify-between gap-2">
-        {hint ? <span className="text-[10px] leading-4 text-slate-400">{hint}</span> : <span />}
+        {hint ? <span className="text-[10px] leading-4 text-text-subtle">{hint}</span> : <span />}
         {badge ? (
-          <span className="shrink-0 rounded-full bg-emerald-50 px-2 py-0.5 text-[10px] font-semibold text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300">{badge}</span>
+          <span className="shrink-0 rounded-full bg-success-soft px-2 py-0.5 text-[10px] font-semibold text-success">{badge}</span>
         ) : null}
       </div>
     </div>
@@ -212,13 +213,13 @@ export function SectionCard({
   bodyClassName?: string;
 }) {
   return (
-    <div className={cn('overflow-hidden rounded-lg border border-slate-200 bg-white dark:border-white/10 dark:bg-[#161b26]', className)}>
-      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-200 px-4 py-2.5 dark:border-white/10">
+    <div className={cn('overflow-hidden rounded-lg border border-border-strong bg-surface', className)}>
+      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border-strong px-4 py-2.5">
         <span className="flex min-w-0 items-center gap-2">
-          {icon ? <span className="shrink-0 text-blue-600">{icon}</span> : null}
+           {icon ? <span className="shrink-0 text-action dark:text-focus">{icon}</span> : null}
           <span className="min-w-0">
-            <span className="block truncate text-xs font-bold text-slate-700 dark:text-slate-100">{title}</span>
-            {hint ? <span className="block truncate text-[10px] text-slate-400">{hint}</span> : null}
+            <span className="block truncate text-xs font-bold text-text">{title}</span>
+            {hint ? <span className="block truncate text-[10px] text-text-subtle">{hint}</span> : null}
           </span>
         </span>
         {badge}
@@ -231,11 +232,11 @@ export function SectionCard({
 /** Tone-tinted pill used for statuses and counters. */
 export function Badge({ text, tone = 'slate' }: { text: string; tone?: 'slate' | 'emerald' | 'amber' | 'blue' | 'red' | 'violet' }) {
   const tones = {
-    slate: 'bg-slate-100 text-slate-600 dark:bg-[#0d1117] dark:text-slate-300',
-    emerald: 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300',
-    amber: 'bg-amber-50 text-amber-700 dark:bg-amber-950/40 dark:text-amber-300',
-    blue: 'bg-blue-50 text-blue-700 dark:bg-blue-950/40 dark:text-blue-300',
-    red: 'bg-red-50 text-red-700 dark:bg-red-950/40 dark:text-red-300',
+    slate: 'bg-surface-inset text-text-muted',
+    emerald: 'bg-success-soft text-success',
+    amber: 'bg-warning-soft text-warning',
+    blue: 'bg-action-soft text-action dark:text-focus',
+    red: 'bg-danger-soft text-danger',
     violet: 'bg-violet-50 text-violet-700 dark:bg-violet-950/40 dark:text-violet-300',
   } as const;
   return <span className={cn('rounded-full px-2.5 py-1 text-[11px] font-semibold', tones[tone])}>{text}</span>;
@@ -248,10 +249,10 @@ export function PresetPill({ label, onClick, active }: { label: string; onClick:
       type="button"
       onClick={onClick}
       className={cn(
-        'inline-flex h-7 shrink-0 items-center rounded-full border px-1.5 text-[10px] font-medium transition-all hover:-translate-y-0.5',
+        'inline-flex h-7 shrink-0 items-center rounded-full border px-1.5 text-[10px] font-medium transition-all hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus',
         active
-          ? 'border-blue-300 bg-blue-50 text-blue-700 dark:border-blue-900 dark:bg-blue-950/40 dark:text-blue-300'
-          : 'border-slate-200 bg-white text-slate-500 hover:border-blue-200 hover:text-blue-600 dark:border-white/10 dark:bg-[#161b26] dark:text-slate-300 dark:hover:border-blue-900',
+          ? 'border-action/40 bg-action-soft text-action dark:text-focus'
+          : 'border-border-strong bg-surface text-text-muted hover:border-action/40 hover:text-action dark:hover:text-focus',
       )}
     >
       {label}
@@ -266,10 +267,10 @@ export function ModeTile({ active, icon, label, onClick }: { active: boolean; ic
       type="button"
       onClick={onClick}
       className={cn(
-        'inline-flex min-w-[9rem] flex-1 items-center justify-center gap-2 rounded-lg border px-4 py-2.5 text-xs font-semibold transition-all sm:flex-none',
+        'inline-flex min-w-[9rem] flex-1 items-center justify-center gap-2 rounded-lg border px-4 py-2.5 text-xs font-semibold transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus sm:flex-none',
         active
-          ? 'border-blue-300 bg-blue-50 text-blue-700 dark:border-blue-900 dark:bg-blue-950/40 dark:text-blue-300'
-          : 'border-slate-200 bg-white text-slate-500 hover:border-blue-200 hover:text-blue-600 dark:border-white/10 dark:bg-[#161b26] dark:hover:border-blue-900',
+          ? 'border-action/40 bg-action-soft text-action dark:text-focus'
+          : 'border-border-strong bg-surface text-text-muted hover:border-action/40 hover:text-action dark:hover:text-focus',
       )}
     >
       {icon}
@@ -289,18 +290,18 @@ export function SystemToggle({
   labels: { jalali: string; gregorian: string };
 }) {
   return (
-    <div className="flex shrink-0 rounded-md bg-slate-100 p-0.5 text-[11px] dark:bg-[#0d1117]">
+    <div className="flex shrink-0 rounded-md bg-surface-inset p-0.5 text-[11px]">
       <button
         type="button"
         onClick={() => onChange('jalali')}
-        className={cn('rounded px-2.5 py-1.5 font-semibold transition-colors', system === 'jalali' ? 'bg-blue-600 text-white shadow-sm' : 'text-slate-500 hover:text-slate-700')}
+        className={cn('rounded px-2.5 py-1.5 font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus', system === 'jalali' ? 'bg-action text-action-foreground shadow-sm' : 'text-text-muted hover:text-text')}
       >
         {labels.jalali}
       </button>
       <button
         type="button"
         onClick={() => onChange('gregorian')}
-        className={cn('rounded px-2.5 py-1.5 font-semibold transition-colors', system === 'gregorian' ? 'bg-blue-600 text-white shadow-sm' : 'text-slate-500 hover:text-slate-700')}
+        className={cn('rounded px-2.5 py-1.5 font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus', system === 'gregorian' ? 'bg-action text-action-foreground shadow-sm' : 'text-text-muted hover:text-text')}
       >
         {labels.gregorian}
       </button>
@@ -311,9 +312,9 @@ export function SystemToggle({
 /** Bordered read-only cell for a single time part. */
 export function TimeCell({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-lg border border-slate-200 bg-slate-50 px-2 py-3 text-center dark:border-white/10 dark:bg-[#0d1117]">
-      <span className="block font-sans text-xl font-bold tabular-nums text-slate-800 dark:text-white sm:text-2xl">{value}</span>
-      <span className="mt-1 block text-[10px] text-slate-400">{label}</span>
+    <div className="rounded-lg border border-border-strong bg-surface-inset px-2 py-3 text-center">
+      <span className="block font-sans text-xl font-bold tabular-nums text-text sm:text-2xl">{value}</span>
+      <span className="mt-1 block text-[10px] text-text-subtle">{label}</span>
     </div>
   );
 }
@@ -321,13 +322,13 @@ export function TimeCell({ label, value }: { label: string; value: string }) {
 /** Numbered note / FAQ card — the closing rhythm of both datetime tools. */
 export function NoteCard({ index, title, icon, children }: { index: number; title: string; icon: React.ReactNode; children: React.ReactNode }) {
   return (
-    <div className="flex gap-3 rounded-lg border border-slate-200 bg-white p-4 dark:border-white/10 dark:bg-[#161b26]">
-      <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-slate-200 text-[11px] font-bold text-slate-500 dark:border-white/10">
+    <div className="flex gap-3 rounded-lg border border-border-strong bg-surface p-4">
+      <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-border-strong text-[11px] font-bold text-text-muted">
         {index}
       </span>
       <div className="min-w-0 flex-1">
-        <h2 className="flex items-center gap-1.5 text-xs font-bold text-slate-700 dark:text-slate-100">
-          <span className="text-blue-600">{icon}</span>
+        <h2 className="flex items-center gap-1.5 text-xs font-bold text-text">
+          <span className="text-action">{icon}</span>
           {title}
         </h2>
         <div className="mt-2">{children}</div>
@@ -354,7 +355,7 @@ export function CodeCard({
         <button
           type="button"
           onClick={onCopy}
-          className="inline-flex items-center gap-1.5 rounded-md border border-white/10 px-2.5 py-1 text-[11px] font-semibold text-slate-200 transition-colors hover:bg-white/10"
+          className="inline-flex items-center gap-1.5 rounded-md border border-white/10 px-2.5 py-1 text-[11px] font-semibold text-slate-200 transition-colors hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus"
         >
           <Copy className="h-3 w-3" />
           {copyLabel}
@@ -380,10 +381,10 @@ export function CodeCard({
 /** Small labelled row with a value + copy button (parallel-calendar readout). */
 export function InlineValue({ label, value, copyLabel, onCopied }: { label: string; value: string; copyLabel: string; onCopied?: () => void }) {
   return (
-    <div className="flex flex-wrap items-center justify-between gap-2 rounded-md bg-slate-50 px-3 py-2 dark:bg-[#0d1117]">
-      <span className="text-[11px] text-slate-500">{label}</span>
+    <div className="flex flex-wrap items-center justify-between gap-2 rounded-md bg-surface-inset px-3 py-2">
+      <span className="text-[11px] text-text-muted">{label}</span>
       <span className="flex min-w-0 items-center gap-1">
-        <code className="truncate font-sans text-xs font-semibold text-slate-800 dark:text-slate-100">{value}</code>
+        <code className="truncate font-sans text-xs font-semibold text-text">{value}</code>
         <CopyButton value={value} label={copyLabel} onCopied={onCopied} size="sm" />
       </span>
     </div>

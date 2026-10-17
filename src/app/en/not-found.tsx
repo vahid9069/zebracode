@@ -8,26 +8,26 @@ export default async function NotFoundPage() {
     const common = dict.common;
 
     return (
-        <div className="min-h-[80vh] flex items-center justify-center px-4">
+        <div className="flex min-h-[80vh] items-center justify-center bg-canvas px-4 text-text">
             <div className="text-center max-w-md">
-                <div className="text-8xl font-black text-blue-600 dark:text-blue-400 mb-4">404</div>
-                <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-3">
+                <div className="mb-4 text-8xl font-black text-action">404</div>
+                <h1 className="mb-3 text-2xl font-bold text-text">
                     {common.notFoundTitle}
                 </h1>
-                <p className="text-gray-600 dark:text-gray-400 mb-8">
+                <p className="mb-8 text-text-muted">
                     {common.notFoundDescription}
                 </p>
                 <div className="flex flex-col sm:flex-row gap-3 justify-center">
                     <Link
                         href="/en"
-                        className="inline-flex items-center justify-center gap-2 px-5 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-xl transition-colors"
+                        className="inline-flex items-center justify-center gap-2 rounded-xl bg-action px-5 py-3 font-medium text-action-foreground transition-colors hover:bg-action-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2 focus-visible:ring-offset-canvas"
                     >
                         <Home size={18} />
                         {common.backHome}
                     </Link>
                     <Link
                         href="/en"
-                        className="inline-flex items-center justify-center gap-2 px-5 py-3 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 font-medium rounded-xl transition-colors"
+                        className="inline-flex items-center justify-center gap-2 rounded-xl border border-border-strong bg-surface-raised px-5 py-3 font-medium text-text-muted transition-colors hover:bg-action-soft hover:text-action focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2 focus-visible:ring-offset-canvas"
                     >
                         <Search size={18} />
                         {common.browseTools}

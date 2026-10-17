@@ -33,6 +33,27 @@
     --input: transparent;
     --input-background: #f3f3f5;
     --switch-background: #cbced4;
+    /* Semantic design-system roles. Existing tokens above remain unchanged
+       until their consumers can be migrated safely. */
+    --canvas: #f8fafc;
+    --surface: #ffffff;
+    --surface-raised: #ffffff;
+    --surface-inset: #f1f5f9;
+    --text: #0f172a;
+    --text-muted: #475569;
+    --text-subtle: #64748b;
+    --border-strong: #cbd5e1;
+    --action: #2563eb;
+    --action-hover: #1d4ed8;
+    --action-soft: #eff6ff;
+    --action-foreground: #ffffff;
+    --success: #047857;
+    --success-soft: #ecfdf5;
+    --warning: #b45309;
+    --warning-soft: #fffbeb;
+    --danger: #b91c1c;
+    --danger-soft: #fef2f2;
+    --focus: #2563eb;
     --font-weight-medium: 500;
     --font-weight-normal: 400;
     --ring: oklch(0.708 0 0);
@@ -89,7 +110,27 @@
     --destructive-foreground: oklch(0.637 0.237 25.331);
     --border: oklch(0.269 0 0);
     --input: oklch(0.269 0 0);
+    --input-background: #0d1117;
     --ring: oklch(0.439 0 0);
+    --canvas: #0b0f19;
+    --surface: #161b26;
+    --surface-raised: #1e1f26;
+    --surface-inset: #0d1117;
+    --text: #e3e1ec;
+    --text-muted: #94a3b8;
+    --text-subtle: #7f8ea3;
+    --border-strong: #334155;
+    --action: #2563eb;
+    --action-hover: #1d4ed8;
+    --action-soft: #172554;
+    --action-foreground: #ffffff;
+    --success: #4edea3;
+    --success-soft: #052e16;
+    --warning: #fbbf24;
+    --warning-soft: #451a03;
+    --danger: #f87171;
+    --danger-soft: #450a0a;
+    --focus: #60a5fa;
     --font-weight-medium: 500;
     --font-weight-normal: 400;
     --chart-1: oklch(0.488 0.243 264.376);
@@ -137,6 +178,25 @@
     --color-input-background: var(--input-background);
     --color-switch-background: var(--switch-background);
     --color-ring: var(--ring);
+    --color-canvas: var(--canvas);
+    --color-surface: var(--surface);
+    --color-surface-raised: var(--surface-raised);
+    --color-surface-inset: var(--surface-inset);
+    --color-text: var(--text);
+    --color-text-muted: var(--text-muted);
+    --color-text-subtle: var(--text-subtle);
+    --color-border-strong: var(--border-strong);
+    --color-action: var(--action);
+    --color-action-hover: var(--action-hover);
+    --color-action-soft: var(--action-soft);
+    --color-action-foreground: var(--action-foreground);
+    --color-success: var(--success);
+    --color-success-soft: var(--success-soft);
+    --color-warning: var(--warning);
+    --color-warning-soft: var(--warning-soft);
+    --color-danger: var(--danger);
+    --color-danger-soft: var(--danger-soft);
+    --color-focus: var(--focus);
     --color-chart-1: var(--chart-1);
     --color-chart-2: var(--chart-2);
     --color-chart-3: var(--chart-3);
@@ -163,6 +223,28 @@
 
     body {
         @apply bg-background text-foreground;
+    }
+}
+
+/* Keep the editor focus indicator on its stable wrapper so it does not move
+   the layout or disappear when CodeMirror replaces its internal view. */
+.cm-editor-shell:focus-within {
+    box-shadow: inset 0 0 0 2px var(--focus);
+}
+
+.cm-editor-shell .cm-editor.cm-focused {
+    outline: none;
+    box-shadow: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        scroll-behavior: auto !important;
+        transition-duration: 0.01ms !important;
     }
 }
 

@@ -23,7 +23,7 @@ export default function ToolPageClient({ toolType, locale = 'fa', dict }: ToolPa
     
     if (!baseConfig) {
         return (
-            <div className="flex items-center justify-center min-h-[50vh] text-xl font-semibold text-gray-600 dark:text-gray-300">
+            <div className="flex min-h-[50vh] items-center justify-center text-xl font-semibold text-text-muted">
                 {dict?.common?.toolNotFound || (locale === 'en' ? 'Tool not found' : 'ابزار پیدا نشد')}
             </div>
         );
