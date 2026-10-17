@@ -42,44 +42,44 @@ export default function AboutView({ dict }: AboutViewProps) {
     const faqs = d.faqs || [];
 
     return (
-        <div className="about-theme min-h-screen bg-[#0b0f19] text-[#e3e1ec] transition-colors">
-            <main>
-                <section className="relative overflow-hidden border-b border-[#273043] bg-gradient-to-b from-[#0d1117] via-[#0e1422] to-[#0b0f19]">
+        <div className="about-theme min-h-screen bg-canvas text-text transition-colors">
+            <div>
+                <section className="relative overflow-hidden border-b border-border-strong bg-gradient-to-b from-[#0d1117] via-[#0e1422] to-[#0b0f19]">
                     <div className="pointer-events-none absolute -right-24 -top-24 h-96 w-96 rounded-full bg-blue-600/10 blur-3xl" />
                     <div className="pointer-events-none absolute left-10 top-48 h-72 w-72 rounded-full bg-emerald-500/10 blur-3xl" />
                     <div className="relative mx-auto max-w-7xl px-4 pb-14 pt-10 md:px-8 md:pb-20">
-                        <nav className="mb-8 flex items-center gap-2 text-sm text-[#64748b]" aria-label={d.breadcrumbLabel}>
-                            <Link href="/" className="flex items-center gap-1 transition hover:text-[#b4c5ff]">
+                        <nav className="mb-8 flex items-center gap-2 text-sm text-text-subtle" aria-label={d.breadcrumbLabel}>
+                            <Link href="/" className="flex items-center gap-1 transition hover:text-[#b4c5ff] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2 focus-visible:ring-offset-canvas">
                                 <Terminal className="h-4 w-4" />
                                 {d.homeLabel}
                             </Link>
                             <ArrowLeft className="h-3.5 w-3.5 rtl:hidden" />
                             <ArrowRight className="hidden h-3.5 w-3.5 rtl:block" />
-                            <span className="text-[#e3e1ec]">{d.aboutLabel}</span>
+                            <span className="text-text">{d.aboutLabel}</span>
                         </nav>
-                        <div className="inline-flex items-center gap-2 rounded-full border border-[#273043] bg-[#161b26] px-4 py-1.5 text-sm text-[#94a3b8]">
+                        <div className="inline-flex items-center gap-2 rounded-full border border-border-strong bg-surface px-4 py-1.5 text-sm text-text-muted">
                             <span className="h-2 w-2 animate-pulse rounded-full bg-[#4edea3]" />
                             <span>{d.missionBadge}</span>
-                            <span className="text-[#64748b]">•</span>
+                            <span className="text-text-subtle">•</span>
                             <span className="font-sans text-xs">Story &amp; Mission</span>
                         </div>
                         <div className="mt-6 max-w-4xl">
-                            <h1 className="text-4xl font-bold leading-tight tracking-tight text-white md:text-6xl">
+                            <h1 className="text-4xl font-bold leading-tight tracking-tight text-text md:text-6xl">
                                 {d.heroTitle}
                                 <span className="bg-gradient-to-l from-[#b4c5ff] via-[#4f8cff] to-[#4edea3] bg-clip-text text-transparent"> {d.heroAccent}</span>
                             </h1>
-                            <p className="mt-5 max-w-3xl text-base leading-8 text-[#94a3b8] md:text-lg">{d.heroDescription}</p>
+                            <p className="mt-5 max-w-3xl text-base leading-8 text-text-muted md:text-lg">{d.heroDescription}</p>
                         </div>
                         <div className="mt-10 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
                             {metrics.map((metric: any) => (
-                                <div key={metric.id} className="group rounded-xl border border-[#273043] bg-[#161b26] p-5 transition hover:-translate-y-1 hover:bg-[#1e1f26]">
+                                <div key={metric.id} className="group rounded-xl border border-border-strong bg-surface p-5 transition hover:-translate-y-1 hover:bg-surface-raised">
                                     <div className="flex items-center justify-between">
                                         <MetricIcon id={metric.id} />
-                                        <span className="rounded border border-[#273043] bg-[#1e1f26] px-2 py-0.5 font-sans text-[10px] text-[#94a3b8]">{metric.badge}</span>
+                                        <span className="rounded border border-border-strong bg-surface-raised px-2 py-0.5 font-sans text-[10px] text-text-muted">{metric.badge}</span>
                                     </div>
-                                    <div className="mt-5 font-sans text-3xl font-bold tracking-tight text-white" dir="ltr">{metric.value}</div>
-                                    <div className="mt-1 font-semibold text-white">{metric.title}</div>
-                                    <p className="mt-1 text-sm leading-6 text-[#94a3b8]">{metric.description}</p>
+                                    <div className="mt-5 font-sans text-3xl font-bold tracking-tight text-text" dir="ltr">{metric.value}</div>
+                                    <div className="mt-1 font-semibold text-text">{metric.title}</div>
+                                    <p className="mt-1 text-sm leading-6 text-text-muted">{metric.description}</p>
                                 </div>
                             ))}
                         </div>
@@ -94,17 +94,17 @@ export default function AboutView({ dict }: AboutViewProps) {
                                     <History className="h-4 w-4" />
                                     {d.storyLabel}
                                 </div>
-                                <h2 className="mt-3 text-2xl font-bold leading-relaxed text-white md:text-3xl">{d.storyTitle}</h2>
-                                <div className="mt-6 space-y-4 leading-8 text-[#94a3b8]">
+                                <h2 className="mt-3 text-2xl font-bold leading-relaxed text-text md:text-3xl">{d.storyTitle}</h2>
+                                <div className="mt-6 space-y-4 leading-8 text-text-muted">
                                     {(d.storyParagraphs || []).map((paragraph: string) => <p key={paragraph}>{paragraph}</p>)}
                                 </div>
                             </div>
-                            <div className="mt-8 rounded-xl border border-[#273043] bg-[#161b26] p-5">
+                            <div className="mt-8 rounded-xl border border-border-strong bg-surface p-5">
                                 <div className="flex items-start gap-4">
-                                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[#1e1f26] text-[#b4c5ff]"><Sparkles className="h-5 w-5" /></div>
+                                        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-surface-raised text-[#b4c5ff]"><Sparkles className="h-5 w-5" /></div>
                                     <div>
-                                        <p className="text-lg font-semibold italic leading-8 text-white">«{d.manifesto}»</p>
-                                        <p className="mt-2 text-xs text-[#64748b]">{d.manifestoCaption}</p>
+                                        <p className="text-lg font-semibold italic leading-8 text-text">«{d.manifesto}»</p>
+                                        <p className="mt-2 text-xs text-text-subtle">{d.manifestoCaption}</p>
                                     </div>
                                 </div>
                             </div>
@@ -113,20 +113,20 @@ export default function AboutView({ dict }: AboutViewProps) {
                     </div>
                 </section>
 
-                <section className="border-y border-[#273043] bg-[#0d1117]">
+                <section className="border-y border-border-strong bg-surface-inset">
                     <div className="mx-auto max-w-7xl px-4 py-16 md:px-8 md:py-24">
                         <div className="mb-10 max-w-3xl">
                             <div className="flex items-center gap-2 font-sans text-xs font-semibold uppercase tracking-wider text-[#b4c5ff]"><ShieldCheck className="h-4 w-4" /> {d.pillarsLabel}</div>
-                            <h2 className="mt-3 text-2xl font-bold text-white md:text-3xl">{d.pillarsTitle}</h2>
-                            <p className="mt-3 leading-7 text-[#94a3b8]">{d.pillarsDescription}</p>
+                            <h2 className="mt-3 text-2xl font-bold text-text md:text-3xl">{d.pillarsTitle}</h2>
+                            <p className="mt-3 leading-7 text-text-muted">{d.pillarsDescription}</p>
                         </div>
                         <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
                             {pillars.map((pillar: any, index: number) => (
-                                <div key={pillar.id || index} className="flex flex-col justify-between rounded-xl border border-[#273043] bg-[#161b26] p-6 transition hover:-translate-y-1 hover:border-[#b4c5ff]/50">
+                                <div key={pillar.id || index} className="flex flex-col justify-between rounded-xl border border-border-strong bg-surface p-6 transition hover:-translate-y-1 hover:border-[#b4c5ff]/50">
                                     <div>
                                         <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-[#1e1f26] text-[#b4c5ff]"><PillarIcon index={index} /></div>
-                                        <h3 className="mt-5 text-lg font-semibold text-white">{pillar.title}</h3>
-                                        <p className="mt-2 text-sm leading-7 text-[#94a3b8]">{pillar.description}</p>
+                                        <h3 className="mt-5 text-lg font-semibold text-text">{pillar.title}</h3>
+                                        <p className="mt-2 text-sm leading-7 text-text-muted">{pillar.description}</p>
                                     </div>
                                     <div className="mt-6 font-sans text-xs font-semibold text-[#4edea3]" dir="ltr">&gt; {pillar.code}</div>
                                 </div>
@@ -138,8 +138,8 @@ export default function AboutView({ dict }: AboutViewProps) {
                 <section className="mx-auto max-w-7xl px-4 py-16 md:px-8 md:py-24">
                     <div className="mb-10 max-w-3xl">
                         <div className="flex items-center gap-2 font-sans text-xs font-semibold uppercase tracking-wider text-[#b4c5ff]"><GitBranch className="h-4 w-4" /> {d.comparisonLabel}</div>
-                        <h2 className="mt-3 text-2xl font-bold text-white md:text-3xl">{d.comparisonTitle}</h2>
-                        <p className="mt-3 leading-7 text-[#94a3b8]">{d.comparisonDescription}</p>
+                        <h2 className="mt-3 text-2xl font-bold text-text md:text-3xl">{d.comparisonTitle}</h2>
+                        <p className="mt-3 leading-7 text-text-muted">{d.comparisonDescription}</p>
                     </div>
                     <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
                         <ComparisonCard title={comparison.legacyTitle} badge={comparison.legacyBadge} description={comparison.legacyDescription} steps={comparison.legacySteps} danger />
@@ -147,17 +147,17 @@ export default function AboutView({ dict }: AboutViewProps) {
                     </div>
                 </section>
 
-                <section className="border-y border-[#273043] bg-[#0d1117]">
+                <section className="border-y border-border-strong bg-surface-inset">
                     <div className="mx-auto max-w-4xl px-4 py-16 md:px-8 md:py-24">
                         <div className="mb-10 text-center">
-                            <div className="inline-flex items-center gap-2 font-sans text-xs font-semibold uppercase tracking-wider text-[#64748b]"><Sparkles className="h-4 w-4" /> {d.faqLabel}</div>
-                            <h2 className="mt-3 text-2xl font-bold text-white md:text-3xl">{d.faqTitle}</h2>
+                            <div className="inline-flex items-center gap-2 font-sans text-xs font-semibold uppercase tracking-wider text-text-subtle"><Sparkles className="h-4 w-4" /> {d.faqLabel}</div>
+                            <h2 className="mt-3 text-2xl font-bold text-text md:text-3xl">{d.faqTitle}</h2>
                         </div>
                         <div className="space-y-3">
                             {faqs.map((faq: any, index: number) => (
-                                <details key={faq.question} open={index === 0} className="group rounded-xl border border-[#273043] bg-[#161b26] p-5">
-                                    <summary className="cursor-pointer list-none font-semibold text-white marker:hidden">{faq.question}<span className="float-left text-[#64748b] transition group-open:rotate-180">⌄</span></summary>
-                                    <p className="mt-4 leading-8 text-[#94a3b8]">{faq.answer}</p>
+                                 <details key={faq.question} open={index === 0} className="group rounded-xl border border-border-strong bg-surface p-5">
+                                     <summary className="cursor-pointer list-none font-semibold text-text marker:hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2 focus-visible:ring-offset-surface">{faq.question}<span className="float-left text-text-subtle transition group-open:rotate-180">⌄</span></summary>
+                                     <p className="mt-4 leading-8 text-text-muted">{faq.answer}</p>
                                 </details>
                             ))}
                         </div>
@@ -165,17 +165,17 @@ export default function AboutView({ dict }: AboutViewProps) {
                 </section>
 
                 <section className="mx-auto max-w-7xl px-4 py-16 md:px-8 md:py-24">
-                    <div className="relative overflow-hidden rounded-2xl border border-[#273043] bg-gradient-to-b from-[#161b26] to-[#0d1117] p-8 text-center shadow-xl md:p-14">
+                     <div className="relative overflow-hidden rounded-2xl border border-border-strong bg-gradient-to-b from-[#161b26] to-[#0d1117] p-8 text-center shadow-xl md:p-14">
                         <div className="pointer-events-none absolute inset-0 opacity-20 [background-image:radial-gradient(#2563eb_1px,transparent_1px)] [background-size:16px_16px]" />
                         <div className="relative mx-auto flex max-w-2xl flex-col items-center">
                             <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-blue-600/20 text-[#b4c5ff]"><Rocket className="h-7 w-7" /></div>
-                            <h2 className="mt-6 text-2xl font-bold text-white md:text-3xl">{d.ctaTitle}</h2>
-                            <p className="mt-3 leading-8 text-[#94a3b8]">{d.ctaDescription}</p>
+                             <h2 className="mt-6 text-2xl font-bold text-text md:text-3xl">{d.ctaTitle}</h2>
+                             <p className="mt-3 leading-8 text-text-muted">{d.ctaDescription}</p>
                             <div className="mt-8 flex flex-wrap justify-center gap-3">
-                                <Link href="/" className="inline-flex items-center gap-2 rounded-lg bg-[#2563eb] px-5 py-3 font-semibold text-white transition hover:bg-blue-600"><span>{d.ctaPrimary}</span><ArrowLeft className="h-4 w-4" /></Link>
-                                <a href="https://github.com/vahid9069/zebracode" target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 rounded-lg border border-[#273043] bg-[#1e1f26] px-5 py-3 font-semibold text-white transition hover:border-[#b4c5ff]"><Github className="h-4 w-4" /><span>{d.ctaSecondary}</span></a>
+                                 <Link href="/" className="inline-flex items-center gap-2 rounded-lg bg-action px-5 py-3 font-semibold text-action-foreground transition hover:bg-action-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2 focus-visible:ring-offset-canvas"><span>{d.ctaPrimary}</span><ArrowLeft className="h-4 w-4" /></Link>
+                                 <a href="https://github.com/vahid9069/zebracode" target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 rounded-lg border border-border-strong bg-surface-raised px-5 py-3 font-semibold text-text transition hover:border-[#b4c5ff] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2 focus-visible:ring-offset-surface-raised"><Github className="h-4 w-4" /><span>{d.ctaSecondary}</span></a>
                             </div>
-                            <div className="mt-7 flex flex-wrap justify-center gap-5 text-xs text-[#94a3b8]">
+                             <div className="mt-7 flex flex-wrap justify-center gap-5 text-xs text-text-muted">
                                 <span className="flex items-center gap-1"><CheckCircle2 className="h-4 w-4 text-[#4edea3]" />{d.ctaGuarantees.safe}</span>
                                 <span className="flex items-center gap-1"><CheckCircle2 className="h-4 w-4 text-[#4edea3]" />{d.ctaGuarantees.free}</span>
                                 <span className="flex items-center gap-1"><WifiOff className="h-4 w-4 text-[#4edea3]" />{d.ctaGuarantees.offline}</span>
@@ -183,7 +183,7 @@ export default function AboutView({ dict }: AboutViewProps) {
                         </div>
                     </div>
                 </section>
-            </main>
+            </div>
         </div>
     );
 }
@@ -199,13 +199,13 @@ function PillarIcon({ index }: { index: number }) {
 }
 
 function ArchitectureCard({ d }: { d: any }) {
-    return <div className="flex flex-col justify-center rounded-2xl border border-[#273043] bg-[#161b26] p-6 shadow-lg lg:col-span-5">
-        <div className="flex items-center justify-between border-b border-[#273043] pb-4">
-            <div className="flex items-center gap-1.5"><span className="h-3 w-3 rounded-full bg-red-400" /><span className="h-3 w-3 rounded-full bg-amber-400" /><span className="h-3 w-3 rounded-full bg-emerald-400" /><span className="ml-2 font-sans text-xs text-[#64748b]">runtime-sandbox.wasm</span></div>
-            <span className="rounded bg-[#1e1f26] px-2 py-0.5 font-sans text-[11px] text-[#4edea3]">Sandbox Active</span>
+    return <div className="flex flex-col justify-center rounded-2xl border border-border-strong bg-surface p-6 shadow-lg lg:col-span-5">
+        <div className="flex items-center justify-between border-b border-border-strong pb-4">
+            <div className="flex items-center gap-1.5"><span className="h-3 w-3 rounded-full bg-red-400" /><span className="h-3 w-3 rounded-full bg-amber-400" /><span className="h-3 w-3 rounded-full bg-emerald-400" /><span className="ml-2 font-sans text-xs text-text-subtle">runtime-sandbox.wasm</span></div>
+            <span className="rounded bg-surface-raised px-2 py-0.5 font-sans text-[11px] text-[#4edea3]">Sandbox Active</span>
         </div>
-        <div className="mt-5 rounded-xl border border-[#273043] bg-[#0d1117] p-5">
-            <div className="flex items-center justify-between font-sans text-xs text-[#64748b]"><span className="text-[#b4c5ff]">Browser Memory Heap</span><span className="text-[#4edea3]">100% In-Memory</span></div>
+        <div className="mt-5 rounded-xl border border-border-strong bg-surface-inset p-5">
+            <div className="flex items-center justify-between font-sans text-xs text-text-subtle"><span className="text-[#b4c5ff]">Browser Memory Heap</span><span className="text-[#4edea3]">100% In-Memory</span></div>
             <div className="my-8 flex items-center justify-between gap-2 font-sans text-[10px] text-center">
                 <Node label={d.architecture?.input || 'User Input'} />
                 <span className="text-blue-400">━━▶</span>
@@ -213,19 +213,19 @@ function ArchitectureCard({ d }: { d: any }) {
                 <span className="text-emerald-400">━━▶</span>
                 <Node label={d.architecture?.output || 'Result'} />
             </div>
-            <div className="border-t border-[#273043] pt-4 text-center font-sans text-xs text-[#4edea3]">{d.architecture?.caption || 'Local isolation · zero egress'}</div>
+            <div className="border-t border-border-strong pt-4 text-center font-sans text-xs text-[#4edea3]">{d.architecture?.caption || 'Local isolation · zero egress'}</div>
         </div>
     </div>;
 }
 
 function Node({ label, active = false }: { label: string; active?: boolean }) {
-    return <div className={`rounded-lg border px-3 py-3 ${active ? 'border-blue-500 bg-blue-950/40 text-[#b4c5ff]' : 'border-[#273043] bg-[#161b26] text-[#94a3b8]'}`}>{label}</div>;
+    return <div className={`rounded-lg border px-3 py-3 ${active ? 'border-blue-500 bg-blue-950/40 text-[#b4c5ff]' : 'border-border-strong bg-surface text-text-muted'}`}>{label}</div>;
 }
 
 function ComparisonCard({ title, badge, description, steps, danger = false }: { title: string; badge: string; description: string; steps: string[]; danger?: boolean }) {
-    return <div className="rounded-2xl border border-[#273043] bg-[#161b26] p-6">
-        <div className="flex items-center justify-between gap-3"><div className="flex items-center gap-3"><div className={`flex h-9 w-9 items-center justify-center rounded-lg ${danger ? 'bg-red-950/50 text-red-400' : 'bg-emerald-950/50 text-emerald-400'}`}>{danger ? <ShieldCheck className="h-5 w-5" /> : <CheckCircle2 className="h-5 w-5" />}</div><h3 className="font-semibold text-white">{title}</h3></div><span className={`rounded px-2 py-0.5 font-sans text-[10px] ${danger ? 'bg-red-950/50 text-red-300' : 'bg-emerald-950/50 text-emerald-300'}`}>{badge}</span></div>
-        <p className="mt-4 text-sm leading-7 text-[#94a3b8]">{description}</p>
-        <div className="mt-5 space-y-3">{(steps || []).map((step, index) => <div key={step} className="flex items-start gap-3 rounded-lg bg-[#1e1f26] p-3 text-sm leading-6"><span className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full font-sans text-xs ${danger && index === 1 ? 'bg-red-500/20 text-red-300' : 'bg-[#161b26] text-[#94a3b8]'}`}>{index + 1}</span><span className={danger && index === 1 ? 'text-red-300' : 'text-[#e3e1ec]'}>{step}</span></div>)}</div>
+    return <div className="rounded-2xl border border-border-strong bg-surface p-6">
+        <div className="flex items-center justify-between gap-3"><div className="flex items-center gap-3"><div className={`flex h-9 w-9 items-center justify-center rounded-lg ${danger ? 'bg-red-950/50 text-red-400' : 'bg-emerald-950/50 text-emerald-400'}`}>{danger ? <ShieldCheck className="h-5 w-5" /> : <CheckCircle2 className="h-5 w-5" />}</div><h3 className="font-semibold text-text">{title}</h3></div><span className={`rounded px-2 py-0.5 font-sans text-[10px] ${danger ? 'bg-red-950/50 text-red-300' : 'bg-emerald-950/50 text-emerald-300'}`}>{badge}</span></div>
+        <p className="mt-4 text-sm leading-7 text-text-muted">{description}</p>
+        <div className="mt-5 space-y-3">{(steps || []).map((step, index) => <div key={step} className="flex items-start gap-3 rounded-lg bg-surface-raised p-3 text-sm leading-6"><span className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full font-sans text-xs ${danger && index === 1 ? 'bg-red-500/20 text-red-300' : 'bg-surface text-text-muted'}`}>{index + 1}</span><span className={danger && index === 1 ? 'text-red-300' : 'text-text'}>{step}</span></div>)}</div>
     </div>;
 }

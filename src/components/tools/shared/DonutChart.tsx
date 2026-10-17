@@ -51,7 +51,7 @@ export function DonutChart({
     <div className={cn('flex flex-col items-center gap-4 sm:flex-row sm:items-center sm:justify-between', className)}>
       <div className="relative shrink-0" style={{ width: size, height: size }}>
         <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} role="img" aria-label={centerLabel} className="-rotate-90">
-          <circle cx={size / 2} cy={size / 2} r={radius} fill="none" strokeWidth={thickness} className="stroke-slate-100 dark:stroke-[#0d1117]" />
+          <circle cx={size / 2} cy={size / 2} r={radius} fill="none" strokeWidth={thickness} className="stroke-surface-inset" />
           {arcs.map((arc) =>
             arc.length <= 0 ? null : (
               <circle
@@ -72,23 +72,23 @@ export function DonutChart({
           )}
         </svg>
         <div className="absolute inset-0 flex flex-col items-center justify-center gap-0.5 text-center">
-          <span className="font-sans text-lg font-bold tabular-nums text-slate-900 dark:text-white">{centerValue}</span>
-          <span className="max-w-[70%] text-[10px] leading-tight text-slate-500">{centerLabel}</span>
+          <span className="font-sans text-lg font-bold tabular-nums text-text">{centerValue}</span>
+          <span className="max-w-[70%] text-[10px] leading-tight text-text-muted">{centerLabel}</span>
         </div>
       </div>
 
       <ul className="flex w-full flex-col gap-2">
         {arcs.map((arc) => (
-          <li key={arc.key} className="flex items-center justify-between gap-2 rounded-md bg-slate-50 px-3 py-2 text-xs dark:bg-[#0d1117]">
+          <li key={arc.key} className="flex items-center justify-between gap-2 rounded-md bg-surface-inset px-3 py-2 text-xs">
             <span className="flex min-w-0 items-center gap-2">
               <span className="h-2.5 w-2.5 shrink-0 rounded-full" style={{ background: arc.color }} />
-              <span className="truncate text-slate-600 dark:text-slate-300">{arc.label}</span>
+              <span className="truncate text-text-muted">{arc.label}</span>
             </span>
             <span className="flex shrink-0 items-center gap-2">
-              <span className="font-sans font-semibold tabular-nums text-slate-900 dark:text-white">
+              <span className="font-sans font-semibold tabular-nums text-text">
                 {valueFormatter ? valueFormatter(arc.value) : arc.value}
               </span>
-              <span className="w-10 text-end text-slate-400 tabular-nums">{Math.round(arc.share * 100)}%</span>
+              <span className="w-10 text-end text-text-subtle tabular-nums">{Math.round(arc.share * 100)}%</span>
             </span>
           </li>
         ))}

@@ -54,7 +54,7 @@ const fa = {
     home: 'خانه',
     breadcrumb: 'مسیر راهنما',
     category: 'مبدل‌های داده و کانفیگ',
-    local: 'موتور آفلاین (پردازش محلی)',
+    local: 'پردازش محلی',
     sample: 'نمونه داده واقعی',
     upload: 'آپلود فایل',
     clear: 'پاک‌سازی محیط',
@@ -113,7 +113,7 @@ const en = {
     home: 'Home',
     breadcrumb: 'Breadcrumb',
     category: 'Data & Config Converters',
-    local: 'Offline engine (processed locally)',
+    local: 'Local processing',
     sample: 'Load sample',
     upload: 'Upload file',
     clear: 'Clear workspace',
@@ -173,7 +173,7 @@ function formatBytes(bytes: number) {
 }
 
 function StatusBar({ value, text, trailing }: { value: string; text: typeof en; trailing?: React.ReactNode }) {
-    return <div className="flex flex-wrap items-center justify-between gap-2 border-t border-slate-200 bg-slate-50 px-3 py-2 text-[10px] text-slate-500 dark:border-slate-800 dark:bg-slate-900">
+    return <div className="flex flex-wrap items-center justify-between gap-2 border-t border-border bg-surface-inset px-3 py-2 text-[10px] text-text-muted">
         <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
             <span>{text.lines}: {value ? value.split('\n').length : 0}</span>
             <span>{text.chars}: {value.length}</span>
@@ -199,28 +199,28 @@ function EditorPanel({
     footer?: React.ReactNode;
 }) {
     const lineCount = Math.max(1, value.split('\n').length);
-    return <section className="flex min-h-[460px] min-w-0 flex-col overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-950">
-        <header className="flex min-h-12 items-center justify-between gap-2 border-b border-slate-200 bg-slate-50 px-3 py-2 dark:border-slate-800 dark:bg-slate-900">
+    return <section className="flex min-h-[360px] min-w-0 flex-col overflow-hidden rounded-xl border border-border bg-surface shadow-sm lg:min-h-[460px]">
+        <header className="flex min-h-12 items-center justify-between gap-2 border-b border-border bg-surface-inset px-3 py-2">
             <div className="flex min-w-0 items-center gap-2">
                 <span className="hidden shrink-0 items-center gap-1.5 sm:flex" aria-hidden="true">
                     <i className="h-2 w-2 rounded-full bg-red-400" />
                     <i className="h-2 w-2 rounded-full bg-amber-400" />
                     <i className="h-2 w-2 rounded-full bg-emerald-400" />
                 </span>
-                <span className="rounded bg-blue-100 px-2 py-1 font-sans text-[10px] font-bold text-blue-700 dark:bg-blue-950 dark:text-blue-300" dir="ltr">{language.toUpperCase()}</span>
-                <span className="truncate text-xs font-semibold text-slate-700 dark:text-slate-200">{title}</span>
-                {isValid !== undefined && <span className={`hidden items-center gap-1 rounded-full px-2 py-1 text-[10px] sm:inline-flex ${isValid ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300' : 'bg-red-100 text-red-700 dark:bg-red-950 dark:text-red-300'}`}>
+                <span className="rounded bg-action-soft px-2 py-1 font-sans text-[10px] font-bold text-action dark:text-focus" dir="ltr">{language.toUpperCase()}</span>
+                <span className="truncate text-xs font-semibold text-text">{title}</span>
+                {isValid !== undefined && <span className={`hidden items-center gap-1 rounded-full px-2 py-1 text-[10px] sm:inline-flex ${isValid ? 'bg-success-soft text-success' : 'bg-danger-soft text-danger'}`}>
                     {isValid ? <Check className="h-3 w-3" /> : <CircleAlert className="h-3 w-3" />}{isValid ? text.valid : text.invalid}
                 </span>}
             </div>
             <div className="flex shrink-0 items-center gap-1">{actions}</div>
         </header>
-        <div className="relative flex flex-1 overflow-hidden bg-white dark:bg-[#0b1020]">
-            <div aria-hidden="true" className="select-none overflow-hidden border-l border-slate-100 bg-slate-50 px-2 py-3 text-right font-sans text-xs leading-6 text-slate-400 dark:border-slate-800 dark:bg-slate-900/60">
+        <div className="relative flex flex-1 overflow-hidden bg-surface">
+            <div aria-hidden="true" className="select-none overflow-hidden border-s border-border bg-surface-inset px-2 py-3 text-right font-sans text-xs leading-6 text-text-muted">
                 {Array.from({ length: lineCount }, (_, index) => <div key={index}>{index + 1}</div>)}
             </div>
-            {readOnly ? <pre dir="ltr" aria-label={`${title} ${language} output`} className="min-w-0 flex-1 overflow-auto whitespace-pre p-3 font-sans text-[13px] leading-6 text-slate-800 dark:text-slate-200">
-                {value || <span className="flex h-full min-h-64 items-center justify-center gap-2 whitespace-normal text-center font-sans text-sm text-slate-400"><Code2 className="h-5 w-5" />{emptyText}</span>}
+            {readOnly ? <pre dir="ltr" aria-label={`${title} ${language} output`} className="min-w-0 flex-1 overflow-auto whitespace-pre p-3 font-sans text-[13px] leading-6 text-text">
+                {value || <span className="flex h-full min-h-64 items-center justify-center gap-2 whitespace-normal text-center font-sans text-sm text-text-muted"><Code2 className="h-5 w-5" />{emptyText}</span>}
             </pre> : <textarea
                 dir="ltr"
                 value={value}
@@ -228,7 +228,7 @@ function EditorPanel({
                 spellCheck={false}
                 autoComplete="off"
                 aria-label={`${title} ${language} input`}
-                className="min-w-0 flex-1 resize-none overflow-auto bg-transparent p-3 font-sans text-[13px] leading-6 text-slate-800 outline-none selection:bg-blue-100 dark:text-slate-200 dark:selection:bg-blue-900"
+                className="min-w-0 flex-1 resize-none overflow-auto bg-transparent p-3 font-sans text-[13px] leading-6 text-text outline-none selection:bg-action-soft"
             />}
         </div>
         <StatusBar value={value} text={text} trailing={footer} />
@@ -385,12 +385,12 @@ export default function ConverterWorkbench<InputType = string, OutputType = stri
             actions={
                 <>
                     {formatSupported && <>
-                        <button type="button" onClick={() => formatInput(false)} title={text.format} aria-label={text.format} className="rounded p-1.5 text-slate-500 hover:bg-slate-200 dark:hover:bg-slate-800"><Sparkles className="h-4 w-4" /></button>
-                        <button type="button" onClick={() => formatInput(true)} title={text.minify} aria-label={text.minify} className="rounded p-1.5 text-slate-500 hover:bg-slate-200 dark:hover:bg-slate-800"><Code2 className="h-4 w-4" /></button>
+                        <button type="button" onClick={() => formatInput(false)} title={text.format} aria-label={text.format} className="rounded p-1.5 text-text-muted hover:bg-surface-inset focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2 focus-visible:ring-offset-surface"><Sparkles className="h-4 w-4" /></button>
+                        <button type="button" onClick={() => formatInput(true)} title={text.minify} aria-label={text.minify} className="rounded p-1.5 text-text-muted hover:bg-surface-inset focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2 focus-visible:ring-offset-surface"><Code2 className="h-4 w-4" /></button>
                     </>}
-                    <button type="button" onClick={() => void copyText(inputText)} title={text.copy} aria-label={text.copy} className="rounded p-1.5 text-slate-500 hover:bg-slate-200 dark:hover:bg-slate-800"><Clipboard className="h-4 w-4" /></button>
-                    <button type="button" onClick={() => fileInputRef.current?.click()} title={text.upload} aria-label={text.upload} className="rounded p-1.5 text-slate-500 hover:bg-slate-200 dark:hover:bg-slate-800"><FileUp className="h-4 w-4" /></button>
-                    <button type="button" onClick={() => setIsFullscreen(value => !value)} title={text.fullscreen} aria-label={text.fullscreen} className="rounded p-1.5 text-slate-500 hover:bg-slate-200 dark:hover:bg-slate-800"><Maximize2 className="h-4 w-4" /></button>
+                    <button type="button" onClick={() => void copyText(inputText)} title={text.copy} aria-label={text.copy} className="rounded p-1.5 text-text-muted hover:bg-surface-inset focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2 focus-visible:ring-offset-surface"><Clipboard className="h-4 w-4" /></button>
+                    <button type="button" onClick={() => fileInputRef.current?.click()} title={text.upload} aria-label={text.upload} className="rounded p-1.5 text-text-muted hover:bg-surface-inset focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2 focus-visible:ring-offset-surface"><FileUp className="h-4 w-4" /></button>
+                    <button type="button" onClick={() => setIsFullscreen(value => !value)} title={text.fullscreen} aria-label={text.fullscreen} className="rounded p-1.5 text-text-muted hover:bg-surface-inset focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2 focus-visible:ring-offset-surface"><Maximize2 className="h-4 w-4" /></button>
                 </>
             }
             footer={toolOptions.some(option => option.id === 'indentSpaces') ? <span>{text.spaces}: {indentSpaces}</span> : null}
@@ -404,8 +404,8 @@ export default function ConverterWorkbench<InputType = string, OutputType = stri
             emptyText={text.empty}
             actions={
                 <>
-                    <span className="hidden items-center gap-1 text-[10px] text-slate-500 sm:flex"><span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />{text.generated}</span>
-                    <button type="button" onClick={() => void copyText(outputText)} disabled={!outputText} className="inline-flex items-center gap-1.5 rounded-md bg-blue-600 px-2.5 py-1.5 text-[11px] font-semibold text-white shadow-sm transition hover:bg-blue-700 active:scale-95 disabled:opacity-50" aria-label={text.copyResult}>
+                    <span className="hidden items-center gap-1 text-[10px] text-text-muted sm:flex"><span className="h-1.5 w-1.5 rounded-full bg-success" />{text.generated}</span>
+                    <button type="button" onClick={() => void copyText(outputText)} disabled={!outputText} className="inline-flex items-center gap-1.5 rounded-md bg-action px-2.5 py-1.5 text-[11px] font-semibold text-action-foreground shadow-sm transition hover:bg-action-hover active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2 focus-visible:ring-offset-surface disabled:opacity-50" aria-label={text.copyResult}>
                         {copied ? <Check className="h-3.5 w-3.5" /> : <Clipboard className="h-3.5 w-3.5" />}{copied ? text.copied : text.copyResult}
                     </button>
                     <button type="button" onClick={() => {
@@ -415,8 +415,8 @@ export default function ConverterWorkbench<InputType = string, OutputType = stri
                         anchor.download = `converted.${outputExtension.replace(/^\./, '')}`;
                         anchor.click();
                         URL.revokeObjectURL(url);
-                    }} disabled={!outputText} title={text.downloadOutput} aria-label={text.downloadOutput} className="rounded p-1.5 text-slate-500 hover:bg-slate-200 disabled:opacity-50 dark:hover:bg-slate-800"><Download className="h-4 w-4" /></button>
-                    <button type="button" onClick={() => setIsFullscreen(value => !value)} title={text.fullscreen} aria-label={text.fullscreen} className="rounded p-1.5 text-slate-500 hover:bg-slate-200 dark:hover:bg-slate-800"><Maximize2 className="h-4 w-4" /></button>
+                    }} disabled={!outputText} title={text.downloadOutput} aria-label={text.downloadOutput} className="rounded p-1.5 text-text-muted hover:bg-surface-inset focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2 focus-visible:ring-offset-surface disabled:opacity-50"><Download className="h-4 w-4" /></button>
+                    <button type="button" onClick={() => setIsFullscreen(value => !value)} title={text.fullscreen} aria-label={text.fullscreen} className="rounded p-1.5 text-text-muted hover:bg-surface-inset focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2 focus-visible:ring-offset-surface"><Maximize2 className="h-4 w-4" /></button>
                 </>
             }
             footer={<>
@@ -428,43 +428,43 @@ export default function ConverterWorkbench<InputType = string, OutputType = stri
 
     const selectedSnippet = codeSnippets[codeTab] || codeSnippets[0];
 
-    return <main dir={locale === 'fa' ? 'rtl' : 'ltr'} className="min-h-screen bg-[#f8f9ff] px-4 py-6 text-slate-900 dark:bg-slate-950 dark:text-slate-100 sm:px-6 lg:px-8">
+    return <div dir={locale === 'fa' ? 'rtl' : 'ltr'} className="min-h-screen bg-canvas px-4 py-6 text-text sm:px-6 lg:px-8">
         <div className="mx-auto max-w-7xl space-y-6">
             <div className="flex flex-wrap items-center justify-between gap-3">
-                <nav aria-label={text.breadcrumb} className="flex items-center gap-2 text-xs text-slate-500">
-                    <span>{text.home}</span><span aria-hidden="true">/</span><span>{category || text.category}</span><span aria-hidden="true">/</span><span className="font-medium text-slate-700 dark:text-slate-300">{title}</span>
+                <nav aria-label={text.breadcrumb} className="flex items-center gap-2 text-xs text-text-muted">
+                    <span>{text.home}</span><span aria-hidden="true">/</span><span>{category || text.category}</span><span aria-hidden="true">/</span><span className="font-medium text-text">{title}</span>
                 </nav>
                 <div className="flex flex-wrap items-center gap-2">
-                    <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-2.5 py-1 text-[10px] text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300"><i className="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-500" />{text.local}</span>
-                    <span className="rounded-full bg-slate-100 px-2.5 py-1 text-[10px] text-slate-600 dark:bg-slate-800 dark:text-slate-300">{outputLanguage.toUpperCase()} {specification} Spec</span>
+                    <span className="inline-flex items-center gap-1.5 rounded-full bg-success-soft px-2.5 py-1 text-[10px] text-success"><i className="h-1.5 w-1.5 animate-pulse rounded-full bg-success" />{text.local}</span>
+                    <span className="rounded-full bg-surface-inset px-2.5 py-1 text-[10px] text-text-muted">{outputLanguage.toUpperCase()} {specification} Spec</span>
                 </div>
             </div>
 
-            <header className="flex flex-col gap-4 rounded-xl border border-slate-200 bg-white/80 px-4 py-4 shadow-sm dark:border-slate-800 dark:bg-slate-900/80 sm:px-5 sm:py-5 lg:flex-row lg:items-end lg:justify-between">
+            <header className="flex flex-col gap-4 rounded-xl border border-border bg-surface-raised/80 px-4 py-4 shadow-sm sm:px-5 sm:py-5 lg:flex-row lg:items-end lg:justify-between">
                 <div className="max-w-3xl space-y-2">
                     <div className="flex flex-wrap items-center gap-3">
-                        <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-blue-600 text-white"><ArrowLeftRight className="h-5 w-5" /></span>
+                        <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-action text-action-foreground"><ArrowLeftRight className="h-5 w-5" /></span>
                         <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">{title}</h1>
-                        <span className="rounded-full bg-slate-100 px-2 py-1 font-sans text-[10px] text-slate-500 dark:bg-slate-800">{version}</span>
+                        <span className="rounded-full bg-surface-inset px-2 py-1 font-sans text-[10px] text-text-muted">{version}</span>
                     </div>
-                    <p className="text-sm leading-7 text-slate-600 dark:text-slate-300">{description}</p>
+                    <p className="text-sm leading-7 text-text-muted">{description}</p>
                 </div>
                 <div className="flex flex-wrap gap-2">
-                    <button type="button" onClick={() => setInputText(sampleInput)} className="inline-flex h-9 items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 text-xs font-medium shadow-sm hover:bg-slate-50 dark:border-slate-800 dark:bg-slate-900 dark:hover:bg-slate-800"><Code2 className="h-4 w-4 text-blue-600" />{text.sample}</button>
-                    <button type="button" onClick={() => fileInputRef.current?.click()} className="inline-flex h-9 items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 text-xs font-medium shadow-sm hover:bg-slate-50 dark:border-slate-800 dark:bg-slate-900 dark:hover:bg-slate-800"><FileUp className="h-4 w-4 text-blue-600" />{text.upload}</button>
+                    <button type="button" onClick={() => setInputText(sampleInput)} className="inline-flex h-9 items-center gap-2 rounded-lg border border-border bg-surface px-3 text-xs font-medium shadow-sm hover:bg-surface-inset focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2 focus-visible:ring-offset-surface"><Code2 className="h-4 w-4 text-action dark:text-focus" />{text.sample}</button>
+                    <button type="button" onClick={() => fileInputRef.current?.click()} className="inline-flex h-9 items-center gap-2 rounded-lg border border-border bg-surface px-3 text-xs font-medium shadow-sm hover:bg-surface-inset focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2 focus-visible:ring-offset-surface"><FileUp className="h-4 w-4 text-action dark:text-focus" />{text.upload}</button>
                     <input ref={fileInputRef} type="file" accept={inputExtension.map(extension => extension.startsWith('.') ? extension : `.${extension}`).join(',')} className="hidden" onChange={event => loadFile(event.target.files?.[0])} />
-                    <button type="button" onClick={clearWorkspace} className="inline-flex h-9 items-center gap-2 rounded-lg border border-red-200 bg-white px-3 text-xs font-medium text-red-600 shadow-sm hover:bg-red-50 dark:border-red-900 dark:bg-slate-900 dark:hover:bg-red-950"><Trash2 className="h-4 w-4" />{text.clear}</button>
+                    <button type="button" onClick={clearWorkspace} className="inline-flex h-9 items-center gap-2 rounded-lg border border-danger/30 bg-surface px-3 text-xs font-medium text-danger shadow-sm hover:bg-danger-soft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2 focus-visible:ring-offset-surface"><Trash2 className="h-4 w-4" />{text.clear}</button>
                 </div>
             </header>
 
-            <section aria-label={text.settings} className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-slate-200 bg-slate-50/80 p-2.5 shadow-sm dark:border-slate-800 dark:bg-slate-900/80">
+            <section aria-label={text.settings} className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-border bg-surface-inset/80 p-2.5 shadow-sm">
                 <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-xs">
                     {toolOptions.map(option => <label key={option.id} className="flex items-center gap-2">
                         {option.type === 'boolean' ? <input
                             type="checkbox"
                             checked={optionValues[option.id] === true}
                             onChange={event => setOptionValues(previous => ({ ...previous, [option.id]: event.target.checked }))}
-                            className="accent-blue-600"
+                            className="accent-action focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2 focus-visible:ring-offset-surface"
                         /> : <select
                             value={String(optionValues[option.id] ?? '')}
                             onChange={event => {
@@ -472,7 +472,7 @@ export default function ConverterWorkbench<InputType = string, OutputType = stri
                                 setOptionValues(previous => ({ ...previous, [option.id]: selected }));
                             }}
                             aria-label={option.label}
-                            className="rounded-md border border-slate-200 bg-white px-2 py-1 dark:border-slate-700 dark:bg-slate-800"
+                            className="rounded-md border border-border bg-surface px-2 py-1 text-text focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2 focus-visible:ring-offset-surface"
                         >
                             {option.selectOptions?.map(item => <option key={String(item.value)} value={String(item.value)}>{locale === 'en' ? item.labelEn || item.label : item.label}</option>)}
                         </select>}
@@ -480,21 +480,21 @@ export default function ConverterWorkbench<InputType = string, OutputType = stri
                     </label>)}
                 </div>
                 <div className="flex flex-wrap items-center gap-2">
-                    <label className="flex items-center gap-2 text-xs"><input type="checkbox" checked={isLiveSync} onChange={event => setIsLiveSync(event.target.checked)} className="accent-blue-600" />{text.live}</label>
-                    <button type="button" onClick={() => void runConversion(inputText, options)} className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-1.5 text-xs font-medium text-white shadow-sm hover:bg-blue-700 disabled:opacity-60" disabled={isConverting}>
+                    <label className="flex items-center gap-2 text-xs"><input type="checkbox" checked={isLiveSync} onChange={event => setIsLiveSync(event.target.checked)} className="accent-action focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2 focus-visible:ring-offset-surface" />{text.live}</label>
+                    <button type="button" onClick={() => void runConversion(inputText, options)} aria-busy={isConverting} className="inline-flex items-center gap-2 rounded-lg bg-action px-4 py-1.5 text-xs font-medium text-action-foreground shadow-sm hover:bg-action-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2 focus-visible:ring-offset-surface disabled:opacity-60" disabled={isConverting}>
                         {isConverting ? <span className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-white/40 border-t-white" /> : <Play className="h-3.5 w-3.5" />}
                         {text.convert}<kbd className="hidden rounded bg-white/20 px-1.5 py-0.5 text-[9px] sm:inline">Ctrl+Enter</kbd>
                     </button>
-                    <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-1 font-sans text-[10px] text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300"><Zap className="h-3 w-3" />{isConverting ? '…' : `${conversionTime?.toFixed(2) ?? '—'}ms`}</span>
+                    <span className="inline-flex items-center gap-1 rounded-full bg-success-soft px-2 py-1 font-sans text-[10px] text-success"><Zap className="h-3 w-3" />{isConverting ? '…' : `${conversionTime?.toFixed(2) ?? '—'}ms`}</span>
                 </div>
             </section>
 
-            {error && <div role="alert" className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 dark:border-red-900 dark:bg-red-950/40 dark:text-red-300">{error}</div>}
+            {error && <div role="alert" className="rounded-lg border border-danger/30 bg-danger-soft px-4 py-3 text-sm text-danger">{error}</div>}
             <section aria-label={text.editors}>{editorArea()}</section>
 
-            {isFullscreen && <div role="dialog" aria-modal="true" aria-label={text.fullscreen} className="fixed inset-0 z-50 overflow-auto bg-[#f8f9ff] p-4 dark:bg-slate-950 sm:p-6">
+            {isFullscreen && <div role="dialog" aria-modal="true" aria-label={text.fullscreen} className="fixed inset-0 z-50 overflow-auto bg-canvas p-4 sm:p-6">
                 <div className="mx-auto flex min-h-full max-w-[1800px] flex-col gap-4">
-                    <div className="flex justify-end"><button type="button" onClick={() => setIsFullscreen(false)} className="inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm dark:border-slate-800 dark:bg-slate-900"><Minimize2 className="h-4 w-4" />{text.fullscreen} (Esc)</button></div>
+                    <div className="flex justify-end"><button type="button" onClick={() => setIsFullscreen(false)} className="inline-flex items-center gap-2 rounded-lg border border-border bg-surface px-3 py-2 text-sm text-text shadow-sm hover:bg-surface-inset focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2 focus-visible:ring-offset-canvas"><Minimize2 className="h-4 w-4" />{text.fullscreen} (Esc)</button></div>
                     <div className="flex-1">{editorArea(true)}</div>
                 </div>
             </div>}
@@ -504,38 +504,38 @@ export default function ConverterWorkbench<InputType = string, OutputType = stri
                 <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
                     {features.map(feature => {
                         const FeatureIcon = featureIcons[feature.icon as keyof typeof featureIcons] || Sparkles;
-                        return <article key={feature.title} className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-                            <FeatureIcon className="mb-3 h-5 w-5 text-blue-600" />
-                            <h3 className="mb-2 text-sm font-semibold">{locale === 'en' ? feature.titleEn || feature.title : feature.title}</h3><p className="text-xs leading-6 text-slate-600 dark:text-slate-300">{locale === 'en' ? feature.descriptionEn || feature.description : feature.description}</p>
+                        return <article key={feature.title} className="rounded-xl border border-border bg-surface p-4 shadow-sm">
+                            <FeatureIcon className="mb-3 h-5 w-5 text-action dark:text-focus" />
+                            <h3 className="mb-2 text-sm font-semibold">{locale === 'en' ? feature.titleEn || feature.title : feature.title}</h3><p className="text-xs leading-6 text-text-muted">{locale === 'en' ? feature.descriptionEn || feature.description : feature.description}</p>
                         </article>;
                     })}
                 </div>
             </section>
 
-            {selectedSnippet && <section className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
-                <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-200 px-4 py-3 dark:border-slate-800">
+            {selectedSnippet && <section className="overflow-hidden rounded-xl border border-border bg-surface shadow-sm">
+                <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border px-4 py-3">
                     <h2 className="text-sm font-semibold">{text.quickstart}</h2>
                     <div className="flex items-center gap-1">
-                        {codeSnippets.map((snippet, index) => <button key={`${snippet.languageTab}-${index}`} type="button" onClick={() => setCodeTab(index)} className={`rounded-md px-2.5 py-1 text-xs ${codeTab === index ? 'bg-blue-100 text-blue-700 dark:bg-blue-950 dark:text-blue-300' : 'text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800'}`}>{snippet.languageTab}</button>)}
-                        <button type="button" onClick={() => void copyText(selectedSnippet.code, true)} aria-label={text.copySnippet} className="rounded-md p-2 text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800">{codeCopied ? <Check className="h-4 w-4" /> : <Clipboard className="h-4 w-4" />}</button>
+                        {codeSnippets.map((snippet, index) => <button key={`${snippet.languageTab}-${index}`} type="button" onClick={() => setCodeTab(index)} className={`rounded-md px-2.5 py-1 text-xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2 focus-visible:ring-offset-surface ${codeTab === index ? 'bg-action-soft text-action dark:text-focus' : 'text-text-muted hover:bg-surface-inset hover:text-text'}`}>{snippet.languageTab}</button>)}
+                        <button type="button" onClick={() => void copyText(selectedSnippet.code, true)} aria-label={text.copySnippet} className="rounded-md p-2 text-text-muted hover:bg-surface-inset focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2 focus-visible:ring-offset-surface">{codeCopied ? <Check className="h-4 w-4" /> : <Clipboard className="h-4 w-4" />}</button>
                     </div>
                 </div>
-                <pre dir="ltr" className="overflow-x-auto p-4 text-left font-sans text-xs leading-6 text-slate-700 dark:text-slate-200"><code>{selectedSnippet.code}</code></pre>
+                <pre dir="ltr" className="overflow-x-auto p-4 text-left font-sans text-xs leading-6 text-text"><code>{selectedSnippet.code}</code></pre>
             </section>}
 
             {faqs.length > 0 && <section className="space-y-3">
                 <h2 className="text-lg font-bold">{text.faqTitle}</h2>
                 <Accordion.Root type="single" collapsible className="space-y-2">
-                    {faqs.map((faq, index) => <Accordion.Item key={faq.question} value={`faq-${index}`} className="overflow-hidden rounded-xl border border-slate-200 bg-white px-4 dark:border-slate-800 dark:bg-slate-900">
+                    {faqs.map((faq, index) => <Accordion.Item key={faq.question} value={`faq-${index}`} className="overflow-hidden rounded-xl border border-border bg-surface px-4">
                         <Accordion.Header>
-                            <Accordion.Trigger className="flex w-full items-center justify-between gap-4 py-4 text-right text-sm font-medium hover:text-blue-700">
+                            <Accordion.Trigger className="flex w-full items-center justify-between gap-4 py-4 text-right text-sm font-medium hover:text-action dark:hover:text-focus focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2 focus-visible:ring-offset-surface">
                                 {locale === 'en' ? faq.questionEn || faq.question : faq.question}<ChevronDown className="h-4 w-4 shrink-0 transition-transform duration-200 data-[state=open]:rotate-180" />
                             </Accordion.Trigger>
                         </Accordion.Header>
-                        <Accordion.Content className="pb-4 text-sm leading-7 text-slate-600 dark:text-slate-300">{locale === 'en' ? faq.answerEn || faq.answer : faq.answer}</Accordion.Content>
+                        <Accordion.Content className="pb-4 text-sm leading-7 text-text-muted">{locale === 'en' ? faq.answerEn || faq.answer : faq.answer}</Accordion.Content>
                     </Accordion.Item>)}
                 </Accordion.Root>
             </section>}
         </div>
-    </main>;
+    </div>;
 }

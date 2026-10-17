@@ -52,7 +52,7 @@ export default function SeoContent({ toolType, subCategory, description, customF
                 {/* توضیحات */}
                 {(description || seoCopy) && (
                     <Card className="prose dark:prose-invert max-w-none p-8">
-                        <h2 className="text-2xl font-bold mb-4">
+                        <h2 className="mb-4 text-2xl font-bold text-text">
                             {seoCopy?.title || i18n?.dict.common.aboutThisTool || (locale === 'fa' ? 'راهنمای این ابزار' : 'About this tool')}
                         </h2>
                         {seoCopy ? (
@@ -74,19 +74,19 @@ export default function SeoContent({ toolType, subCategory, description, customF
                 {/* FAQ */}
                 {faq.length > 0 && (
                     <div>
-                        <h2 className="text-2xl font-bold mb-6">
+                        <h2 className="mb-6 text-2xl font-bold text-text">
                             {i18n?.dict.common.faqTitle || (locale === 'fa' ? 'سوالات متداول' : 'Frequently Asked Questions')}
                         </h2>
                         <div className="space-y-4">
                             {faq.map((item, idx) => (
-                                <details key={idx} className="group rounded-xl border bg-card p-6 shadow-sm transition-colors open:border-primary/40">
-                                    <summary className="text-lg font-semibold list-none flex justify-between items-center">
+                                <details key={idx} className="group rounded-xl border border-border bg-surface p-6 shadow-sm transition-colors open:border-action/40">
+                                    <summary className="flex list-none items-center justify-between text-lg font-semibold text-text focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2 focus-visible:ring-offset-surface">
                                         {item.question}
-                                        <svg className="w-5 h-5 text-gray-500 transition-transform group-open:rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <svg className="h-5 w-5 text-text-muted transition-transform group-open:rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                                         </svg>
                                     </summary>
-                                    <p className="mt-4 text-muted-foreground leading-relaxed">{item.answer}</p>
+                                    <p className="mt-4 leading-relaxed text-text-muted">{item.answer}</p>
                                 </details>
                             ))}
                         </div>

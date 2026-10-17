@@ -1,8 +1,12 @@
 {
   "home": "خانه",
+  "primaryNavigation": "ناوبری اصلی",
+  "toolNavigation": "ناوبری ابزارها",
+  "sidebarSearchLabel": "جستجوی ابزارها",
   "about": "درباره ما",
   "search": "جستجو",
   "switchLanguage": "تغییر زبان به انگلیسی",
+  "toggleTheme": "تغییر پوسته",
   "langCode": "EN",
   "developerTools": "جعبه‌ابزار توسعه",
   "toolsBadge": "+۳۴",

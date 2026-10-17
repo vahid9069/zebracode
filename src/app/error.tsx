@@ -19,23 +19,23 @@ export default function Error({ error, reset }: Props) {
     }, [error]);
 
     return (
-        <div className="min-h-[80vh] flex items-center justify-center bg-gradient-to-br from-red-50 to-rose-50 dark:from-gray-900 dark:to-gray-800 px-4">
-            <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-xl border border-gray-200 dark:border-gray-700 p-8 max-w-md text-center space-y-6">
-                <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-red-100 dark:bg-red-900/30">
-                    <AlertTriangle className="w-8 h-8 text-red-600 dark:text-red-400" />
+        <div className="flex min-h-[80vh] items-center justify-center bg-canvas px-4 text-text">
+            <div className="max-w-md space-y-6 rounded-2xl border border-border-strong bg-surface p-8 text-center shadow-xl">
+                <div className="inline-flex h-16 w-16 items-center justify-center rounded-full bg-danger-soft">
+                    <AlertTriangle className="h-8 w-8 text-danger" />
                 </div>
 
-                <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
+                <h1 className="text-2xl font-bold text-text">
                     {common?.errorTitle || 'Oops! Something went wrong'}
                 </h1>
 
-                <p className="text-gray-600 dark:text-gray-400">
+                <p className="text-text-muted">
                     {error?.message || common?.errorFallback || 'An unexpected error occurred. Please try again later.'}
                 </p>
 
                 <button
                     onClick={reset}
-                    className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl transition-colors shadow-md hover:shadow-lg"
+                    className="inline-flex items-center gap-2 rounded-xl bg-action px-6 py-3 font-semibold text-action-foreground shadow-md transition-colors hover:bg-action-hover hover:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2 focus-visible:ring-offset-surface"
                 >
                     <RotateCcw size={18} />
                     {common?.tryAgain || 'Try Again'}

@@ -245,14 +245,14 @@ export default function DualCalendarWidget({
   const todayIso = today ? formatIsoDate(today) : null;
 
   const navButtons = (
-    <div className={cn('flex items-center', compact ? 'gap-0' : 'rounded-md bg-slate-100 p-0.5 dark:bg-[#0d1117]')}>
+    <div className={cn('flex items-center', compact ? 'gap-0' : 'rounded-md bg-surface-inset p-0.5')}>
       <button
         type="button"
         aria-label={labels.prevMonth}
         title={labels.prevMonth}
         onClick={() => changeMonth(-1)}
         className={cn(
-          'inline-flex h-7 w-7 items-center justify-center rounded-md text-slate-500 transition-colors hover:bg-white hover:text-blue-600 dark:hover:bg-[#161b26]',
+          'inline-flex h-7 w-7 items-center justify-center rounded-md text-text-muted transition-colors hover:bg-surface-raised hover:text-action dark:hover:text-focus focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2 focus-visible:ring-offset-surface',
           !compact && 'h-8 w-8',
         )}
       >
@@ -264,7 +264,7 @@ export default function DualCalendarWidget({
         title={labels.nextMonth}
         onClick={() => changeMonth(1)}
         className={cn(
-          'inline-flex h-7 w-7 items-center justify-center rounded-md text-slate-500 transition-colors hover:bg-white hover:text-blue-600 dark:hover:bg-[#161b26]',
+          'inline-flex h-7 w-7 items-center justify-center rounded-md text-text-muted transition-colors hover:bg-surface-raised hover:text-action dark:hover:text-focus focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2 focus-visible:ring-offset-surface',
           !compact && 'h-8 w-8',
         )}
       >
@@ -282,14 +282,14 @@ export default function DualCalendarWidget({
       onTouchStart={onTouchStart}
       onTouchEnd={onTouchEnd}
       className={cn(
-        'w-full rounded-md outline-none [touch-action:pan-y] focus-visible:ring-2 focus-visible:ring-blue-500',
-        compact && 'overflow-hidden border border-slate-200 dark:border-white/10',
+        'w-full rounded-md outline-none [touch-action:pan-y] focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2 focus-visible:ring-offset-surface',
+        compact && 'overflow-hidden border border-border',
       )}
     >
       <div
         className={cn(
           'grid grid-cols-7 text-center',
-          compact ? 'gap-0 border-b border-slate-200 dark:border-white/10' : 'gap-0.5 text-[11px] sm:gap-1',
+          compact ? 'gap-0 border-b border-border' : 'gap-0.5 text-[11px] sm:gap-1',
         )}
       >
         {weekdays.map((day, index) => (
@@ -297,9 +297,9 @@ export default function DualCalendarWidget({
             key={`${day}-${index}`}
             className={cn(
               'font-semibold',
-              compact ? 'border-s border-slate-200 py-1.5 text-[11px] text-slate-500 first:border-s-0 dark:border-white/10' : 'py-1 sm:py-2',
+              compact ? 'border-s border-border py-1.5 text-[11px] text-text-muted first:border-s-0' : 'py-1 sm:py-2',
               !compact && index === 6 && 'text-red-500',
-              !compact && index !== 6 && 'text-slate-500',
+              !compact && index !== 6 && 'text-text-muted',
               compact && index === 6 && 'text-red-500',
             )}
           >
@@ -328,15 +328,12 @@ export default function DualCalendarWidget({
               className={cn(
                 'group relative flex min-w-0 flex-col items-center justify-center transition-all',
                 compact
-                  ? 'h-11 gap-0 border-b border-s border-slate-100 p-0.5 last:border-b-0 dark:border-white/5'
+                  ? 'h-11 gap-0 border-b border-s border-border p-0.5 last:border-b-0'
                   : 'h-10 gap-0.5 rounded-lg p-0.5 sm:h-14 sm:p-1',
-                selected
-                  ? compact
-                    ? 'bg-blue-600 font-bold text-white shadow-sm hover:bg-blue-700'
-                    : 'bg-slate-800 font-bold text-white shadow-sm hover:bg-slate-700 dark:bg-slate-600 dark:hover:bg-slate-500'
-                  : 'hover:bg-slate-100 dark:hover:bg-blue-950/40',
+                selected ? 'bg-action font-bold text-action-foreground shadow-sm hover:bg-action-hover' : 'hover:bg-action-soft',
                 !selected && cell.isFriday && !compact && 'hover:bg-red-50 dark:hover:bg-red-950/30',
                 isToday && !selected && 'ring-1 ring-emerald-500',
+                'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2 focus-visible:ring-offset-surface',
               )}
             >
               <span
@@ -344,7 +341,7 @@ export default function DualCalendarWidget({
                   'font-bold tabular-nums',
                   compact ? 'text-[11px]' : 'text-sm sm:text-base',
                   !selected && cell.isFriday && 'text-rose-500',
-                  !selected && !cell.isFriday && 'text-slate-800 dark:text-slate-100',
+                  !selected && !cell.isFriday && 'text-text',
                 )}
               >
                 {cell.day > 0 ? num(cell.day) : ''}
@@ -353,12 +350,12 @@ export default function DualCalendarWidget({
                 className={cn(
                   'w-full truncate text-center tabular-nums',
                   compact ? 'text-[9px]' : 'hidden text-[10px] sm:block',
-                  selected ? (compact ? 'text-blue-100' : 'text-slate-300') : cell.isFriday ? 'text-rose-400' : 'text-slate-400',
+                  selected ? 'text-action-foreground/80' : cell.isFriday ? 'text-rose-400' : 'text-text-subtle',
                 )}
               >
                 {cell.secondary}
               </span>
-              {isToday ? <span className={cn('absolute top-0.5 end-1 h-1.5 w-1.5 rounded-full', selected ? 'bg-white' : 'bg-emerald-500')} /> : null}
+              {isToday ? <span className={cn('absolute top-0.5 end-1 h-1.5 w-1.5 rounded-full', selected ? 'bg-action-foreground' : 'bg-emerald-500')} /> : null}
             </button>
           );
         })}
@@ -371,10 +368,10 @@ export default function DualCalendarWidget({
       <div className={cn('flex flex-col gap-2', className)}>
         <div className="flex items-center justify-between gap-2">
           {navButtons}
-          <span className="flex flex-wrap items-center justify-center gap-1 text-[11px] font-semibold text-slate-600 dark:text-slate-300">
+          <span className="flex flex-wrap items-center justify-center gap-1 text-[11px] font-semibold text-text-muted">
             <span>{dualMonthLabel.jalali}</span>
-            <span className="text-slate-300 dark:text-slate-600">/</span>
-            <span dir="ltr" className="text-slate-500">
+            <span className="text-text-subtle">/</span>
+            <span dir="ltr" className="text-text-muted">
               {dualMonthLabel.gregorian}
             </span>
           </span>
@@ -394,12 +391,12 @@ export default function DualCalendarWidget({
             aria-label={labels.prevMonth}
             title={labels.prevMonth}
             onClick={() => changeMonth(-1)}
-            className="inline-flex h-8 w-8 items-center justify-center rounded-md text-slate-500 transition-colors hover:bg-slate-100 hover:text-blue-600 dark:hover:bg-[#0d1117]"
+            className="inline-flex h-8 w-8 items-center justify-center rounded-md text-text-muted transition-colors hover:bg-action-soft hover:text-action dark:hover:text-focus focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2 focus-visible:ring-offset-surface"
           >
             <ChevronRight className="h-4 w-4" />
           </button>
-          <span className="inline-flex min-w-0 items-center gap-1.5 px-1 text-sm font-bold text-slate-700 dark:text-slate-100">
-            <CalendarDays className="h-4 w-4 shrink-0 text-blue-600" />
+          <span className="inline-flex min-w-0 items-center gap-1.5 px-1 text-sm font-bold text-text">
+            <CalendarDays className="h-4 w-4 shrink-0 text-action" />
             <span className="truncate">
               {monthNames[view.month - 1]} {num(view.year)}
             </span>
@@ -409,7 +406,7 @@ export default function DualCalendarWidget({
             aria-label={labels.nextMonth}
             title={labels.nextMonth}
             onClick={() => changeMonth(1)}
-            className="inline-flex h-8 w-8 items-center justify-center rounded-md text-slate-500 transition-colors hover:bg-slate-100 hover:text-blue-600 dark:hover:bg-[#0d1117]"
+            className="inline-flex h-8 w-8 items-center justify-center rounded-md text-text-muted transition-colors hover:bg-action-soft hover:text-action dark:hover:text-focus focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2 focus-visible:ring-offset-surface"
           >
             <ChevronLeft className="h-4 w-4" />
           </button>
@@ -421,14 +418,14 @@ export default function DualCalendarWidget({
             type="button"
             disabled={!today}
             onClick={() => today && jumpTo(new Date(today))}
-            className="inline-flex h-9 items-center gap-2 rounded-md border border-slate-200 bg-white px-3 text-xs font-semibold text-slate-600 transition-colors hover:border-blue-200 hover:text-blue-600 disabled:opacity-50 dark:border-white/10 dark:bg-[#161b26] dark:text-slate-300 dark:hover:border-blue-900"
+            className="inline-flex h-9 items-center gap-2 rounded-md border border-border-strong bg-surface px-3 text-xs font-semibold text-text-muted transition-colors hover:border-action hover:text-action dark:hover:text-focus focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2 focus-visible:ring-offset-surface disabled:opacity-50"
           >
             {labels.todayButton}
           </button>
           <button
             type="button"
             onClick={() => onSystemChange(system === 'jalali' ? 'gregorian' : 'jalali')}
-            className="inline-flex h-9 items-center gap-2 rounded-md bg-blue-600 px-3 text-xs font-semibold text-white transition-colors hover:bg-blue-700"
+            className="inline-flex h-9 items-center gap-2 rounded-md bg-action px-3 text-xs font-semibold text-action-foreground transition-colors hover:bg-action-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2 focus-visible:ring-offset-surface"
           >
             <Repeat className="h-4 w-4" />
             {system === 'jalali' ? labels.switchToGregorian : labels.switchToJalali}
@@ -439,7 +436,7 @@ export default function DualCalendarWidget({
       {grid}
 
       <div className="flex flex-wrap items-center gap-2" aria-label={labels.quickJumpTitle}>
-        <span className="text-[11px] font-semibold text-slate-400">{labels.quickJumpTitle}:</span>
+        <span className="text-[11px] font-semibold text-text-subtle">{labels.quickJumpTitle}:</span>
         <QuickPill label={labels.jumpToday} disabled={!today} onClick={() => today && jumpTo(new Date(today))} />
         <QuickPill label={labels.jumpYesterday} disabled={!today} onClick={() => today && jumpTo(addDays(today, -1))} />
         <QuickPill label={labels.jumpTomorrow} disabled={!today} onClick={() => today && jumpTo(addDays(today, 1))} />
@@ -456,7 +453,7 @@ function QuickPill({ label, onClick, disabled }: { label: string; onClick: () =>
       type="button"
       onClick={onClick}
       disabled={disabled}
-      className="inline-flex h-7 items-center rounded-full bg-slate-100 px-2.5 text-[11px] font-medium text-slate-600 transition-all hover:-translate-y-0.5 hover:bg-blue-50 hover:text-blue-700 disabled:opacity-50 dark:bg-[#0d1117] dark:text-slate-300 dark:hover:bg-blue-950/40 dark:hover:text-blue-300"
+      className="inline-flex h-7 items-center rounded-full bg-surface-inset px-2.5 text-[11px] font-medium text-text-muted transition-all hover:-translate-y-0.5 hover:bg-action-soft hover:text-action focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2 focus-visible:ring-offset-surface disabled:opacity-50"
     >
       {label}
     </button>

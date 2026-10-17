@@ -6,27 +6,16 @@
 
 /* globals.css */
 
-/* CodeMirror هنگام فوکوس، کلاس .cm-focused را به المان اصلی ویرایشگر اضافه می‌کند.
-   برای حذف کامل Outline در هر دو تم، این استایل را اعمال کنید.
-*/
-.cm-editor.cm-focused {
-    /* 1. حذف خط دور (outline)
-      (این Outline معمولاً توسط مرورگر برای Accessibility اضافه می‌شود)
-    */
-    outline: none !important;
-
-    /* 2. حذف Shadow/Border هنگام فوکوس (اگر از پلاگین‌ها یا تم‌های پیش‌فرض آمده باشد)
-    */
-    box-shadow: none !important;
-    border-color: transparent !important;
+/* Keep the visible focus indicator on the stable wrapper rather than on the
+   CodeMirror view, whose internal DOM can be replaced during reconfiguration. */
+.cm-editor-shell:focus-within {
+    box-shadow: inset 0 0 0 2px var(--focus);
 }
 
-/* اگر از @uiw/react-codemirror استفاده می‌کنید،
-   گاهی نیاز است یک استایل اضافی روی div اصلی CodeMirror اعمال شود.
-*/
-.cm-editor:focus-within {
+.cm-editor-shell .cm-editor.cm-focused {
     outline: none !important;
     box-shadow: none !important;
+    border-color: transparent !important;
 }
 /* app/globals.css یا فایل استایل اصلی شما */
 

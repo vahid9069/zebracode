@@ -1,8 +1,12 @@
 {
   "home": "Home",
+  "primaryNavigation": "Primary navigation",
+  "toolNavigation": "Tool navigation",
+  "sidebarSearchLabel": "Search tools",
   "about": "About Us",
   "search": "Search",
   "switchLanguage": "Switch to Persian",
+  "toggleTheme": "Toggle theme",
   "langCode": "FA",
   "developerTools": "Developer tools",
   "toolsBadge": "+34",

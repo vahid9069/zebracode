@@ -42,11 +42,11 @@ export function useToasts(duration = 2000) {
 
 export function ToastViewport({ toasts }: { toasts: ToastMessage[] }) {
   return (
-    <div aria-live="polite" className="pointer-events-none fixed bottom-4 end-4 z-50 flex w-[min(20rem,calc(100vw-2rem))] flex-col items-stretch gap-2">
+    <div role="status" aria-live="polite" aria-atomic="false" className="pointer-events-none fixed bottom-4 end-4 z-50 flex w-[min(20rem,calc(100vw-2rem))] flex-col items-stretch gap-2">
       {toasts.map((toast) => (
         <div
           key={toast.id}
-          className="flex items-center gap-2 rounded-md border border-emerald-200 bg-white px-3 py-2 text-xs font-medium text-emerald-800 shadow-lg dark:border-emerald-900 dark:bg-[#161b26] dark:text-emerald-300"
+          className="flex items-center gap-2 rounded-md border border-success/30 bg-surface px-3 py-2 text-xs font-medium text-success shadow-lg"
         >
           <CheckCircle2 className="h-4 w-4 shrink-0" />
           <span className="truncate">{toast.text}</span>
@@ -109,12 +109,12 @@ export function CopyButton({ value, label, onCopied, className, size = 'md' }: C
       title={label}
       onClick={handleCopy}
       className={cn(
-        'inline-flex shrink-0 items-center justify-center rounded-md text-slate-500 transition-colors hover:bg-slate-100 hover:text-blue-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 dark:hover:bg-[#0d1117]',
+        'inline-flex shrink-0 items-center justify-center rounded-md text-text-muted transition-colors hover:bg-surface-inset hover:text-action focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus dark:hover:text-focus',
         size === 'sm' ? 'h-7 w-7' : 'h-8 w-8',
         className,
       )}
     >
-      {copied ? <Check className={cn(size === 'sm' ? 'h-3.5 w-3.5' : 'h-4 w-4', 'text-emerald-600')} /> : <Copy className={size === 'sm' ? 'h-3.5 w-3.5' : 'h-4 w-4'} />}
+      {copied ? <Check className={cn(size === 'sm' ? 'h-3.5 w-3.5' : 'h-4 w-4', 'text-success')} /> : <Copy className={size === 'sm' ? 'h-3.5 w-3.5' : 'h-4 w-4'} />}
     </button>
   );
 }
@@ -141,19 +141,19 @@ export function ValueRow({
     <div
       className={cn(
         'flex items-center justify-between gap-2 rounded-md px-3 py-2',
-        tone === 'primary' && 'bg-blue-50 dark:bg-blue-950/30',
-        tone === 'default' && 'bg-slate-50 dark:bg-[#0d1117]',
-        tone === 'muted' && 'bg-white dark:bg-[#161b26]',
+        tone === 'primary' && 'bg-action-soft',
+        tone === 'default' && 'bg-surface-inset',
+        tone === 'muted' && 'bg-surface',
       )}
     >
-      <span className="shrink-0 text-xs text-slate-500">{label}</span>
+      <span className="shrink-0 text-xs text-text-muted">{label}</span>
       <div className="flex min-w-0 items-center gap-1">
         <code
           dir={ltr ? 'ltr' : undefined}
           className={cn(
             'truncate text-sm font-semibold',
             mono && 'font-sans tabular-nums',
-            tone === 'primary' ? 'text-blue-700 dark:text-blue-300' : 'text-slate-800 dark:text-slate-100',
+            tone === 'primary' ? 'text-action dark:text-focus' : 'text-text',
           )}
         >
           {value}

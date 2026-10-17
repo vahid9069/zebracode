@@ -30,20 +30,7 @@ import { ToastViewport, ValueRow, writeToClipboard, useToasts } from '@/componen
 import DualCalendarWidget, { type CalendarWidgetLabels } from '@/components/tools/shared/DualCalendarWidget';
 import { buildCalendarLabels } from '@/components/tools/shared/calendarLabels';
 import { DonutChart } from '@/components/tools/shared/DonutChart';
-import {
-  Badge,
-  CodeCard,
-  FieldGroup,
-  MetricCard,
-  ModeTile,
-  NoteCard,
-  NumberField,
-  PresetPill,
-  SectionCard,
-  SystemToggle,
-  TimeCell,
-  TimeFields,
-} from '@/components/tools/shared/fields';
+import { Badge, CodeCard, FieldGroup, MetricCard, ModeTile, NoteCard, NumberField, PresetPill, SectionCard, SystemToggle, TimeCell, TimeFields } from '@/components/tools/shared/fields';
 import {
   type CalendarSystem,
   type DateParts,
@@ -73,7 +60,15 @@ type Mode = 'diff' | 'shift' | 'countdown';
 type Endpoint = 'start' | 'end';
 
 const DATE_FIELDS: readonly Extract<FieldKey, 'year' | 'month' | 'day'>[] = ['year', 'month', 'day'];
-const DEFAULT_SHIFT = { years: 0, months: 3, weeks: 2, days: 10, hour: 4, minute: 30, second: 0 };
+const DEFAULT_SHIFT = {
+  years: 0,
+  months: 3,
+  weeks: 2,
+  days: 10,
+  hour: 4,
+  minute: 30,
+  second: 0,
+};
 
 export default function TimestampConverter() {
   const { locale, dict } = useI18n();
@@ -102,7 +97,10 @@ export default function TimestampConverter() {
   const [end, setEnd] = useState<Date | null>(null);
   const [startSystem, setStartSystem] = useState<CalendarSystem>('jalali');
   const [endSystem, setEndSystem] = useState<CalendarSystem>('jalali');
-  const [draft, setDraft] = useState<{ start: Partial<Record<FieldKey, string>>; end: Partial<Record<FieldKey, string>> }>({ start: {}, end: {} });
+  const [draft, setDraft] = useState<{
+    start: Partial<Record<FieldKey, string>>;
+    end: Partial<Record<FieldKey, string>>;
+  }>({ start: {}, end: {} });
   const [customHolidays, setCustomHolidays] = useState<CustomHoliday[]>([]);
   const [tick, setTick] = useState<Date | null>(null);
 
@@ -140,7 +138,10 @@ export default function TimestampConverter() {
   const endpointParts = (endpoint: Endpoint) => (endpoint === 'start' ? startParts : endParts);
 
   const commitField = (endpoint: Endpoint, key: FieldKey, raw: string) => {
-    setDraft((current) => ({ ...current, [endpoint]: { ...current[endpoint], [key]: raw } }));
+    setDraft((current) => ({
+      ...current,
+      [endpoint]: { ...current[endpoint], [key]: raw },
+    }));
     const current = endpointParts(endpoint);
     const currentDate = endpoint === 'start' ? start : end;
     const system = endpoint === 'start' ? startSystem : endSystem;
@@ -153,7 +154,10 @@ export default function TimestampConverter() {
   };
 
   const clearDraft = (endpoint: Endpoint, key: FieldKey) =>
-    setDraft((current) => ({ ...current, [endpoint]: { ...current[endpoint], [key]: undefined } }));
+    setDraft((current) => ({
+      ...current,
+      [endpoint]: { ...current[endpoint], [key]: undefined },
+    }));
 
   const setEndpoint = (endpoint: Endpoint, next: Date) => {
     setDraft((current) => ({ ...current, [endpoint]: {} }));
@@ -172,7 +176,18 @@ export default function TimestampConverter() {
     else {
       const parts = dateToParts(base, system);
       if (preset === 'firstOfMonth') next = partsToDate({ ...parts, day: 1, hour: 0, minute: 0, second: 0 }, system);
-      else next = partsToDate({ ...parts, month: 12, day: daysInMonth(system, parts.year, 12), hour: 23, minute: 59, second: 59 }, system);
+      else
+        next = partsToDate(
+          {
+            ...parts,
+            month: 12,
+            day: daysInMonth(system, parts.year, 12),
+            hour: 23,
+            minute: 59,
+            second: 59,
+          },
+          system,
+        );
     }
     setEndpoint(endpoint, next);
   };
@@ -204,7 +219,10 @@ export default function TimestampConverter() {
     if (span <= 0) return { percent: 100, state: 'done' as const };
     if (tick.getTime() <= from) return { percent: 0, state: 'before' as const };
     if (tick.getTime() >= to) return { percent: 100, state: 'done' as const };
-    return { percent: Math.round(((tick.getTime() - from) / span) * 1000) / 10, state: 'active' as const };
+    return {
+      percent: Math.round(((tick.getTime() - from) / span) * 1000) / 10,
+      state: 'active' as const,
+    };
   }, [end, start, tick]);
 
   const countdown = useMemo(() => {
@@ -228,7 +246,14 @@ export default function TimestampConverter() {
       return {
         jalali: `${num(j.jd)} ${shared.jalaliMonths[j.jm - 1]} ${num(j.jy)}`,
         gregorian: formatIsoDate(date),
-        jalaliParts: { year: j.jy, month: j.jm, day: j.jd, hour: 0, minute: 0, second: 0 } as DateParts,
+        jalaliParts: {
+          year: j.jy,
+          month: j.jm,
+          day: j.jd,
+          hour: 0,
+          minute: 0,
+          second: 0,
+        } as DateParts,
       };
     };
     const a = parts(start);
@@ -238,7 +263,10 @@ export default function TimestampConverter() {
     return {
       start: a,
       end: b,
-      today: { jalali: `${num(tj.jd)} ${shared.jalaliMonths[tj.jm - 1]} ${num(tj.jy)}`, gregorian: formatIsoDate(today) },
+      today: {
+        jalali: `${num(tj.jd)} ${shared.jalaliMonths[tj.jm - 1]} ${num(tj.jy)}`,
+        gregorian: formatIsoDate(today),
+      },
     };
   }, [end, num, shared.jalaliMonths, start, tick]);
 
@@ -394,20 +422,20 @@ func main() {
 
   /* ------------------------------- render ------------------------------- */
   return (
-    <div dir={direction} className="min-h-screen bg-[#f7f8fa] px-4 py-6 text-slate-900 dark:bg-[#0b0f19] dark:text-white md:px-6">
+    <div dir={direction} className="min-h-screen bg-canvas px-4 py-6 text-text md:px-6">
       <div className="mx-auto max-w-5xl space-y-5">
         {/* breadcrumbs + guarantee pill */}
-        <div className="flex flex-wrap items-center justify-between gap-3 text-xs text-slate-500">
+        <div className="flex flex-wrap items-center justify-between gap-3 text-xs text-text-muted">
           <nav className="flex flex-wrap items-center gap-1.5">
-            <a href={locale === 'en' ? '/en' : '/'} className="hover:text-blue-600">
+            <a href={locale === 'en' ? '/en' : '/'} className="hover:text-action dark:hover:text-focus focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus">
               {ui.home}
             </a>
-            <span className="text-slate-300">›</span>
+            <span className="text-text-subtle">›</span>
             <span>{ui.tools}</span>
-            <span className="text-slate-300">›</span>
-            <b className="font-semibold text-slate-700 dark:text-slate-200">{ui.category}</b>
+            <span className="text-text-subtle">›</span>
+            <b className="font-semibold text-text">{ui.category}</b>
           </nav>
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-3 py-1 text-[11px] font-semibold text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300">
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-success-soft px-3 py-1 text-[11px] font-semibold text-success">
             <ShieldCheck className="h-3.5 w-3.5" />
             {ui.badgeLocal}
           </span>
@@ -415,12 +443,12 @@ func main() {
 
         {/* title */}
         <div className="flex items-start gap-3">
-          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-blue-600 text-white">
+          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-action text-action-foreground">
             <CalendarDays className="h-5 w-5" />
           </div>
           <div className="min-w-0">
             <h1 className="text-xl font-bold sm:text-2xl">{ui.title}</h1>
-            <p className="mt-1 text-xs leading-6 text-slate-500 sm:text-sm">{ui.subtitle}</p>
+            <p className="mt-1 text-xs leading-6 text-text-muted sm:text-sm">{ui.subtitle}</p>
           </div>
         </div>
 
@@ -429,8 +457,8 @@ func main() {
           <ModeTile active={mode === 'diff'} icon={<CalendarRange className="h-4 w-4" />} label={ui.modeDiff} onClick={() => changeMode('diff')} />
           <ModeTile active={mode === 'shift'} icon={<Plus className="h-4 w-4" />} label={ui.modeShift} onClick={() => changeMode('shift')} />
           <ModeTile active={mode === 'countdown'} icon={<TimerReset className="h-4 w-4" />} label={ui.modeCountdown} onClick={() => changeMode('countdown')} />
-          <span className="ms-auto hidden items-center gap-1.5 self-center rounded-full bg-white px-3 py-1.5 text-[11px] text-slate-500 ring-1 ring-slate-200 lg:inline-flex dark:bg-[#161b26] dark:ring-white/10">
-            <Clock3 className="h-3.5 w-3.5 text-emerald-500" />
+          <span className="ms-auto hidden items-center gap-1.5 self-center rounded-full bg-surface px-3 py-1.5 text-[11px] text-text-muted ring-1 ring-border-strong lg:inline-flex">
+            <Clock3 className="h-3.5 w-3.5 text-success" />
             <code dir="ltr" className="font-sans">
               {shared.utcShort}
             </code>
@@ -443,7 +471,14 @@ func main() {
               <SectionCard icon={<Timer className="h-4 w-4" />} title={ui.mathTitle} hint={shared.systemOrigin}>
                 <div className="space-y-3">
                   <div className="flex flex-wrap items-center gap-2">
-                    <SystemToggle system={startSystem} onChange={setStartSystem} labels={{ jalali: shared.jalali, gregorian: shared.gregorian }} />
+                    <SystemToggle
+                      system={startSystem}
+                      onChange={setStartSystem}
+                      labels={{
+                        jalali: shared.jalali,
+                        gregorian: shared.gregorian,
+                      }}
+                    />
                   </div>
                   <FieldGroup label={shared.dateLabel}>
                     <div className="grid grid-cols-3 gap-2">
@@ -465,7 +500,11 @@ func main() {
                       hour={baseParts?.hour ?? null}
                       minute={baseParts?.minute ?? null}
                       second={baseParts?.second ?? null}
-                      labels={{ hour: ui.fieldHour, minute: ui.fieldMinute, second: ui.fieldSecond }}
+                      labels={{
+                        hour: ui.fieldHour,
+                        minute: ui.fieldMinute,
+                        second: ui.fieldSecond,
+                      }}
                       onChange={(key, raw) => commitField('start', key, raw)}
                       draft={draft.start}
                       onBlur={(key) => clearDraft('start', key)}
@@ -487,35 +526,26 @@ func main() {
                     />
                   ) : null}
                   <div className="grid grid-cols-2 gap-2">
-                    <OperationButton
-                      active={operation === 'add'}
-                      icon={<Plus className="h-4 w-4" />}
-                      title={ui.addTime}
-                      hint={ui.toFuture}
-                      onClick={() => setOperation('add')}
-                    />
-                    <OperationButton
-                      active={operation === 'sub'}
-                      icon={<span className="text-base leading-none">−</span>}
-                      title={ui.subTime}
-                      hint={ui.toPast}
-                      onClick={() => setOperation('sub')}
-                    />
+                    <OperationButton active={operation === 'add'} icon={<Plus className="h-4 w-4" />} title={ui.addTime} hint={ui.toFuture} onClick={() => setOperation('add')} />
+                    <OperationButton active={operation === 'sub'} icon={<span className="text-base leading-none">−</span>} title={ui.subTime} hint={ui.toPast} onClick={() => setOperation('sub')} />
                   </div>
                   <FieldGroup label={ui.modeShift}>
                     <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
                       {shiftLabels.map(({ key, label }) => (
                         <label key={key} className="block">
-                          <span className="mb-1 block truncate text-[10px] font-medium text-slate-400">{label}</span>
+                          <span className="mb-1 block truncate text-[10px] font-medium text-text-subtle">{label}</span>
                           <input
                             dir="ltr"
                             inputMode="numeric"
                             value={String(shift[key])}
                             onChange={(event) => {
                               const numeric = toInt(event.target.value.replace(/[^\d]/g, ''), 0);
-                              setShift((current) => ({ ...current, [key]: numeric }));
+                              setShift((current) => ({
+                                ...current,
+                                [key]: numeric,
+                              }));
                             }}
-                            className="h-9 w-full rounded-md border border-slate-200 bg-white px-2 text-center font-sans text-sm tabular-nums outline-none focus-visible:border-blue-500 focus-visible:ring-2 focus-visible:ring-blue-500/30 dark:border-white/10 dark:bg-[#0d1117]"
+                            className="h-9 w-full rounded-md border border-border-strong bg-surface px-2 text-center font-sans text-sm tabular-nums text-text outline-none focus-visible:border-focus focus-visible:ring-2 focus-visible:ring-focus/30"
                           />
                         </label>
                       ))}
@@ -527,23 +557,16 @@ func main() {
             <div className="lg:col-span-5">
               <SectionCard icon={<Sparkles className="h-4 w-4" />} title={ui.resultTitle} badge={<Badge text={ui.finalAnswer} />}>
                 <div className="space-y-3">
-                  <div className="rounded-lg bg-blue-50 p-4 dark:bg-blue-950/30">
-                    <span className="text-[11px] font-semibold text-blue-600">
+                  <div className="rounded-lg bg-action-soft p-4">
+                    <span className="text-[11px] font-semibold text-action dark:text-focus">
                       {ui.calendarLabel} {startSystem === 'jalali' ? ui.calendarJalali : ui.calendarGregorian}
                     </span>
                     <h2 className="mt-1.5 text-lg font-bold">{shifted ? shifted.jalali : '—'}</h2>
-                    <p dir="ltr" className="mt-1 font-sans text-[11px] text-slate-600 dark:text-slate-300">
+                    <p dir="ltr" className="mt-1 font-sans text-[11px] text-text-muted">
                       {shifted ? shifted.gregorian : '—'}
                     </p>
                   </div>
-                  <ValueRow
-                    label={ui.unixTimestamp}
-                    value={shifted ? String(epochSeconds(shifted.date)) : '—'}
-                    copyLabel={shared.copy}
-                    onCopied={copy}
-                    ltr
-                    tone="primary"
-                  />
+                  <ValueRow label={ui.unixTimestamp} value={shifted ? String(epochSeconds(shifted.date)) : '—'} copyLabel={shared.copy} onCopied={copy} ltr tone="primary" />
                 </div>
               </SectionCard>
             </div>
@@ -600,7 +623,7 @@ func main() {
                   const ok = await writeToClipboard(summaryText);
                   if (ok) push(shared.copiedToClipboard);
                 }}
-                className="inline-flex h-9 items-center gap-1.5 rounded-md border border-slate-200 bg-white px-4 text-xs font-semibold text-slate-600 transition-colors hover:border-blue-200 hover:text-blue-600 dark:border-white/10 dark:bg-[#161b26] dark:text-slate-300"
+                className="inline-flex h-9 items-center gap-1.5 rounded-md border border-border-strong bg-surface px-4 text-xs font-semibold text-text-muted transition-colors hover:border-action/40 hover:text-action dark:hover:text-focus focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2 focus-visible:ring-offset-surface"
               >
                 <Hash className="h-3.5 w-3.5" />
                 {ui.copySummaryShort}
@@ -609,7 +632,7 @@ func main() {
                 type="button"
                 onClick={swap}
                 title={ui.swapHint}
-                className="inline-flex h-9 items-center gap-1.5 rounded-md bg-blue-600 px-4 text-xs font-semibold text-white transition-colors hover:bg-blue-700"
+                className="inline-flex h-9 items-center gap-1.5 rounded-md bg-action px-4 text-xs font-semibold text-action-foreground transition-colors hover:bg-action-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2 focus-visible:ring-offset-surface"
               >
                 <ArrowLeftRight className="h-3.5 w-3.5" />
                 {ui.swap}
@@ -624,52 +647,35 @@ func main() {
                   <TimeCell label={ui.countdownMinutes} value={countdown ? clock(String(countdown.minutes).padStart(2, '0')) : '--'} />
                   <TimeCell label={ui.countdownSeconds} value={countdown ? clock(String(countdown.seconds).padStart(2, '0')) : '--'} />
                 </div>
-                {countdown?.negative ? (
-                  <p className="mt-3 rounded-md bg-amber-50 px-3 py-2 text-[11px] font-medium text-amber-700 dark:bg-amber-950/30 dark:text-amber-300">
-                    {ui.countdownPassed}
-                  </p>
-                ) : null}
+                {countdown?.negative ? <p className="mt-3 rounded-md bg-warning-soft px-3 py-2 text-[11px] font-medium text-warning">{ui.countdownPassed}</p> : null}
                 {countdown && !countdown.negative && countdown.days === 0 && countdown.hours === 0 && countdown.minutes === 0 && countdown.seconds < 1 ? (
-                  <p className="mt-3 rounded-md bg-emerald-50 px-3 py-2 text-[11px] font-medium text-emerald-700 dark:bg-emerald-950/30 dark:text-emerald-300">
-                    {ui.countdownFinished}
-                  </p>
+                  <p className="mt-3 rounded-md bg-success-soft px-3 py-2 text-[11px] font-medium text-success">{ui.countdownFinished}</p>
                 ) : null}
               </SectionCard>
             ) : null}
 
             {mounted && diff && totals && business && leap && start && end && rangeLabels ? (
               <>
-                {diff.reversed ? (
-                  <p className="rounded-md bg-amber-50 px-4 py-2.5 text-[11px] font-medium text-amber-700 dark:bg-amber-950/30 dark:text-amber-300">
-                    {ui.reversedWarning}
-                  </p>
-                ) : null}
+                {diff.reversed ? <p className="rounded-md bg-warning-soft px-4 py-2.5 text-[11px] font-medium text-warning">{ui.reversedWarning}</p> : null}
 
                 {/* hero summary */}
-                <div className="rounded-lg border border-slate-200 bg-white p-4 sm:p-5 dark:border-white/10 dark:bg-[#161b26]">
-                  <span className="flex items-center gap-1.5 text-[11px] font-semibold text-slate-400">
-                    <Sparkles className="h-3.5 w-3.5 text-blue-600" />
+                <div className="rounded-lg border border-border-strong bg-surface p-4 sm:p-5">
+                  <span className="flex items-center gap-1.5 text-[11px] font-semibold text-text-subtle">
+                    <Sparkles className="h-3.5 w-3.5 text-action dark:text-focus" />
                     {ui.summaryLabel}
                   </span>
                   <p className="mt-2 text-xl font-bold leading-relaxed sm:text-2xl">
                     {heroYmd} {ui.and}{' '}
-                    <span dir="ltr" className="inline-block font-sans tabular-nums text-blue-600 dark:text-blue-400">
+                    <span dir="ltr" className="inline-block font-sans tabular-nums text-action dark:text-focus">
                       {heroClock}
                     </span>
                   </p>
-                  <p className="mt-2 text-xs leading-6 text-slate-500">{summaryText}</p>
+                  <p className="mt-2 text-xs leading-6 text-text-muted">{summaryText}</p>
                 </div>
 
                 {/* 6 metric cards */}
                 <div className="grid grid-cols-2 gap-2 md:grid-cols-3 lg:grid-cols-6">
-                  <MetricCard
-                    icon={<CalendarDays className="h-3.5 w-3.5" />}
-                    label={ui.metricTotalDays}
-                    value={count(totals.days)}
-                    hint={ui.hintTotalDays}
-                    copyLabel={shared.copy}
-                    onCopied={copy}
-                  />
+                  <MetricCard icon={<CalendarDays className="h-3.5 w-3.5" />} label={ui.metricTotalDays} value={count(totals.days)} hint={ui.hintTotalDays} copyLabel={shared.copy} onCopied={copy} />
                   <MetricCard
                     icon={<BriefcaseBusiness className="h-3.5 w-3.5" />}
                     label={ui.metricBusinessDays}
@@ -687,70 +693,44 @@ func main() {
                     copyLabel={shared.copy}
                     onCopied={copy}
                   />
-                  <MetricCard
-                    icon={<Clock3 className="h-3.5 w-3.5" />}
-                    label={ui.metricHours}
-                    value={count(totals.hours)}
-                    hint={ui.hintHours}
-                    copyLabel={shared.copy}
-                    onCopied={copy}
-                  />
-                  <MetricCard
-                    icon={<Timer className="h-3.5 w-3.5" />}
-                    label={ui.metricMinutes}
-                    value={count(totals.minutes)}
-                    hint={ui.hintMinutes}
-                    copyLabel={shared.copy}
-                    onCopied={copy}
-                  />
-                  <MetricCard
-                    icon={<AlarmClock className="h-3.5 w-3.5" />}
-                    label={ui.metricSeconds}
-                    value={count(totals.seconds)}
-                    hint={ui.hintSeconds}
-                    copyLabel={shared.copy}
-                    onCopied={copy}
-                  />
+                  <MetricCard icon={<Clock3 className="h-3.5 w-3.5" />} label={ui.metricHours} value={count(totals.hours)} hint={ui.hintHours} copyLabel={shared.copy} onCopied={copy} />
+                  <MetricCard icon={<Timer className="h-3.5 w-3.5" />} label={ui.metricMinutes} value={count(totals.minutes)} hint={ui.hintMinutes} copyLabel={shared.copy} onCopied={copy} />
+                  <MetricCard icon={<AlarmClock className="h-3.5 w-3.5" />} label={ui.metricSeconds} value={count(totals.seconds)} hint={ui.hintSeconds} copyLabel={shared.copy} onCopied={copy} />
                 </div>
 
                 {/* timeline */}
                 <SectionCard
                   icon={<TrendingUp className="h-4 w-4" />}
                   title={ui.timelineTitle}
-                  badge={
-                    progress ? (
-                      <Badge
-                        tone="emerald"
-                        text={ui.progressElapsed.replace('{percent}', num(Math.round(progress.percent * 10) / 10))}
-                      />
-                    ) : null
-                  }
+                  badge={progress ? <Badge tone="emerald" text={ui.progressElapsed.replace('{percent}', num(Math.round(progress.percent * 10) / 10))} /> : null}
                 >
-                  <div className="mb-2 text-center text-[11px] text-slate-500">
+                  <div className="mb-2 text-center text-[11px] text-text-muted">
                     {progress?.state === 'active' ? ui.progressNow : progress?.state === 'before' ? ui.progressBefore : ui.progressAfter}
-                    <span className="mx-1 text-slate-300">•</span>
-                    <b className="font-semibold text-slate-600 dark:text-slate-300">{ui.timelineToday}</b>
-                    <span className="mx-1 text-slate-300">/</span>
+                    <span className="mx-1 text-text-subtle">•</span>
+                    <b className="font-semibold text-text">{ui.timelineToday}</b>
+                    <span className="mx-1 text-text-subtle">/</span>
                     <span className="tabular-nums">{rangeLabels.today.jalali}</span>
                   </div>
-                  <div className="relative h-2.5 overflow-hidden rounded-full bg-slate-100 dark:bg-[#0d1117]">
+                  <div className="relative h-2.5 overflow-hidden rounded-full bg-surface-inset">
                     <div
                       className="h-full rounded-full bg-gradient-to-r from-blue-500 to-emerald-500 transition-[width] duration-700"
-                      style={{ width: `${progress ? Math.min(100, Math.max(0, progress.percent)) : 0}%` }}
+                      style={{
+                        width: `${progress ? Math.min(100, Math.max(0, progress.percent)) : 0}%`,
+                      }}
                     />
                   </div>
-                  <div className="mt-3 flex flex-wrap items-start justify-between gap-3 text-[11px] text-slate-500">
+                  <div className="mt-3 flex flex-wrap items-start justify-between gap-3 text-[11px] text-text-muted">
                     <span className="flex flex-col gap-0.5">
-                      <b className="font-semibold text-slate-600 dark:text-slate-300">{ui.timelineStart}</b>
+                      <b className="font-semibold text-text">{ui.timelineStart}</b>
                       <span className="tabular-nums">{rangeLabels.start.jalali}</span>
-                      <code dir="ltr" className="font-sans text-[10px] text-slate-400">
+                      <code dir="ltr" className="font-sans text-[10px] text-text-subtle">
                         {rangeLabels.start.gregorian}
                       </code>
                     </span>
                     <span className="flex flex-col items-end gap-0.5 text-end">
-                      <b className="font-semibold text-slate-600 dark:text-slate-300">{ui.timelineEnd}</b>
+                      <b className="font-semibold text-text">{ui.timelineEnd}</b>
                       <span className="tabular-nums">{rangeLabels.end.jalali}</span>
-                      <code dir="ltr" className="font-sans text-[10px] text-slate-400">
+                      <code dir="ltr" className="font-sans text-[10px] text-text-subtle">
                         {rangeLabels.end.gregorian}
                       </code>
                     </span>
@@ -763,9 +743,24 @@ func main() {
                     {business.total > 0 ? (
                       <DonutChart
                         slices={[
-                          { key: 'working', label: ui.legendWorking, value: business.working, color: '#2563eb' },
-                          { key: 'weekend', label: ui.legendWeekend, value: business.weekend, color: '#f59e0b' },
-                          { key: 'holiday', label: ui.legendHoliday, value: business.holiday, color: '#dc2626' },
+                          {
+                            key: 'working',
+                            label: ui.legendWorking,
+                            value: business.working,
+                            color: '#2563eb',
+                          },
+                          {
+                            key: 'weekend',
+                            label: ui.legendWeekend,
+                            value: business.weekend,
+                            color: '#f59e0b',
+                          },
+                          {
+                            key: 'holiday',
+                            label: ui.legendHoliday,
+                            value: business.holiday,
+                            color: '#dc2626',
+                          },
                         ]}
                         centerValue={count(business.working)}
                         centerLabel={ui.legendWorking}
@@ -774,7 +769,7 @@ func main() {
                         thickness={18}
                       />
                     ) : (
-                      <p className="rounded-md bg-slate-50 px-3 py-4 text-[11px] text-slate-500 dark:bg-[#0d1117]">{ui.emptyRange}</p>
+                      <p className="rounded-md bg-surface-inset px-3 py-4 text-[11px] text-text-muted">{ui.emptyRange}</p>
                     )}
                   </SectionCard>
 
@@ -789,33 +784,11 @@ func main() {
                         format={(year) => num(year)}
                         empty={ui.leapNone}
                       />
-                      <LeapRow
-                        label={ui.leapRowGregorian}
-                        badge={ui.leapBadgeGregorian}
-                        tone="blue"
-                        years={leap.gregorianYears}
-                        unit="Feb 29"
-                        format={(year) => String(year)}
-                        empty={ui.leapNone}
-                      />
-                      <LeapRow
-                        label={ui.leapCommonJalali}
-                        tone="slate"
-                        years={leap.jalaliCommon}
-                        unit={`${num(365)} ${ui.days}`}
-                        format={(year) => num(year)}
-                        empty={ui.leapNone}
-                      />
-                      <LeapRow
-                        label={ui.leapCommonGregorian}
-                        tone="slate"
-                        years={leap.gregorianCommon}
-                        unit={`${num(365)} ${ui.days}`}
-                        format={(year) => String(year)}
-                        empty={ui.leapNone}
-                      />
-                      <p className="flex items-start gap-1.5 rounded-md bg-slate-50 px-3 py-2 text-[10px] leading-5 text-slate-500 dark:bg-[#0d1117]">
-                        <CheckCircle2 className="mt-0.5 h-3 w-3 shrink-0 text-emerald-500" />
+                      <LeapRow label={ui.leapRowGregorian} badge={ui.leapBadgeGregorian} tone="blue" years={leap.gregorianYears} unit="Feb 29" format={(year) => String(year)} empty={ui.leapNone} />
+                      <LeapRow label={ui.leapCommonJalali} tone="slate" years={leap.jalaliCommon} unit={`${num(365)} ${ui.days}`} format={(year) => num(year)} empty={ui.leapNone} />
+                      <LeapRow label={ui.leapCommonGregorian} tone="slate" years={leap.gregorianCommon} unit={`${num(365)} ${ui.days}`} format={(year) => String(year)} empty={ui.leapNone} />
+                      <p className="flex items-start gap-1.5 rounded-md bg-surface-inset px-3 py-2 text-[10px] leading-5 text-text-muted">
+                        <CheckCircle2 className="mt-0.5 h-3 w-3 shrink-0 text-success" />
                         {ui.leapAlgorithm}
                       </p>
                     </div>
@@ -823,24 +796,18 @@ func main() {
 
                   <SectionCard icon={<Globe2 className="h-4 w-4" />} title={ui.insightEpoch} hint={ui.insightEpochHint}>
                     <div className="space-y-2">
-                      <ValueRow
-                        label={ui.epochStartShort}
-                        value={String(epochSeconds(start))}
-                        copyLabel={shared.copy}
-                        onCopied={copy}
-                        ltr
-                      />
+                      <ValueRow label={ui.epochStartShort} value={String(epochSeconds(start))} copyLabel={shared.copy} onCopied={copy} ltr />
                       <ValueRow label={ui.epochEndShort} value={String(epochSeconds(end))} copyLabel={shared.copy} onCopied={copy} ltr />
-                      <div className="flex items-center justify-between gap-2 rounded-md bg-blue-50 px-3 py-2 dark:bg-blue-950/30">
-                        <span className="text-[11px] font-semibold text-blue-700 dark:text-blue-300">{ui.deltaSeconds}</span>
+                      <div className="flex items-center justify-between gap-2 rounded-md bg-action-soft px-3 py-2">
+                        <span className="text-[11px] font-semibold text-action dark:text-focus">{ui.deltaSeconds}</span>
                         <span className="flex items-center gap-1">
-                          <code dir="ltr" className="font-sans text-sm font-bold tabular-nums text-blue-700 dark:text-blue-300">
+                          <code dir="ltr" className="font-sans text-sm font-bold tabular-nums text-action dark:text-focus">
                             {count(totals.seconds)}
                           </code>
-                          <span className="text-[10px] text-blue-500">{ui.deltaUnit}</span>
+                          <span className="text-[10px] text-action dark:text-focus">{ui.deltaUnit}</span>
                         </span>
                       </div>
-                      <p dir="ltr" className="pt-1 text-center font-sans text-[10px] text-slate-400">
+                      <p dir="ltr" className="pt-1 text-center font-sans text-[10px] text-text-subtle">
                         {ui.timezoneFooter}
                       </p>
                     </div>
@@ -849,12 +816,7 @@ func main() {
 
                 {/* developer snippets */}
                 {activeSnippet ? (
-                  <SectionCard
-                    icon={<Code2 className="h-4 w-4" />}
-                    title={ui.snippetsTitle}
-                    hint={ui.snippetsHint}
-                    bodyClassName="p-3 sm:p-4"
-                  >
+                  <SectionCard icon={<Code2 className="h-4 w-4" />} title={ui.snippetsTitle} hint={ui.snippetsHint} bodyClassName="p-3 sm:p-4">
                     <div className="mb-3 flex flex-wrap gap-1.5">
                       {snippets.map((snippet) => (
                         <button
@@ -862,10 +824,8 @@ func main() {
                           type="button"
                           onClick={() => setSnippetTab(snippet.key)}
                           className={cn(
-                            'rounded-full border px-3 py-1.5 text-[11px] font-semibold transition-colors',
-                            snippetTab === snippet.key
-                              ? 'border-blue-200 bg-blue-50 text-blue-700 dark:border-blue-900 dark:bg-blue-950/40 dark:text-blue-300'
-                              : 'border-slate-200 bg-white text-slate-500 hover:text-slate-700 dark:border-white/10 dark:bg-[#161b26] dark:hover:text-slate-300',
+                            'rounded-full border px-3 py-1.5 text-[11px] font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2 focus-visible:ring-offset-surface',
+                            snippetTab === snippet.key ? 'border-action/40 bg-action-soft text-action dark:text-focus' : 'border-border-strong bg-surface text-text-muted hover:text-text',
                           )}
                         >
                           {snippet.label}
@@ -888,7 +848,7 @@ func main() {
             ) : (
               <div className="grid gap-5 lg:grid-cols-3">
                 {[0, 1, 2].map((index) => (
-                  <div key={index} className="h-40 animate-pulse rounded-lg border border-slate-200 bg-white dark:border-white/10 dark:bg-[#161b26]" />
+                  <div key={index} className="h-40 animate-pulse rounded-lg border border-border-strong bg-surface" />
                 ))}
               </div>
             )}
@@ -898,19 +858,19 @@ func main() {
         {/* numbered notes: privacy + FAQ */}
         <div className="space-y-3">
           <NoteCard index={1} title={ui.privacyTitle} icon={<ShieldCheck className="h-4 w-4" />}>
-            <p className="text-[11px] leading-6 text-slate-500">{ui.privacyIntro}</p>
+            <p className="text-[11px] leading-6 text-text-muted">{ui.privacyIntro}</p>
             <ul className="mt-3 space-y-2">
               {ui.privacyPoints.map((point) => (
-                <li key={point.title} className="rounded-md bg-slate-50 px-3 py-2 dark:bg-[#0d1117]">
-                  <b className="block text-[11px] font-semibold text-slate-700 dark:text-slate-200">{point.title}</b>
-                  <span className="mt-1 block text-[11px] leading-5 text-slate-500">{point.text}</span>
+                <li key={point.title} className="rounded-md bg-surface-inset px-3 py-2">
+                  <b className="block text-[11px] font-semibold text-text">{point.title}</b>
+                  <span className="mt-1 block text-[11px] leading-5 text-text-muted">{point.text}</span>
                 </li>
               ))}
             </ul>
           </NoteCard>
           {ui.faqs.map((faq, index) => (
             <NoteCard key={faq.question} index={index + 2} title={faq.question} icon={<Layers className="h-4 w-4" />}>
-              <p className="text-[11px] leading-6 text-slate-500">{faq.answer}</p>
+              <p className="text-[11px] leading-6 text-text-muted">{faq.answer}</p>
             </NoteCard>
           ))}
         </div>
@@ -931,10 +891,8 @@ function OperationButton({ active, icon, title, hint, onClick }: { active: boole
       type="button"
       onClick={onClick}
       className={cn(
-        'rounded-lg border p-3 text-start transition-all',
-        active
-          ? 'border-blue-300 bg-blue-50 text-blue-700 dark:border-blue-900 dark:bg-blue-950/40 dark:text-blue-300'
-          : 'border-slate-200 bg-white text-slate-500 hover:border-blue-200 dark:border-white/10 dark:bg-[#161b26]',
+        'rounded-lg border p-3 text-start transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2 focus-visible:ring-offset-surface',
+        active ? 'border-action/40 bg-action-soft text-action dark:text-focus' : 'border-border-strong bg-surface text-text-muted hover:border-action/40',
       )}
     >
       <span className="mb-1.5 block">{icon}</span>
@@ -962,34 +920,30 @@ function LeapRow({
   empty: string;
 }) {
   const tones = {
-    amber: 'bg-amber-50 text-amber-700 dark:bg-amber-950/40 dark:text-amber-300',
-    blue: 'bg-blue-50 text-blue-700 dark:bg-blue-950/40 dark:text-blue-300',
-    slate: 'bg-slate-100 text-slate-500 dark:bg-[#0d1117] dark:text-slate-400',
+    amber: 'bg-warning-soft text-warning',
+    blue: 'bg-action-soft text-action dark:text-focus',
+    slate: 'bg-surface-inset text-text-muted',
   } as const;
 
   return (
-    <div className="rounded-md bg-slate-50 p-3 dark:bg-[#0d1117]">
+    <div className="rounded-md bg-surface-inset p-3">
       <div className="flex flex-wrap items-center gap-2">
-        <span className="flex items-center gap-1.5 text-[11px] font-semibold text-slate-600 dark:text-slate-300">
-          <span className={cn('h-1.5 w-1.5 rounded-full', tone === 'amber' ? 'bg-amber-500' : tone === 'blue' ? 'bg-blue-500' : 'bg-slate-300')} />
+        <span className="flex items-center gap-1.5 text-[11px] font-semibold text-text-muted">
+          <span className={cn('h-1.5 w-1.5 rounded-full', tone === 'amber' ? 'bg-warning' : tone === 'blue' ? 'bg-action' : 'bg-border-strong')} />
           {label}
         </span>
         {badge ? <span className={cn('rounded-full px-2 py-0.5 text-[10px] font-semibold', tones[tone])}>{badge}</span> : null}
       </div>
       <div className="mt-2 flex flex-wrap gap-1.5">
         {years.length === 0 ? (
-          <span className="text-[10px] text-slate-400">{empty}</span>
+          <span className="text-[10px] text-text-subtle">{empty}</span>
         ) : (
           years.map((year) => (
             <span
               key={year}
               className={cn(
                 'rounded-md px-2 py-0.5 font-sans text-[10px] font-semibold tabular-nums',
-                tone === 'amber'
-                  ? 'bg-amber-100 text-amber-700 dark:bg-amber-950/40 dark:text-amber-300'
-                  : tone === 'blue'
-                    ? 'bg-blue-100 text-blue-700 dark:bg-blue-950/40 dark:text-blue-300'
-                    : 'bg-slate-200/70 text-slate-600 dark:bg-[#202634] dark:text-slate-300',
+                tone === 'amber' ? 'bg-warning-soft text-warning' : tone === 'blue' ? 'bg-action-soft text-action dark:text-focus' : 'bg-surface-raised text-text-muted',
               )}
             >
               {format(year)} <span className="font-sans font-normal opacity-70">({unit})</span>
@@ -1045,11 +999,11 @@ function EndpointCard({
   }, [num, value]);
 
   return (
-    <div className="overflow-hidden rounded-lg border border-slate-200 bg-white dark:border-white/10 dark:bg-[#161b26]">
+    <div className="overflow-hidden rounded-lg border border-border-strong bg-surface">
       {/* header */}
-      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-200 px-4 py-3 dark:border-white/10">
-        <strong className="flex items-center gap-2 text-xs font-bold text-slate-700 dark:text-slate-100">
-          <span className="h-2 w-2 rounded-full bg-emerald-500" />
+      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border-strong px-4 py-3">
+        <strong className="flex items-center gap-2 text-xs font-bold text-text">
+          <span className="h-2 w-2 rounded-full bg-success" />
           {title}
         </strong>
         <SystemToggle system={system} onChange={onSystemChange} labels={{ jalali: shared.jalali, gregorian: shared.gregorian }} />
@@ -1058,7 +1012,7 @@ function EndpointCard({
       <div className="space-y-3 p-4">
         {/* presets */}
         <div className="flex flex-wrap items-center gap-1">
-          <span className="me-0.5 text-[10px] font-semibold text-slate-400">{ui.presetsLabel}</span>
+          <span className="me-0.5 text-[10px] font-semibold text-text-subtle">{ui.presetsLabel}</span>
           <PresetPill label={ui.presetNow} onClick={() => onPreset('now')} />
           <PresetPill label={ui.presetStartOfToday} onClick={() => onPreset('startOfToday')} />
           <PresetPill label={ui.presetFirstOfMonth} onClick={() => onPreset('firstOfMonth')} />
@@ -1088,7 +1042,11 @@ function EndpointCard({
             hour={parts?.hour ?? null}
             minute={parts?.minute ?? null}
             second={parts?.second ?? null}
-            labels={{ hour: ui.fieldHour, minute: ui.fieldMinute, second: ui.fieldSecond }}
+            labels={{
+              hour: ui.fieldHour,
+              minute: ui.fieldMinute,
+              second: ui.fieldSecond,
+            }}
             onChange={(key, raw) => onCommitField(key, raw)}
             draft={draft}
             onBlur={(key) => onClearDraft(key)}
@@ -1096,40 +1054,26 @@ function EndpointCard({
         </FieldGroup>
 
         {value ? (
-          <DualCalendarWidget
-            value={value}
-            onChange={onDateChange}
-            system={system}
-            onSystemChange={onSystemChange}
-            labels={widgetLabels}
-            today={null}
-            locale={locale}
-            variant="compact"
-          />
+          <DualCalendarWidget value={value} onChange={onDateChange} system={system} onSystemChange={onSystemChange} labels={widgetLabels} today={null} locale={locale} variant="compact" />
         ) : (
-          <div className="h-56 animate-pulse rounded-md bg-slate-100 dark:bg-[#0d1117]" />
+          <div className="h-56 animate-pulse rounded-md bg-surface-inset" />
         )}
 
         {/* equivalent instant */}
-        <div className="flex flex-wrap items-center justify-between gap-2 rounded-md bg-slate-50 px-3 py-2 dark:bg-[#0d1117]">
-          <span className="flex min-w-0 items-center gap-2 text-[11px] text-slate-500">
-            <Clock3 className="h-3.5 w-3.5 shrink-0 text-emerald-500" />
+        <div className="flex flex-wrap items-center justify-between gap-2 rounded-md bg-surface-inset px-3 py-2">
+          <span className="flex min-w-0 items-center gap-2 text-[11px] text-text-muted">
+            <Clock3 className="h-3.5 w-3.5 shrink-0 text-success" />
             <span className="shrink-0">{ui.equivalentGregorian}</span>
-            <code dir="ltr" className="truncate font-sans text-[11px] font-semibold text-slate-700 dark:text-slate-200">
+            <code dir="ltr" className="truncate font-sans text-[11px] font-semibold text-text">
               {value ? `${formatIsoDate(value)} ${formatClock(value)}` : '—'}
             </code>
           </span>
           <span className="flex shrink-0 items-center gap-1.5">
-            <code className="rounded-full bg-emerald-50 px-2 py-0.5 font-sans text-[10px] font-semibold text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300">
-              {shared.utcShort}
-            </code>
-            {parallel ? <span className="text-[10px] text-slate-400 tabular-nums">{parallel}</span> : null}
+            <code className="rounded-full bg-success-soft px-2 py-0.5 font-sans text-[10px] font-semibold text-success">{shared.utcShort}</code>
+            {parallel ? <span className="text-[10px] text-text-subtle tabular-nums">{parallel}</span> : null}
           </span>
         </div>
-
       </div>
     </div>
   );
 }
-
-

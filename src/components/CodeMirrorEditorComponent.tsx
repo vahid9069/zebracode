@@ -1,6 +1,7 @@
 'use client';
 
-import React, { useState, useRef, useEffect, DragEvent, useCallback } from 'react';
+import React, { useId, useState, useRef, useEffect, DragEvent, useCallback } from 'react';
+import * as Dialog from '@radix-ui/react-dialog';
 import { EditorView, basicSetup } from 'codemirror';
 import { Compartment } from '@codemirror/state';
 import { oneDark } from '@codemirror/theme-one-dark';
@@ -17,6 +18,7 @@ import {
     Link, Upload, X, XCircle, Code, Eraser,
 } from 'lucide-react';
 import { useOptionalI18n } from '@/i18n/I18nProvider';
+import { IconButton } from '@/components/ui/icon-button';
 
 /* ---------- types ---------- */
 type ToolbarButton = {
@@ -141,9 +143,10 @@ const CodeMirrorEditorComponent: React.FC<Props> = ({
     const [showOpenModal, setShowOpenModal] = useState(false);
     const [urlInput, setUrlInput] = useState('');
     const [fileError, setFileError] = useState<string | null>(null);
+    const dialogDescriptionId = useId();
 
     const isDark = theme === 'dark';
-    const editorBgClass = isDark ? 'bg-gray-900' : 'bg-white';
+    const editorBgClass = 'bg-surface';
     const dict = useOptionalI18n()?.dict;
     const editor = dict?.common?.editor;
 
@@ -236,79 +239,117 @@ const CodeMirrorEditorComponent: React.FC<Props> = ({
 
     /* ---------- JSX ---------- */
     return (
+        <Dialog.Root
+            open={showOpenModal}
+            onOpenChange={open => {
+                setShowOpenModal(open);
+                if (!open) {
+                    setFileError(null);
+                    setUrlInput('');
+                }
+            }}
+        >
         <div className={`h-full flex flex-col border rounded overflow-hidden ${editorBgClass}`}
              onDrop={handleDrop} onDragOver={handleDragOver}>
             {/* toolbar */}
-            <div className="flex justify-between p-1 bg-gray-200 border-b border-gray-300 text-gray-800 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-200">
-                <div className="flex gap-1">
-                    {!readOnly && toolbarConfig.clear  && <button onClick={handleClear} className="p-2 text-gray-700 text-sm rounded hover:bg-gray-300 transition duration-150 dark:text-gray-300 dark:hover:bg-gray-700" title={editor?.clear || 'Clear'}><Eraser size={18} /></button>}
-                    {toolbarConfig.copy                     && <button onClick={handleCopy} className="p-2 text-gray-700 text-sm rounded hover:bg-gray-300 transition duration-150 dark:text-gray-300 dark:hover:bg-gray-700" title={editor?.copy || 'Copy'}><Clipboard size={18} /></button>}
-                    {!readOnly && toolbarConfig.paste  && <button onClick={handlePaste} className="p-2 text-gray-700 text-sm rounded hover:bg-gray-300 transition duration-150 dark:text-gray-300 dark:hover:bg-gray-700" title={editor?.paste || 'Paste'}><ClipboardPaste size={18} /></button>}
-                    {toolbarConfig.save                    && <button onClick={handleSave} className="p-2 text-gray-700 text-sm rounded hover:bg-gray-300 transition duration-150 dark:text-gray-300 dark:hover:bg-gray-700" title={editor?.save || 'Save'}><Save size={18} /></button>}
-                    {!readOnly && toolbarConfig.open   && <button onClick={() => setShowOpenModal(true)} className="p-2 text-gray-700 text-sm rounded hover:bg-gray-300 transition duration-150 dark:text-gray-300 dark:hover:bg-gray-700" title={editor?.open || 'Open'}><FolderOpen size={18} /></button>}
-                    {!readOnly && toolbarConfig.sample && sampleCodeOne && <button onClick={handleSample1} className="p-2 text-gray-700 text-sm rounded hover:bg-gray-300 transition duration-150 dark:text-gray-300 dark:hover:bg-gray-700" title={editor?.sample1 || 'Sample 1'}><Code size={18} /></button>}
-                    {!readOnly && toolbarConfig.sample && sampleCodeTwo && <button onClick={handleSample2} className="p-2 text-gray-700 text-sm rounded hover:bg-gray-300 transition duration-150 dark:text-gray-300 dark:hover:bg-gray-700" title={editor?.sample2 || 'Sample 2'}><Code size={18} /></button>}
+            <div className="flex flex-wrap items-center justify-between gap-1 p-1 bg-surface-inset border-b border-border-strong text-text">
+                <div className="flex flex-wrap gap-1">
+                    {!readOnly && toolbarConfig.clear  && <IconButton type="button" size="sm" onClick={handleClear} className="text-text-muted hover:bg-surface-raised hover:text-text" title={editor?.clear || 'Clear'} aria-label={editor?.clear || 'Clear'}><Eraser size={18} /></IconButton>}
+                    {toolbarConfig.copy                     && <IconButton type="button" size="sm" onClick={handleCopy} className="text-text-muted hover:bg-surface-raised hover:text-text" title={editor?.copy || 'Copy'} aria-label={editor?.copy || 'Copy'}><Clipboard size={18} /></IconButton>}
+                    {!readOnly && toolbarConfig.paste  && <IconButton type="button" size="sm" onClick={handlePaste} className="text-text-muted hover:bg-surface-raised hover:text-text" title={editor?.paste || 'Paste'} aria-label={editor?.paste || 'Paste'}><ClipboardPaste size={18} /></IconButton>}
+                    {toolbarConfig.save                    && <IconButton type="button" size="sm" onClick={handleSave} className="text-text-muted hover:bg-surface-raised hover:text-text" title={editor?.save || 'Save'} aria-label={editor?.save || 'Save'}><Save size={18} /></IconButton>}
+                    {!readOnly && toolbarConfig.open   && <Dialog.Trigger asChild><IconButton type="button" size="sm" className="text-text-muted hover:bg-surface-raised hover:text-text" title={editor?.open || 'Open'} aria-label={editor?.open || 'Open'}><FolderOpen size={18} /></IconButton></Dialog.Trigger>}
+                    {!readOnly && toolbarConfig.sample && sampleCodeOne && <IconButton type="button" size="sm" onClick={handleSample1} className="text-text-muted hover:bg-surface-raised hover:text-text" title={editor?.sample1 || 'Sample 1'} aria-label={editor?.sample1 || 'Sample 1'}><Code size={18} /></IconButton>}
+                    {!readOnly && toolbarConfig.sample && sampleCodeTwo && <IconButton type="button" size="sm" onClick={handleSample2} className="text-text-muted hover:bg-surface-raised hover:text-text" title={editor?.sample2 || 'Sample 2'} aria-label={editor?.sample2 || 'Sample 2'}><Code size={18} /></IconButton>}
                 </div>
-                <div className="flex gap-1">
+                <div className="flex flex-wrap gap-1">
                     {rightToolbarButtons.map(btn => (
-                        <button key={btn.key} onClick={btn.onClick} disabled={btn.disabled}
-                                className="p-2 text-gray-700 text-sm rounded hover:bg-gray-300 transition duration-150 dark:text-gray-300 dark:hover:bg-gray-700 disabled:opacity-50"
-                                title={btn.title}>{btn.icon}</button>
+                        <IconButton key={btn.key} type="button" size="sm" onClick={btn.onClick} disabled={btn.disabled}
+                                className="text-text-muted hover:bg-surface-raised hover:text-text"
+                                title={btn.title} aria-label={btn.title}>{btn.icon}</IconButton>
                     ))}
                 </div>
             </div>
 
             {/* editor */}
-            <div className="flex-1 overflow-hidden">
+            <div className="cm-editor-shell flex-1 overflow-hidden">
                 <div ref={editorRef} className="h-full w-full" />
             </div>
 
             {/* notification */}
             {showNotification && (
-                <div className={`fixed bottom-4 right-4 p-3 rounded-lg shadow-xl text-white z-50 transition-opacity duration-300 ${showNotification.type === 'success' ? 'bg-green-500' : 'bg-red-500'}`}>
+                <div role={showNotification.type === 'error' ? 'alert' : 'status'} aria-live={showNotification.type === 'error' ? 'assertive' : 'polite'} aria-atomic="true" className={`fixed bottom-4 right-4 z-50 rounded-lg p-3 shadow-xl text-action-foreground transition-opacity duration-300 ${showNotification.type === 'success' ? 'bg-success' : 'bg-danger'}`}>
                     {showNotification.message}
                 </div>
             )}
 
-            {/* modal */}
-            {showOpenModal && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75">
-                    <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-2xl w-full max-w-sm">
-                                        <div className="flex justify-between items-center mb-4">
-                            <h3 className="text-xl font-semibold text-gray-900 dark:text-white">{dict?.common?.openFile || 'Open file'}</h3>
-                            <button onClick={() => { setShowOpenModal(false); setFileError(null); setUrlInput(''); }} className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"><X size={24} /></button>
-                        </div>
-                        <label className="block mb-4">
-                            <span className="text-gray-700 dark:text-gray-300">{dict?.common?.uploadFile || 'Upload file'}</span>
-                            <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md dark:border-gray-600">
-                                <div className="space-y-1 text-center">
-                                    <Upload className="mx-auto h-12 w-12 text-gray-400" />
-                                    <div className="flex text-sm text-gray-600 dark:text-gray-400">
-                                        <label className="relative cursor-pointer bg-white dark:bg-gray-800 rounded-md font-medium text-blue-600 hover:text-blue-500 focus-within:outline-none">
-                                            <span>{dict?.common?.selectFile || 'Select a file'}</span>
-                                            <input type="file" className="sr-only" onChange={handleFileLoad} accept=".json,.txt,.sql,.md,.js,.html" />
-                                        </label>
-                                        <p className="pl-1">{dict?.common?.orDragAndDrop || 'or drag and drop'}</p>
-                                    </div>
-                                    <p className="text-xs text-gray-500">JSON, TXT, SQL, MD, JS, HTML</p>
-                                </div>
-                            </div>
-                        </label>
-                        <div className="mb-4">
-                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">{dict?.common?.loadFromUrl || 'Load from URL'}</label>
-                            <div className="mt-1 flex shadow-sm">
-                                <input type="url" value={urlInput} onChange={e => setUrlInput(e.target.value)} placeholder="https://example.com/file.json"
-                                       className="flex-1 block w-full rounded-l-md border-gray-300 p-2 dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
-                                <button onClick={handleUrlLoad} disabled={!urlInput}
-                                        className="inline-flex items-center px-4 py-2 border border-l-0 border-gray-300 bg-gray-50 text-sm font-medium text-gray-700 rounded-r-md hover:bg-gray-100 dark:bg-gray-600 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-500 disabled:opacity-50">
-                                    <Link size={18} className="mr-2" />{dict?.common?.load || 'Load'}</button>
-                            </div>
-                        </div>
-                        {fileError && <p className="text-red-500 text-sm mt-2 flex items-center"><XCircle size={16} className="mr-1" /> {fileError}</p>}
-                    </div>
-                </div>
-            )}
-        </div>
+             <Dialog.Portal>
+                 <Dialog.Overlay className="fixed inset-0 z-50 bg-black/75" />
+                 <Dialog.Content
+                      className="fixed inset-0 z-50 m-auto h-fit w-[calc(100%-2rem)] max-w-sm rounded-lg bg-surface-raised p-6 text-text shadow-2xl"
+                     aria-describedby={dialogDescriptionId}
+                 >
+                     <div className="mb-4 flex items-center justify-between">
+                          <Dialog.Title className="text-xl font-semibold text-text">
+                             {dict?.common?.openFile || 'Open file'}
+                         </Dialog.Title>
+                         <Dialog.Close asChild>
+                             <button
+                                 type="button"
+                                 aria-label={dict?.layout?.closeMenu || 'Close dialog'}
+                                  className="rounded p-1 text-text-muted hover:bg-surface-inset hover:text-text focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus"
+                             >
+                                 <X size={24} />
+                             </button>
+                         </Dialog.Close>
+                     </div>
+                     <Dialog.Description id={dialogDescriptionId} className="sr-only">
+                         {dict?.common?.loadFromUrl || (dict?.common?.editor ? 'Load content from a file or URL' : 'بارگذاری محتوا از فایل یا URL')}
+                     </Dialog.Description>
+                     <label className="mb-4 block">
+                          <span className="text-text">{dict?.common?.uploadFile || 'Upload file'}</span>
+                          <div className="mt-1 flex justify-center rounded-md border-2 border-dashed border-border-strong px-6 pb-6 pt-5">
+                             <div className="space-y-1 text-center">
+                                  <Upload className="mx-auto h-12 w-12 text-text-muted" />
+                                  <div className="flex text-sm text-text-muted">
+                                      <label className="relative cursor-pointer rounded-md bg-surface font-medium text-action hover:text-action-hover focus-within:outline-none focus-within:ring-2 focus-within:ring-focus dark:text-focus dark:hover:text-focus">
+                                         <span>{dict?.common?.selectFile || 'Select a file'}</span>
+                                         <input type="file" className="sr-only" onChange={handleFileLoad} accept=".json,.txt,.sql,.md,.js,.html" />
+                                     </label>
+                                      <p className="ps-1">{dict?.common?.orDragAndDrop || 'or drag and drop'}</p>
+                                 </div>
+                                  <p className="text-xs text-text-subtle">JSON, TXT, SQL, MD, JS, HTML</p>
+                             </div>
+                         </div>
+                     </label>
+                     <div className="mb-4">
+                          <label htmlFor="code-editor-url" className="block text-sm font-medium text-text">
+                             {dict?.common?.loadFromUrl || 'Load from URL'}
+                         </label>
+                         <div className="mt-1 flex shadow-sm">
+                             <input
+                                 id="code-editor-url"
+                                 type="url"
+                                 value={urlInput}
+                                 onChange={e => setUrlInput(e.target.value)}
+                                 placeholder="https://example.com/file.json"
+                                  className="block w-full flex-1 rounded-l-md border-border-strong bg-surface-inset p-2 text-text placeholder:text-text-muted"
+                             />
+                             <button
+                                 type="button"
+                                 onClick={handleUrlLoad}
+                                 disabled={!urlInput}
+                                   className="inline-flex items-center rounded-e-md border border-s-0 border-border-strong bg-surface-inset px-4 py-2 text-sm font-medium text-text hover:bg-surface-raised focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus disabled:opacity-50"
+                             >
+                                  <Link size={18} className="me-2" />{dict?.common?.load || 'Load'}
+                             </button>
+                         </div>
+                     </div>
+                       {fileError && <p role="alert" className="mt-2 flex items-center text-sm text-danger"><XCircle size={16} className="me-1" /> {fileError}</p>}
+                 </Dialog.Content>
+             </Dialog.Portal>
+         </div>
+         </Dialog.Root>
     );
 };
 
