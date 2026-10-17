@@ -180,7 +180,7 @@ export default function Converter({ config, locale = 'en' }: ConverterProps) {
         if (secondaryTransformFunction) {
             btns.push({
                 key: 'toggle-secondary',
-                icon: <Table size={18} className={isSecondaryMode ? 'text-blue-500' : 'text-gray-500'} />,
+                icon: <Table size={18} className={isSecondaryMode ? 'text-action dark:text-focus' : 'text-text-muted'} />,
                 title: isSecondaryMode ? (t?.switchPrimaryOutput || 'Switch to primary output') : secondaryButtonText,
                 onClick: toggleSecondaryMode,
                 disabled: !inputValue.trim() || (validateInput && !isValid),
@@ -199,25 +199,25 @@ export default function Converter({ config, locale = 'en' }: ConverterProps) {
 
     const inputBorderClass = validateInput && inputValue.trim()
         ? (isValid
-            ? 'border-green-500 bg-green-50 dark:bg-green-900/20'
-            : 'border-red-500 bg-red-50 dark:bg-red-900/20')
-        : 'border-gray-300 dark:border-gray-600';
+            ? 'border-success bg-success-soft'
+            : 'border-danger bg-danger-soft')
+        : 'border-border-strong bg-surface-inset';
 
     const cardClasses = useCardStyle
-        ? 'bg-white dark:bg-gray-900 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden'
+        ? 'bg-surface rounded-xl shadow-lg border border-border-strong overflow-hidden'
         : '';
 
     const inputHeight = isInputMaximized ? maxHeight : normalHeight;
     const outputHeight = isOutputMaximized ? maxHeight : normalHeight;
 
     return (
-        <div className="w-full min-h-screen bg-background pb-12 text-foreground">
+        <div className="w-full min-h-screen bg-canvas pb-12 text-text">
             <div className="container mx-auto px-4 py-8">
                 {/* Header */}
-                <div className="relative mb-8 overflow-hidden rounded-2xl border bg-gradient-to-br from-primary/10 via-background to-background px-6 py-10 text-center">
+                <div className="relative mb-8 overflow-hidden rounded-2xl border border-border-strong bg-gradient-to-br from-action-soft via-surface to-surface px-6 py-10 text-center">
                     <div className="relative">
-                    <h1 className="text-4xl font-extrabold text-foreground mb-2 flex items-center justify-center gap-3">
-                        <IconComponent size={32} className="text-primary"/>
+                    <h1 className="mb-2 flex items-center justify-center gap-3 text-4xl font-extrabold text-text">
+                        <IconComponent size={32} className="text-action dark:text-focus"/>
                         {title}
                     </h1>
                     <p className="text-lg text-muted-foreground max-w-2xl mx-auto">{description}</p>
@@ -227,7 +227,7 @@ export default function Converter({ config, locale = 'en' }: ConverterProps) {
                 {/* Error */}
                 {error && (
                     <div
-                        className="p-3 mb-4 bg-red-100 border border-red-400 text-red-700 rounded dark:bg-red-900 dark:border-red-700 dark:text-red-300">
+                        className="mb-4 rounded border border-danger bg-danger-soft p-3 text-danger">
                         {error}
                     </div>
                 )}
@@ -240,21 +240,21 @@ export default function Converter({ config, locale = 'en' }: ConverterProps) {
                             <Card className={`flex flex-col overflow-hidden ${requiresSecondaryInput ? 'flex-1' : 'h-full'}`}>
                                 {useCardStyle && (
                                     <div
-                                        className="bg-muted/60 px-4 py-2 border-b flex justify-between items-center">
-                                        <h2 className="text-sm font-bold text-foreground">
+                                        className="flex items-center justify-between border-b border-border-strong bg-surface-inset px-4 py-2">
+                                        <h2 className="text-sm font-bold text-text">
                                             {t?.input || 'Input'} ({inputLanguage.toUpperCase()})
                                         </h2>
                                     </div>
                                 )}
                                 {!useCardStyle && (
-                                    <h2 className="text-xl font-semibold mb-2 dark:text-white border-b pb-2">
+                                    <h2 className="mb-2 border-b border-border pb-2 text-xl font-semibold text-text">
                                         {t?.input || 'Input'} ({inputLanguage.toUpperCase()})
                                         {validateInput && isValid &&
-                                            <CheckCircle size={20} className="inline ml-2 text-green-500"/>}
+                                            <CheckCircle size={20} className="inline ms-2 text-success"/>}
                                     </h2>
                                 )}
                                 <div
-                                    className={`flex-1 relative ${!useCardStyle ? `rounded-lg border-2 ${inputBorderClass}` : ''}`}
+                                    className={`relative flex-1 ${!useCardStyle ? `rounded-lg border-2 ${inputBorderClass} focus-within:outline-none focus-within:ring-2 focus-within:ring-focus focus-within:ring-offset-2 focus-within:ring-offset-surface` : ''}`}
                                     style={{height: useCardStyle ? '100%' : inputHeight}}
                                 >
                                     <CodeMirrorEditorComponent
@@ -282,8 +282,8 @@ export default function Converter({ config, locale = 'en' }: ConverterProps) {
                             {requiresSecondaryInput && (
                                 <Card className="flex flex-col flex-1 overflow-hidden">
                                     <div
-                                        className="bg-muted/60 px-4 py-2 border-b flex justify-between items-center">
-                                        <h2 className="text-sm font-bold text-foreground">
+                                        className="flex items-center justify-between border-b border-border-strong bg-surface-inset px-4 py-2">
+                                        <h2 className="text-sm font-bold text-text">
                                             {secondaryInputTitle}
                                         </h2>
                                         <Button
@@ -316,15 +316,15 @@ export default function Converter({ config, locale = 'en' }: ConverterProps) {
                         <Card className={`flex flex-col overflow-hidden ${isOutputMaximized ? 'lg:col-span-2' : ''}`}>
                             {useCardStyle && (
                                 <div
-                                    className="bg-muted/60 px-4 py-2 border-b flex justify-between items-center">
-                                    <h2 className="text-sm font-bold text-foreground">
+                                    className="flex items-center justify-between border-b border-border-strong bg-surface-inset px-4 py-2">
+                                    <h2 className="text-sm font-bold text-text">
                                         {t?.output || 'Output'} ({currentOutputLanguage.toUpperCase()})
-                                        {isSecondaryMode && <span className="text-blue-500 ml-1">({t?.secondary || 'secondary'})</span>}
+                                        {isSecondaryMode && <span className="ms-1 text-action dark:text-focus">({t?.secondary || 'secondary'})</span>}
                                     </h2>
                                     </div>
                             )}
                             {!useCardStyle && (
-                                <h2 className="text-xl font-semibold mb-2 dark:text-white border-b pb-2">
+                                <h2 className="mb-2 border-b border-border pb-2 text-xl font-semibold text-text">
                                     {t?.output || 'Output'} ({currentOutputLanguage.toUpperCase()})
                                 </h2>
                             )}
@@ -344,7 +344,7 @@ export default function Converter({ config, locale = 'en' }: ConverterProps) {
                                 />
                                 {!outputValue && (
                                     <div
-                                        className="absolute inset-0 flex items-center justify-center text-gray-400 dark:text-gray-500 pointer-events-none">
+                                        className="pointer-events-none absolute inset-0 flex items-center justify-center text-text-muted">
                                         <div className="text-center">
                                             <div className="text-2xl mb-2">📄</div>
                                             <div className="text-sm">{t?.outputPlaceholder || 'Output will appear here'}</div>
@@ -359,13 +359,13 @@ export default function Converter({ config, locale = 'en' }: ConverterProps) {
                 {/* Features Section */}
                 {features && features.length > 0 && (
                     <div className="mt-12 max-w-4xl mx-auto">
-                        <h3 className="text-2xl font-bold text-center text-gray-900 dark:text-white mb-6">{t?.features || 'Features'}</h3>
+                        <h3 className="mb-6 text-center text-2xl font-bold text-text">{t?.features || 'Features'}</h3>
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                             {features.map((f, i) => (
                                 <Card key={i} className="text-center p-6">
                                     <div className="text-3xl mb-3">{f.icon}</div>
-                                    <h4 className="font-semibold text-gray-900 dark:text-white mb-2">{f.title}</h4>
-                                    <p className="text-gray-600 dark:text-gray-300 text-sm">{f.description}</p>
+                                    <h4 className="mb-2 font-semibold text-text">{f.title}</h4>
+                                    <p className="text-sm text-text-muted">{f.description}</p>
                                 </Card>
                             ))}
                         </div>

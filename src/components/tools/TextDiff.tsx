@@ -188,7 +188,7 @@ function escapeHtml(value: string) {
 }
 
 function DownloadButton({ label, onClick, icon }: { label: string; onClick: () => void; icon: React.ReactNode }) {
-    return <button type="button" onClick={onClick} className="inline-flex min-h-9 items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 text-xs font-medium shadow-sm hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 dark:border-slate-700 dark:bg-slate-900 dark:hover:bg-slate-800">{icon}{label}</button>;
+    return <button type="button" onClick={onClick} className="inline-flex min-h-9 items-center gap-2 rounded-lg border border-border bg-surface px-3 text-xs font-medium text-text shadow-sm hover:bg-surface-inset focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2 focus-visible:ring-offset-surface">{icon}{label}</button>;
 }
 
 export default function TextDiff({ locale = 'fa', title, description }: TextDiffProps) {
@@ -385,7 +385,7 @@ export default function TextDiff({ locale = 'fa', title, description }: TextDiff
             : 'border-r-4 border-amber-400 bg-amber-50/80 text-amber-900 dark:bg-amber-950/40 dark:text-amber-100';
         if (row.type === 'removed' && side === 'old') return 'border-r-4 border-rose-500 bg-rose-50/80 text-rose-900 dark:bg-rose-950/50 dark:text-rose-100';
         if (row.type === 'added' && side === 'new') return 'border-r-4 border-emerald-500 bg-emerald-50/80 text-emerald-900 dark:bg-emerald-950/50 dark:text-emerald-100';
-        return 'border-r-4 border-transparent text-slate-700 dark:text-slate-300';
+        return 'border-r-4 border-transparent text-text';
     };
 
     const renderCodeRow = (row: DiffRow, index: number, side: 'old' | 'new', unified = false) => {
@@ -402,8 +402,8 @@ export default function TextDiff({ locale = 'fa', title, description }: TextDiff
             dir="ltr"
             aria-label={`${row.type} line ${lineNumber ?? ''}`}
         >
-            <span className="sticky left-0 w-12 shrink-0 select-none bg-inherit px-2 text-right text-slate-400">{unified ? `${row.oldLine ?? ''}${row.newLine ? `/${row.newLine}` : ''}` : lineNumber ?? ''}</span>
-            <span className={`w-6 shrink-0 select-none text-center font-bold ${row.type === 'added' ? 'text-emerald-700 dark:text-emerald-300' : row.type === 'removed' ? 'text-rose-700 dark:text-rose-300' : row.type === 'modified' ? 'text-amber-700 dark:text-amber-300' : 'text-slate-300'}`}>{prefix}</span>
+            <span className="sticky left-0 w-12 shrink-0 select-none bg-inherit px-2 text-right text-text-muted">{unified ? `${row.oldLine ?? ''}${row.newLine ? `/${row.newLine}` : ''}` : lineNumber ?? ''}</span>
+            <span className={`w-6 shrink-0 select-none text-center font-bold ${row.type === 'added' ? 'text-emerald-700 dark:text-emerald-300' : row.type === 'removed' ? 'text-rose-700 dark:text-rose-300' : row.type === 'modified' ? 'text-amber-700 dark:text-amber-300' : 'text-text-subtle'}`}>{prefix}</span>
             <code className="min-w-0 whitespace-pre px-2" dir="ltr">
                 {shouldShow
                     ? row.type === 'modified'
@@ -422,22 +422,22 @@ export default function TextDiff({ locale = 'fa', title, description }: TextDiff
         const setter = original ? setOriginalText : setModifiedText;
         const stats = lineStats(value);
         const fileInput = original ? fileInputA : fileInputB;
-        return <section className="flex min-h-[420px] min-w-0 flex-col overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-950">
-            <header className="flex min-h-12 items-center justify-between gap-2 border-b border-slate-200 bg-slate-50 px-3 py-2 dark:border-slate-800 dark:bg-slate-900">
+        return <section className="flex min-h-[360px] min-w-0 flex-col overflow-hidden rounded-xl border border-border bg-surface shadow-sm lg:min-h-[420px]">
+            <header className="flex min-h-12 flex-wrap items-center justify-between gap-2 border-b border-border bg-surface-inset px-3 py-2">
                 <div className="flex min-w-0 items-center gap-2">
                     <span className="hidden shrink-0 items-center gap-1.5 sm:flex" aria-hidden="true"><i className="h-2 w-2 rounded-full bg-rose-400" /><i className="h-2 w-2 rounded-full bg-amber-400" /><i className="h-2 w-2 rounded-full bg-emerald-400" /></span>
-                    <span className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-[10px] font-bold text-white ${original ? 'bg-blue-600' : 'bg-emerald-600'}`}>{original ? text.versionA : text.versionB}</span>
-                    <h2 className="truncate text-xs font-semibold text-slate-700 dark:text-slate-200">{original ? text.original : text.modified}</h2>
-                    {!original && diffRows.some(row => row.type !== 'unchanged') && <span className="hidden rounded-full bg-amber-100 px-2 py-0.5 text-[9px] font-medium text-amber-800 dark:bg-amber-950 dark:text-amber-200 sm:inline-flex">{locale === 'fa' ? 'تغییر یافته' : 'Changed'}</span>}
+                    <span className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-[10px] font-bold text-action-foreground ${original ? 'bg-action' : 'bg-success'}`}>{original ? text.versionA : text.versionB}</span>
+                    <h2 className="truncate text-xs font-semibold text-text">{original ? text.original : text.modified}</h2>
+                    {!original && diffRows.some(row => row.type !== 'unchanged') && <span className="hidden rounded-full bg-warning-soft px-2 py-0.5 text-[9px] font-medium text-warning sm:inline-flex">{locale === 'fa' ? 'تغییر یافته' : 'Changed'}</span>}
                 </div>
                 <div className="flex shrink-0 items-center gap-1">
-                    <span className="hidden rounded bg-blue-100 px-2 py-1 font-sans text-[10px] font-bold text-blue-700 dark:bg-blue-950 dark:text-blue-300 sm:inline-flex">{language}</span>
-                    <button type="button" onClick={() => void copyValue(value, original ? 'original' : 'modified')} title={text.copy} aria-label={`${text.copy} ${original ? text.original : text.modified}`} className="rounded p-1.5 text-slate-500 hover:bg-slate-200 dark:hover:bg-slate-800">{copied === (original ? 'original' : 'modified') ? <Check className="h-4 w-4" /> : <Clipboard className="h-4 w-4" />}</button>
-                    <button type="button" onClick={() => fileInput.current?.click()} title={text.upload} aria-label={`${text.upload} ${original ? text.original : text.modified}`} className="rounded p-1.5 text-slate-500 hover:bg-slate-200 dark:hover:bg-slate-800"><FileUp className="h-4 w-4" /></button>
+                    <span className="hidden rounded bg-action-soft px-2 py-1 font-sans text-[10px] font-bold text-action dark:text-focus sm:inline-flex">{language}</span>
+                    <button type="button" onClick={() => void copyValue(value, original ? 'original' : 'modified')} title={text.copy} aria-label={`${text.copy} ${original ? text.original : text.modified}`} className="rounded p-1.5 text-text-muted hover:bg-surface-inset focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2 focus-visible:ring-offset-surface">{copied === (original ? 'original' : 'modified') ? <Check className="h-4 w-4" /> : <Clipboard className="h-4 w-4" />}</button>
+                    <button type="button" onClick={() => fileInput.current?.click()} title={text.upload} aria-label={`${text.upload} ${original ? text.original : text.modified}`} className="rounded p-1.5 text-text-muted hover:bg-surface-inset focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2 focus-visible:ring-offset-surface"><FileUp className="h-4 w-4" /></button>
                     <input ref={fileInput} type="file" className="hidden" onChange={event => handleLoadFile(event.target.files?.[0], setter)} />
                 </div>
             </header>
-            <div className="min-h-[360px] flex-1 overflow-hidden">
+            <div className="min-h-[300px] flex-1 overflow-hidden lg:min-h-[360px]">
                 <CodeMirrorEditorComponent
                     theme={theme}
                     language={language === 'python' ? 'text' : language}
@@ -449,7 +449,7 @@ export default function TextDiff({ locale = 'fa', title, description }: TextDiff
                     direction="ltr"
                 />
             </div>
-            <footer className="flex flex-wrap items-center justify-between gap-2 border-t border-slate-200 bg-slate-50 px-3 py-2 text-[10px] text-slate-500 dark:border-slate-800 dark:bg-slate-900">
+            <footer className="flex flex-wrap items-center justify-between gap-2 border-t border-border bg-surface-inset px-3 py-2 text-[10px] text-text-muted">
                 <span>{stats.lines} {text.lines}</span><span>{stats.chars} {text.chars}</span><span>{text.utf8}</span>
                 <span className={`rounded-full px-2 py-0.5 ${original ? 'bg-rose-100 text-rose-700 dark:bg-rose-950 dark:text-rose-200' : 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-200'}`}>
                     {original ? `−${summary.removedLines + summary.modifiedLines}` : `+${summary.addedLines + summary.modifiedLines}`}
@@ -458,86 +458,86 @@ export default function TextDiff({ locale = 'fa', title, description }: TextDiff
         </section>;
     };
 
-    return <main dir={direction} className="min-h-screen bg-[#f8f9ff] px-4 py-6 text-slate-900 dark:bg-slate-950 dark:text-slate-100 sm:px-6 lg:px-8">
+    return <div dir={direction} className="min-h-screen bg-canvas px-4 py-6 text-text sm:px-6 lg:px-8">
         <div className="mx-auto max-w-7xl space-y-5">
             <div className="flex flex-wrap items-center justify-between gap-3">
-                <nav aria-label={locale === 'fa' ? 'مسیر صفحه' : 'Breadcrumb'} className="flex flex-wrap items-center gap-2 text-xs text-slate-500">
-                    <span>{text.home}</span><span aria-hidden="true">/</span><span>{text.category}</span><span aria-hidden="true">/</span><span className="font-medium text-slate-700 dark:text-slate-300">{heading}</span>
+                <nav aria-label={locale === 'fa' ? 'مسیر صفحه' : 'Breadcrumb'} className="flex flex-wrap items-center gap-2 text-xs text-text-muted">
+                    <span>{text.home}</span><span aria-hidden="true">/</span><span>{text.category}</span><span aria-hidden="true">/</span><span className="font-medium text-text">{heading}</span>
                 </nav>
                 <div className="flex flex-wrap items-center gap-2">
-                    <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-2.5 py-1 text-[10px] text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300"><i className="h-2 w-2 animate-pulse rounded-full bg-emerald-500" />{text.local}</span>
-                    <span className="rounded-full bg-slate-100 px-2.5 py-1 font-sans text-[10px] text-slate-600 dark:bg-slate-800 dark:text-slate-300" dir="ltr">{text.engine}</span>
+                    <span className="inline-flex items-center gap-1.5 rounded-full bg-success-soft px-2.5 py-1 text-[10px] text-success"><i className="h-2 w-2 animate-pulse rounded-full bg-success" />{text.local}</span>
+                    <span className="rounded-full bg-surface-inset px-2.5 py-1 font-sans text-[10px] text-text-muted" dir="ltr">{text.engine}</span>
                 </div>
             </div>
 
-            <header className="flex flex-col gap-4 rounded-xl border border-slate-200 bg-white/80 px-4 py-4 shadow-sm dark:border-slate-800 dark:bg-slate-900/80 sm:px-5 sm:py-5 lg:flex-row lg:items-end lg:justify-between">
+            <header className="flex flex-col gap-4 rounded-xl border border-border bg-surface-raised/80 px-4 py-4 shadow-sm sm:px-5 sm:py-5 lg:flex-row lg:items-end lg:justify-between">
                 <div className="max-w-3xl space-y-2">
                     <div className="flex flex-wrap items-center gap-3">
-                        <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-blue-600 text-white"><GitCompareArrows className="h-5 w-5" /></span>
+                        <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-action text-action-foreground"><GitCompareArrows className="h-5 w-5" /></span>
                         <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">{heading}</h1>
-                        <span className="rounded-full bg-blue-50 px-2 py-1 font-sans text-[10px] text-blue-700 dark:bg-blue-950 dark:text-blue-300" dir="ltr">Diff Checker</span>
+                        <span className="rounded-full bg-action-soft px-2 py-1 font-sans text-[10px] text-action dark:text-focus" dir="ltr">Diff Checker</span>
                     </div>
-                    <p className="text-sm leading-7 text-slate-600 dark:text-slate-300">{subheading}</p>
+                    <p className="text-sm leading-7 text-text-muted">{subheading}</p>
                 </div>
                 <div className="flex flex-wrap gap-2">
-                    <button type="button" onClick={() => { setOriginalText(SAMPLE_ORIGINAL); setModifiedText(SAMPLE_MODIFIED); setLanguage('typescript'); }} className="inline-flex h-9 items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 text-xs font-medium shadow-sm hover:bg-slate-50 dark:border-slate-800 dark:bg-slate-900 dark:hover:bg-slate-800"><span className="font-sans text-blue-600">{'{}'}</span>{text.sample}</button>
-                    <button type="button" onClick={() => { setOriginalText(modifiedText); setModifiedText(originalText); }} className="inline-flex h-9 items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 text-xs font-medium shadow-sm hover:bg-slate-50 dark:border-slate-800 dark:bg-slate-900 dark:hover:bg-slate-800"><ArrowLeftRight className="h-4 w-4 text-blue-600" />{text.swap}</button>
-                    <button type="button" onClick={handleClear} className="inline-flex h-9 items-center gap-2 rounded-lg border border-rose-200 bg-white px-3 text-xs font-medium text-rose-700 shadow-sm hover:bg-rose-50 dark:border-rose-900 dark:bg-slate-900 dark:text-rose-300 dark:hover:bg-rose-950"><Trash2 className="h-4 w-4" />{text.clear}</button>
+                    <button type="button" onClick={() => { setOriginalText(SAMPLE_ORIGINAL); setModifiedText(SAMPLE_MODIFIED); setLanguage('typescript'); }} className="inline-flex h-9 items-center gap-2 rounded-lg border border-border bg-surface px-3 text-xs font-medium shadow-sm hover:bg-surface-inset focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2 focus-visible:ring-offset-surface"><span className="font-sans text-action dark:text-focus">{'{}'}</span>{text.sample}</button>
+                    <button type="button" onClick={() => { setOriginalText(modifiedText); setModifiedText(originalText); }} className="inline-flex h-9 items-center gap-2 rounded-lg border border-border bg-surface px-3 text-xs font-medium shadow-sm hover:bg-surface-inset focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2 focus-visible:ring-offset-surface"><ArrowLeftRight className="h-4 w-4 text-action dark:text-focus" />{text.swap}</button>
+                    <button type="button" onClick={handleClear} className="inline-flex h-9 items-center gap-2 rounded-lg border border-danger/30 bg-surface px-3 text-xs font-medium text-danger shadow-sm hover:bg-danger-soft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2 focus-visible:ring-offset-surface"><Trash2 className="h-4 w-4" />{text.clear}</button>
                 </div>
             </header>
 
-            <section aria-label={locale === 'fa' ? 'تنظیمات مقایسه' : 'Diff settings'} className="space-y-3 rounded-xl border border-slate-200 bg-white p-3 shadow-sm dark:border-slate-800 dark:bg-slate-900 sm:p-4">
+            <section aria-label={locale === 'fa' ? 'تنظیمات مقایسه' : 'Diff settings'} className="space-y-3 rounded-xl border border-border bg-surface p-3 shadow-sm sm:p-4">
                 <div className="flex flex-wrap items-center justify-between gap-3">
                     <div className="flex flex-wrap items-center gap-2">
-                        <div className="inline-flex rounded-lg border border-slate-200 bg-slate-50 p-1 dark:border-slate-700 dark:bg-slate-950" role="group" aria-label={locale === 'fa' ? 'حالت نمایش' : 'View mode'}>
-                            <button type="button" aria-pressed={viewMode === 'split'} onClick={() => setViewMode('split')} className={`inline-flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-xs ${viewMode === 'split' ? 'bg-blue-600 text-white shadow-sm' : 'text-slate-600 hover:bg-white dark:text-slate-300 dark:hover:bg-slate-800'}`}><SplitSquareVertical className="h-3.5 w-3.5" />{text.split}</button>
-                            <button type="button" aria-pressed={viewMode === 'unified'} onClick={() => setViewMode('unified')} className={`rounded-md px-2.5 py-1.5 text-xs ${viewMode === 'unified' ? 'bg-blue-600 text-white shadow-sm' : 'text-slate-600 hover:bg-white dark:text-slate-300 dark:hover:bg-slate-800'}`}>{text.unified}</button>
+                        <div className="inline-flex rounded-lg border border-border bg-surface-inset p-1" role="group" aria-label={locale === 'fa' ? 'حالت نمایش' : 'View mode'}>
+                            <button type="button" aria-pressed={viewMode === 'split'} onClick={() => setViewMode('split')} className={`inline-flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2 focus-visible:ring-offset-surface-inset ${viewMode === 'split' ? 'bg-action text-action-foreground shadow-sm' : 'text-text-muted hover:bg-surface-raised hover:text-text'}`}><SplitSquareVertical className="h-3.5 w-3.5" />{text.split}</button>
+                            <button type="button" aria-pressed={viewMode === 'unified'} onClick={() => setViewMode('unified')} className={`rounded-md px-2.5 py-1.5 text-xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2 focus-visible:ring-offset-surface-inset ${viewMode === 'unified' ? 'bg-action text-action-foreground shadow-sm' : 'text-text-muted hover:bg-surface-raised hover:text-text'}`}>{text.unified}</button>
                         </div>
-                        <label className="flex items-center gap-2 text-xs text-slate-600 dark:text-slate-300">
+                        <label className="flex items-center gap-2 text-xs text-text-muted">
                             <span>{text.language}</span>
-                            <select value={language} onChange={event => setLanguage(event.target.value as Language)} className="rounded-md border border-slate-200 bg-white px-2 py-1.5 dark:border-slate-700 dark:bg-slate-950">
+                            <select value={language} onChange={event => setLanguage(event.target.value as Language)} className="rounded-md border border-border bg-surface px-2 py-1.5 text-text focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2 focus-visible:ring-offset-surface">
                                 <option value="typescript">TypeScript</option><option value="javascript">JavaScript</option><option value="json">JSON</option><option value="python">Python</option><option value="html">HTML</option><option value="markdown">Markdown</option><option value="text">Plain text</option>
                             </select>
                         </label>
                     </div>
                     <div className="flex flex-wrap items-center gap-2">
-                        <div className="flex items-center gap-1 rounded-lg border border-slate-200 p-1 dark:border-slate-700" role="group" aria-label={text.granularity}>
-                            {[['line', text.line], ['word', text.word], ['char', text.char]].map(([value, label]) => <button key={value} type="button" aria-pressed={diffGranularity === value} onClick={() => setDiffGranularity(value as DiffGranularity)} className={`rounded-md px-2 py-1 text-[11px] ${diffGranularity === value ? 'bg-blue-50 font-semibold text-blue-700 dark:bg-blue-950 dark:text-blue-300' : 'text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800'}`}>{label}</button>)}
+                        <div className="flex items-center gap-1 rounded-lg border border-border p-1" role="group" aria-label={text.granularity}>
+                            {[['line', text.line], ['word', text.word], ['char', text.char]].map(([value, label]) => <button key={value} type="button" aria-pressed={diffGranularity === value} onClick={() => setDiffGranularity(value as DiffGranularity)} className={`rounded-md px-2 py-1 text-[11px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2 focus-visible:ring-offset-surface ${diffGranularity === value ? 'bg-action-soft font-semibold text-action dark:text-focus' : 'text-text-muted hover:bg-surface-inset hover:text-text'}`}>{label}</button>)}
                         </div>
-                        <label className="flex items-center gap-1.5 text-[11px] text-slate-600 dark:text-slate-300"><input type="checkbox" checked={ignoreWhitespace} onChange={event => setIgnoreWhitespace(event.target.checked)} className="accent-blue-600" />{text.ignoreWhitespace}</label>
-                        <label className="flex items-center gap-1.5 text-[11px] text-slate-600 dark:text-slate-300"><input type="checkbox" checked={caseSensitive} onChange={event => setCaseSensitive(event.target.checked)} className="accent-blue-600" />{text.caseSensitive}</label>
-                        <button type="button" onClick={() => compare()} className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-3 py-2 text-xs font-semibold text-white shadow-sm hover:bg-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"><GitCompareArrows className="h-3.5 w-3.5" />{text.compare}<kbd className="hidden rounded bg-white/20 px-1 py-0.5 text-[9px] sm:inline">Ctrl+↵</kbd></button>
-                        <span className="inline-flex items-center gap-1 rounded-full bg-blue-50 px-2.5 py-1 font-sans text-[10px] text-blue-700 dark:bg-blue-950 dark:text-blue-300" dir="ltr"><Zap className="h-3 w-3" />{text.execution}: {executionTimeMs.toFixed(2)}ms</span>
+                        <label className="flex items-center gap-1.5 text-[11px] text-text-muted"><input type="checkbox" checked={ignoreWhitespace} onChange={event => setIgnoreWhitespace(event.target.checked)} className="accent-action focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2 focus-visible:ring-offset-surface" />{text.ignoreWhitespace}</label>
+                        <label className="flex items-center gap-1.5 text-[11px] text-text-muted"><input type="checkbox" checked={caseSensitive} onChange={event => setCaseSensitive(event.target.checked)} className="accent-action focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2 focus-visible:ring-offset-surface" />{text.caseSensitive}</label>
+                        <button type="button" onClick={() => compare()} className="inline-flex items-center gap-2 rounded-lg bg-action px-3 py-2 text-xs font-semibold text-action-foreground shadow-sm hover:bg-action-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2 focus-visible:ring-offset-surface"><GitCompareArrows className="h-3.5 w-3.5" />{text.compare}<kbd className="hidden rounded bg-white/20 px-1 py-0.5 text-[9px] sm:inline">Ctrl+↵</kbd></button>
+                        <span className="inline-flex items-center gap-1 rounded-full bg-action-soft px-2.5 py-1 font-sans text-[10px] text-action dark:text-focus" dir="ltr"><Zap className="h-3 w-3" />{text.execution}: {executionTimeMs.toFixed(2)}ms</span>
                     </div>
                 </div>
-                <div className="flex flex-wrap items-center justify-between gap-3 border-t border-slate-100 pt-3 dark:border-slate-800">
+                <div className="flex flex-wrap items-center justify-between gap-3 border-t border-border pt-3">
                     <div className="flex flex-wrap items-center gap-2">
                         <div className="flex items-center gap-1">
-                            <button type="button" onClick={() => navigateDiff(-1)} disabled={!changes.length} aria-label={text.previous} className="rounded-md border border-slate-200 p-1.5 text-slate-600 hover:bg-slate-100 disabled:opacity-40 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800"><ArrowUp className="h-4 w-4" /></button>
-                            <button type="button" onClick={() => navigateDiff(1)} disabled={!changes.length} aria-label={text.next} className="rounded-md border border-slate-200 p-1.5 text-slate-600 hover:bg-slate-100 disabled:opacity-40 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800"><ArrowDown className="h-4 w-4" /></button>
-                            <span className="min-w-16 text-center font-sans text-[10px] text-slate-500" dir="ltr">{changePosition} {text.of} {changes.length} {text.changes}</span>
-                            <span className="hidden font-sans text-[9px] text-slate-400 lg:inline" dir="ltr">Alt+P / Alt+N</span>
+                            <button type="button" onClick={() => navigateDiff(-1)} disabled={!changes.length} aria-label={text.previous} className="rounded-md border border-border p-1.5 text-text-muted hover:bg-surface-inset disabled:opacity-40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2 focus-visible:ring-offset-surface"><ArrowUp className="h-4 w-4" /></button>
+                            <button type="button" onClick={() => navigateDiff(1)} disabled={!changes.length} aria-label={text.next} className="rounded-md border border-border p-1.5 text-text-muted hover:bg-surface-inset disabled:opacity-40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2 focus-visible:ring-offset-surface"><ArrowDown className="h-4 w-4" /></button>
+                            <span className="min-w-16 text-center font-sans text-[10px] text-text-muted" dir="ltr">{changePosition} {text.of} {changes.length} {text.changes}</span>
+                            <span className="hidden font-sans text-[9px] text-text-subtle lg:inline" dir="ltr">Alt+P / Alt+N</span>
                         </div>
                         <span className="rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-1 text-xs font-semibold text-emerald-700 dark:border-emerald-900 dark:bg-emerald-950/50 dark:text-emerald-300">+{summary.addedLines} {text.added}</span>
                         <span className="rounded-full border border-rose-200 bg-rose-50 px-2.5 py-1 text-xs font-semibold text-rose-700 dark:border-rose-900 dark:bg-rose-950/50 dark:text-rose-300">−{summary.removedLines} {text.removed}</span>
                         <span className="rounded-full border border-amber-200 bg-amber-50 px-2.5 py-1 text-xs font-semibold text-amber-700 dark:border-amber-900 dark:bg-amber-950/50 dark:text-amber-300">~{summary.modifiedLines} {text.modifiedCount}</span>
                     </div>
                     <div className="flex min-w-52 flex-1 items-center justify-end gap-2 sm:flex-none">
-                        <span className="text-[11px] text-slate-500">{text.similarity}</span>
-                        <div className="h-2 w-16 overflow-hidden rounded-full bg-slate-200 dark:bg-slate-700" role="progressbar" aria-label={text.similarity} aria-valuenow={summary.similarityPercentage} aria-valuemin={0} aria-valuemax={100}><div className="h-full rounded-full bg-blue-600 transition-[width]" style={{ width: `${summary.similarityPercentage}%` }} /></div>
-                        <span className="font-sans text-xs font-semibold text-blue-700 dark:text-blue-300" dir="ltr">{summary.similarityPercentage}%</span>
+                        <span className="text-[11px] text-text-muted">{text.similarity}</span>
+                        <div className="h-2 w-16 overflow-hidden rounded-full bg-surface-inset" role="progressbar" aria-label={text.similarity} aria-valuenow={summary.similarityPercentage} aria-valuemin={0} aria-valuemax={100}><div className="h-full rounded-full bg-action transition-[width]" style={{ width: `${summary.similarityPercentage}%` }} /></div>
+                        <span className="font-sans text-xs font-semibold text-action dark:text-focus" dir="ltr">{summary.similarityPercentage}%</span>
                     </div>
                 </div>
             </section>
 
-            {error && <div role="alert" className="rounded-lg border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700 dark:border-rose-900 dark:bg-rose-950/40 dark:text-rose-300">{error}</div>}
+            {error && <div role="alert" className="rounded-lg border border-danger/30 bg-danger-soft px-4 py-3 text-sm text-danger">{error}</div>}
 
             {viewMode === 'split'
                 ? <div className="grid grid-cols-1 items-stretch gap-4 lg:grid-cols-2">{renderEditor('old')}{renderEditor('new')}</div>
                 : <div className="grid grid-cols-1 gap-4">{renderEditor('old')}{renderEditor('new')}</div>}
 
-            <section className={`overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900 ${isFullscreen ? 'fixed inset-3 z-50 flex flex-col shadow-2xl sm:inset-6' : ''}`}>
-                <header className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-200 bg-slate-50 px-4 py-3 dark:border-slate-800 dark:bg-slate-900">
+            <section className={`overflow-hidden rounded-xl border border-border bg-surface shadow-sm ${isFullscreen ? 'fixed inset-3 z-50 flex flex-col shadow-2xl sm:inset-6' : ''}`}>
+                <header className="flex flex-wrap items-center justify-between gap-3 border-b border-border bg-surface-inset px-4 py-3">
                     <div className="flex flex-wrap items-center gap-2">
                         <h2 className="text-sm font-semibold">{locale === 'fa' ? 'پیش‌نمایش تغییرات' : 'Diff preview'}</h2>
                         <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300">+{summary.addedLines}</span>
@@ -545,14 +545,14 @@ export default function TextDiff({ locale = 'fa', title, description }: TextDiff
                         <span className="rounded-full bg-amber-100 px-2 py-0.5 text-[10px] text-amber-700 dark:bg-amber-950 dark:text-amber-300">~{summary.modifiedLines}</span>
                     </div>
                     <div className="flex items-center gap-2">
-                        <button type="button" onClick={() => setHideUnchanged(value => !value)} className="inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs text-slate-600 hover:bg-slate-200/70 dark:text-slate-300 dark:hover:bg-slate-800"><Eye className="h-3.5 w-3.5" />{hideUnchanged ? text.showUnchanged : text.hideUnchanged}</button>
-                        <button type="button" onClick={() => setIsFullscreen(value => !value)} aria-label={text.fullscreen} className="rounded-md p-1.5 text-slate-500 hover:bg-slate-200 dark:hover:bg-slate-800">{isFullscreen ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}</button>
-                        <span className="hidden rounded bg-slate-200 px-2 py-1 font-sans text-[10px] text-slate-600 dark:bg-slate-800 dark:text-slate-300 sm:inline" dir="ltr">Alt+F</span>
+                        <button type="button" onClick={() => setHideUnchanged(value => !value)} className="inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs text-text-muted hover:bg-surface-inset hover:text-text focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2 focus-visible:ring-offset-surface-inset"><Eye className="h-3.5 w-3.5" />{hideUnchanged ? text.showUnchanged : text.hideUnchanged}</button>
+                        <button type="button" onClick={() => setIsFullscreen(value => !value)} aria-label={text.fullscreen} className="rounded-md p-1.5 text-text-muted hover:bg-surface-inset focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2 focus-visible:ring-offset-surface-inset">{isFullscreen ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}</button>
+                        <span className="hidden rounded bg-surface-raised px-2 py-1 font-sans text-[10px] text-text-muted sm:inline" dir="ltr">Alt+F</span>
                     </div>
                 </header>
-                {diffRows.length === 0 ? <div className="flex min-h-24 items-center justify-center px-4 text-sm text-slate-500">{text.noChanges}</div> : (
+                {diffRows.length === 0 ? <div className="flex min-h-24 items-center justify-center px-4 text-sm text-text-muted">{text.noChanges}</div> : (
                     <div className={`overflow-auto ${isFullscreen ? 'flex-1' : 'max-h-[560px]'}`} dir="ltr">
-                        {viewMode === 'split' ? <div className="grid min-w-0 grid-cols-1 divide-y divide-slate-200 dark:divide-slate-800 lg:grid-cols-2 lg:divide-x lg:divide-y-0">
+                        {viewMode === 'split' ? <div className="grid min-w-0 grid-cols-1 divide-y divide-border lg:grid-cols-2 lg:divide-x lg:divide-y-0">
                             <div className="min-w-0 overflow-x-auto py-2" aria-label={text.original}>
                                 {diffRows.map((row, index) => hideUnchanged && row.type === 'unchanged'
                                     ? <div key={`old-${index}`} ref={element => { rowRefs.current[index] = element; }} />
@@ -572,30 +572,30 @@ export default function TextDiff({ locale = 'fa', title, description }: TextDiff
                 )}
             </section>
 
-            <section aria-label={locale === 'fa' ? 'خروجی‌ها' : 'Export actions'} className="flex flex-wrap items-center gap-2 rounded-xl border border-slate-200 bg-white p-3 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-                <button type="button" onClick={() => void copyValue(modifiedText, 'merged')} className="inline-flex min-h-9 items-center gap-2 rounded-lg bg-blue-600 px-3 text-xs font-semibold text-white shadow-sm hover:bg-blue-700"><Clipboard className="h-4 w-4" />{copied === 'merged' ? text.copied : text.copyMerged}</button>
-                <DownloadButton label={text.exportHtml} onClick={exportHtml} icon={<Download className="h-4 w-4 text-blue-600" />} />
-                <DownloadButton label={text.exportPatch} onClick={exportPatch} icon={<Download className="h-4 w-4 text-blue-600" />} />
-                {isFullscreen && <span className="text-xs text-slate-500">{text.fullscreen} · Esc</span>}
+            <section aria-label={locale === 'fa' ? 'خروجی‌ها' : 'Export actions'} className="flex flex-wrap items-center gap-2 rounded-xl border border-border bg-surface p-3 shadow-sm">
+                <button type="button" onClick={() => void copyValue(modifiedText, 'merged')} className="inline-flex min-h-9 items-center gap-2 rounded-lg bg-action px-3 text-xs font-semibold text-action-foreground shadow-sm hover:bg-action-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2 focus-visible:ring-offset-surface"><Clipboard className="h-4 w-4" />{copied === 'merged' ? text.copied : text.copyMerged}</button>
+                <DownloadButton label={text.exportHtml} onClick={exportHtml} icon={<Download className="h-4 w-4 text-action dark:text-focus" />} />
+                <DownloadButton label={text.exportPatch} onClick={exportPatch} icon={<Download className="h-4 w-4 text-action dark:text-focus" />} />
+                {isFullscreen && <span className="text-xs text-text-muted">{text.fullscreen} · Esc</span>}
             </section>
 
             <section className="grid grid-cols-1 gap-4 md:grid-cols-3">
-                {text.features.map(([featureTitle, featureDescription], index) => <article key={featureTitle} className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-                    <span className="mb-3 flex h-8 w-8 items-center justify-center rounded-lg bg-blue-50 text-blue-700 dark:bg-blue-950 dark:text-blue-300">{index === 0 ? <GitCompareArrows className="h-4 w-4" /> : index === 1 ? <ArrowLeftRight className="h-4 w-4" /> : <Check className="h-4 w-4" />}</span>
+                {text.features.map(([featureTitle, featureDescription], index) => <article key={featureTitle} className="rounded-xl border border-border bg-surface p-4 shadow-sm">
+                    <span className="mb-3 flex h-8 w-8 items-center justify-center rounded-lg bg-action-soft text-action dark:text-focus">{index === 0 ? <GitCompareArrows className="h-4 w-4" /> : index === 1 ? <ArrowLeftRight className="h-4 w-4" /> : <Check className="h-4 w-4" />}</span>
                     <h3 className="mb-2 text-sm font-semibold">{featureTitle}</h3>
-                    <p className="text-xs leading-6 text-slate-600 dark:text-slate-300">{featureDescription}</p>
+                    <p className="text-xs leading-6 text-text-muted">{featureDescription}</p>
                 </article>)}
             </section>
 
             <section className="space-y-3">
                 <h2 className="text-lg font-bold">{text.faqTitle}</h2>
                 <Accordion.Root type="single" collapsible className="space-y-2">
-                    {text.faq.map(([question, answer], index) => <Accordion.Item key={question} value={`faq-${index}`} className="overflow-hidden rounded-xl border border-slate-200 bg-white px-4 dark:border-slate-800 dark:bg-slate-900">
-                        <Accordion.Header><Accordion.Trigger className="flex w-full items-center justify-between gap-4 py-4 text-start text-sm font-medium hover:text-blue-700">{question}<ChevronDown className="h-4 w-4 shrink-0 transition-transform duration-200 data-[state=open]:rotate-180" /></Accordion.Trigger></Accordion.Header>
-                        <Accordion.Content className="pb-4 text-sm leading-7 text-slate-600 dark:text-slate-300">{answer}</Accordion.Content>
+                    {text.faq.map(([question, answer], index) => <Accordion.Item key={question} value={`faq-${index}`} className="overflow-hidden rounded-xl border border-border bg-surface px-4">
+                        <Accordion.Header><Accordion.Trigger className="flex w-full items-center justify-between gap-4 py-4 text-start text-sm font-medium hover:text-action dark:hover:text-focus focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2 focus-visible:ring-offset-surface">{question}<ChevronDown className="h-4 w-4 shrink-0 transition-transform duration-200 data-[state=open]:rotate-180" /></Accordion.Trigger></Accordion.Header>
+                        <Accordion.Content className="pb-4 text-sm leading-7 text-text-muted">{answer}</Accordion.Content>
                     </Accordion.Item>)}
                 </Accordion.Root>
             </section>
         </div>
-    </main>;
+    </div>;
 }

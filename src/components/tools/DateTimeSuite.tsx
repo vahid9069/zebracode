@@ -2,18 +2,7 @@
 
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { toJalaali } from 'jalaali-js';
-import {
-  CalendarClock,
-  ChevronDown,
-  Clock3,
-  Code2,
-  Info,
-  Pencil,
-  RefreshCw,
-  Sparkles,
-  Trash2,
-  TriangleAlert,
-} from 'lucide-react';
+import { CalendarClock, ChevronDown, Clock3, Code2, Info, Pencil, RefreshCw, Sparkles, Trash2, TriangleAlert } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useI18n } from '@/i18n/I18nProvider';
 import type { Dictionary } from '@/i18n/getDictionary';
@@ -52,7 +41,7 @@ type Ui = Dictionary['common']['toolsUi']['timestamp'];
 type Shared = Dictionary['common']['toolsUi']['shared'];
 type FieldKey = 'year' | 'month' | 'day' | 'hour' | 'minute' | 'second';
 
-const CARD = 'rounded-xl border border-slate-200 bg-white dark:border-white/10 dark:bg-[#161b26]';
+const CARD = 'rounded-xl border border-border bg-surface';
 const DATE_FIELDS: readonly FieldKey[] = ['year', 'month', 'day', 'hour', 'minute', 'second'];
 
 export default function DateTimeSuite() {
@@ -153,10 +142,7 @@ export default function DateTimeSuite() {
     },
     [selectDate],
   );
-  const selectedJalali = useMemo(
-    () => (selected ? toJalaali(selected.getFullYear(), selected.getMonth() + 1, selected.getDate()) : null),
-    [selected],
-  );
+  const selectedJalali = useMemo(() => (selected ? toJalaali(selected.getFullYear(), selected.getMonth() + 1, selected.getDate()) : null), [selected]);
 
   const dayEvents: CalendarEvent[] = useMemo(() => {
     if (!selected || !selectedJalali) return [];
@@ -209,7 +195,11 @@ export default function DateTimeSuite() {
   const snippets = useMemo(
     () => [
       { key: 'js', label: ui.snippetJs, code: 'Math.floor(Date.now() / 1000)' },
-      { key: 'python', label: ui.snippetPython, code: 'import time; int(time.time())' },
+      {
+        key: 'python',
+        label: ui.snippetPython,
+        code: 'import time; int(time.time())',
+      },
       { key: 'go', label: ui.snippetGo, code: 'time.Now().Unix()' },
     ],
     [ui.snippetGo, ui.snippetJs, ui.snippetPython],
@@ -218,47 +208,47 @@ export default function DateTimeSuite() {
 
   /* ------------------------------- render ------------------------------- */
   return (
-    <div dir={direction} className="min-h-screen bg-[#f7f8fa] px-4 py-6 text-slate-900 dark:bg-[#0b0f19] dark:text-white md:px-6">
+    <div dir={direction} className="min-h-screen bg-canvas px-4 py-6 text-text md:px-6">
       <div className="mx-auto max-w-6xl space-y-5">
         {/* breadcrumbs — hidden per design */}
-        <nav className="hidden flex-wrap items-center gap-1.5 text-xs text-slate-500">
-          <a href={locale === 'en' ? '/en' : '/'} className="hover:text-blue-600">
+        <nav className="hidden flex-wrap items-center gap-1.5 text-xs text-text-muted">
+          <a href={locale === 'en' ? '/en' : '/'} className="hover:text-action dark:hover:text-focus">
             {ui.home}
           </a>
-          <span className="text-slate-300">›</span>
+          <span className="text-text-subtle">›</span>
           <span>{ui.tools}</span>
-          <span className="text-slate-300">›</span>
+          <span className="text-text-subtle">›</span>
           <span>{ui.category}</span>
-          <span className="text-slate-300">›</span>
-          <b className="font-semibold text-slate-700 dark:text-slate-200">{ui.pageTitle}</b>
+          <span className="text-text-subtle">›</span>
+          <b className="font-semibold text-text">{ui.pageTitle}</b>
         </nav>
 
         {/* header: title + inline live epoch */}
         <div className={cn(CARD, 'flex flex-wrap items-center justify-between gap-5 rounded-2xl p-5')}>
           <div className="flex min-w-0 items-start gap-4">
-            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-blue-50 text-blue-600">
+            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-action-soft text-action dark:text-focus">
               <Clock3 className="h-6 w-6" />
             </div>
             <div className="min-w-0">
               <div className="flex flex-wrap items-center gap-2">
                 <h1 className="text-xl font-bold sm:text-2xl">{ui.pageTitle}</h1>
-                <span className="inline-flex items-center gap-1 rounded-full border border-emerald-200/60 bg-emerald-50 px-2.5 py-0.5 text-[11px] font-semibold text-emerald-600">
-                  <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+                <span className="inline-flex items-center gap-1 rounded-full border border-success/30 bg-success-soft px-2.5 py-0.5 text-[11px] font-semibold text-success">
+                  <span className="h-1.5 w-1.5 rounded-full bg-success" />
                   {ui.badge}
                 </span>
               </div>
-              <p className="mt-1 text-xs leading-6 text-slate-500 sm:text-sm">{ui.description}</p>
+              <p className="mt-1 text-xs leading-6 text-text-muted sm:text-sm">{ui.description}</p>
             </div>
           </div>
 
-          <div className="flex flex-wrap items-center gap-3 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 dark:border-white/10 dark:bg-[#0d1117]">
+          <div className="flex flex-wrap items-center gap-3 rounded-xl border border-border bg-surface-inset px-4 py-3">
             <span className="relative flex h-2.5 w-2.5 shrink-0">
-              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
-              <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-emerald-500" />
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-success opacity-75" />
+              <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-success" />
             </span>
             <span className="flex flex-col">
-              <span className="text-[10px] font-semibold text-slate-400">{ui.liveEpochLabel}</span>
-              <code dir="ltr" className="font-sans text-xl font-bold tabular-nums text-slate-900 dark:text-white">
+              <span className="text-[10px] font-semibold text-text-muted">{ui.liveEpochLabel}</span>
+              <code dir="ltr" className="font-sans text-xl font-bold tabular-nums text-text">
                 {now ? epochSeconds(now) : '—'}
               </code>
             </span>
@@ -273,19 +263,9 @@ export default function DateTimeSuite() {
         <div className="grid items-start gap-5 lg:grid-cols-[minmax(0,1fr)_20rem]">
           <div className={cn(CARD, 'p-4')}>
             {selected ? (
-              <DualCalendarWidget
-                value={selected}
-                onChange={selectDate}
-                system={system}
-                onSystemChange={setSystem}
-                labels={widgetLabels}
-                today={now}
-                locale={locale}
-                variant="full"
-                fullWeekdays
-              />
+              <DualCalendarWidget value={selected} onChange={selectDate} system={system} onSystemChange={setSystem} labels={widgetLabels} today={now} locale={locale} variant="full" fullWeekdays />
             ) : (
-              <div className="h-[420px] animate-pulse rounded-lg bg-slate-100 dark:bg-[#0d1117]" />
+              <div className="h-[420px] animate-pulse rounded-lg bg-surface-inset" />
             )}
           </div>
 
@@ -297,7 +277,7 @@ export default function DateTimeSuite() {
                   value={selectedEpoch === null ? '' : String(selectedEpoch)}
                   label={ui.copyTimestamp}
                   onCopied={copy}
-                  className="text-slate-300 hover:bg-white/10 hover:text-white dark:hover:bg-white/10"
+                  className="text-slate-300 hover:bg-white/10 hover:text-white dark:hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2 focus-visible:ring-offset-[#1e2538]"
                 />
                 <span className="inline-flex items-center gap-1 rounded-full bg-white/10 px-2.5 py-1 text-[10px] font-semibold text-slate-200">
                   <Pencil className="h-3 w-3" />
@@ -320,7 +300,7 @@ export default function DateTimeSuite() {
                     setDraftEpoch(null);
                   }
                 }}
-                className="mt-3 w-full rounded-lg border border-transparent bg-transparent text-center font-sans text-3xl font-bold tabular-nums text-white outline-none transition-colors hover:border-white/20 focus:border-blue-400 focus:bg-white/5 focus:ring-2 focus:ring-blue-500/30"
+                className="mt-3 w-full rounded-lg border border-transparent bg-transparent text-center font-sans text-3xl font-bold tabular-nums text-white outline-none transition-colors hover:border-white/20 focus-visible:border-focus focus-visible:bg-white/5 focus-visible:ring-2 focus-visible:ring-focus/40"
               />
 
               <div className="mt-2 text-center">
@@ -328,7 +308,14 @@ export default function DateTimeSuite() {
                 <p dir="ltr" className="mt-0.5 font-sans text-[11px] text-slate-400">
                   {selected && selectedJalali
                     ? `${formatIsoDate(selected)} • ${formatJalaliNumeric(
-                        { year: selectedJalali.jy, month: selectedJalali.jm, day: selectedJalali.jd, hour: 0, minute: 0, second: 0 },
+                        {
+                          year: selectedJalali.jy,
+                          month: selectedJalali.jm,
+                          day: selectedJalali.jd,
+                          hour: 0,
+                          minute: 0,
+                          second: 0,
+                        },
                         locale,
                       )}`
                     : '—'}
@@ -336,61 +323,50 @@ export default function DateTimeSuite() {
               </div>
 
               <div className="mt-4 flex items-center justify-center gap-1">
-                <DarkTimeField
-                  label={ui.clockHours}
-                  value={parts?.hour ?? null}
-                  max={23}
-                  draft={draft.hour}
-                  onChange={(raw) => commitField('hour', raw)}
-                  onBlur={() => clearDraft('hour')}
-                />
+                <DarkTimeField label={ui.clockHours} value={parts?.hour ?? null} max={23} draft={draft.hour} onChange={(raw) => commitField('hour', raw)} onBlur={() => clearDraft('hour')} />
                 <span className="mb-5 text-2xl font-bold text-slate-400">:</span>
-                <DarkTimeField
-                  label={ui.clockMinutes}
-                  value={parts?.minute ?? null}
-                  max={59}
-                  draft={draft.minute}
-                  onChange={(raw) => commitField('minute', raw)}
-                  onBlur={() => clearDraft('minute')}
-                />
+                <DarkTimeField label={ui.clockMinutes} value={parts?.minute ?? null} max={59} draft={draft.minute} onChange={(raw) => commitField('minute', raw)} onBlur={() => clearDraft('minute')} />
                 <span className="mb-5 text-2xl font-bold text-slate-400">:</span>
-                <DarkTimeField
-                  label={ui.clockSeconds}
-                  value={parts?.second ?? null}
-                  max={59}
-                  draft={draft.second}
-                  onChange={(raw) => commitField('second', raw)}
-                  onBlur={() => clearDraft('second')}
-                />
+                <DarkTimeField label={ui.clockSeconds} value={parts?.second ?? null} max={59} draft={draft.second} onChange={(raw) => commitField('second', raw)} onBlur={() => clearDraft('second')} />
               </div>
             </div>
 
             {/* day events */}
             <div className={cn(CARD, 'p-4')}>
               <div className="flex flex-wrap items-center justify-between gap-2">
-                <span className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-700 dark:text-slate-100">
-                  <Sparkles className="h-3.5 w-3.5 text-blue-600" />
+                <span className="inline-flex items-center gap-1.5 text-xs font-bold text-text">
+                  <Sparkles className="h-3.5 w-3.5 text-action dark:text-focus" />
                   {ui.eventsTitle}
                 </span>
-                <code dir="ltr" className="font-sans text-[11px] text-slate-400">
+                <code dir="ltr" className="font-sans text-[11px] text-text-subtle">
                   {selected && selectedJalali
-                    ? formatJalaliNumeric({ year: selectedJalali.jy, month: selectedJalali.jm, day: selectedJalali.jd, hour: 0, minute: 0, second: 0 }, locale)
+                    ? formatJalaliNumeric(
+                        {
+                          year: selectedJalali.jy,
+                          month: selectedJalali.jm,
+                          day: selectedJalali.jd,
+                          hour: 0,
+                          minute: 0,
+                          second: 0,
+                        },
+                        locale,
+                      )
                     : ''}
                 </code>
               </div>
 
               {customToday ? (
-                <div className="mt-3 flex items-center justify-between gap-2 rounded-lg bg-slate-50 px-3 py-2 dark:bg-[#0d1117]">
+                <div className="mt-3 flex items-center justify-between gap-2 rounded-lg bg-surface-inset px-3 py-2">
                   <span className="flex min-w-0 items-center gap-2">
                     <Badge text={ui.customBadge} />
-                    <span className="truncate text-[11px] font-semibold text-slate-700 dark:text-slate-200">{customToday.title}</span>
+                    <span className="truncate text-[11px] font-semibold text-text">{customToday.title}</span>
                   </span>
                   <button
                     type="button"
                     aria-label={ui.removeHoliday}
                     title={ui.removeHoliday}
                     onClick={() => removeHoliday(customToday.iso)}
-                    className="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-md text-slate-400 transition-colors hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-950/30"
+                    className="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-md text-text-subtle transition-colors hover:bg-danger-soft hover:text-danger focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus"
                   >
                     <Trash2 className="h-3.5 w-3.5" />
                   </button>
@@ -398,23 +374,23 @@ export default function DateTimeSuite() {
               ) : null}
 
               {dayEvents.length === 0 && !customToday ? (
-                <p className="mt-3 rounded-lg bg-slate-50 px-3 py-3 text-[11px] text-slate-500 dark:bg-[#0d1117]">{ui.noEvents}</p>
+                <p className="mt-3 rounded-lg bg-surface-inset px-3 py-3 text-[11px] text-text-muted">{ui.noEvents}</p>
               ) : (
                 <ul className="mt-3 space-y-3">
                   {dayEvents.map((event) => (
                     <li key={`${event.titleEn}-${event.kind}`} className="flex items-start justify-between gap-2">
                       <span className="flex min-w-0 items-start gap-2">
-                        <span className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-blue-500" />
+                        <span className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-action" />
                         <span className="min-w-0">
-                          <span className="block text-[12px] font-semibold text-slate-700 dark:text-slate-200">{event.title}</span>
+                          <span className="block text-[12px] font-semibold text-text">{event.title}</span>
                           {event.titleEn && event.titleEn !== event.title ? (
-                            <span dir="ltr" className="mt-0.5 block text-[10px] text-slate-400">
+                            <span dir="ltr" className="mt-0.5 block text-[10px] text-text-subtle">
                               {event.titleEn}
                             </span>
                           ) : null}
                         </span>
                       </span>
-                      <span className="inline-flex shrink-0 items-center rounded-full bg-blue-50 px-2 py-0.5 text-[10px] font-semibold text-blue-600 dark:bg-blue-950/40 dark:text-blue-300">
+                      <span className="inline-flex shrink-0 items-center rounded-full bg-action-soft px-2 py-0.5 text-[10px] font-semibold text-action dark:text-focus">
                         {event.official ? ui.officialBadge : event.kind === 'international' ? ui.internationalBadge : ui.nonOfficialBadge}
                       </span>
                     </li>
@@ -422,20 +398,9 @@ export default function DateTimeSuite() {
                 </ul>
               )}
 
-              <div className="mt-3 flex items-center justify-between gap-2 rounded-lg border border-slate-100 px-3 py-2 text-[11px] dark:border-white/10">
-                <span className="font-semibold text-slate-600 dark:text-slate-300">
-                  {ui.officialYes.split(':')[0]}:
-                </span>
-                <span
-                  className={cn(
-                    'font-semibold',
-                    isOfficial
-                      ? 'text-red-600 dark:text-red-400'
-                      : isWeekend
-                        ? 'text-amber-600 dark:text-amber-400'
-                        : 'text-emerald-600 dark:text-emerald-400',
-                  )}
-                >
+              <div className="mt-3 flex items-center justify-between gap-2 rounded-lg border border-border px-3 py-2 text-[11px]">
+                <span className="font-semibold text-text-muted">{ui.officialYes.split(':')[0]}:</span>
+                <span className={cn('font-semibold', isOfficial ? 'text-danger' : isWeekend ? 'text-warning' : 'text-success')}>
                   {(() => {
                     const str = isOfficial ? ui.officialYes : ui.officialNo;
                     const idx = str.indexOf(':');
@@ -454,7 +419,7 @@ export default function DateTimeSuite() {
             <SectionHeading icon={<Clock3 className="h-5 w-5" />} tone="blue" title={ui.epochToDateTitle} hint={ui.epochToDateHint} />
 
             <div className="mt-4 space-y-3">
-              <span className="block text-[11px] font-semibold text-slate-500">{ui.epochValueLabel}</span>
+              <span className="block text-[11px] font-semibold text-text-subtle">{ui.epochValueLabel}</span>
               <div className="flex flex-wrap gap-2">
                 <input
                   dir="ltr"
@@ -465,12 +430,12 @@ export default function DateTimeSuite() {
                   }}
                   placeholder={ui.epochInputPlaceholder}
                   aria-label={ui.epochValueLabel}
-                  className="h-10 min-w-0 flex-1 rounded-md border border-slate-200 bg-white px-3 font-sans text-sm tabular-nums outline-none transition-colors focus-visible:border-blue-500 focus-visible:ring-2 focus-visible:ring-blue-500/30 dark:border-white/10 dark:bg-[#0d1117]"
+                  className="h-10 min-w-0 flex-1 rounded-md border border-border-strong bg-surface px-3 font-sans text-sm tabular-nums text-text outline-none transition-colors focus-visible:border-focus focus-visible:ring-2 focus-visible:ring-focus/30"
                 />
                 <button
                   type="button"
                   onClick={() => setCommittedEpoch(epochInput)}
-                  className="inline-flex h-10 shrink-0 items-center gap-2 rounded-md bg-blue-600 px-4 text-xs font-semibold text-white transition-colors hover:bg-blue-700"
+                  className="inline-flex h-10 shrink-0 items-center gap-2 rounded-md bg-action px-4 text-xs font-semibold text-action-foreground transition-colors hover:bg-action-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2 focus-visible:ring-offset-surface"
                 >
                   <RefreshCw className="h-3.5 w-3.5" />
                   {ui.convertButton}
@@ -482,13 +447,13 @@ export default function DateTimeSuite() {
                     setEpochInput(value);
                     setCommittedEpoch(value);
                   }}
-                  className="inline-flex h-10 shrink-0 items-center rounded-md border border-slate-200 bg-white px-3 text-[11px] font-semibold text-slate-600 transition-colors hover:border-blue-200 hover:text-blue-600 dark:border-white/10 dark:bg-[#161b26] dark:text-slate-300"
+                  className="inline-flex h-10 shrink-0 items-center rounded-md border border-border-strong bg-surface px-3 text-[11px] font-semibold text-text-muted transition-colors hover:border-action/40 hover:text-action dark:hover:text-focus focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2 focus-visible:ring-offset-surface"
                 >
                   {shared.now}
                 </button>
               </div>
 
-              <p className="flex items-center gap-1.5 text-[10px] text-slate-400">
+              <p className="flex items-center gap-1.5 text-[10px] text-text-subtle">
                 <Info className="h-3.5 w-3.5" />
                 {detection}
               </p>
@@ -498,29 +463,28 @@ export default function DateTimeSuite() {
                   <ValueRow
                     label={ui.jalaliDateOut}
                     value={`${localiseDigits(formatClock(converted.date), locale)} - ${formatJalaliNumeric(
-                      { year: convertedJalali.jy, month: convertedJalali.jm, day: convertedJalali.jd, hour: 0, minute: 0, second: 0 },
+                      {
+                        year: convertedJalali.jy,
+                        month: convertedJalali.jm,
+                        day: convertedJalali.jd,
+                        hour: 0,
+                        minute: 0,
+                        second: 0,
+                      },
                       locale,
                     )}`}
                     copyLabel={shared.copy}
                     onCopied={copy}
                   />
-                  <ValueRow
-                    label={ui.gregorianDateOut}
-                    value={`${formatClock(converted.date)} ${formatIsoDate(converted.date)}`}
-                    copyLabel={shared.copy}
-                    onCopied={copy}
-                    ltr
-                  />
+                  <ValueRow label={ui.gregorianDateOut} value={`${formatClock(converted.date)} ${formatIsoDate(converted.date)}`} copyLabel={shared.copy} onCopied={copy} ltr />
                   <ValueRow label={ui.isoOut} value={converted.date.toISOString()} copyLabel={shared.copy} onCopied={copy} ltr />
-                  <div className="flex items-center justify-between gap-2 rounded-md bg-slate-50 px-3 py-2 dark:bg-[#0d1117]">
-                    <span className="shrink-0 text-xs text-slate-500">{ui.relativeOut}</span>
-                    <span className="truncate text-xs font-semibold text-amber-600 dark:text-amber-400">
-                      {now ? formatRelative(shared.rel, relativeToNow(converted.date, now), num) : '—'}
-                    </span>
+                  <div className="flex items-center justify-between gap-2 rounded-md bg-surface-inset px-3 py-2">
+                    <span className="shrink-0 text-xs text-text-muted">{ui.relativeOut}</span>
+                    <span className="truncate text-xs font-semibold text-warning">{now ? formatRelative(shared.rel, relativeToNow(converted.date, now), num) : '—'}</span>
                   </div>
                 </div>
               ) : (
-                <p className="flex items-center gap-2 rounded-md bg-amber-50 px-3 py-3 text-[11px] text-amber-700 dark:bg-amber-950/30 dark:text-amber-300">
+                <p className="flex items-center gap-2 rounded-md bg-warning-soft px-3 py-3 text-[11px] text-warning">
                   <TriangleAlert className="h-4 w-4 shrink-0" />
                   {ui.invalidEpoch}
                 </p>
@@ -533,7 +497,14 @@ export default function DateTimeSuite() {
 
             <div className="mt-4 space-y-3">
               <div className="flex justify-end">
-                <SystemToggle system={system} onChange={setSystem} labels={{ jalali: shared.jalali, gregorian: shared.gregorian }} />
+                <SystemToggle
+                  system={system}
+                  onChange={setSystem}
+                  labels={{
+                    jalali: shared.jalali,
+                    gregorian: shared.gregorian,
+                  }}
+                />
               </div>
 
               <div className="grid grid-cols-3 gap-2 sm:grid-cols-6">
@@ -551,21 +522,8 @@ export default function DateTimeSuite() {
               </div>
 
               <div className="space-y-2">
-                <ValueRow
-                  label={ui.epochSecondsOut}
-                  value={selectedEpoch === null ? '—' : String(selectedEpoch)}
-                  copyLabel={shared.copy}
-                  onCopied={copy}
-                  ltr
-                  tone="primary"
-                />
-                <ValueRow
-                  label={ui.epochMillisecondsOut}
-                  value={selected ? String(selected.getTime()) : '—'}
-                  copyLabel={shared.copy}
-                  onCopied={copy}
-                  ltr
-                />
+                <ValueRow label={ui.epochSecondsOut} value={selectedEpoch === null ? '—' : String(selectedEpoch)} copyLabel={shared.copy} onCopied={copy} ltr tone="primary" />
+                <ValueRow label={ui.epochMillisecondsOut} value={selected ? String(selected.getTime()) : '—'} copyLabel={shared.copy} onCopied={copy} ltr />
               </div>
 
               <div className="flex flex-wrap items-center gap-1.5">
@@ -575,7 +533,7 @@ export default function DateTimeSuite() {
                     setDraft({});
                     if (selected) setSelected(new Date(selected.getTime()));
                   }}
-                  className="inline-flex h-8 items-center gap-1.5 rounded-md bg-emerald-600 px-3 text-[11px] font-semibold text-white transition-colors hover:bg-emerald-700"
+                  className="inline-flex h-8 items-center gap-1.5 rounded-md bg-success px-3 text-[11px] font-semibold text-action-foreground transition-colors hover:bg-success/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2 focus-visible:ring-offset-surface"
                 >
                   <RefreshCw className="h-3 w-3" />
                   {ui.recalculateButton}
@@ -594,27 +552,27 @@ export default function DateTimeSuite() {
               type="button"
               aria-expanded={snippetsOpen}
               onClick={() => setSnippetsOpen((current) => !current)}
-              className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-700 transition-colors hover:text-blue-600 dark:text-slate-100"
+              className="inline-flex items-center gap-1.5 text-xs font-bold text-text transition-colors hover:text-action dark:hover:text-focus focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2 focus-visible:ring-offset-surface"
             >
-              <Code2 className="h-3.5 w-3.5 text-blue-600" />
+              <Code2 className="h-3.5 w-3.5 text-action dark:text-focus" />
               {ui.snippetsTitle}
             </button>
             <span className="flex items-center gap-2">
-              <span className="text-[10px] text-slate-400">{ui.epochReference}</span>
-              <ChevronDown className={cn('h-4 w-4 text-slate-400 transition-transform', snippetsOpen && 'rotate-180')} />
+              <span className="text-[10px] text-text-subtle">{ui.epochReference}</span>
+              <ChevronDown className={cn('h-4 w-4 text-text-subtle transition-transform', snippetsOpen && 'rotate-180')} />
             </span>
           </div>
 
           {snippetsOpen ? (
             <div className="mt-3 grid gap-3 sm:grid-cols-3">
               {snippets.map((snippet) => (
-                <div key={snippet.key} className="rounded-lg border border-slate-200 bg-slate-50 p-3 dark:border-white/10 dark:bg-[#0d1117]">
+                <div key={snippet.key} className="rounded-lg border border-border-strong bg-surface-inset p-3">
                   <div className="flex items-center justify-between gap-2">
-                    <span className="text-[11px] font-bold text-slate-700 dark:text-slate-100">{snippet.label}</span>
+                    <span className="text-[11px] font-bold text-text">{snippet.label}</span>
                     <CopyButton size="sm" value={snippet.code} label={shared.copyCode} onCopied={copy} />
                   </div>
                   <pre dir="ltr" className="mt-2 overflow-x-auto text-start">
-                    <code className="font-sans text-[11px] leading-5 text-slate-600 dark:text-slate-300">{snippet.code}</code>
+                    <code className="font-sans text-[11px] leading-5 text-text-muted">{snippet.code}</code>
                   </pre>
                 </div>
               ))}
@@ -641,21 +599,7 @@ function fieldMax(key: FieldKey, parts: DateParts | null, system: CalendarSystem
 }
 
 /** Editable dark time cell used inside the selected-timestamp card. */
-function DarkTimeField({
-  label,
-  value,
-  max,
-  draft,
-  onChange,
-  onBlur,
-}: {
-  label: string;
-  value: number | null;
-  max: number;
-  draft?: string;
-  onChange: (raw: string) => void;
-  onBlur: () => void;
-}) {
+function DarkTimeField({ label, value, max, draft, onChange, onBlur }: { label: string; value: number | null; max: number; draft?: string; onChange: (raw: string) => void; onBlur: () => void }) {
   return (
     <label className="flex flex-col items-center gap-1">
       <input
@@ -667,7 +611,7 @@ function DarkTimeField({
         value={draft ?? (value === null ? '' : String(value).padStart(2, '0'))}
         onChange={(event) => onChange(event.target.value.replace(/[^\d]/g, ''))}
         onBlur={onBlur}
-        className="h-12 w-16 rounded-lg border border-white/10 bg-white/5 text-center font-sans text-xl font-bold tabular-nums text-white outline-none transition-colors focus-visible:border-blue-400 focus-visible:ring-2 focus-visible:ring-blue-500/40"
+        className="h-12 w-16 rounded-lg border border-white/10 bg-white/5 text-center font-sans text-xl font-bold tabular-nums text-white outline-none transition-colors focus-visible:border-focus focus-visible:ring-2 focus-visible:ring-focus/40"
       />
       <span className="text-[10px] text-slate-400">{label}</span>
     </label>
@@ -680,7 +624,7 @@ function PresetChip({ label, onClick }: { label: string; onClick: () => void }) 
     <button
       type="button"
       onClick={onClick}
-      className="inline-flex h-8 items-center rounded-md border border-slate-200 bg-white px-3 text-[11px] font-medium text-slate-600 transition-colors hover:border-blue-200 hover:text-blue-600 dark:border-white/10 dark:bg-[#161b26] dark:text-slate-300 dark:hover:border-blue-900"
+      className="inline-flex h-8 items-center rounded-md border border-border-strong bg-surface px-3 text-[11px] font-medium text-text-muted transition-colors hover:border-action/40 hover:text-action dark:hover:text-focus focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2 focus-visible:ring-offset-surface"
     >
       {label}
     </button>

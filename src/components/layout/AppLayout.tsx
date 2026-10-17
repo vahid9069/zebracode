@@ -4,6 +4,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import * as Tooltip from '@radix-ui/react-tooltip';
+import * as Dialog from '@radix-ui/react-dialog';
 import {
     Menu, Search, ChevronDown, ChevronLeft, ChevronRight,
     Sun, Moon, Boxes, History, Terminal,
@@ -87,6 +88,10 @@ export default function AppLayout({ children, locale, dict }: { children: React.
     const isFa = locale === 'fa';
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const [isCommandOpen, setIsCommandOpen] = useState(false);
+    const [isMobileNavigationOpen, setIsMobileNavigationOpen] = useState(false);
+    const brandRef = React.useRef<HTMLAnchorElement>(null);
+    const commandReturnFocusRef = React.useRef<HTMLElement | null>(null);
+    const [isDesktop, setIsDesktop] = useState(false);
     const [openSubCategories, setOpenSubCategories] = useState<Record<string, boolean>>(() => {
         const normalizePath = (path: string) => {
             const pathnameOnly = new URL(path, 'http://zebracode.local').pathname.replace(/\/{2,}/g, '/');
@@ -112,9 +117,18 @@ export default function AppLayout({ children, locale, dict }: { children: React.
     const { setTheme, resolvedTheme } = useTheme();
     const toggleTheme = () => setTheme(resolvedTheme === 'dark' ? 'light' : 'dark');
 
+    useEffect(() => {
+        const mediaQuery = window.matchMedia('(min-width: 1024px)');
+        const syncDesktopState = () => setIsDesktop(mediaQuery.matches);
+        syncDesktopState();
+        mediaQuery.addEventListener('change', syncDesktopState);
+        return () => mediaQuery.removeEventListener('change', syncDesktopState);
+    }, []);
+
     const cleanPath = (pathname || '').replace(/\/+$/, '') || '/';
     const isLandingOrStatic = ['/', '/en', '/about', '/en/about'].includes(cleanPath);
     const showSidebar = !isLandingOrStatic;
+    const sidebarIsVisible = isDesktop ? !isSidebarCollapsed : isSidebarOpen;
     const homePath = locale === 'en' ? '/en' : '/';
     const aboutPath = locale === 'en' ? '/en/about' : '/about';
     const isHomeActive = cleanPath === homePath;
@@ -219,7 +233,12 @@ export default function AppLayout({ children, locale, dict }: { children: React.
 
     useEffect(() => {
         setIsSidebarOpen(false);
+        setIsMobileNavigationOpen(false);
     }, [pathname]);
+
+    useEffect(() => {
+        if (isDesktop) setIsMobileNavigationOpen(false);
+    }, [isDesktop]);
 
     useEffect(() => {
         const handleShortcut = (event: KeyboardEvent) => {
@@ -258,69 +277,149 @@ export default function AppLayout({ children, locale, dict }: { children: React.
         ? (cleanPath.replace(/^\/en/, '') || '/') + (cleanPath === '/en' ? '' : '/')
         : `/en${cleanPath === '/' ? '/' : cleanPath + '/'}`;
 
+    // Both navigation surfaces use the same routes, labels, and active state.
+    const primaryLinks = [
+        { href: locale === 'en' ? '/en/' : '/', label: dict.layout.home, active: isHomeActive },
+        { href: locale === 'en' ? '/en/about/' : '/about/', label: dict.layout.about, active: isAboutActive },
+    ].map(item => (
+        <Link
+            key={item.href}
+            href={item.href}
+            aria-current={item.active ? 'page' : undefined}
+            onClick={() => setIsMobileNavigationOpen(false)}
+            className={`flex min-h-11 items-center rounded-lg px-4 py-2 text-sm transition-colors ${
+                item.active
+                    ? 'bg-action-soft font-bold text-action dark:text-focus ring-1 ring-focus/30'
+                    : 'font-semibold text-text-muted hover:bg-action-soft hover:text-text'
+            } focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2 focus-visible:ring-offset-surface`}
+        >
+            {item.label}
+        </Link>
+    ));
+
+    const renderPreferences = (compact: boolean) => (
+        <>
+            <Link
+                href={toggleLangPath}
+                onClick={() => {
+                    setIsMobileNavigationOpen(false);
+                    localStorage.setItem('zebracode-lang', locale === 'en' ? 'fa' : 'en');
+                }}
+                aria-label={dict.layout.switchLanguage}
+                title={dict.layout.switchLanguage}
+                className="flex min-h-11 items-center justify-center rounded-lg border border-border-strong bg-surface-raised px-2.5 py-1.5 text-sm font-bold text-text-muted transition-colors hover:bg-action-soft hover:text-action dark:hover:text-focus focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2 focus-visible:ring-offset-surface"
+            >
+                {compact ? dict.layout.langCode : dict.layout.switchLanguage}
+            </Link>
+            <button
+                type="button"
+                onClick={toggleTheme}
+                aria-label={dict.layout.toggleTheme}
+                title={dict.layout.toggleTheme}
+                className="flex min-h-11 items-center justify-center gap-2 rounded-lg border border-border-strong bg-surface-raised p-2 text-sm text-text-muted transition-colors hover:bg-action-soft hover:text-action dark:hover:text-focus cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2 focus-visible:ring-offset-surface"
+            >
+                <Sun aria-hidden="true" className="hidden h-4 w-4 shrink-0 dark:block" />
+                <Moon aria-hidden="true" className="h-4 w-4 shrink-0 dark:hidden" />
+                {!compact && <span>{dict.layout.toggleTheme}</span>}
+            </button>
+        </>
+    );
+
     return (
         <I18nProvider locale={locale} dict={dict}>
-        <div className="theme-shell h-screen flex flex-col bg-[#0b0f19] overflow-hidden font-sans">
+        <div className="h-screen flex flex-col bg-canvas text-text overflow-hidden font-sans">
             <CommandMenu
                 isOpen={isCommandOpen}
                 setIsOpen={setIsCommandOpen}
                 locale={locale}
                 dict={dict}
-                shortcutEnabled={!['/', '/en'].includes(cleanPath)}
+                shortcutEnabled={!['/', '/en'].includes(cleanPath) && !isMobileNavigationOpen}
+                returnFocusRef={commandReturnFocusRef}
             />
 
             {/* هدر اصلی */}
-            <header className="flex items-center justify-between h-16 px-4 lg:px-8 border-b border-slate-200 bg-white/90 backdrop-blur-md z-20 shrink-0 dark:border-[#273043] dark:bg-[#0d1117]/95">
-                <div className="flex items-center gap-4">
+            <header className="flex items-center justify-between gap-2 h-16 px-3 sm:px-4 lg:px-8 border-b border-border bg-surface/90 backdrop-blur-md z-20 shrink-0 dark:bg-surface/95">
+                <div className="flex min-w-0 items-center gap-2 sm:gap-4">
+                    {isLandingOrStatic && (
+                        <Dialog.Root open={isMobileNavigationOpen && !isDesktop} onOpenChange={setIsMobileNavigationOpen}>
+                            <Dialog.Trigger asChild>
+                                <button
+                                    type="button"
+                                    aria-label={dict.layout.primaryNavigation}
+                                    className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg text-text-muted hover:bg-action-soft hover:text-text lg:hidden transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2 focus-visible:ring-offset-surface"
+                                >
+                                    <Menu aria-hidden="true" className="h-6 w-6" />
+                                </button>
+                            </Dialog.Trigger>
+                            <Dialog.Portal>
+                                <Dialog.Overlay className="fixed inset-0 z-[100] bg-black/50 backdrop-blur-sm lg:hidden" />
+                                <Dialog.Content
+                                    data-mobile-navigation="true"
+                                    dir={isFa ? 'rtl' : 'ltr'}
+                                    className="fixed inset-x-4 top-20 z-[101] mx-auto max-h-[calc(100dvh-6rem)] max-w-sm overflow-y-auto break-words rounded-xl border border-border-strong bg-surface p-4 text-text shadow-xl focus:outline-none lg:hidden"
+                                    onCloseAutoFocus={event => {
+                                        // The mobile trigger is hidden after crossing the desktop breakpoint.
+                                        if (isDesktop) {
+                                            event.preventDefault();
+                                            brandRef.current?.focus();
+                                        }
+                                    }}
+                                >
+                                    <Dialog.Description id="mobile-navigation-description" className="sr-only">
+                                        {dict.layout.primaryNavigation}
+                                    </Dialog.Description>
+                                    <div className="mb-3 flex items-center justify-between gap-3">
+                                        <Dialog.Title className="text-base font-bold">{dict.layout.primaryNavigation}</Dialog.Title>
+                                        <Dialog.Close asChild>
+                                            <button
+                                                type="button"
+                                                aria-label={dict.layout.closeMenu}
+                                                className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg text-text-muted hover:bg-action-soft hover:text-text focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2 focus-visible:ring-offset-surface"
+                                            >
+                                                <X aria-hidden="true" className="h-5 w-5" />
+                                            </button>
+                                        </Dialog.Close>
+                                    </div>
+                                    <nav aria-label={dict.layout.primaryNavigation} className="grid gap-2">
+                                        {primaryLinks}
+                                    </nav>
+                                    <div className="mt-4 grid gap-2 border-t border-border pt-4">
+                                        {renderPreferences(false)}
+                                    </div>
+                                </Dialog.Content>
+                            </Dialog.Portal>
+                        </Dialog.Root>
+                    )}
                     {showSidebar && (
                         <button
                             type="button"
                             onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-                            className="rounded-lg p-2 text-[#94a3b8] hover:bg-[#161b26] hover:text-white lg:hidden transition-colors cursor-pointer"
+                            className="rounded-lg p-2 text-text-muted hover:bg-action-soft hover:text-text lg:hidden transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2 focus-visible:ring-offset-surface"
                             aria-label={dict.layout.developerTools}
+                            aria-expanded={isSidebarOpen}
+                            aria-controls="tool-sidebar"
                         >
                             <Menu className="w-6 h-6" />
                         </button>
                     )}
-                    <Link href={locale === 'en' ? '/en/' : '/'} className="group flex items-center gap-2 text-white">
-                        <span className="flex h-8 w-8 items-center justify-center rounded-lg border border-[#273043] bg-[#161b26] text-[#b4c5ff]">
+                    <Link ref={brandRef} href={locale === 'en' ? '/en/' : '/'} className="group flex min-w-0 items-center gap-2 text-text focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2 focus-visible:ring-offset-surface">
+                        <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-border-strong bg-surface-raised text-action dark:text-focus">
                             <Terminal className="h-4 w-4" />
                         </span>
-                        <span className="text-lg font-bold tracking-tight transition-colors group-hover:text-[#b4c5ff]">ZebraCode</span>
-                        <span className="rounded border border-[#273043] bg-[#161b26] px-1.5 py-0.5 font-sans text-[10px] font-bold tracking-widest text-[#94a3b8]">/dev</span>
+                        <span className="truncate text-lg font-bold tracking-tight transition-colors group-hover:text-action dark:group-hover:text-focus">ZebraCode</span>
+                        <span className="hidden rounded border border-border-strong bg-surface-raised px-1.5 py-0.5 font-sans text-[10px] font-bold tracking-widest text-text-muted sm:inline">/dev</span>
                     </Link>
-                    <nav className="hidden items-center gap-1 lg:flex lg:ml-6 rtl:lg:ml-0 rtl:lg:mr-6">
-                        <Link
-                            href={locale === 'en' ? '/en/' : '/'}
-                            aria-current={isHomeActive ? 'page' : undefined}
-                            className={`rounded-lg px-4 py-2 text-sm transition-colors ${
-                                isHomeActive
-                                    ? 'bg-blue-50 font-bold text-blue-700 ring-1 ring-blue-200 dark:bg-blue-500/15 dark:text-blue-300 dark:ring-blue-500/30'
-                                    : 'font-semibold text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-[#161b26] dark:hover:text-white'
-                            }`}
-                        >
-                            {dict.layout.home}
-                        </Link>
-                        <Link
-                            href={locale === 'en' ? '/en/about/' : '/about/'}
-                            aria-current={isAboutActive ? 'page' : undefined}
-                            className={`rounded-lg px-4 py-2 text-sm transition-colors ${
-                                isAboutActive
-                                    ? 'bg-blue-50 font-bold text-blue-700 ring-1 ring-blue-200 dark:bg-blue-500/15 dark:text-blue-300 dark:ring-blue-500/30'
-                                    : 'font-semibold text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-[#161b26] dark:hover:text-white'
-                            }`}
-                        >
-                            {dict.layout.about}
-                        </Link>
+                    <nav aria-label={dict.layout.primaryNavigation} className="hidden items-center gap-1 lg:flex lg:ms-6">
+                        {primaryLinks}
                     </nav>
                 </div>
 
-                <div className="flex items-center gap-3">
+                <div className="flex shrink-0 items-center gap-1 sm:gap-3">
                     {showSidebar && (
                         <button
                             type="button"
                             onClick={() => setIsSidebarCollapsed(val => !val)}
-                            className="hidden lg:flex rounded-lg p-2 text-[#94a3b8] hover:bg-[#161b26] hover:text-white transition-colors cursor-pointer"
+                            className="hidden lg:flex rounded-lg p-2 text-text-muted hover:bg-action-soft hover:text-text transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2 focus-visible:ring-offset-surface"
                             title={isSidebarCollapsed ? dict.layout.focusModeShortcut : dict.layout.collapseSidebar}
                             aria-label={isSidebarCollapsed ? dict.layout.expandSidebar : dict.layout.collapseSidebar}
                         >
@@ -331,37 +430,23 @@ export default function AppLayout({ children, locale, dict }: { children: React.
                             )}
                         </button>
                     )}
-                    <button
-                        type="button"
-                        onClick={() => setIsCommandOpen(true)}
-                        className="rounded-lg p-2 text-[#94a3b8] hover:bg-[#161b26] hover:text-white lg:hidden transition-colors cursor-pointer"
+                        <button
+                            type="button"
+                            onMouseDown={event => {
+                                commandReturnFocusRef.current = event.currentTarget;
+                            }}
+                            onClick={() => {
+                                setIsCommandOpen(true);
+                            }}
+                            aria-expanded={isCommandOpen}
+                            aria-controls="command-menu"
+                            className="rounded-lg p-2 text-text-muted hover:bg-action-soft hover:text-text lg:hidden transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2 focus-visible:ring-offset-surface"
                         aria-label={dict.layout.search}
                     >
                         <Search className="w-5 h-5" />
                     </button>
-                    <div className="flex items-center gap-2 border-l border-[#273043] pl-3 rtl:border-l-0 rtl:border-r rtl:pl-0 rtl:pr-3">
-                        {/* دکمه تغییر زبان */}
-                        <Link 
-                            href={toggleLangPath}
-                            onClick={() => {
-                                localStorage.setItem('zebracode-lang', locale === 'en' ? 'fa' : 'en');
-                            }}
-                            className="flex items-center justify-center rounded-lg border border-[#273043] bg-[#161b26] px-2.5 py-1.5 text-xs font-bold text-[#94a3b8] transition-colors hover:text-white"
-                            title={dict.layout.switchLanguage}
-                        >
-                            {dict.layout.langCode}
-                        </Link>
-
-                        {/* دکمه تغییر تم */}
-                        <button
-                            type="button"
-                            onClick={toggleTheme}
-                            className="rounded-lg border border-[#273043] bg-[#161b26] p-2 text-[#94a3b8] transition-colors hover:text-white cursor-pointer"
-                            aria-label="Toggle theme"
-                        >
-                            <Sun className="hidden h-4 w-4 dark:block" />
-                            <Moon className="h-4 w-4 dark:hidden" />
-                        </button>
+                    <div className={`${isLandingOrStatic ? 'hidden lg:flex' : 'flex'} items-center gap-2 border-s border-border-strong ps-2 sm:ps-3`}>
+                        {renderPreferences(true)}
                     </div>
                 </div>
             </header>
@@ -379,10 +464,14 @@ export default function AppLayout({ children, locale, dict }: { children: React.
 
                 {showSidebar && (
                     <aside
+                        id="tool-sidebar"
+                        aria-label={dict.layout.developerTools}
+                        aria-hidden={!sidebarIsVisible}
+                        inert={!sidebarIsVisible ? true : undefined}
                         dir={isFa ? 'rtl' : 'ltr'}
                         className={`fixed inset-y-0 z-40 lg:z-10 lg:static flex flex-col shrink-0 ${
                             isFa ? 'right-0 border-l' : 'left-0 border-r'
-                        } border-slate-200 dark:border-slate-800 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md shadow-[0_1px_8px_rgba(0,0,0,0.04)] transition-[width,transform] duration-300 ${
+                        } border-border bg-surface/95 backdrop-blur-md shadow-[0_1px_8px_rgba(0,0,0,0.04)] transition-[width,transform] duration-300 ${
                             isSidebarMini ? 'lg:w-16' : 'lg:w-80'
                         } w-80 max-w-[85vw] ${
                             isSidebarCollapsed ? 'lg:hidden' : 'lg:translate-x-0'
@@ -395,26 +484,33 @@ export default function AppLayout({ children, locale, dict }: { children: React.
                         }`}
                     >
                         {isSidebarMini ? (
-                            <div dir={isFa ? 'rtl' : 'ltr'} className="h-full flex shrink-0 flex-col items-center gap-3 py-3 bg-slate-50/70 dark:bg-slate-900" aria-label={dict.layout.toolRail}>
+                            <nav aria-label={dict.layout.toolRail} dir={isFa ? 'rtl' : 'ltr'} className="h-full flex shrink-0 flex-col items-center gap-3 py-3 bg-surface-inset">
                                 <button
                                     type="button"
                                     onClick={() => setIsSidebarMini(false)}
                                     title={dict.layout.expandSidebarShortcut}
                                     aria-label={dict.layout.expandSidebar}
-                                    className="w-9 h-9 rounded-xl bg-blue-600 text-white hover:bg-blue-700 flex items-center justify-center shadow-sm transition-all cursor-pointer"
+                                    className="w-9 h-9 rounded-xl bg-action text-action-foreground hover:bg-action-hover flex items-center justify-center shadow-sm transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2 focus-visible:ring-offset-surface"
                                 >
                                     {isFa ? <PanelRightOpen className="w-5 h-5" /> : <PanelLeftOpen className="w-5 h-5" />}
                                 </button>
                                 <button
                                     type="button"
-                                    onClick={() => setIsCommandOpen(true)}
+                                    onMouseDown={event => {
+                                        commandReturnFocusRef.current = event.currentTarget;
+                                    }}
+                                    onClick={() => {
+                                        setIsCommandOpen(true);
+                                    }}
+                                    aria-expanded={isCommandOpen}
+                                    aria-controls="command-menu"
                                     title={dict.layout.searchToolsShortcut}
                                     aria-label={dict.layout.searchTools}
-                                    className="w-9 h-9 rounded-lg text-slate-500 hover:text-slate-800 hover:bg-slate-200/60 dark:hover:bg-slate-800 flex items-center justify-center transition-colors cursor-pointer"
+                                    className="w-9 h-9 rounded-lg text-text-muted hover:text-text hover:bg-action-soft flex items-center justify-center transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2 focus-visible:ring-offset-surface"
                                 >
                                     <Search className="w-5 h-5" />
                                 </button>
-                                <div className="w-6 h-px bg-slate-200 dark:bg-slate-800 my-1" />
+                                <div className="w-6 h-px bg-border my-1" />
                                 <Tooltip.Provider delayDuration={250}>
                                     {recentTools.slice(0, 3).map(item => {
                                         const href = getValidPath(item.href);
@@ -429,11 +525,11 @@ export default function AppLayout({ children, locale, dict }: { children: React.
                                                         aria-label={title}
                                                         aria-current={active ? 'page' : undefined}
                                                         onClick={() => setIsSidebarOpen(false)}
-                                                        className={`relative w-9 h-9 rounded-lg flex items-center justify-center font-sans text-[9px] font-bold transition-colors ${getRecentBadgeStyle(badge)} ${active ? 'ring-2 ring-blue-600 bg-blue-50 dark:bg-blue-950' : 'hover:ring-1 hover:ring-slate-300 dark:hover:ring-slate-600'}`}
+                                                        className={`relative w-9 h-9 rounded-lg flex items-center justify-center font-sans text-[9px] font-bold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2 focus-visible:ring-offset-surface ${getRecentBadgeStyle(badge)} ${active ? 'ring-2 ring-action bg-action-soft' : 'hover:ring-1 hover:ring-border-strong'}`}
                                                     >
                                                         <span dir="ltr">{badge}</span>
                                                         {active && (
-                                                            <span className={`absolute top-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full bg-blue-600 animate-pulse ${isFa ? '-left-0.5' : '-right-0.5'}`} />
+                                                            <span className={`absolute top-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full bg-action animate-pulse ${isFa ? '-left-0.5' : '-right-0.5'}`} />
                                                         )}
                                                     </Link>
                                                 </Tooltip.Trigger>
@@ -442,10 +538,10 @@ export default function AppLayout({ children, locale, dict }: { children: React.
                                                         side={isFa ? 'left' : 'right'}
                                                         sideOffset={8}
                                                         dir={isFa ? 'rtl' : 'ltr'}
-                                                        className="z-50 rounded-md bg-slate-900 px-3 py-1.5 text-xs text-white shadow-lg dark:bg-slate-100 dark:text-slate-900"
+                                                        className="z-50 rounded-md bg-text px-3 py-1.5 text-xs text-surface shadow-lg"
                                                     >
                                                         {title}
-                                                        <Tooltip.Arrow className="fill-slate-900 dark:fill-slate-100" />
+                                                        <Tooltip.Arrow className="fill-text" />
                                                     </Tooltip.Content>
                                                 </Tooltip.Portal>
                                             </Tooltip.Root>
@@ -458,21 +554,21 @@ export default function AppLayout({ children, locale, dict }: { children: React.
                                     onClick={() => setIsSidebarCollapsed(true)}
                                     title={dict.layout.focusModeShortcut}
                                     aria-label={dict.layout.focusMode}
-                                    className="w-10 h-10 rounded-lg text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 flex items-center justify-center transition-colors cursor-pointer"
+                                    className="w-10 h-10 rounded-lg text-text-muted hover:bg-action-soft hover:text-text flex items-center justify-center transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2 focus-visible:ring-offset-surface"
                                 >
                                     <Maximize className="w-5 h-5" />
                                 </button>
-                            </div>
+                            </nav>
                         ) : (
-                            <div dir={isFa ? 'rtl' : 'ltr'} className={`h-full flex flex-col ${isFa ? 'text-right' : 'text-left'} bg-slate-50/70 dark:bg-slate-900 text-slate-800 dark:text-slate-100 select-none`}>
+                            <div dir={isFa ? 'rtl' : 'ltr'} className={`h-full flex flex-col ${isFa ? 'text-right' : 'text-left'} bg-surface-inset text-text select-none`}>
                                 {/* نوار بالای سایدبار */}
-                                <div className="p-3 pb-2 flex items-center justify-between border-b border-slate-100 dark:border-slate-800/60">
+                                <div className="p-3 pb-2 flex items-center justify-between border-b border-border/70">
                                     <div className="flex items-center gap-2 min-w-0">
-                                        <div className="w-7 h-7 rounded-lg bg-blue-600/10 dark:bg-blue-500/20 text-blue-600 dark:text-blue-400 flex items-center justify-center shrink-0">
+                                        <div className="w-7 h-7 rounded-lg bg-action-soft text-action dark:text-focus flex items-center justify-center shrink-0">
                                             <Boxes className="w-4 h-4" />
                                         </div>
                                         <span className="font-bold text-sm truncate">{dict.layout.developerTools}</span>
-                                        <span className="text-[10px] font-sans px-1.5 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-950/50 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800 shrink-0">
+                                        <span className="text-[10px] font-sans px-1.5 py-0.5 rounded-full bg-success-soft text-success border border-success/30 shrink-0">
                                             {dict.layout.toolsBadge}
                                         </span>
                                     </div>
@@ -482,16 +578,16 @@ export default function AppLayout({ children, locale, dict }: { children: React.
                                         onClick={() => setIsSidebarMini(true)}
                                         title={dict.layout.collapseSidebar}
                                         aria-label={dict.layout.collapseSidebar}
-                                        className="hidden lg:flex p-1 rounded-md text-slate-400 hover:text-slate-600 hover:bg-slate-200/60 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+                                        className="hidden lg:flex p-1 rounded-md text-text-muted hover:text-text hover:bg-action-soft transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2 focus-visible:ring-offset-surface"
                                     >
-                                        {isFa ? <PanelRightClose className="w-4 h-4 text-slate-400 hover:text-slate-600" /> : <PanelLeftClose className="w-4 h-4 text-slate-400 hover:text-slate-600" />}
+                                        {isFa ? <PanelRightClose className="w-4 h-4" /> : <PanelLeftClose className="w-4 h-4" />}
                                     </button>
                                     {/* دکمه بستن در موبایل */}
                                     <button
                                         type="button"
                                         onClick={() => setIsSidebarOpen(false)}
                                         aria-label={dict.layout.closeMenu || (isFa ? 'بستن منو' : 'Close menu')}
-                                        className="flex lg:hidden p-1 rounded-md text-slate-400 hover:text-slate-600 hover:bg-slate-200/60 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+                                        className="flex lg:hidden p-1 rounded-md text-text-muted hover:text-text hover:bg-action-soft transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2 focus-visible:ring-offset-surface"
                                     >
                                         <X className="w-5 h-5" />
                                     </button>
@@ -500,20 +596,22 @@ export default function AppLayout({ children, locale, dict }: { children: React.
                                 {/* ورودی جستجو */}
                                 <div className="p-3 pt-2.5">
                                     <div className="relative">
+                                        <label htmlFor="sidebar-tool-search" className="sr-only">{dict.layout.sidebarSearchLabel}</label>
                                         <input
+                                            id="sidebar-tool-search"
                                             type="text"
                                             value={sidebarQuery}
                                             onChange={event => setSidebarQuery(event.target.value)}
                                             placeholder={dict.layout.searchToolsPlaceholder}
-                                            className={`w-full text-xs bg-white dark:bg-slate-800/90 border border-slate-200 dark:border-slate-700/80 rounded-lg ${isFa ? 'pr-8 pl-8' : 'pl-8 pr-8'} py-2 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-600 dark:focus:border-blue-500 transition-all shadow-sm`}
+                                            className="w-full rounded-lg border border-border-strong bg-surface px-8 py-2 text-xs text-text placeholder:text-text-muted transition-all focus:border-focus focus:outline-none focus-visible:ring-2 focus-visible:ring-focus shadow-sm"
                                         />
-                                        <Search className={`w-3.5 h-3.5 text-slate-400 absolute ${isFa ? 'right-2.5' : 'left-2.5'} top-1/2 -translate-y-1/2 pointer-events-none`} />
+                                        <Search className="pointer-events-none absolute start-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-text-muted" />
                                         {sidebarQuery && (
                                             <button
                                                 type="button"
                                                 onClick={() => setSidebarQuery('')}
                                                 aria-label={dict.layout.clearSearch}
-                                                className={`absolute ${isFa ? 'left-2.5' : 'right-2.5'} top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 cursor-pointer`}
+                                                className="absolute end-2.5 top-1/2 -translate-y-1/2 cursor-pointer text-text-muted hover:text-text focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus"
                                             >
                                                 <X className="w-3.5 h-3.5" />
                                             </button>
@@ -522,15 +620,15 @@ export default function AppLayout({ children, locale, dict }: { children: React.
                                 </div>
 
                                 {/* لیست دسته‌بندی‌ها و ابزارها */}
-                                <nav className="flex-1 overflow-y-auto px-2 space-y-4 custom-scrollbar text-xs [scrollbar-width:thin] [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-slate-200 dark:[&::-webkit-scrollbar-thumb]:bg-slate-800 hover:[&::-webkit-scrollbar-thumb]:bg-slate-300">
+                                <nav aria-label={dict.layout.toolNavigation} className="flex-1 overflow-y-auto px-2 space-y-4 custom-scrollbar text-xs [scrollbar-width:thin] [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-border hover:[&::-webkit-scrollbar-thumb]:bg-border-strong">
                                     {!sidebarQuery && (
                                         <section>
-                                            <div className="flex items-center justify-between px-2 mb-1.5 text-slate-400 text-[11px] font-medium">
+                                            <div className="flex items-center justify-between px-2 mb-1.5 text-text-muted text-[11px] font-medium">
                                                 <div className="flex items-center gap-1.5">
-                                                    <History className="w-3 h-3 text-amber-500" />
+                                                    <History className="w-3 h-3 text-warning" />
                                                     <span>{dict.layout.recentlyViewed}</span>
                                                 </div>
-                                                <span className="text-[10px] bg-slate-200/60 dark:bg-slate-800 px-1 rounded font-sans">
+                                                <span className="text-[10px] bg-surface-raised px-1 rounded font-sans">
                                                     {new Intl.NumberFormat(isFa ? 'fa-IR' : 'en').format(recentTools.length)}
                                                 </span>
                                             </div>
@@ -545,35 +643,35 @@ export default function AppLayout({ children, locale, dict }: { children: React.
                                                             title={localizeTool(item, dict.tools).title}
                                                             aria-current={active ? 'page' : undefined}
                                                             onClick={() => setIsSidebarOpen(false)}
-                                                            className={`flex items-center justify-between px-2.5 py-1.5 rounded-lg cursor-pointer transition-all ${
+                                                            className={`flex items-center justify-between px-2.5 py-1.5 rounded-lg cursor-pointer transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2 focus-visible:ring-offset-surface ${
                                                                 active
-                                                                    ? `bg-blue-50/90 dark:bg-blue-950/40 text-blue-700 dark:text-blue-400 font-bold ${
+                                                                    ? `bg-action-soft text-action dark:text-focus font-bold ${
                                                                         isFa ? 'border-r-2 rounded-r-none rounded-l-md' : 'border-l-2 rounded-l-none rounded-r-md'
-                                                                    } border-blue-600 dark:border-blue-500 shadow-sm`
-                                                                    : 'font-normal text-slate-600 dark:text-slate-300 hover:text-slate-900 hover:bg-slate-100 dark:hover:bg-slate-800/60'
+                                                                    } border-action shadow-sm`
+                                                                    : 'font-normal text-text-muted hover:text-text hover:bg-action-soft'
                                                             }`}
                                                         >
                                                             <span className="flex items-center gap-2 min-w-0">
-                                                                <span dir="ltr" className={`text-[10px] font-sans px-1.5 py-0.5 rounded font-bold ${active ? 'bg-blue-600 text-white' : 'bg-slate-200 text-slate-700 dark:bg-slate-800 dark:text-slate-300'}`}>
+                                                                <span dir="ltr" className={`text-[10px] font-sans px-1.5 py-0.5 rounded font-bold ${active ? 'bg-action text-action-foreground' : 'bg-surface-raised text-text-muted'}`}>
                                                                     {getFormatBadge(item.outputLanguage)}
                                                                 </span>
                                                                 <span className="truncate">{localizeTool(item, dict.tools).title}</span>
                                                             </span>
-                                                            {active && <span className="w-1.5 h-1.5 rounded-full bg-blue-600 animate-pulse shrink-0 mx-1" />}
+                                                            {active && <span className="w-1.5 h-1.5 rounded-full bg-action animate-pulse shrink-0 mx-1" />}
                                                         </Link>
                                                     );
                                                 })}
                                                 {recentTools.length === 0 && (
-                                                    <p className="px-2.5 py-2 text-[11px] text-slate-400">{dict.layout.noRecentTools}</p>
+                                                    <p className="px-2.5 py-2 text-[11px] text-text-muted">{dict.layout.noRecentTools}</p>
                                                 )}
                                             </div>
                                         </section>
                                     )}
 
-                                    {!sidebarQuery && <div className="h-px bg-slate-200/60 dark:bg-slate-800/80 mx-1" />}
+                                    {!sidebarQuery && <div className="h-px bg-border mx-1" />}
 
                                     {sidebarQuery && filteredTools.length === 0 && (
-                                        <p className="px-2.5 py-4 text-center text-[11px] text-slate-400">
+                                        <p className="px-2.5 py-4 text-center text-[11px] text-text-muted">
                                             {dict.layout.noResultsFound || (isFa ? 'هیچ ابزاری با این مشخصات یافت نشد.' : 'No tools found matching your search.')}
                                         </p>
                                     )}
@@ -595,26 +693,27 @@ export default function AppLayout({ children, locale, dict }: { children: React.
                                             return (
                                                 <section key={key}>
                                                     <button
-                                                        type="button"
-                                                        onClick={() => toggleSubCategory(group.category, group.title)}
-                                                        aria-expanded={isOpen}
-                                                        className="w-full flex items-center justify-between px-2 py-1.5 text-slate-700 dark:text-slate-200 hover:bg-slate-200/40 dark:hover:bg-slate-800/40 rounded-lg transition-colors font-medium cursor-pointer"
+                                                     type="button"
+                                                     onClick={() => toggleSubCategory(group.category, group.title)}
+                                                     disabled={Boolean(sidebarQuery)}
+                                                     aria-expanded={isOpen}
+                                                     className="w-full flex items-center justify-between px-2 py-1.5 text-text hover:bg-action-soft rounded-lg transition-colors font-medium cursor-pointer disabled:cursor-default focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2 focus-visible:ring-offset-surface"
                                                     >
                                                         <span className="flex items-center gap-2 min-w-0">
-                                                            <span dir="ltr" className="text-slate-400 text-[10px] font-bold">
+                                                            <span dir="ltr" className="text-text-muted text-[10px] font-bold">
                                                                 {group.title === 'JSON' ? 'JSON' : renderIcon(items[0].icon, 'w-3.5 h-3.5')}
                                                             </span>
                                                             <span className="truncate">{title}</span>
                                                         </span>
-                                                        <span className="flex items-center gap-1.5 text-slate-400 shrink-0">
-                                                            <span className="text-[10px] font-sans bg-slate-200/60 dark:bg-slate-800 px-1 rounded">
+                                                        <span className="flex items-center gap-1.5 text-text-muted shrink-0">
+                                                            <span className="text-[10px] font-sans bg-surface-raised px-1 rounded">
                                                                 {new Intl.NumberFormat(isFa ? 'fa-IR' : 'en').format(items.length)}
                                                             </span>
                                                             {isOpen ? <ChevronDown className="w-3.5 h-3.5" /> : <ClosedChevron className="w-3.5 h-3.5" />}
                                                         </span>
                                                     </button>
                                                     {isOpen && (
-                                                        <div className={`mt-1 space-y-0.5 ${isFa ? 'pr-2.5 mr-2 border-r' : 'pl-2.5 ml-2 border-l'} border-slate-200 dark:border-slate-800`}>
+                                                        <div className="ms-2 mt-1 space-y-0.5 border-s border-border ps-2.5">
                                                             {items.map(item => {
                                                                 const href = getValidPath(item.href);
                                                                 const active = isToolPathActive(item.href);
@@ -626,23 +725,17 @@ export default function AppLayout({ children, locale, dict }: { children: React.
                                                                         title={localizedTitle}
                                                                         aria-current={active ? 'page' : undefined}
                                                                         onClick={() => setIsSidebarOpen(false)}
-                                                                        className={`flex items-center justify-between px-2 py-1.5 rounded-md text-[12px] cursor-pointer transition-colors ${
-                                                                            active
-                                                                                ? `bg-blue-50/90 dark:bg-blue-950/40 text-blue-700 dark:text-blue-400 font-bold ${
-                                                                                    isFa
-                                                                                        ? 'border-r-2 -mr-[1px] rounded-r-none rounded-l-md'
-                                                                                        : 'border-l-2 -ml-[1px] rounded-l-none rounded-r-md'
-                                                                                } border-blue-600 dark:border-blue-500 shadow-sm`
-                                                                                : 'font-normal text-slate-600 dark:text-slate-300 hover:text-slate-900 hover:bg-slate-100 dark:hover:bg-slate-800/60'
-                                                                        }`}
+                                                                        className={`flex items-center justify-between px-2 py-1.5 rounded-md text-[12px] cursor-pointer transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2 focus-visible:ring-offset-surface ${active
+                                                                            ? 'bg-action-soft text-action dark:text-focus font-bold border-s-2 -ms-[1px] rounded-s-none rounded-e-md border-action shadow-sm'
+                                                                            : 'font-normal text-text-muted hover:text-text hover:bg-action-soft'}`}
                                                                     >
                                                                         <span className="flex items-center gap-2 min-w-0">
-                                                                            <span dir="ltr" className={`text-[9px] font-sans px-1 py-0.5 rounded font-bold border ${active ? 'bg-blue-100 text-blue-800 dark:bg-blue-600 dark:text-white border-blue-200 dark:border-blue-500' : 'bg-slate-100 dark:bg-slate-800 text-slate-500 border-slate-200/60 dark:border-slate-700'}`}>
+                                                                            <span dir="ltr" className={`text-[9px] font-sans px-1 py-0.5 rounded font-bold border ${active ? 'bg-action-soft text-action dark:text-focus border-action/30' : 'bg-surface-raised text-text-muted border-border'}`}>
                                                                                 {getFormatBadge(item.outputLanguage)}
                                                                             </span>
                                                                             <span className="truncate">{localizedTitle}</span>
                                                                         </span>
-                                                                        {active && <span className="w-1.5 h-1.5 rounded-full bg-blue-600 animate-pulse shrink-0 mx-0.5" />}
+                                                                        {active && <span className="w-1.5 h-1.5 rounded-full bg-action animate-pulse shrink-0 mx-0.5" />}
                                                                     </Link>
                                                                 );
                                                             })}
@@ -655,15 +748,15 @@ export default function AppLayout({ children, locale, dict }: { children: React.
                                 </nav>
 
                                 {/* فوتر سایدبار */}
-                                <div className="py-2.5 px-3 border-t border-slate-200/70 dark:border-slate-800/80 bg-white/50 dark:bg-slate-900/50 text-[11px] text-slate-500 flex items-center justify-between gap-2">
-                                    <div className="flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400 font-sans text-[10px]">
-                                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 inline-block animate-pulse" />
+                                <div className="py-2.5 px-3 border-t border-border bg-surface/50 text-[11px] text-text-muted flex items-center justify-between gap-2">
+                                    <div className="flex items-center gap-1.5 text-success font-sans text-[10px]">
+                                        <span className="w-1.5 h-1.5 rounded-full bg-success inline-block animate-pulse" />
                                         <span>{dict.layout.engineLabel}</span>
                                     </div>
                                     <button
                                         type="button"
                                         onClick={() => setIsSidebarCollapsed(true)}
-                                        className="flex items-center gap-1 text-[10px] bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 rounded border border-slate-200 dark:border-slate-700 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors cursor-pointer"
+                                        className="flex items-center gap-1 text-[10px] bg-surface-raised px-1.5 py-0.5 rounded border border-border-strong hover:bg-action-soft hover:text-action dark:hover:text-focus transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2 focus-visible:ring-offset-surface"
                                     >
                                         <Maximize className="w-2.5 h-2.5" />
                                         <span>{dict.layout.focusModeLabel}</span>
@@ -675,7 +768,7 @@ export default function AppLayout({ children, locale, dict }: { children: React.
                 )}
 
                 {/* محتوای اصلی */}
-                <main className="flex-1 overflow-y-auto bg-white dark:bg-gray-900">
+                <main className="flex-1 overflow-y-auto bg-surface">
                     {children}
                 </main>
             </div>
