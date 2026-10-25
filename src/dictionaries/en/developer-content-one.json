@@ -1,0 +1,381 @@
+{
+  "uuid-generator": {
+    "seoTitle": "UUID v4 and v7 Generator",
+    "metaDescription": "Generate UUID v4 or timestamp-based v7 in your browser, one per line. Choose up to 1,000 identifiers and copy or download the result.",
+    "answer": "A UUID is a 128-bit identifier commonly used to label records without a central counter. This generator creates random UUID v4 or timestamp-prefixed UUID v7 locally with browser cryptographic randomness and returns one identifier per line.",
+    "steps": [
+      "Choose UUID v4 for random identifiers or UUID v7 for a millisecond timestamp prefix.",
+      "Enter a whole-number count from 1 to 1,000 using ASCII digits.",
+      "Run the generator, then copy the identifiers or download the text file."
+    ],
+    "useCases": [
+      "Create placeholder record IDs for a seed dataset or API fixture.",
+      "Compare v4 and v7 identifier shapes before choosing a storage format."
+    ],
+    "limitations": [
+      "Only v4 and v7 are supported, with 1–1,000 identifiers per run.",
+      "Browser cryptographic randomness is required; generation fails if it is unavailable.",
+      "UUID v7 uses the device clock and has no monotonic counter: IDs created in the same millisecond are not guaranteed to sort in creation order."
+    ],
+    "example": {
+      "input": "Version: v4; count: 1",
+      "output": "Illustrative random output; each run differs:\n550e8400-e29b-41d4-a716-446655440000"
+    },
+    "faq": [
+      { "question": "What is the difference between the v4 and v7 options?", "answer": "V4 uses random bits apart from its version and variant markers. V7 starts with the current Unix millisecond timestamp and fills the remaining variable bits with randomness." },
+      { "question": "Are UUID v7 values strictly increasing?", "answer": "No. Their timestamp prefix helps ordering across different milliseconds when the clock advances, but same-millisecond order and clock rollback are not handled by a monotonic sequence." },
+      { "question": "Can I generate a UUID again from the same name?", "answer": "No. This tool has no name-based v3 or v5 mode; repeating the same settings generates fresh random values." },
+      { "question": "Does a UUID v7 reveal its generation time?", "answer": "Its first 48 bits encode the device's Unix millisecond time. Use that property deliberately when exposing identifiers publicly; it is not a hidden timestamp." }
+    ],
+    "relatedSlugs": ["hash-generator", "jwt-encoder-verifier"],
+    "references": [{ "label": "RFC 9562: Universally Unique IDentifiers", "url": "https://www.rfc-editor.org/rfc/rfc9562.html" }]
+  },
+  "hash-generator": {
+    "seoTitle": "SHA Text Hash Generator",
+    "metaDescription": "Compute SHA-1, SHA-256, SHA-384 or SHA-512 digests of current UTF-8 editor text locally, with hexadecimal output and explicit security limits.",
+    "answer": "A text hash is a fixed-length digest derived from the bytes of a string. This tool encodes the entered text as UTF-8 and uses browser Web Crypto to calculate SHA-1, SHA-256, SHA-384 or SHA-512 without uploading the text.",
+    "steps": [
+      "Paste the exact text, including any spaces or final newline you intend to hash.",
+      "Choose one of the four SHA algorithms and run the tool.",
+      "Copy or download the lowercase hexadecimal digest for comparison."
+    ],
+    "useCases": [
+      "Compare a known text payload with a published digest using the same encoding and algorithm.",
+      "Reproduce a hashing discrepancy caused by a hidden newline or Unicode representation."
+    ],
+    "limitations": [
+      "Text only, up to 200,000 UTF-16 units per field; no file hashing, MD5 or HMAC mode.",
+      "The current editor text is hashed without Unicode normalization; unpaired UTF-16 surrogates are rejected. The code editor normalizes pasted CRLF/CR line breaks to LF, so this is not a file-byte checksum tool.",
+      "Web Crypto digest support is required, normally on HTTPS or localhost.",
+      "These fast digests are not password-hashing functions. SHA-1 is a legacy choice unsuitable for security-sensitive integrity checks."
+    ],
+    "example": {
+      "input": "Algorithm: SHA-256\nText: hello (no trailing newline)",
+      "output": "2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824"
+    },
+    "faq": [
+      { "question": "Why does hello produce a different digest after copying from a file?", "answer": "A file may contain a final newline or a byte-order mark, and even one extra character changes the digest. The code editor normalizes CRLF and CR to LF; this tool hashes its current UTF-8 text, not the original file bytes." },
+      { "question": "Can I hash an empty string?", "answer": "Yes. An empty text field is valid and produces the selected algorithm's digest of zero UTF-8 bytes." },
+      { "question": "Why can two visually identical accented strings hash differently?", "answer": "A composed character and a base letter plus combining mark can have different UTF-8 bytes. This tool does not normalize either form before hashing." },
+      { "question": "How long is the hexadecimal output?", "answer": "SHA-1 produces 40 hexadecimal characters, SHA-256 produces 64, SHA-384 produces 96 and SHA-512 produces 128. The output uses lowercase letters without a prefix." }
+    ],
+    "relatedSlugs": ["line-ending-converter", "whitespace-inspector", "uuid-generator"],
+    "references": [{ "label": "MDN: SubtleCrypto.digest()", "url": "https://developer.mozilla.org/en-US/docs/Web/API/SubtleCrypto/digest" }]
+  },
+  "case-converter": {
+    "seoTitle": "Unicode Case Converter",
+    "metaDescription": "Convert text to camelCase, PascalCase, snake_case, kebab-case or uppercase. Handle Unicode words and acronym boundaries directly in your browser.",
+    "answer": "A case converter rebuilds words in a chosen naming style. This tool supports camelCase, PascalCase, snake_case, kebab-case and uppercase, recognizing Unicode letters and numbers as well as existing camel-case and acronym boundaries.",
+    "steps": [
+      "Enter the phrase or existing identifier to convert.",
+      "Choose one of the five output styles and run the conversion.",
+      "Review the word boundaries and copy or download the result."
+    ],
+    "useCases": [
+      "Turn API field names into a consistent snake_case convention.",
+      "Convert a phrase into a component-style PascalCase name or CSS-style kebab-case label."
+    ],
+    "limitations": [
+      "Each field accepts up to 200,000 UTF-16 units; conversion runs in the browser.",
+      "Identifier styles normalize to NFC and discard separators and punctuation; uppercase instead preserves spacing and punctuation.",
+      "There is no transliteration or programming-language identifier validation; Persian letters have no uppercase form.",
+      "Word splitting is rule-based, not linguistic segmentation; empty or symbol-only input can produce an empty identifier."
+    ],
+    "example": {
+      "input": "Style: snake\nText: helloWorld HTTP status",
+      "output": "hello_world_http_status"
+    },
+    "faq": [
+      { "question": "How is an acronym such as HTTP split?", "answer": "An uppercase run is separated from a following capitalized word, so HTTPStatus becomes http_status in snake_case. Lowercase-to-uppercase boundaries are split too." },
+      { "question": "What happens to Persian words?", "answer": "Persian letters and digits are retained in identifier styles, with word separators rebuilt for the chosen style. Uppercase leaves Persian letters unchanged because they have no letter case." },
+      { "question": "Does uppercase remove punctuation like snake_case does?", "answer": "No. Uppercase applies JavaScript's Unicode uppercase conversion to the original text, preserving its spaces and punctuation; the identifier styles extract and join words." },
+      { "question": "Is the output guaranteed to be a valid variable name?", "answer": "No. A result can start with a digit or coincide with a reserved word. Check the naming rules of your language before using it as an identifier." }
+    ],
+    "relatedSlugs": ["slug-generator", "whitespace-inspector"]
+  },
+  "slug-generator": {
+    "seoTitle": "Unicode URL Slug Generator",
+    "metaDescription": "Create lowercase, hyphen-separated slugs from Persian or English titles. Keep Unicode letters and digits while removing punctuation in your browser.",
+    "answer": "A slug is a readable text segment commonly used in a URL path. This generator normalizes a title to NFC, lowercases it and joins Unicode letter-and-number words with hyphens while preserving Persian letters and digits.",
+    "steps": [
+      "Enter a title containing at least one letter or number.",
+      "Run the generator to replace separators and punctuation with word boundaries.",
+      "Review the Unicode slug, then copy it for use in your application's URL-building flow."
+    ],
+    "useCases": [
+      "Create Persian article path segments without converting letters to Latin characters.",
+      "Standardize product titles into readable hyphen-separated route labels."
+    ],
+    "limitations": [
+      "Input is limited to 200,000 UTF-16 units per field and processed locally without uploading the title.",
+      "No transliteration, uniqueness check or automatic duplicate suffix is provided.",
+      "The result is a Unicode slug, not a complete or percent-encoded URL.",
+      "Empty input and text with no letters or numbers are rejected; punctuation and joiners do not survive as literal characters."
+    ],
+    "example": {
+      "input": "سلام دنیا! Hello ZebraCode ۲۰۲۶",
+      "output": "سلام-دنیا-hello-zebracode-۲۰۲۶"
+    },
+    "faq": [
+      { "question": "Are Persian letters or digits converted to Latin equivalents?", "answer": "No. Unicode letters and numbers are retained, including Persian digits. Latin letters are lowercased, but the tool does not transliterate." },
+      { "question": "What happens to a Persian half-space?", "answer": "A zero-width non-joiner (ZWNJ) becomes a hyphen boundary, as does a zero-width joiner. For example, پیش‌فرض becomes پیش-فرض." },
+      { "question": "Will generating the same title twice create distinct slugs?", "answer": "No. The same input produces the same slug. Your application must check existing routes and add any suffix needed to avoid a collision." },
+      { "question": "Can I paste the output as an entire URL?", "answer": "It is only a path label. Combine it with the intended origin and route structure, and apply URL encoding through your application's URL APIs when needed." }
+    ],
+    "relatedSlugs": ["case-converter", "url-parser", "whitespace-inspector"]
+  },
+  "line-ending-converter": {
+    "seoTitle": "LF, CRLF and CR Line Ending Converter",
+    "metaDescription": "Normalize mixed text line endings to LF, CRLF or CR in your browser. Keep blank lines and the final newline, then download the converted text.",
+    "answer": "Line endings are the control characters that separate lines in a text string. This converter replaces CRLF pairs, standalone CR and standalone LF with your selected ending while retaining text, blank lines and the presence or absence of a final newline.",
+    "steps": [
+      "Paste the text whose line endings you want to normalize.",
+      "Select LF, CRLF or CR and run the conversion.",
+      "Download the output to retain the chosen ending, or inspect it with the whitespace inspector."
+    ],
+    "useCases": [
+      "Prepare a script or configuration snippet for a workflow expecting LF rather than CRLF.",
+      "Remove mixed line endings before comparing two text payloads or their hashes."
+    ],
+    "limitations": [
+      "Up to 200,000 UTF-16 units per field are processed locally; this changes text, not the original source file.",
+      "Only CR and LF sequences are converted; Unicode line and paragraph separators remain unchanged.",
+      "The visual preview may look the same for different endings, and clipboard or destination editors can normalize copied text; prefer the download for exact output.",
+      "No newline is added to text that lacks one, and an existing trailing newline is not removed."
+    ],
+    "example": {
+      "input": "Target: LF\nEscaped text (escapes represent control characters): a\\r\\nb\\rc\\n\\n",
+      "output": "Escaped result: a\\nb\\nc\\n\\n"
+    },
+    "faq": [
+      { "question": "Does a CRLF pair become two line breaks?", "answer": "No. The converter treats CRLF as one sequence before handling standalone CR or LF, so one CRLF pair becomes one selected line ending." },
+      { "question": "Will this remove blank lines or a final newline?", "answer": "No. Each recognized line ending is replaced one-for-one. Blank lines remain, and a final line ending stays present in the target format." },
+      { "question": "Why do LF and CRLF look identical in the preview?", "answer": "Both are rendered as line breaks by many text controls. Download the text or view the converted content in the whitespace inspector to distinguish their control characters." },
+      { "question": "Does it convert Unicode U+2028 and U+2029?", "answer": "No. Unicode line separator U+2028 and paragraph separator U+2029 are preserved; this tool specifically normalizes CR and LF." }
+    ],
+    "relatedSlugs": ["whitespace-inspector", "hash-generator"]
+  },
+  "whitespace-inspector": {
+    "seoTitle": "Whitespace and Invisible Character Inspector",
+    "metaDescription": "Reveal spaces, tabs, line endings, Persian half-spaces and invisible Unicode controls as readable tokens. Inspect text locally without uploading it.",
+    "answer": "A whitespace inspector makes normally invisible text characters visible for diagnosis. This tool replaces common spaces, line endings, joiners and directional marks with named tokens and shows other Unicode whitespace, control and format characters as code points.",
+    "steps": [
+      "Paste the text containing suspicious spacing or invisible characters.",
+      "Run the inspection and look for tokens such as [TAB], [NBSP], [ZWNJ] or [U+202E].",
+      "Use the token positions to correct the original text, or copy the diagnostic output for a bug report."
+    ],
+    "useCases": [
+      "Find non-breaking spaces or tabs that cause a parser or text comparison to fail.",
+      "Distinguish a Persian half-space from a normal space and identify directional controls in mixed-script text."
+    ],
+    "limitations": [
+      "The input is processed in the browser with a limit of 200,000 UTF-16 units per field.",
+      "This is a diagnostic view, not a cleaner or reversible encoding; existing literal token-like text is not escaped.",
+      "LF is shown as [LF] followed by a display line break; CRLF is shown as [CR][LF] followed by that break.",
+      "Not every visually confusing character is classified as whitespace, control or format; ordinary letters and combining marks are preserved."
+    ],
+    "example": {
+      "input": "a \t\r\nپیش‌فرض",
+      "output": "a[SP][TAB][CR][LF]\nپیش[ZWNJ]فرض"
+    },
+    "faq": [
+      { "question": "How can I tell a normal space from a non-breaking space?", "answer": "A normal ASCII space becomes [SP], while U+00A0 becomes [NBSP]. Other Unicode spaces without a named token appear in code-point notation such as [U+2009]." },
+      { "question": "What does [ZWNJ] mean in Persian text?", "answer": "It marks U+200C, the zero-width non-joiner commonly used as a Persian half-space. It prevents joining without adding the width of a normal space." },
+      { "question": "Why does [LF] appear before an actual line break?", "answer": "The token identifies the line-feed character, and the following display break keeps the original line layout readable. That extra visible layout is part of the diagnostic output." },
+      { "question": "Can I recover the input by replacing every token?", "answer": "Not reliably. Literal text such as [TAB] remains unchanged and is indistinguishable from a generated token. Edit the original text rather than treating this output as a reversible format." }
+    ],
+    "relatedSlugs": ["line-ending-converter", "case-converter", "hash-generator"]
+  },
+  "http-status-lookup": {
+    "seoTitle": "HTTP Status Code Lookup",
+    "metaDescription": "Look up common three-digit HTTP status codes locally. Get the numeric code and English reason phrase as JSON, with clear errors for unlisted codes.",
+    "answer": "An HTTP status code is a three-digit response value indicating the outcome of an HTTP request. This lookup checks a finite local catalog and returns the numeric code with its English reason phrase as JSON without contacting a server.",
+    "steps": [
+      "Enter exactly three ASCII digits, such as 404 or 429.",
+      "Run the lookup to retrieve the catalog entry.",
+      "Read or copy the JSON code and phrase; if unlisted, consult the linked registry."
+    ],
+    "useCases": [
+      "Identify the conventional phrase for a code found in an API log.",
+      "Add consistent status labels to test fixtures or developer documentation."
+    ],
+    "limitations": [
+      "The catalog is finite, includes some historic codes and is not a live or complete IANA registry.",
+      "Only a three-ASCII-digit code is accepted; unlisted, unassigned and vendor-specific entries return an error rather than a guess.",
+      "The output phrase stays in English reference form and may differ from a server's custom wording.",
+      "No URL is requested, and the tool does not diagnose why an actual request failed."
+    ],
+    "example": {
+      "input": "429",
+      "output": "{\n  \"code\": 429,\n  \"phrase\": \"Too Many Requests\"\n}"
+    },
+    "faq": [
+      { "question": "What does 429 return?", "answer": "The catalog returns code 429 and the phrase Too Many Requests. This label does not reveal the server's specific rate limit or when a particular client may retry." },
+      { "question": "Why does a three-digit code return an unknown-code error?", "answer": "Correct digit count is only the input format check. A code must also exist in this tool's finite catalog; vendor-specific and other unlisted codes are not inferred." },
+      { "question": "Does the lookup request my API to check its current status?", "answer": "No. It accepts a code, not an endpoint, and only reads local reference data. Use your request logs or network tools to investigate the actual response." },
+      { "question": "Why is the reason phrase English on the Persian page?", "answer": "The phrase is reference data stored in English, while help and interface text are localized. The code is the useful stable value; a real response can use different wording." }
+    ],
+    "relatedSlugs": ["openapi-validator", "curl-to-fetch", "mime-type-lookup"],
+    "references": [{ "label": "IANA: HTTP Status Code Registry", "url": "https://www.iana.org/assignments/http-status-codes/http-status-codes.xhtml" }]
+  },
+  "mime-type-lookup": {
+    "seoTitle": "MIME Type and Extension Lookup",
+    "metaDescription": "Find common MIME types from an extension or simple filename, or list extensions for a media type. Get local JSON results without file uploads.",
+    "answer": "A MIME media type labels a representation's format, such as application/json or image/png. This tool matches an extension, simple filename or media type against a finite local catalog and returns the chosen type and its known extensions as JSON.",
+    "steps": [
+      "Enter an extension such as .webp, a simple filename such as report.pdf, or a media type such as application/json.",
+      "Run the lookup; letter case is ignored and media-type parameters are stripped.",
+      "Review or copy the returned media type and extension list."
+    ],
+    "useCases": [
+      "Find a common Content-Type value while preparing a static asset response.",
+      "Check which filename extensions the local catalog associates with a known media type."
+    ],
+    "limitations": [
+      "The catalog is finite, not the full IANA registry, and an unknown format returns an error rather than application/octet-stream.",
+      "No files are uploaded or inspected: an extension match cannot verify the actual format of a file.",
+      "Use simple names, not paths or URLs; only the last extension is used, so archive.tar.gz is looked up as gz.",
+      "Each field is limited to 200,000 UTF-16 units; parameters are ignored, not validated, and ambiguous extensions return one catalog mapping."
+    ],
+    "example": {
+      "input": ".webp",
+      "output": "{\n  \"mimeType\": \"image/webp\",\n  \"extensions\": [\n    \"webp\"\n  ]\n}"
+    },
+    "faq": [
+      { "question": "Can I enter text/html; charset=utf-8?", "answer": "Yes. The tool looks up text/html and ignores the part after the semicolon. It neither checks the charset parameter nor adds it to the output." },
+      { "question": "How does it handle archive.tar.gz?", "answer": "Only the final extension, gz, is used, giving application/gzip from this catalog. It does not infer the structure of the compressed archive." },
+      { "question": "Why does xml return only one media type?", "answer": "The catalog has both application/xml and text/xml entries, but extension lookup returns its first match, application/xml. Enter text/xml directly to retrieve that separate entry." },
+      { "question": "Does a filename match prove a file has that type?", "answer": "No. This is an extension reference, not content sniffing. A filename may be misleading, and this tool never reads a file's bytes." }
+    ],
+    "relatedSlugs": ["http-status-lookup", "curl-to-fetch", "url-parser"],
+    "references": [{ "label": "IANA: Media Types Registry", "url": "https://www.iana.org/assignments/media-types/media-types.xhtml" }]
+  },
+  "regex-tester": {
+    "seoTitle": "JavaScript Regex Tester",
+    "metaDescription": "Test JavaScript regular expressions locally with flags, capture groups and match positions. Inspect JSON results with bounded, isolated worker execution.",
+    "answer": "A regular expression describes a pattern to find in text. This tester runs JavaScript RegExp in a separate browser worker and returns JSON containing match counts, UTF-16 positions, numbered captures and named groups, with optional indices from the d flag.",
+    "steps": [
+      "Enter the pattern without surrounding slash delimiters, and enter flags separately.",
+      "Paste the test text and run the expression; add g for repeated searching or y for sticky matching.",
+      "Inspect the count, positions and captured groups in the JSON output, then revise the pattern and rerun."
+    ],
+    "useCases": [
+      "Check capture groups for extracting key-value pairs from a log snippet.",
+      "Investigate how Unicode mode, case sensitivity or anchors change matching on a small fixture."
+    ],
+    "limitations": [
+      "JavaScript syntax only; supported flags depend on the browser, and duplicate or invalid flags are rejected.",
+      "Text is limited to 100,000 UTF-16 units, the pattern to 2,000 and results to 1,000 matches; captured-output size is also bounded.",
+      "Execution requires a Web Worker and is terminated after 1 second, with no main-thread fallback or partial result on timeout.",
+      "Positions count UTF-16 units, not user-perceived characters; without g or y only the first match is returned."
+    ],
+    "example": {
+      "input": "Pattern: (\\d+)\nFlags: g\nText: x=12",
+      "output": "{\n  \"count\": 1,\n  \"matches\": [\n    {\n      \"match\": \"12\",\n      \"index\": 2,\n      \"groups\": [\n        \"12\"\n      ],\n      \"namedGroups\": null\n    }\n  ]\n}"
+    },
+    "faq": [
+      { "question": "Should I enter /pattern/g in the pattern field?", "answer": "No. Enter only the pattern body and put g in the flags field. The tool constructs a JavaScript RegExp from those separate values." },
+      { "question": "Why do I get one match without g but several with g?", "answer": "Ordinary matching stops after its first success. With g, the tester repeatedly searches from the last match; y also repeats, but requires each match to start exactly at the current position." },
+      { "question": "How are groups that do not participate represented?", "answer": "Unmatched numbered captures become null in the groups array. namedGroups is null when there are no named groups; optional named captures that are undefined are omitted when serialized to JSON." },
+      { "question": "What should I do after a regex timeout?", "answer": "The worker has been terminated after the 1-second limit. Simplify ambiguous repetition or shorten the test text before rerunning; a short pattern can still require excessive backtracking." }
+    ],
+    "relatedSlugs": ["whitespace-inspector", "case-converter", "jsonpath-tester"],
+    "references": [{ "label": "MDN: JavaScript RegExp", "url": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RegExp" }]
+  },
+  "jsonpath-tester": {
+    "seoTitle": "JSONPath Query Tester",
+    "metaDescription": "Select JSON values with JSONPath properties, wildcards and recursive descent. Inspect array results locally with script evaluation and filters disabled.",
+    "answer": "JSONPath is a notation for selecting values within a JSON document. This tester uses jsonpath-plus with evaluation disabled to support property access, wildcards, recursive descent, slices and unions, returning selected values as a JSON array without uploading the input.",
+    "steps": [
+      "Paste valid JSON into the input editor.",
+      "Enter an expression starting with $, such as $.books[*].title, without script expressions or filters.",
+      "Run the query and inspect the resulting array; edit the JSON or expression and rerun to compare selections."
+    ],
+    "useCases": [
+      "Extract a list of titles or IDs from a nested API response fixture.",
+      "Check a property path before adding it to a data-mapping configuration."
+    ],
+    "limitations": [
+      "The per-field input limit is 200,000 UTF-16 units, with a stricter 2,000-unit limit for the trimmed JSONPath expression.",
+      "eval: false disables filters and script expressions; this is not a full implementation of every JSONPath dialect.",
+      "Browser worker support is required; the isolated run has a 5-second timeout and a 2,000,000-unit output limit.",
+      "Input must be valid JSON, not JavaScript or JSON with comments; JavaScript number precision applies to parsed numeric values."
+    ],
+    "example": {
+      "input": "JSON: {\"books\":[{\"title\":\"One\"},{\"title\":\"Two\"}]}\nJSONPath: $.books[*].title",
+      "output": "[\n  \"One\",\n  \"Two\"\n]"
+    },
+    "faq": [
+      { "question": "Why is a filter such as $.books[?(@.price < 10)] rejected?", "answer": "The engine is configured with eval: false, so filter evaluation and script expressions are disabled. Use supported structural selections, or perform filtering separately in your application." },
+      { "question": "Why is one selected value still inside an array?", "answer": "Results are always wrapped in an array. A single match returns a one-item array, and a path with no matching value returns an empty array." },
+      { "question": "What does the root expression $ return?", "answer": "It returns a one-item array containing the entire parsed input. This also works for scalar roots such as 42, false or null." },
+      { "question": "How do I select every nested property named title?", "answer": "Use recursive descent with $..title. To restrict selection to titles directly inside the books array, use $.books[*].title instead." }
+    ],
+    "relatedSlugs": ["json-schema-validator", "regex-tester", "env-parser"],
+    "references": [{ "label": "JSONPath Plus documentation", "url": "https://jsonpath-plus.github.io/JSONPath/docs/ts/" }]
+  },
+  "sql-formatter": {
+    "seoTitle": "SQL Query Formatter",
+    "metaDescription": "Format SQL locally with uppercase keywords and two-space indentation. Choose from seven dialects, review the layout and download the SQL result.",
+    "answer": "An SQL formatter rearranges query text into a more readable layout. This tool uses sql-formatter in your browser with a selected dialect, two-space indentation and uppercase keywords, without uploading or executing the query.",
+    "steps": [
+      "Paste the SQL query or statements into the input editor.",
+      "Choose the dialect matching the source query and run the formatter.",
+      "Review the formatted SQL, then copy it or download the .sql file."
+    ],
+    "useCases": [
+      "Make a compact query from an application log easier to review.",
+      "Apply a consistent query layout before including SQL in documentation or a code review."
+    ],
+    "limitations": [
+      "Each field accepts up to 200,000 UTF-16 units; the browser worker has a 5-second timeout and a 2,000,000-unit output cap.",
+      "Available dialects are SQL, PostgreSQL, MySQL, SQLite, Transact-SQL, BigQuery and Snowflake; special syntax support depends on the library.",
+      "Formatting does not execute SQL, check a database schema or provide full syntax or semantic validation.",
+      "Indentation is fixed at two spaces and keyword case at uppercase; selecting a dialect does not translate the query to another database."
+    ],
+    "example": {
+      "input": "Dialect: postgresql\nSQL: select id from users where id=1;",
+      "output": "SELECT\n  id\nFROM\n  users\nWHERE\n  id = 1;"
+    },
+    "faq": [
+      { "question": "Does a successfully formatted query mean it will run?", "answer": "No. Formatting is a text operation, not database validation. Missing tables, invalid column references, permissions and execution behavior are not checked." },
+      { "question": "Which dialect should I choose for SQL Server?", "answer": "Choose Transact-SQL, the transactsql option. Use the dialect that matches the source query so the formatter can recognize its supported keyword and syntax rules." },
+      { "question": "Can I change the indentation or keyword case?", "answer": "This tool fixes indentation at two spaces and recognized keywords at uppercase. It does not expose custom layout controls or a lowercase-keyword mode." },
+      { "question": "Will choosing PostgreSQL convert my MySQL query?", "answer": "No. The dialect option changes how the formatter reads and lays out SQL; it does not rewrite functions, quoting or semantics for another database." }
+    ],
+    "relatedSlugs": ["yaml-formatter", "line-ending-converter", "regex-tester"],
+    "references": [{ "label": "SQL Formatter project documentation", "url": "https://github.com/sql-formatter-org/sql-formatter" }]
+  },
+  "yaml-formatter": {
+    "seoTitle": "YAML Formatter",
+    "metaDescription": "Format one YAML document locally with two- or four-space indentation. Parse with js-yaml JSON_SCHEMA and review normalized output before saving.",
+    "answer": "A YAML formatter parses structured YAML and writes it back with a consistent layout. This tool uses js-yaml's JSON_SCHEMA for a single document, with two- or four-space indentation, and processes the text in your browser without uploading it.",
+    "steps": [
+      "Paste one nonempty YAML document into the input editor.",
+      "Choose two or four spaces for indentation and run the formatter.",
+      "Review values and layout changes, then copy or download the .yaml output."
+    ],
+    "useCases": [
+      "Expand compact flow-style lists and mappings into a readable configuration layout.",
+      "Normalize indentation in a data-only YAML snippet before sharing it with a teammate."
+    ],
+    "limitations": [
+      "Each field is limited to 200,000 UTF-16 units; execution requires a browser worker and stops after 5 seconds, with output capped at 2,000,000 units.",
+      "Only one document is accepted using JSON_SCHEMA; custom tags and multi-document streams are not supported.",
+      "Comments, original quoting and original anchor names are not preserved; anchors and aliases may be rewritten.",
+      "This parses and reserializes data, not an application's configuration schema; valid YAML may still be invalid for the program that consumes it."
+    ],
+    "example": {
+      "input": "Indentation: 2\nYAML:\nitems: [one, two]",
+      "output": "items:\n  - one\n  - two\n"
+    },
+    "faq": [
+      { "question": "Will comments and my original quote style survive?", "answer": "No. The input is parsed into data and serialized again. Comments are lost, and the serializer chooses output quoting and layout rather than retaining the source formatting." },
+      { "question": "Can I format a stream separated by ---?", "answer": "Only one document is supported. A single document may have a YAML document marker, but a stream containing multiple documents is rejected." },
+      { "question": "Does a value such as 2026-10-17 become a date object?", "answer": "No. The selected JSON_SCHEMA does not resolve timestamps to JavaScript Date objects, so a date-like scalar remains a string." },
+      { "question": "Are anchors and aliases preserved exactly?", "answer": "Their original names and placement are not retained. js-yaml may serialize shared references using generated anchors and aliases, so review the rewritten result rather than expecting a source-preserving edit." }
+    ],
+    "relatedSlugs": ["docker-compose-validator", "openapi-validator", "env-parser"],
+    "references": [{ "label": "js-yaml documentation", "url": "https://github.com/nodeca/js-yaml" }]
+  }
+}

@@ -217,7 +217,7 @@ export default function CommandMenu({ isOpen, setIsOpen, locale, dict, shortcutE
                         filteredCategories.map((category, idx) => (
                             <div key={idx} role="group" aria-labelledby={`command-menu-group-${idx}`} className="mb-4">
                                 <h3 id={`command-menu-group-${idx}`} className="px-3 text-xs font-semibold text-text-muted uppercase tracking-wider mb-2 mt-2">
-                                    {dict.layout.developerTools} / {category.title === 'JSON'
+                                    {dict.layout.developerTools} / {category.title === 'JSON' && category.items.every(item => item.category === 'converters')
                                         ? dict.layout.jsonConverters
                                         : localizeCategory(dict.categories, category.title)}
                                 </h3>

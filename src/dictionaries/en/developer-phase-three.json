@@ -1,0 +1,98 @@
+{
+  "openapi-validator": {
+    "title": "OpenAPI Structural Validator",
+    "shortDescription": "Check selected OpenAPI 3.0 and 3.1 structures locally.",
+    "description": "Parse JSON or YAML and inspect the OpenAPI version, info title/version, root objects, server URLs, path keys, operation and parameter shapes, and response codes/descriptions. The report lists structural issues using document paths.",
+    "fields": { "document": "OpenAPI document (JSON or YAML)" },
+    "note": "This is a limited structural checker, not full OpenAPI compliance validation. It checks response objects for operations, but does not validate every OpenAPI field, security scheme, parameter, or JSON Schema. References are inspected as strings only; they are never resolved or fetched. No API endpoints are contacted. Processing is local and output is text.",
+    "errors": {
+      "required": "Enter an OpenAPI JSON or YAML document.",
+      "document_parse": "The document could not be parsed. Check JSON/YAML syntax, indentation, duplicate keys, and unsupported tags.",
+      "document_object": "The document root must be an object, not a list or scalar."
+    }
+  },
+  "json-schema-validator": {
+    "title": "JSON Schema Validator",
+    "shortDescription": "Validate JSON against draft-07 or 2020-12 with Ajv and formats.",
+    "description": "Enter a JSON Schema and separate JSON data. The appropriate Ajv instance validates draft-07 or 2020-12, including standard ajv-formats checks. Failures include JSON Pointer instance paths and schema paths without copying data values into the report.",
+    "fields": { "schema": "JSON Schema", "data": "JSON data to validate" },
+    "note": "Without $schema, draft-07 is used. Declare http(s)://json-schema.org/draft-07/schema (optional #) or http(s)://json-schema.org/draft/2020-12/schema. Boolean schemas are supported. Only fragment references such as #/$defs/item are allowed; external/relative references, other drafts, and asynchronous schemas are unsupported. No remote schema loading, mutation, coercion, default insertion, or data submission occurs. Ajv runs in non-strict mode: unknown annotation keywords and unsupported format names are ignored; standard ajv-formats formats are checked. This checks schema constraints, not application authorization or data safety.",
+    "errors": {
+      "required": "Enter both the schema and JSON data (use null for a JSON null value).",
+      "schema_parse": "The schema is not valid JSON.",
+      "data_parse": "The data is not valid JSON.",
+      "schema_object": "A JSON Schema must be an object or a boolean.",
+      "schema_draft": "Only draft-07 and 2020-12 are supported. Check the $schema URI.",
+      "schema_external_ref": "Only local fragment references beginning with # are supported. No external schemas are fetched.",
+      "schema_invalid": "The schema could not be compiled. Check schema syntax, keyword types, unresolved local references, and asynchronous keywords."
+    }
+  },
+  "docker-compose-validator": {
+    "title": "Docker Compose Structural Validator",
+    "shortDescription": "Review Compose YAML services, ports, and environment shapes.",
+    "description": "Parse Compose YAML locally and check for a nonempty services mapping, service objects, list-based ports with short/long entry shapes, and mapping/list environment values. Issues are reported with YAML document paths.",
+    "fields": { "document": "Compose YAML document" },
+    "note": "Static structural checks only, not Docker Compose specification or Docker engine validation. Short port strings, interpolation, extends/includes, profiles, volumes, networks, image availability and runtime behavior are not validated or resolved. Numeric short ports are checked against 1–65535; long mappings require a target and basic published/protocol/host_ip shapes. Environment mappings allow scalar values and lists accept NAME or NAME=value. Nothing is executed and no environment variables, files, registries, Docker daemon, or network services are read.",
+    "errors": {
+      "required": "Enter a Docker Compose YAML document.",
+      "document_parse": "The document could not be parsed. Check YAML indentation, duplicate keys, and unsupported tags.",
+      "document_object": "The Compose document root must be a mapping."
+    }
+  },
+  "cidr-calculator": {
+    "title": "IPv4 CIDR Calculator",
+    "shortDescription": "Calculate subnet boundaries, netmask, address counts and usable ranges.",
+    "description": "Enter an IPv4 address and a /0 through /32 prefix. Calculate the canonical network, numeric broadcast boundary, first/last addresses, total address count, and conventional usable host range without signed 32-bit arithmetic errors.",
+    "fields": { "cidr": "IPv4 address / prefix" },
+    "note": "IPv4 only; IPv6 is not supported. /0 includes all 4,294,967,296 IPv4 addresses. /31 uses RFC 3021 point-to-point semantics with two usable addresses; /32 is a single-host route. For /31 and /32, the reported broadcast value is only the numeric upper boundary, not a directed broadcast. Counts are mathematical and do not account for reserved or publicly routable ranges. Leading-zero octets are interpreted as decimal.",
+    "errors": {
+      "required": "Enter an IPv4 CIDR such as 192.168.1.42/24.",
+      "cidr_invalid": "Use four decimal octets from 0 to 255 and a /0 to /32 prefix.",
+      "ipv4_only": "This calculator supports IPv4 only. IPv6 addresses are not supported."
+    }
+  },
+  "html-accessibility-checker": {
+    "title": "HTML Accessibility Checker",
+    "shortDescription": "Find selected image, form-label, heading, and landmark issues.",
+    "description": "Inspect an HTML fragment with browser DOM APIs and return a text-only report of selected accessibility heuristics: image alternatives, associated form labels, nonempty headings and level order, and main/navigation landmarks.",
+    "fields": { "html": "HTML source or fragment" },
+    "note": "Markup is parsed into a detached inert template: scripts do not execute, resources are not loaded, and no preview is inserted into the page. Images marked presentation/none or aria-hidden are excluded. Empty alt is treated as intentional decoration except for unnamed image-only links/buttons; confirm the author's intent manually. Labels can be explicit, wrapping, aria-label or aria-labelledby. Hidden/aria-hidden nodes are excluded; CSS visibility and the full accessible-name algorithm are not evaluated. Landmark and heading findings are heuristics, not proof of a WCAG failure or WCAG conformance. Check contrast, keyboard use, dynamic states and assistive technologies separately. A browser DOM is required.",
+    "errors": {
+      "required": "Enter HTML to inspect.",
+      "dom_unavailable": "This checker requires browser DOMParser support. Run it in the browser."
+    }
+  },
+  "svg-optimizer": {
+    "title": "SVG Text Optimizer",
+    "shortDescription": "Optimize SVG locally with SVGO while preserving viewBox.",
+    "description": "Use SVGO's browser build to clean SVG attributes, numbers, colors, comments and metadata. A conservative explicit plugin set preserves viewBox, IDs and useful accessibility markup. The result is plain SVG source text for copying or downloading.",
+    "fields": { "svg": "SVG source" },
+    "note": "Only SVG-root XML is accepted. DOCTYPE and ENTITY declarations are rejected, including external entity declarations. No SVG is inserted into the DOM, rendered, or executed, and no external resources are fetched. Optimization is not sanitization: script elements, event handlers and external links may remain in the returned source. Review untrusted SVG before using it elsewhere. Conservative optimization may produce a small or unchanged size rather than the smallest possible file.",
+    "errors": {
+      "required": "Enter SVG source text.",
+      "svg_doctype": "DOCTYPE and ENTITY declarations are not accepted. Remove the declaration and any entity dependency.",
+      "svg_invalid": "The input must be well-formed XML with a single SVG root element."
+    }
+  },
+  "jwt-encoder-verifier": {
+    "title": "JWT HS256 Encoder & Verifier",
+    "shortDescription": "Sign or verify HS256 tokens locally with Web Crypto HMAC.",
+    "description": "Encode a JSON object with a fixed {alg: HS256, typ: JWT} header, or verify a compact JWT using the supplied UTF-8 secret. Web Crypto's HMAC SHA-256 verification checks the signature; exp and nbf NumericDate statuses are evaluated separately only after a valid signature.",
+    "fields": { "mode": "Operation", "token": "JWT to verify (verify mode)", "payload": "JSON payload object (encode mode)", "secret": "HMAC secret (UTF-8 text; kept in memory only)" },
+    "options": { "encode": "Encode and sign HS256", "verify": "Verify HS256 signature and time claims" },
+    "note": "HS256 only. alg:none and all other algorithms are rejected; critical and b64 header extensions are unsupported. Secret text is used as UTF-8 bytes, not decoded as Base64/hex, and is never saved or echoed in errors/reports. The sample key is public demo text, not a production secret. Tokens are signed, not encrypted. Verification uses subtle.verify and never trusts an unsigned payload. Expired and not-yet-active claims are separate from signature validity; no clock-skew allowance is applied. Missing exp/nbf claims are reported, not added. Issuer, audience, replay, secret strength and authorization policy are not checked. A valid signature is not an authorization decision. Web Crypto requires a secure browser context (HTTPS or localhost).",
+    "errors": {
+      "required": "Enter the required token or payload for the selected operation.",
+      "secret_required": "Enter an HMAC secret. It stays in memory and is not saved.",
+      "mode_invalid": "Select encode or verify.",
+      "crypto_unavailable": "Web Crypto is unavailable. Use a modern browser on HTTPS or localhost.",
+      "crypto_failure": "The browser could not complete the HMAC operation.",
+      "payload_parse": "The payload is not valid JSON.",
+      "payload_object": "The JWT payload must be a JSON object.",
+      "jwt_invalid": "The token must contain three valid compact JWT segments with Base64URL-encoded JSON header and payload.",
+      "jwt_algorithm": "Only an explicit HS256 algorithm is accepted. Unsigned tokens and other algorithms are rejected.",
+      "jwt_header": "Critical or b64 header extensions are unsupported.",
+      "jwt_claims": "When present, exp and nbf must be finite JSON numbers representing seconds since the Unix epoch."
+    }
+  }
+}

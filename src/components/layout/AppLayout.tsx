@@ -684,9 +684,11 @@ export default function AppLayout({ children, locale, dict }: { children: React.
                                             if (items.length === 0) return null;
                                             const key = `${group.category}::${group.title}`;
                                             const isOpen = sidebarQuery ? true : !!openSubCategories[key];
-                                            const title = group.title === 'JSON'
+                                            const title = group.title === 'JSON' && group.category === 'CONVERTERS'
                                                 ? dict.layout.jsonConverters
-                                                : localizeCategory(dict.categories, group.title);
+                                                : group.category === 'CONVERTERS'
+                                                    ? localizeCategory(dict.categories, group.title)
+                                                    : `${localizeCategory(dict.categories, group.title)} · ${localizeCategory(dict.categories, group.category)}`;
 
                                             const ClosedChevron = isFa ? ChevronLeft : ChevronRight;
 

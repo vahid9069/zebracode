@@ -3,6 +3,7 @@
 import React, { useId, useState, useRef, useEffect, DragEvent, useCallback } from 'react';
 import * as Dialog from '@radix-ui/react-dialog';
 import { EditorView, basicSetup } from 'codemirror';
+import { placeholder as editorPlaceholder } from '@codemirror/view';
 import { Compartment } from '@codemirror/state';
 import { oneDark } from '@codemirror/theme-one-dark';
 import { javascript } from '@codemirror/lang-javascript';
@@ -10,6 +11,7 @@ import { json } from '@codemirror/lang-json';
 import { html } from '@codemirror/lang-html';
 import { sql } from '@codemirror/lang-sql';
 import { markdown } from '@codemirror/lang-markdown';
+import { xml } from '@codemirror/lang-xml';
 import { EditorState } from '@codemirror/state';
 import { syntaxHighlighting, HighlightStyle } from '@codemirror/language';
 import { tags as t } from '@lezer/highlight';
@@ -32,9 +34,11 @@ type ToolbarConfig = {
     copy?: boolean; paste?: boolean; save?: boolean;
     open?: boolean; sample?: boolean; clear?: boolean;
 };
+export type CodeEditorLanguage = 'json' | 'javascript' | 'html' | 'sql' | 'markdown' | 'text' | 'typescript' | 'xml';
+
 interface Props {
     theme: string | undefined;
-    language: 'json' | 'javascript' | 'html' | 'sql' | 'markdown' | 'text' | 'typescript';
+    language: CodeEditorLanguage;
     value: string;
     onChange: (value: string) => void;
     readOnly?: boolean;
@@ -44,6 +48,12 @@ interface Props {
     rightToolbarButtons: ToolbarButton[];
     onCreateEditor?: (view: EditorView) => void;
     direction?: 'ltr' | 'rtl';
+    id?: string;
+    ariaLabelledby?: string;
+    ariaDescribedby?: string;
+    placeholder?: string;
+    showToolbar?: boolean;
+    allowFileDrop?: boolean;
 }
 
 /* ---------- compartments ---------- */
@@ -51,6 +61,8 @@ const languageConf   = new Compartment();
 const themeConf      = new Compartment();
 const readOnlyConf   = new Compartment();
 const directionConf  = new Compartment();
+const attributesConf = new Compartment();
+const placeholderConf = new Compartment();
 
 /* ---------- helpers ---------- */
 const getLanguageExtension = (language: string) => {
@@ -61,6 +73,7 @@ const getLanguageExtension = (language: string) => {
         case 'html':       return html();
         case 'sql':        return sql();
         case 'markdown':   return markdown();
+        case 'xml':        return xml();
         default:           return [];
     }
 };
@@ -134,10 +147,15 @@ const CodeMirrorEditorComponent: React.FC<Props> = ({
                                                         readOnly = false, sampleCodeOne, sampleCodeTwo,
                                                         toolbarConfig, rightToolbarButtons, onCreateEditor,
                                                         direction = 'ltr',
+                                                        id, ariaLabelledby, ariaDescribedby, placeholder = '',
+                                                        showToolbar = true, allowFileDrop = true,
                                                     }) => {
     const editorRef = useRef<HTMLDivElement>(null);
     const viewRef = useRef<EditorView | null>(null);
     const isExternalUpdate = useRef(false);
+    // The view lives across renders; its listener must not retain the initial workbench state.
+    const onChangeRef = useRef(onChange);
+    onChangeRef.current = onChange;
 
     const [showNotification, setShowNotification] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
     const [showOpenModal, setShowOpenModal] = useState(false);
@@ -159,10 +177,11 @@ const CodeMirrorEditorComponent: React.FC<Props> = ({
     const replaceDocumentContent = (newContent: string) => {
         if (!viewRef.current) return;
         const view = viewRef.current;
+        const document = view.state.toText(newContent);
         view.dispatch({
-            changes: { from: 0, to: view.state.doc.length, insert: newContent },
+            changes: { from: 0, to: view.state.doc.length, insert: document },
             // selection ایمن – انتهای سند
-            selection: { anchor: newContent.length },
+            selection: { anchor: document.length },
         });
     };
 
@@ -181,7 +200,7 @@ const CodeMirrorEditorComponent: React.FC<Props> = ({
     const updateListener = EditorView.updateListener.of((update) => {
         if (update.docChanged) {
             if (isExternalUpdate.current) { isExternalUpdate.current = false; return; }
-            onChange(update.state.doc.toString());
+            onChangeRef.current(update.state.doc.toString());
         }
     });
 
@@ -192,8 +211,18 @@ const CodeMirrorEditorComponent: React.FC<Props> = ({
             basicSetup, updateListener,
             languageConf.of(getLanguageExtension(language)),
             themeConf.of(fullCustomTheme(isDark)),
-            readOnlyConf.of(EditorState.readOnly.of(readOnly)),
+            readOnlyConf.of([EditorState.readOnly.of(readOnly), EditorView.editable.of(!readOnly)]),
             directionConf.of(buildDirectionTheme(direction)),
+            attributesConf.of(EditorView.contentAttributes.of({
+                ...(id ? { id } : {}),
+                ...(ariaLabelledby ? { 'aria-labelledby': ariaLabelledby } : {}),
+                ...(ariaDescribedby ? { 'aria-describedby': ariaDescribedby } : {}),
+                'aria-readonly': String(readOnly),
+                'aria-multiline': 'true',
+                role: 'textbox', tabindex: '0',
+                spellcheck: 'false', autocapitalize: 'off',
+            })),
+            placeholderConf.of(editorPlaceholder(placeholder)),
         ];
         const state = EditorState.create({ doc: value, extensions });
         const view  = new EditorView({ state, parent: editorRef.current });
@@ -209,11 +238,12 @@ const CodeMirrorEditorComponent: React.FC<Props> = ({
         if (!view) return;
         const currentDoc = view.state.doc.toString();
         if (currentDoc !== value) {
+            const document = view.state.toText(value);
             isExternalUpdate.current = true;
             view.dispatch({
-                changes: { from: 0, to: view.state.doc.length, insert: value },
+                changes: { from: 0, to: view.state.doc.length, insert: document },
                 // انتخاب ایمن – انتهای سند
-                selection: { anchor: value.length },
+                selection: { anchor: document.length },
                 scrollIntoView: false,
             });
         }
@@ -227,14 +257,24 @@ const CodeMirrorEditorComponent: React.FC<Props> = ({
             effects: [
                 languageConf.reconfigure(getLanguageExtension(language)),
                 themeConf.reconfigure(fullCustomTheme(isDark)),
-                readOnlyConf.reconfigure(EditorState.readOnly.of(readOnly)),
+                readOnlyConf.reconfigure([EditorState.readOnly.of(readOnly), EditorView.editable.of(!readOnly)]),
                 directionConf.reconfigure(buildDirectionTheme(direction)),
+                attributesConf.reconfigure(EditorView.contentAttributes.of({
+                    ...(id ? { id } : {}),
+                    ...(ariaLabelledby ? { 'aria-labelledby': ariaLabelledby } : {}),
+                    ...(ariaDescribedby ? { 'aria-describedby': ariaDescribedby } : {}),
+                    'aria-readonly': String(readOnly),
+                    'aria-multiline': 'true',
+                    role: 'textbox', tabindex: '0',
+                    spellcheck: 'false', autocapitalize: 'off',
+                })),
+                placeholderConf.reconfigure(editorPlaceholder(placeholder)),
             ],
         });
-    }, [language, isDark, readOnly, direction]);
+    }, [language, isDark, readOnly, direction, id, ariaLabelledby, ariaDescribedby, placeholder]);
 
     /* ---------- drag & drop ---------- */
-    const handleDrop = (e: DragEvent<HTMLDivElement>) => { e.preventDefault(); const file = e.dataTransfer.files[0]; if (file) { const reader = new FileReader(); reader.onload = (event) => { replaceDocumentContent(event.target?.result as string); displayNotification(editor?.dropped || 'File loaded via drop', 'success'); }; reader.onerror = () => displayNotification(editor?.fileReadError || 'File read error', 'error'); reader.readAsText(file); } };
+    const handleDrop = (e: DragEvent<HTMLDivElement>) => { e.preventDefault(); if (readOnly || !allowFileDrop) return; const file = e.dataTransfer.files[0]; if (file) { const reader = new FileReader(); reader.onload = (event) => { replaceDocumentContent(event.target?.result as string); displayNotification(editor?.dropped || 'File loaded via drop', 'success'); }; reader.onerror = () => displayNotification(editor?.fileReadError || 'File read error', 'error'); reader.readAsText(file); } };
     const handleDragOver = (e: DragEvent<HTMLDivElement>) => { e.preventDefault(); };
 
     /* ---------- JSX ---------- */
@@ -249,10 +289,10 @@ const CodeMirrorEditorComponent: React.FC<Props> = ({
                 }
             }}
         >
-        <div className={`h-full flex flex-col border rounded overflow-hidden ${editorBgClass}`}
+        <div data-editor-id={id} data-editor-language={language} data-editor-readonly={readOnly} className={`h-full flex flex-col border rounded overflow-hidden ${editorBgClass}`}
              onDrop={handleDrop} onDragOver={handleDragOver}>
             {/* toolbar */}
-            <div className="flex flex-wrap items-center justify-between gap-1 p-1 bg-surface-inset border-b border-border-strong text-text">
+            {showToolbar && <div className="flex flex-wrap items-center justify-between gap-1 p-1 bg-surface-inset border-b border-border-strong text-text">
                 <div className="flex flex-wrap gap-1">
                     {!readOnly && toolbarConfig.clear  && <IconButton type="button" size="sm" onClick={handleClear} className="text-text-muted hover:bg-surface-raised hover:text-text" title={editor?.clear || 'Clear'} aria-label={editor?.clear || 'Clear'}><Eraser size={18} /></IconButton>}
                     {toolbarConfig.copy                     && <IconButton type="button" size="sm" onClick={handleCopy} className="text-text-muted hover:bg-surface-raised hover:text-text" title={editor?.copy || 'Copy'} aria-label={editor?.copy || 'Copy'}><Clipboard size={18} /></IconButton>}
@@ -269,7 +309,7 @@ const CodeMirrorEditorComponent: React.FC<Props> = ({
                                 title={btn.title} aria-label={btn.title}>{btn.icon}</IconButton>
                     ))}
                 </div>
-            </div>
+            </div>}
 
             {/* editor */}
             <div className="cm-editor-shell flex-1 overflow-hidden">

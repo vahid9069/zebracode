@@ -1,4 +1,8 @@
 import { readFileSync, writeFileSync } from 'fs';
+import nextEnv from '@next/env';
+
+// Keep sitemap/robots origins aligned with the canonical URLs produced by Next build.
+nextEnv.loadEnvConfig(process.cwd(), false);
 
 const tools = JSON.parse(readFileSync('./scripts/tools.json', 'utf-8'));
 const BASE_URL = (process.env.NEXT_PUBLIC_BASE_URL || 'https://zebracode.ir').replace(/\/+$/, '');

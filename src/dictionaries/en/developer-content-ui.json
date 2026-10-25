@@ -1,0 +1,13 @@
+{
+  "guide": "Guide to {tool}",
+  "overview": "What does this tool do?",
+  "steps": "How to use it",
+  "useCases": "When to use it",
+  "limitations": "Supported scope and limitations",
+  "example": "Worked example",
+  "input": "Example input and settings",
+  "output": "Example output",
+  "faq": "Frequently asked questions",
+  "related": "Related tools",
+  "references": "Standards and reference documentation"
+}

@@ -1,0 +1,82 @@
+{
+  "regex-tester": {
+    "title": "Regular expression tester",
+    "shortDescription": "Inspect JavaScript regex matches, capture groups and indexes locally.",
+    "description": "Enter a pattern without surrounding slashes, optional JavaScript flags, and test text. Global or sticky flags return successive matches; other flags return the first match.",
+    "fields": { "pattern": "Pattern", "flags": "Flags", "input": "Test text" },
+    "note": "Runs only in an isolated Web Worker, terminated after 1 second. Maximum: 100,000 text characters, 2,000 pattern characters and 1,000 matches. Large capture output is also limited. Flags depend on your browser; indexes use UTF-16 positions. Unmatched groups are null. Empty patterns are allowed. Nothing leaves your browser.",
+    "errors": {
+      "inputLimit": "The text or pattern exceeds the supported size.",
+      "regexInvalid": "The pattern or flags are invalid or unsupported by this browser.",
+      "regexUnavailable": "An isolated worker could not start. Enable browser worker support and try again.",
+      "regexTimeout": "The expression exceeded the 1-second limit. The worker was terminated; simplify the pattern or shorten the text.",
+      "outputLimit": "The match count or capture output is too large. Narrow the expression or shorten the text.",
+      "regexFailed": "The isolated regex worker could not finish."
+    }
+  },
+  "jsonpath-tester": {
+    "title": "JSONPath tester",
+    "shortDescription": "Select JSON values with a JSONPath expression, without executing code.",
+    "description": "Paste JSON and a JSONPath expression beginning with $. Results are always returned as a JSON array, including an empty array when nothing matches.",
+    "fields": { "input": "JSON input", "expression": "JSONPath expression" },
+    "note": "Uses jsonpath-plus with evaluation disabled. Property access, wildcards, recursive descent, slices and unions are supported; code-based filters and script expressions are not. Maximum: 200,000 JSON characters and 2,000 expression characters. Processing stays in your browser.",
+    "errors": {
+      "inputLimit": "The input exceeds 200,000 characters.",
+      "jsonInvalid": "Enter valid JSON.",
+      "jsonpathInvalid": "Enter a supported JSONPath expression beginning with $. Script evaluation and code filters are disabled."
+    }
+  },
+  "sql-formatter": {
+    "title": "SQL formatter",
+    "shortDescription": "Format SQL locally with dialect-aware indentation and uppercase keywords.",
+    "description": "Choose the SQL dialect and format your query with two-space indentation. This formatter does not execute queries or verify database schemas.",
+    "fields": { "input": "SQL input", "dialect": "SQL dialect" },
+    "options": { "sql": "Standard SQL", "postgresql": "PostgreSQL", "mysql": "MySQL", "sqlite": "SQLite", "transactsql": "Transact-SQL (SQL Server)", "bigquery": "BigQuery", "snowflake": "Snowflake" },
+    "note": "Uses sql-formatter in your browser. Dialect-specific syntax support depends on the formatter; formatting is not complete SQL validation. Maximum input: 200,000 characters.",
+    "errors": { "inputLimit": "The input exceeds 200,000 characters.", "inputRequired": "Enter SQL to format.", "optionInvalid": "Choose a supported SQL dialect.", "sqlInvalid": "This SQL could not be formatted with the selected dialect. Check the syntax and dialect." }
+  },
+  "yaml-formatter": {
+    "title": "YAML formatter",
+    "shortDescription": "Parse and reformat a YAML document with consistent indentation.",
+    "description": "Format one YAML document using js-yaml's JSON schema. Syntax errors are reported without disclosing your input in the error message.",
+    "fields": { "input": "YAML input", "indent": "Indentation" },
+    "options": { "2": "2 spaces", "4": "4 spaces" },
+    "note": "Single-document YAML only; custom tags are disabled. Comments, quote style and original anchor names are not preserved. Anchors and references may be rewritten. Dates remain strings under the JSON schema. Maximum input: 200,000 characters. Processing is local.",
+    "errors": { "inputLimit": "The input exceeds 200,000 characters.", "inputRequired": "Enter YAML to format.", "optionInvalid": "Choose 2-space or 4-space indentation.", "yamlInvalid": "Enter one valid YAML document using supported JSON-schema types." }
+  },
+  "env-parser": {
+    "title": "Dotenv and JSON converter",
+    "shortDescription": "Convert line-based environment assignments to JSON and back.",
+    "description": "Read dotenv assignments with optional export prefixes, comments, quoted values and escaped characters. Convert a JSON object of scalar values into safely quoted assignments.",
+    "fields": { "input": "Dotenv or JSON input", "mode": "Conversion direction" },
+    "options": { "env-to-json": "Dotenv → JSON", "json-to-env": "JSON → Dotenv" },
+    "note": "Keys must be ASCII identifiers. Single quotes are literal; double quotes use JSON escapes (such as \\n and \\\\). No variable expansion, shell execution or physical multiline values. Unquoted # starts a comment. Duplicate assignments use the last value. JSON strings, finite numbers, booleans and null become strings; nested objects/arrays and prototype-related keys are rejected. Maximum: 200,000 characters. Output is for dotenv, not a shell script.",
+    "errors": { "inputLimit": "The input exceeds 200,000 characters.", "optionInvalid": "Choose a supported conversion direction.", "jsonInvalid": "Enter valid JSON.", "objectRequired": "The JSON input must be an object.", "unsafeKey": "Prototype-related keys are not supported.", "scalarRequired": "Values must be strings, finite numbers, booleans or null; nested values are not supported.", "envInvalid": "Check assignment syntax, matching quotes and JSON-style escapes. Physical multiline values are not supported.", "envKeyInvalid": "Environment keys must start with an ASCII letter or underscore and contain only letters, digits or underscores." }
+  },
+  "query-string-parser": {
+    "title": "Query string and JSON converter",
+    "shortDescription": "Decode query parameters and preserve repeated keys as arrays.",
+    "description": "Convert a URL query string into a JSON object, or encode a JSON object as form-style URL parameters. Repeated values keep their order within each key.",
+    "fields": { "input": "Query string or JSON input", "mode": "Conversion direction" },
+    "options": { "query-to-json": "Query string → JSON", "json-to-query": "JSON → Query string" },
+    "note": "Paste only the query, optionally starting with ?. A plus sign decodes to a space; literal plus signs must use %2B. Duplicate keys become arrays. JSON scalar values or arrays of scalars are accepted; null becomes the text null and empty arrays produce no parameter. Interleaved key ordering is grouped in JSON. Malformed percent escapes/UTF-8 are rejected. Maximum: 200,000 characters. Processing stays local.",
+    "errors": { "inputLimit": "The input exceeds 200,000 characters.", "optionInvalid": "Choose a supported conversion direction.", "queryInvalid": "The query contains invalid percent encoding or UTF-8.", "jsonInvalid": "Enter valid JSON.", "objectRequired": "The JSON input must be an object.", "unsafeKey": "Prototype-related keys cannot be encoded from JSON.", "scalarRequired": "Use scalar values or arrays of scalar values, without nested objects or arrays." }
+  },
+  "url-parser": {
+    "title": "URL parser",
+    "shortDescription": "Inspect an absolute URL's components and repeated query parameters.",
+    "description": "Parse a URL using the browser's WHATWG URL implementation. Inspect its normalized address, origin, scheme, credentials, host, port, path, query and fragment.",
+    "fields": { "input": "Absolute URL" },
+    "note": "An absolute URL with a scheme is required; relative paths are not supported. The browser may normalize casing, default ports, spaces and internationalized hostnames. Non-network schemes can have a null origin. Credentials, if present, appear in the output. No URL is opened or requested. Maximum: 200,000 characters.",
+    "errors": { "inputLimit": "The input exceeds 200,000 characters.", "urlInvalid": "Enter a valid absolute URL without control characters.", "queryInvalid": "The URL query contains invalid percent encoding or UTF-8." }
+  },
+  "curl-to-fetch": {
+    "title": "cURL to Fetch or Axios",
+    "shortDescription": "Turn a supported cURL command into JavaScript source without making a request.",
+    "description": "Parse a single HTTP(S) cURL command with POSIX-style quotes and generate Fetch or Axios source text for review. The generated code is never executed.",
+    "fields": { "input": "cURL command", "target": "Generated client" },
+    "options": { "fetch": "Fetch API", "axios": "Axios" },
+    "note": "Supported flags only: -X/--request, -H/--header, -d/--data, --data-raw, --url, -I/--head and --. Attached short values and --flag=value work. Single/double quotes and backslash continuations are supported; quote URLs containing shell metacharacters. Repeated inline data joins with &. Data defaults to POST with form content type. No files, URL credentials, expansion, substitutions, pipes, redirects, raw command separators or additional cURL flags. Empty/removal headers, prototype-related header names and GET/HEAD bodies are rejected. Browser forbidden headers, CORS and Axios serialization can differ from cURL; review generated code. Maximum: 200,000 characters and 1,000 tokens. Nothing is requested.",
+    "errors": { "inputLimit": "The command exceeds the supported input or token limit.", "optionInvalid": "Choose Fetch or Axios.", "curlSyntax": "Enter a single supported curl command with matching quotes and complete flag values.", "curlShell": "Shell expansion, substitutions and unquoted shell metacharacters are not supported. Quote literal argument values.", "curlFlagUnsupported": "The command uses an unsupported cURL flag. Check the supported flags in the note.", "curlMultipleUrls": "Only one URL is supported per command.", "curlMethodInvalid": "The HTTP method is invalid or unsupported by browser clients.", "curlHeaderInvalid": "Use nonempty header-name: value arguments without control characters. Header removal syntax is not supported.", "curlFileUnsupported": "Reading request data from a file is not supported. Use inline data or literal --data-raw text.", "urlInvalid": "Enter a valid absolute URL without control characters.", "curlUrlUnsupported": "Only HTTP(S) URLs without embedded credentials are supported.", "curlBodyUnsupported": "Generated browser requests cannot have a GET or HEAD body." }
+  }
+}
