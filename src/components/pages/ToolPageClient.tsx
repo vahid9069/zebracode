@@ -8,6 +8,8 @@ import TimestampConverter from '@/components/tools/TimestampConverter';
 import DateTimeSuite from '@/components/tools/DateTimeSuite';
 import TextDiff from '@/components/tools/TextDiff';
 import UniversalConverterWorkbench from '@/components/tools/UniversalConverterWorkbench';
+import DeveloperUtilityWorkbench from '@/components/tools/DeveloperUtilityWorkbench';
+import { getDeveloperTool } from '@/lib/developer-tools';
 import { getToolDefinition } from '@/config/tools';
 import React from 'react';
 
@@ -39,6 +41,16 @@ export default function ToolPageClient({ toolType, locale = 'fa', dict }: ToolPa
         shortDescription: toolTranslation?.shortDescription || baseConfig.shortDescription,
         description: toolTranslation?.description || baseConfig.description,
     };
+
+    const developerTool = getDeveloperTool(toolType);
+    if (developerTool && dict?.developerTools?.[toolType] && dict?.developerUi) {
+        return <DeveloperUtilityWorkbench
+            tool={developerTool}
+            copy={dict.developerTools[toolType]}
+            locale={locale}
+            ui={dict.developerUi}
+        />;
+    }
 
     const dedicatedTool = {
         'lorem-generator': <LoremGenerator locale={locale} dict={dict?.tools} />,

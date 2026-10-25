@@ -1,0 +1,460 @@
+/* Keep WordPress admin's global styles intact; this bundle provides Tailwind's
+ * theme tokens and utilities for the plugin shell without importing preflight. */
+@import "tailwindcss/theme.css";
+@import "tailwindcss/utilities.css" source("../");
+
+:root {
+  --zc-blue: #2563eb;
+  --zc-blue-dark: #1d4ed8;
+  --zc-ink: #0f172a;
+  --zc-muted: #64748b;
+  --zc-border: #dbe3ef;
+  --zc-surface: #ffffff;
+  --zc-background: #f7f9fc;
+}
+
+.zc-admin-shell,
+.zc-admin-shell *,
+.zc-admin-shell *::before,
+.zc-admin-shell *::after {
+  box-sizing: border-box;
+}
+
+.zc-admin-shell {
+  min-height: calc(100vh - 32px);
+  color: var(--zc-ink);
+  background: var(--zc-background);
+  font-family: Tahoma, "Vazirmatn", "Segoe UI", sans-serif;
+  font-size: 14px;
+  line-height: 1.7;
+  text-rendering: optimizeLegibility;
+}
+
+.zc-admin-shell h1,
+.zc-admin-shell h2,
+.zc-admin-shell h3,
+.zc-admin-shell p,
+.zc-admin-shell ul,
+.zc-admin-shell ol {
+  margin-block-start: 0;
+}
+
+.zc-admin-shell h1,
+.zc-admin-shell h2,
+.zc-admin-shell h3 {
+  line-height: 1.35;
+  text-wrap: balance;
+}
+
+.zc-admin-container {
+  width: min(100%, 1320px);
+}
+
+.zc-page-header {
+  align-items: flex-start;
+  padding-block: 2px 4px;
+}
+
+.zc-page-header h1 {
+  max-width: 26ch;
+  letter-spacing: -0.025em;
+}
+
+.zc-page-header p {
+  max-width: 62ch;
+}
+
+.zc-page-nav {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  border-color: var(--zc-border);
+}
+
+.zc-page-nav::-webkit-scrollbar {
+  display: none;
+}
+
+.zc-page-nav a {
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px 10px 0 0;
+  color: #64748b;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.zc-page-nav a:hover,
+.zc-page-nav a:focus-visible {
+  background: #eef4ff;
+  color: var(--zc-blue-dark);
+}
+
+.zc-page-nav a:focus-visible {
+  outline: 3px solid rgb(37 99 235 / 22%);
+  outline-offset: -3px;
+}
+
+.zc-admin-shell .zc-card {
+  border-color: var(--zc-border);
+  background: var(--zc-surface);
+  box-shadow: 0 1px 2px rgb(15 23 42 / 4%), 0 8px 24px rgb(15 23 42 / 3%);
+}
+
+.zc-admin-shell .zc-card-muted {
+  background: #f1f5f9;
+}
+
+.zc-metric-card {
+  min-height: 176px;
+  display: flex;
+  flex-direction: column;
+}
+
+.zc-metric-card .zc-metric-value {
+  direction: ltr;
+  unicode-bidi: isolate;
+  font-variant-numeric: tabular-nums;
+}
+
+.zc-metric-card > p:last-child {
+  margin-block-start: auto;
+  max-width: 34ch;
+}
+
+.zc-admin-shell .zc-kicker {
+  letter-spacing: 0.12em;
+  line-height: 1.4;
+}
+
+.zc-admin-shell .zc-button {
+  min-height: 42px;
+  border-radius: 11px;
+  white-space: nowrap;
+}
+
+.zc-admin-shell .zc-button-primary {
+  background: var(--zc-blue);
+  box-shadow: 0 5px 12px rgb(37 99 235 / 15%);
+}
+
+.zc-admin-shell .zc-button-primary:hover,
+.zc-admin-shell .zc-button-primary:focus-visible {
+  background: var(--zc-blue-dark);
+}
+
+.zc-admin-shell .zc-input {
+  min-height: 44px;
+  border-color: #cbd5e1;
+  border-radius: 10px;
+  line-height: 1.6;
+}
+
+.zc-admin-shell textarea.zc-input {
+  min-height: 130px;
+}
+
+.zc-admin-shell input[type="checkbox"] {
+  accent-color: var(--zc-blue);
+}
+
+.zc-admin-shell .zc-card table {
+  border-color: var(--zc-border);
+}
+
+.zc-admin-shell .zc-card th {
+  color: #64748b;
+  font-size: 11px;
+  letter-spacing: 0.04em;
+}
+
+.zc-admin-shell .zc-card td,
+.zc-admin-shell .zc-card th {
+  vertical-align: top;
+}
+
+.zc-admin-shell .notice {
+  margin-block: 0 24px;
+  border-inline-start-width: 4px;
+  border-radius: 10px;
+  box-shadow: 0 1px 2px rgb(15 23 42 / 4%);
+}
+
+.zc-admin-shell a {
+  text-underline-offset: 3px;
+}
+
+.zc-admin-shell [dir="ltr"],
+.zc-admin-shell code,
+.zc-admin-shell pre,
+.zc-admin-shell .zc-post-score,
+.zc-admin-shell .zc-post-signal {
+  unicode-bidi: isolate;
+}
+
+.zc-log-value {
+  display: inline-block;
+  direction: ltr;
+  text-align: left;
+  unicode-bidi: isolate;
+  max-width: 100%;
+}
+
+.zc-log-status {
+  display: inline-flex;
+  unicode-bidi: isolate;
+}
+
+.zc-log-label {
+  unicode-bidi: plaintext;
+}
+
+.zc-admin-shell .zc-card td .zc-log-value {
+  overflow-wrap: anywhere;
+}
+
+@layer components {
+  .zc-admin-shell {
+    @apply overflow-x-hidden;
+  }
+
+  .zc-card {
+    @apply rounded-2xl border border-slate-200 bg-white p-5 shadow-sm;
+  }
+
+  .zc-card-muted {
+    @apply bg-slate-100/70;
+  }
+
+  .zc-kicker {
+    @apply text-[11px] font-bold uppercase tracking-[0.18em] text-blue-600;
+  }
+
+  .zc-icon-box {
+    @apply inline-flex h-10 w-10 items-center justify-center rounded-xl bg-blue-50 text-lg font-bold text-blue-700;
+  }
+
+  .zc-button {
+    @apply inline-flex min-h-10 items-center justify-center rounded-xl px-4 py-2 text-sm font-semibold no-underline transition focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50;
+  }
+
+  .zc-button-primary {
+    @apply bg-blue-600 text-white hover:bg-blue-700;
+  }
+
+  .zc-button-secondary {
+    @apply border border-slate-200 bg-white text-slate-700 hover:border-slate-300 hover:bg-slate-50;
+  }
+
+  .zc-input {
+    @apply block w-full rounded-xl border border-slate-300 bg-white px-3.5 py-2.5 text-sm text-slate-900 shadow-sm outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20;
+  }
+
+  .zc-settings-form .form-table {
+    @apply m-0 w-full;
+  }
+
+  .zc-settings-form .form-table th {
+    @apply w-1/3 py-4 pe-6 text-start text-sm font-semibold text-slate-800;
+  }
+
+  .zc-settings-form .form-table td {
+    @apply py-4;
+  }
+
+  .zc-settings-form .description {
+    @apply mt-2 text-xs leading-5 text-slate-500;
+  }
+
+  .zc-settings-form .regular-text,
+  .zc-settings-form select {
+    @apply min-h-10 w-full max-w-xl rounded-xl border border-slate-300 bg-white px-3.5 py-2 text-sm shadow-sm;
+  }
+
+  .zc-settings-form .submit {
+    @apply mt-5 border-t border-slate-200 pt-5;
+  }
+
+  .zc-post-quality-empty {
+    @apply text-xs text-slate-400;
+  }
+
+  .zc-post-score {
+    @apply inline-flex items-baseline rounded-lg px-2.5 py-1 text-sm font-bold leading-none;
+    direction: ltr;
+    unicode-bidi: plaintext;
+  }
+
+  .zc-post-score small {
+    @apply ms-0.5 text-[10px] font-semibold;
+  }
+
+  .zc-post-score-pass,
+  .zc-post-signal-pass {
+    @apply bg-emerald-50 text-emerald-700;
+  }
+
+  .zc-post-score-warning,
+  .zc-post-signal-warning {
+    @apply bg-amber-50 text-amber-700;
+  }
+
+  .zc-post-score-fail,
+  .zc-post-signal-fail {
+    @apply bg-rose-50 text-rose-700;
+  }
+
+  .zc-post-quality-label {
+    @apply ms-2 text-xs font-semibold text-slate-500;
+  }
+
+  .zc-refresh-form {
+    @apply mt-2 flex flex-wrap items-center gap-2;
+  }
+
+  .zc-refresh-button {
+    @apply inline-flex min-h-8 items-center rounded-lg border border-blue-200 bg-blue-50 px-2.5 py-1 text-xs font-semibold text-blue-700 transition hover:border-blue-300 hover:bg-blue-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1;
+  }
+
+  .zc-refresh-hint {
+    @apply text-[10px] leading-4 text-slate-400;
+  }
+
+  .zc-post-signals {
+    @apply flex max-w-[230px] flex-wrap gap-1.5;
+  }
+
+  .zc-post-signal {
+    @apply inline-flex items-center rounded-md px-1.5 py-1 text-[10px] font-medium leading-none;
+    direction: ltr;
+    unicode-bidi: plaintext;
+  }
+
+  .zc-post-signal b {
+    @apply me-1 font-extrabold;
+  }
+
+  .zc-settings-form input[name*="endpoint"],
+  .zc-settings-form input[name*="api_key"],
+  .zc-settings-form select[name*="model"],
+  .zc-settings-form select[name*="provider"],
+  .zc-ltr-field {
+    direction: ltr;
+    text-align: left;
+    unicode-bidi: plaintext;
+  }
+
+  .zc-rtl-field {
+    direction: rtl;
+    text-align: right;
+  }
+
+  .rtl .zc-settings-form .form-table th {
+    text-align: right;
+  }
+
+  .rtl .zc-button,
+  .rtl .zc-card,
+  .rtl .zc-input {
+    unicode-bidi: plaintext;
+  }
+
+  [dir="rtl"] .zc-page-header,
+  [dir="rtl"] .zc-page-nav,
+  [dir="rtl"] .zc-admin-shell {
+    text-align: right;
+  }
+
+  [dir="rtl"] .zc-page-header > div:first-child {
+    margin-inline-start: auto;
+  }
+
+  [dir="rtl"] .zc-page-header > div:last-child {
+    margin-inline-start: 0;
+  }
+
+  [dir="rtl"] .zc-admin-shell .zc-kicker {
+    letter-spacing: 0.03em;
+  }
+
+  [dir="rtl"] .zc-admin-shell .zc-button,
+  [dir="rtl"] .zc-admin-shell .zc-card {
+    unicode-bidi: plaintext;
+  }
+
+  @media (max-width: 782px) {
+    .zc-admin-shell {
+      min-height: calc(100vh - 46px);
+      font-size: 13px;
+    }
+
+    .zc-admin-container {
+      width: 100%;
+    }
+
+    .zc-page-header {
+      align-items: stretch;
+      flex-direction: column;
+    }
+
+    .zc-page-header h1 {
+      max-width: none;
+      font-size: 1.75rem;
+    }
+
+    .zc-page-header > div:last-child {
+      align-self: flex-start;
+    }
+
+    [dir="rtl"] .zc-page-header > div:last-child {
+      align-self: flex-end;
+    }
+
+    .zc-page-nav {
+      margin-inline: -8px;
+      padding-inline: 8px;
+    }
+
+    .zc-page-nav a {
+      min-height: 42px;
+      padding-inline: 11px;
+    }
+
+    .zc-metric-card {
+      min-height: 150px;
+    }
+
+    .zc-admin-shell .zc-card {
+      padding: 16px;
+      border-radius: 16px;
+    }
+
+    .wp-list-table .column-zebracode_quality,
+    .wp-list-table .column-zebracode_signals {
+      display: table-cell;
+    }
+
+    .zc-post-signals {
+      max-width: 160px;
+    }
+
+    .zc-settings-form .form-table,
+    .zc-settings-form .form-table tbody,
+    .zc-settings-form .form-table tr,
+    .zc-settings-form .form-table th,
+    .zc-settings-form .form-table td {
+      display: block;
+      width: 100%;
+    }
+
+    .zc-settings-form .form-table th {
+      padding-bottom: 0;
+    }
+
+    .zc-admin-shell .zc-button {
+      min-height: 44px;
+    }
+  }
+
+}

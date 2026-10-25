@@ -3,6 +3,7 @@ import toml from 'toml';
 import { xml2json } from 'xml-js';
 import tomlify from 'tomlify-j0.4';
 import { AllToolsList } from '@/lib/registry/tools';
+import { DeveloperToolsList } from '@/lib/registry/developerToolsList';
 import { samples } from '@/lib/registry/samples';
 import type { ToolMeta } from '@/types/types';
 
@@ -343,6 +344,8 @@ function buildToolDefinition(slug: string, tool: ToolMeta): ToolDefinition {
 }
 
 const slugByTool = Object.entries(AllToolsList).flatMap(([key, tool]) => {
+    // Developer utilities use their own descriptor-driven workbench, not converter options.
+    if (DeveloperToolsList[key]) return [];
     if (tool.category !== 'converters' || tool.requiresSecondaryInput) return [];
     const slug = tool.href.split('/').filter(Boolean).pop();
     return slug ? [[slug, buildToolDefinition(slug, tool)] as const] : [[key, buildToolDefinition(key, tool)] as const];

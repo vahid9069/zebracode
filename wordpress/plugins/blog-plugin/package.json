@@ -1,0 +1,13 @@
+{
+  "name": "zebracode-blog-ai-admin",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "build:css": "tailwindcss -i ./src/admin.css -o ./assets/admin.css --minify",
+    "watch:css": "tailwindcss -i ./src/admin.css -o ./assets/admin.css --watch"
+  },
+  "devDependencies": {
+    "@tailwindcss/cli": "^4.1.11",
+    "tailwindcss": "^4.1.11"
+  }
+}
