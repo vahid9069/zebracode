@@ -305,7 +305,7 @@ export default function AppLayout({ children, locale, dict }: { children: React.
                     setIsMobileNavigationOpen(false);
                     localStorage.setItem('zebracode-lang', locale === 'en' ? 'fa' : 'en');
                 }}
-                aria-label={dict.layout.switchLanguage}
+                aria-label={compact ? `${dict.layout.langCode} - ${dict.layout.switchLanguage}` : dict.layout.switchLanguage}
                 title={dict.layout.switchLanguage}
                 className="flex min-h-11 items-center justify-center rounded-lg border border-border-strong bg-surface-raised px-2.5 py-1.5 text-sm font-bold text-text-muted transition-colors hover:bg-action-soft hover:text-action dark:hover:text-focus focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2 focus-visible:ring-offset-surface"
             >

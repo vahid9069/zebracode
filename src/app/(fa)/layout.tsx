@@ -18,6 +18,7 @@ export default async function FaRootLayout({ children }: { children: React.React
   return (
     <html lang="fa-IR" dir="rtl" suppressHydrationWarning>
       <head>
+        <link rel="preload" href="/fonts/IRANSansWeb.woff2" as="font" type="font/woff2" crossOrigin="anonymous" />
         <script dangerouslySetInnerHTML={{ __html: `
           (function() {
             try {
