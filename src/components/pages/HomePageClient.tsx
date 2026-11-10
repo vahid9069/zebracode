@@ -446,7 +446,7 @@ function ModeButton({ active, onClick, icon, label, count }: { active: boolean; 
     return <button type="button" role="tab" aria-selected={active} onClick={onClick} className={`flex min-w-max flex-1 cursor-pointer items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2 focus-visible:ring-offset-surface-inset ${active ? 'bg-action text-action-foreground shadow-md' : 'text-text-muted hover:bg-surface-raised hover:text-text'}`}>{icon}<span>{label}</span><span className={`rounded-full px-2 py-0.5 font-sans text-[11px] font-bold ${active ? 'bg-black/25 text-white' : 'bg-surface-raised text-text-subtle'}`}>{count}</span></button>;
 }
 
-function ToolCard({ tool, locale, dict, list }: { tool: ToolMeta; locale: 'fa' | 'en'; dict: Dictionary; list: boolean }) {
+const ToolCard = React.memo(function ToolCard({ tool, locale, dict, list }: { tool: ToolMeta; locale: 'fa' | 'en'; dict: Dictionary; list: boolean }) {
     const localizedTool = localizeTool(tool, dict.tools);
     const Icon = tool.icon;
     return <Card className={`group border-border bg-surface-raised text-text shadow-sm transition-all duration-200 hover:border-focus/60 hover:shadow-lg ${list ? 'rounded-xl' : ''}`}>
@@ -463,4 +463,4 @@ function ToolCard({ tool, locale, dict, list }: { tool: ToolMeta; locale: 'fa' |
             {list && <ArrowUpLeft className="h-4 w-4 shrink-0 text-text-subtle transition group-hover:text-focus" />}
         </Link>
     </Card>;
-}
+});

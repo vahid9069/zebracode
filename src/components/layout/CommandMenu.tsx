@@ -88,6 +88,7 @@ export default function CommandMenu({ isOpen, setIsOpen, locale, dict, shortcutE
     };
 
     const filteredCategories = useMemo(() => {
+        if (!isOpen) return [];
         const query = normalizeCommandSearch(search);
 
         return groupedToolsList.map(category => ({
@@ -113,8 +114,8 @@ export default function CommandMenu({ isOpen, setIsOpen, locale, dict, shortcutE
 
     const filteredToolCount = filteredCategories.reduce((count, category) => count + category.items.length, 0);
     const flatItems = useMemo(
-        () => filteredCategories.flatMap(category => category.items.map(item => ({ item, category: category.title }))),
-        [filteredCategories],
+        () => isOpen ? filteredCategories.flatMap(category => category.items.map(item => ({ item, category: category.title }))) : [],
+        [filteredCategories, isOpen],
     );
 
     useEffect(() => {
