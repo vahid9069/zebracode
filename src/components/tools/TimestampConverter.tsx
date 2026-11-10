@@ -150,16 +150,41 @@ export default function TimestampConverter() {
     if (!current || !currentDate) return;
     const numeric = toInt(raw, NaN);
     if (!Number.isFinite(numeric)) return;
+
+    // Do not corrupt calendar state on intermediate incomplete digits (e.g. typing leading 0 for month or day)
+    if ((key === 'month' || key === 'day') && numeric === 0) return;
+    if (key === 'year' && numeric > 0 && numeric < 100) return;
+
     const next = partsToDate({ ...current, [key]: numeric }, system);
-    if (endpoint === 'start') setStart(next);
-    else setEnd(next);
+    if (endpoint === 'start') {
+      setStart(next);
+      setBaseDate(next);
+    } else {
+      setEnd(next);
+    }
   };
 
-  const clearDraft = (endpoint: Endpoint, key: FieldKey) =>
+  const clearDraft = (endpoint: Endpoint, key: FieldKey) => {
+    const draftVal = draft[endpoint][key];
+    if (draftVal !== undefined && draftVal !== '') {
+      const numeric = toInt(draftVal, NaN);
+      const current = endpointParts(endpoint);
+      const system = endpoint === 'start' ? startSystem : endSystem;
+      if (current && Number.isFinite(numeric)) {
+        const next = partsToDate({ ...current, [key]: numeric }, system);
+        if (endpoint === 'start') {
+          setStart(next);
+          setBaseDate(next);
+        } else {
+          setEnd(next);
+        }
+      }
+    }
     setDraft((current) => ({
       ...current,
       [endpoint]: { ...current[endpoint], [key]: undefined },
     }));
+  };
 
   const setEndpoint = (endpoint: Endpoint, next: Date) => {
     setDraft((current) => ({ ...current, [endpoint]: {} }));
@@ -540,8 +565,10 @@ func main() {
                             dir="ltr"
                             inputMode="numeric"
                             value={String(shift[key])}
+                            onFocus={(event) => event.target.select()}
                             onChange={(event) => {
-                              const numeric = toInt(normaliseDigits(event.target.value).replace(/[^\d]/g, ''), 0);
+                              const raw = normaliseDigits(event.target.value).replace(/[^\d]/g, '');
+                              const numeric = raw === '' ? 0 : toInt(raw, 0);
                               setShift((current) => ({
                                 ...current,
                                 [key]: numeric,

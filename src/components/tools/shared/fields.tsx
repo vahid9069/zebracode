@@ -76,6 +76,7 @@ export function NumberField({
         inputMode="numeric"
         value={draft ?? (value === null ? '' : String(value))}
         max={max}
+        onFocus={(event) => event.target.select()}
         onChange={(event) => onChange(normaliseDigits(event.target.value).replace(/[^\d]/g, ''))}
         onBlur={onBlur}
         className="h-9 w-full rounded-md border border-border-strong bg-surface px-2 text-center font-sans text-sm tabular-nums text-text outline-none transition-colors focus-visible:border-focus focus-visible:ring-2 focus-visible:ring-focus/30"
@@ -121,6 +122,7 @@ export function TimeFields({
       title={labels[key]}
       max={max}
       value={draft?.[key] ?? (value === null ? '' : String(value).padStart(2, '0'))}
+      onFocus={(event) => event.target.select()}
       onChange={(event) => onChange(key, normaliseDigits(event.target.value).replace(/[^\d]/g, ''))}
       onBlur={() => onBlur?.(key)}
       className="h-9 w-12 rounded-md border border-border-strong bg-surface text-center font-sans text-sm tabular-nums text-text outline-none transition-colors focus-visible:border-focus focus-visible:ring-2 focus-visible:ring-focus/30"
