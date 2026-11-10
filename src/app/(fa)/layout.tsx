@@ -9,6 +9,13 @@ export const metadata: Metadata = {
   metadataBase: new URL(BASE_URL),
   title: 'زبرا کد - ابزارهای توسعه‌دهندگان',
   description: 'مجموعه‌ای از ابزارهای آنلاین برنامه‌نویسی',
+  icons: {
+    icon: [
+      { url: '/favicon.ico', sizes: 'any' },
+      { url: '/icon.png', type: 'image/png' },
+    ],
+    apple: '/apple-touch-icon.png',
+  },
 };
 
 export default async function FaRootLayout({ children }: { children: React.ReactNode }) {

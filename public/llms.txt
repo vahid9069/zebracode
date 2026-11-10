@@ -1,6 +1,9 @@
 # ZebraCode
 > Free, browser-based developer utilities for data conversion and processing.
 
+## Detailed tool guides
+- [Localized developer utility guides](https://zebracode.ir/llms-full.txt): Definitions, usage steps, examples, limitations, FAQs and reference links for the 23 new developer utilities in Persian and English.
+
 ## Persian (fa-IR)
 - [خانه زبرا کد](https://zebracode.ir/): ابزارهای رایگان توسعه‌دهندگان. ابزارهای آنلاین رایگان برای تبدیل و پردازش داده؛ عملیات در مرورگر انجام می‌شود.
 - [درباره زبرا کد](https://zebracode.ir/about/): درباره ZebraCode و ابزارهای توسعه‌دهندگان آن.
@@ -63,10 +66,10 @@
 - [تبدیل SVG به React Native](https://zebracode.ir/svg-to-react-native/): تبدیل SVG به کامپوننت react-native-svg
 - [تبدیل Cadence به Go](https://zebracode.ir/cadence-to-go/): تبدیل تعریف workflowهای Cadence به کد Go
 - [تبدیل Markdown به HTML](https://zebracode.ir/markdown-to-html/): تبدیل Markdown به HTML تمیز و معنایی
-- [TOML to JSON](https://zebracode.ir/toml-to-json/): Convert TOML configuration files to JSON online
-- [XML to JSON](https://zebracode.ir/xml-to-json/): Parse and convert XML data to JSON format
-- [YAML to JSON](https://zebracode.ir/yaml-to-json/): Convert YAML configs to JSON instantly
-- [YAML to TOML](https://zebracode.ir/yaml-to-toml/): Convert YAML files to TOML format
+- [تبدیل TOML به JSON](https://zebracode.ir/toml-to-json/): تبدیل فایل‌های TOML به JSON آنلاین
+- [تبدیل XML به JSON](https://zebracode.ir/xml-to-json/): تبدیل داده XML به فرمت JSON
+- [تبدیل YAML به JSON](https://zebracode.ir/yaml-to-json/): تبدیل فوری YAML به JSON
+- [تبدیل YAML به TOML](https://zebracode.ir/yaml-to-toml/): تبدیل فایل‌های YAML به فرمت TOML
 - [تبدیل TOML به YAML](https://zebracode.ir/toml-to-yaml/): تبدیل فایل‌های TOML به فرمت YAML
 - [دیکد Base64](https://zebracode.ir/base64-decode/): تبدیل رشته‌های Base64 به متن ساده
 - [انکد Base64](https://zebracode.ir/base64-encode/): رمزگذاری متن یا فایل به فرمت Base64
@@ -79,6 +82,29 @@
 - [تولیدکننده رمز عبور](https://zebracode.ir/password-generator/): تولید رمزهای قوی و امن به‌صورت آنلاین
 - [تولیدکننده لورم ایپسوم](https://zebracode.ir/lorem-generator/): تولید متن ساختگی چندزبانه برای طراحی
 - [مقایسه‌گر متن](https://zebracode.ir/text-diff/): مقایسه خط‌به‌خط دو متن و مشاهده تفاوت‌ها
+- [تولید UUID](https://zebracode.ir/uuid-generator/): شناسه UUID تصادفی نسخه ۴ یا زمان‌دار نسخه ۷ را در مرورگر بسازید. تا ۱۰۰۰ شناسه در هر اجرا تولید کنید و نتیجه را کپی یا دانلود کنید.
+- [تولید هش](https://zebracode.ir/hash-generator/): هش متن فعلی ویرایشگر را با SHA-1، SHA-256، SHA-384 یا SHA-512 محلی محاسبه کنید؛ خروجی هگزادسیمال UTF-8 با محدودیت‌های امنیتی روشن.
+- [تبدیل حالت حروف](https://zebracode.ir/case-converter/): متن را در مرورگر به camelCase، PascalCase، snake_case، kebab-case یا حروف بزرگ تبدیل کنید؛ با تشخیص واژه‌های یونیکد و مرز سرواژه‌ها.
+- [تولید اسلاگ یونیکد](https://zebracode.ir/slug-generator/): از عنوان فارسی یا انگلیسی، اسلاگ با حروف کوچک و خط تیره بسازید. حروف و اعداد یونیکد حفظ و نشانه‌گذاری‌ها در مرورگر حذف می‌شوند.
+- [تبدیل پایان خط](https://zebracode.ir/line-ending-converter/): پایان خط‌های ترکیبی متن را در مرورگر به LF، CRLF یا CR تبدیل کنید. خط‌های خالی و پایان خط نهایی حفظ می‌شوند و خروجی قابل دانلود است.
+- [بررسی فاصله‌ها و نویسه‌های نامرئی](https://zebracode.ir/whitespace-inspector/): فاصله، تب، پایان خط، نیم‌فاصله فارسی و کنترل‌های نامرئی یونیکد را با نشانه‌های خوانا ببینید؛ بررسی محلی متن بدون بارگذاری ورودی.
+- [جست‌وجوی کد وضعیت HTTP](https://zebracode.ir/http-status-lookup/): کدهای سه‌رقمی رایج HTTP را محلی جست‌وجو کنید. شماره کد و عبارت انگلیسی آن را به‌شکل JSON بگیرید؛ کدهای خارج از فهرست خطا می‌دهند.
+- [جست‌وجوی نوع MIME](https://zebracode.ir/mime-type-lookup/): نوع MIME رایج را با پسوند یا نام ساده فایل پیدا کنید یا پسوندهای یک نوع رسانه را ببینید؛ نتیجه JSON محلی و بدون بارگذاری فایل.
+- [آزمایش عبارت منظم](https://zebracode.ir/regex-tester/): عبارت منظم جاوااسکریپت را محلی با پرچم‌ها، گروه‌های گیراندازی و موقعیت تطبیق آزمایش کنید؛ نتیجه JSON با اجرای جداگانه و محدود پردازشگر.
+- [آزمایش JSONPath](https://zebracode.ir/jsonpath-tester/): مقادیر JSON را با ویژگی‌ها، نویسه عام و پیمایش بازگشتی JSONPath انتخاب کنید؛ بررسی محلی آرایه نتایج با اجرای اسکریپت و فیلتر غیرفعال.
+- [قالب‌بندی SQL](https://zebracode.ir/sql-formatter/): SQL را محلی با کلیدواژه‌های بزرگ و تورفتگی دو فاصله قالب‌بندی کنید. از میان هفت گویش انتخاب کنید و پس از بررسی چیدمان، خروجی را بگیرید.
+- [قالب‌بندی YAML](https://zebracode.ir/yaml-formatter/): یک سند YAML را محلی با تورفتگی دو یا چهار فاصله قالب‌بندی کنید؛ تجزیه با JSON_SCHEMA کتابخانه js-yaml و بررسی خروجی پیش از ذخیره.
+- [تبدیل Dotenv و JSON](https://zebracode.ir/env-parser/): متغیرهای خطی dotenv را به JSON تبدیل کنید یا از مقادیر ساده JSON، متغیر محیطی نقل‌قول‌شده بسازید؛ با پردازش محلی و قواعد نگارشی مشخص.
+- [تبدیل رشته پرس‌وجو و JSON](https://zebracode.ir/query-string-parser/): پارامترهای کوئری را به JSON بخوانید، کلیدهای تکراری را به شکل آرایه حفظ کنید یا مقادیر ساده JSON را با قواعد فرم در مرورگر کدگذاری کنید.
+- [تجزیه URL](https://zebracode.ir/url-parser/): میزبان، پورت، مسیر، کوئری و قطعه پایانی URL مطلق را با تجزیه‌گر مرورگر بررسی کنید؛ بدون باز کردن نشانی یا ارسال درخواست به مقصد.
+- [تبدیل cURL به Fetch یا Axios](https://zebracode.ir/curl-to-fetch/): فرمان HTTP پشتیبانی‌شده cURL را با حفظ سربرگ و داده درون‌خطی به کد Fetch یا Axios تبدیل کنید؛ بدون اجرای فرمان یا ارسال درخواست.
+- [بررسی ساختار OpenAPI](https://zebracode.ir/openapi-validator/): بخش‌های مشخصی از ساختار OpenAPI نسخه ۳٫۰ و ۳٫۱، از info تا مسیر و پاسخ را محلی بررسی کنید و گزارش اشکال‌ها و دامنه محدود بررسی را ببینید.
+- [اعتبارسنج JSON Schema](https://zebracode.ir/json-schema-validator/): داده JSON را با اسکیمای draft-07 یا 2020-12، به کمک Ajv و بررسی قالب‌ها محلی اعتبارسنجی کنید؛ با مسیر دقیق خطا و بدون دریافت ارجاع خارجی.
+- [بررسی ساختار Docker Compose](https://zebracode.ir/docker-compose-validator/): ساختار سرویس‌ها، پورت‌ها و مقادیر محیطی Compose را محلی بررسی کنید؛ با مسیر اشکال‌ها، بدون اجرای Docker یا ادعای انطباق کامل با مشخصات.
+- [محاسبه‌گر CIDR برای IPv4](https://zebracode.ir/cidr-calculator/): مرز شبکه IPv4، ماسک و بازه میزبان را از /0 تا /32 محاسبه کنید؛ با توضیح روشن قرارداد نقطه‌به‌نقطه و مسیر تک‌میزبان در خروجی.
+- [بررسی دسترس‌پذیری HTML](https://zebracode.ir/html-accessibility-checker/): متن جایگزین تصویر، برچسب فرم، تیتر و ناحیه شاخص HTML را با تجزیه غیرفعال مرورگر بررسی کنید؛ همراه با محدودیت روشن بررسی‌های ابتکاری.
+- [بهینه‌ساز متنی SVG](https://zebracode.ir/svg-optimizer/): کد SVG را با افزونه‌های محافظه‌کارانه SVGO محلی بهینه کنید؛ توضیحات را حذف و مقادیر را ساده کنید، با حفظ viewBox، شناسه و داده دسترس‌پذیری.
+- [سازنده و تأییدکننده JWT با HS256](https://zebracode.ir/jwt-encoder-verifier/): محتوای JSON را امضا یا JWT با HS256 را با کلید UTF-8 محلی تأیید کنید؛ با تفکیک اعتبار امضا از وضعیت زمانی exp و nbf و مجوز دسترسی.
 
 ## English (en)
 - [ZebraCode Home](https://zebracode.ir/en/): ZebraCode Free Developer Tools. Free online tools for data conversion and processing. Operations run in your browser.
@@ -142,9 +168,9 @@
 - [SVG to React Native](https://zebracode.ir/en/svg-to-react-native/): Convert SVGs to React Native SVG components
 - [Cadence to Go](https://zebracode.ir/en/cadence-to-go/): Convert Cadence workflow definitions to Go code
 - [Markdown to HTML](https://zebracode.ir/en/markdown-to-html/): Convert Markdown to clean, semantic HTML
-- [TOML to JSON](https://zebracode.ir/en/toml-to-json/): Convert TOML configuration files to JSON online
-- [XML to JSON](https://zebracode.ir/en/xml-to-json/): Parse and convert XML data to JSON format
-- [YAML to JSON](https://zebracode.ir/en/yaml-to-json/): Convert YAML configs to JSON instantly
+- [TOML to JSON](https://zebracode.ir/en/toml-to-json/): Convert TOML files to JSON online
+- [XML to JSON](https://zebracode.ir/en/xml-to-json/): Convert XML data to JSON format
+- [YAML to JSON](https://zebracode.ir/en/yaml-to-json/): Convert YAML to JSON instantly
 - [YAML to TOML](https://zebracode.ir/en/yaml-to-toml/): Convert YAML files to TOML format
 - [TOML to YAML](https://zebracode.ir/en/toml-to-yaml/): Convert TOML files to YAML format
 - [Base64 Decode](https://zebracode.ir/en/base64-decode/): Decode Base64 encoded strings to plain text
@@ -158,3 +184,26 @@
 - [Password Generator](https://zebracode.ir/en/password-generator/): Generate strong, cryptographically secure passwords online
 - [Lorem Ipsum Generator](https://zebracode.ir/en/lorem-generator/): Generate Lorem Ipsum placeholder text for your designs in multiple languages
 - [Text Diff Checker](https://zebracode.ir/en/text-diff/): Compare two texts line by line and see the differences instantly
+- [UUID Generator](https://zebracode.ir/en/uuid-generator/): Generate UUID v4 or timestamp-based v7 in your browser, one per line. Choose up to 1,000 identifiers and copy or download the result.
+- [Hash Generator](https://zebracode.ir/en/hash-generator/): Compute SHA-1, SHA-256, SHA-384 or SHA-512 digests of current UTF-8 editor text locally, with hexadecimal output and explicit security limits.
+- [Case Converter](https://zebracode.ir/en/case-converter/): Convert text to camelCase, PascalCase, snake_case, kebab-case or uppercase. Handle Unicode words and acronym boundaries directly in your browser.
+- [Unicode Slug Generator](https://zebracode.ir/en/slug-generator/): Create lowercase, hyphen-separated slugs from Persian or English titles. Keep Unicode letters and digits while removing punctuation in your browser.
+- [Line Ending Converter](https://zebracode.ir/en/line-ending-converter/): Normalize mixed text line endings to LF, CRLF or CR in your browser. Keep blank lines and the final newline, then download the converted text.
+- [Whitespace Inspector](https://zebracode.ir/en/whitespace-inspector/): Reveal spaces, tabs, line endings, Persian half-spaces and invisible Unicode controls as readable tokens. Inspect text locally without uploading it.
+- [HTTP Status Lookup](https://zebracode.ir/en/http-status-lookup/): Look up common three-digit HTTP status codes locally. Get the numeric code and English reason phrase as JSON, with clear errors for unlisted codes.
+- [MIME Type Lookup](https://zebracode.ir/en/mime-type-lookup/): Find common MIME types from an extension or simple filename, or list extensions for a media type. Get local JSON results without file uploads.
+- [Regular expression tester](https://zebracode.ir/en/regex-tester/): Test JavaScript regular expressions locally with flags, capture groups and match positions. Inspect JSON results with bounded, isolated worker execution.
+- [JSONPath tester](https://zebracode.ir/en/jsonpath-tester/): Select JSON values with JSONPath properties, wildcards and recursive descent. Inspect array results locally with script evaluation and filters disabled.
+- [SQL formatter](https://zebracode.ir/en/sql-formatter/): Format SQL locally with uppercase keywords and two-space indentation. Choose from seven dialects, review the layout and download the SQL result.
+- [YAML formatter](https://zebracode.ir/en/yaml-formatter/): Format one YAML document locally with two- or four-space indentation. Parse with js-yaml JSON_SCHEMA and review normalized output before saving.
+- [Dotenv and JSON converter](https://zebracode.ir/en/env-parser/): Convert line-based dotenv assignments to JSON or encode scalar JSON values as quoted environment variables, with local parsing and clear syntax limits.
+- [Query string and JSON converter](https://zebracode.ir/en/query-string-parser/): Decode query parameters into JSON, preserve repeated keys as arrays, or encode scalar JSON values using form-style URL escaping in your browser.
+- [URL parser](https://zebracode.ir/en/url-parser/): Inspect an absolute URL's normalized host, port, path, query and fragment with the browser URL parser, without opening the address or making a request.
+- [cURL to Fetch or Axios](https://zebracode.ir/en/curl-to-fetch/): Convert a supported HTTP cURL command to Fetch or Axios source, preserving inline headers and data without executing commands or sending a request.
+- [OpenAPI Structural Validator](https://zebracode.ir/en/openapi-validator/): Check selected OpenAPI 3.0 and 3.1 document structures locally, including info, paths and responses, with issue paths and an explicit limited scope.
+- [JSON Schema Validator](https://zebracode.ir/en/json-schema-validator/): Validate JSON against draft-07 or 2020-12 schemas locally with Ajv, format checks and precise error paths, without fetching remote references.
+- [Docker Compose Structural Validator](https://zebracode.ir/en/docker-compose-validator/): Check Compose YAML service mappings, port shapes and environment values locally, with issue paths and no Docker execution or full compliance claim.
+- [IPv4 CIDR Calculator](https://zebracode.ir/en/cidr-calculator/): Calculate IPv4 network boundaries, netmask and host ranges for /0 through /32, including explicit point-to-point and single-host conventions.
+- [HTML Accessibility Checker](https://zebracode.ir/en/html-accessibility-checker/): Review HTML for selected image alt, form label, heading and landmark issues using inert browser parsing, with clear limits beyond automated heuristics.
+- [SVG Text Optimizer](https://zebracode.ir/en/svg-optimizer/): Optimize SVG source locally with conservative SVGO plugins, removing comments and simplifying values while preserving viewBox, IDs and useful accessibility data.
+- [JWT HS256 Encoder & Verifier](https://zebracode.ir/en/jwt-encoder-verifier/): Sign a JSON payload or verify an HS256 JWT locally with a UTF-8 HMAC secret, separating signature status from exp and nbf time checks and authorization.

@@ -1,7 +1,9 @@
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
 # dependencies
-/node_modules
+node_modules/
+**/node_modules/
+wordpress/plugins/omni-ai-suite/node_modules/
 /.pnp
 .pnp.*
 .yarn/*
@@ -12,6 +14,12 @@
 
 # testing
 /coverage
+/test-results/
+test-results/
+
+# windows artifacts
+NUL
+**/NUL
 
 # next.js
 /.next/
