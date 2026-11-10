@@ -1,6 +1,7 @@
 import { createElement, useState, useEffect } from '@wordpress/element';
-import { Card, CardBody, CardHeader, Button, Spinner } from '@wordpress/components';
+import { Card, CardBody, CardHeader, Button, Spinner, Notice } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
+import { apiFetch } from '../utils/api';
 
 export default function Dashboard({ onNavigate }) {
   const [stats, setStats] = useState({
@@ -10,56 +11,85 @@ export default function Dashboard({ onNavigate }) {
   });
   const [recentLogs, setRecentLogs] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [errorMsg, setErrorMsg] = useState(null);
+
+  const fetchDashboardData = async () => {
+    setLoading(true);
+    setErrorMsg(null);
+    try {
+      const res = await apiFetch('logs', {}, { limit: 5 });
+
+      if (!res.ok) {
+        let msg = `HTTP ${res.status}`;
+        try {
+          const errData = await res.json();
+          if (errData?.message) msg = `${errData.message} (${res.status})`;
+        } catch (_) {}
+        throw new Error(msg);
+      }
+
+      const data = await res.json();
+      if (data && data.stats) {
+        setStats(data.stats);
+      }
+      if (data && Array.isArray(data.logs)) {
+        setRecentLogs(data.logs);
+      }
+    } catch (err) {
+      console.error('Failed to load dashboard data', err);
+      setErrorMsg(err.message || __('Failed to fetch dashboard data.', 'omni-ai-suite'));
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchDashboardData = async () => {
-      try {
-        const restUrl = window.omniAiData?.restUrl || '/wp-json/omni-ai/v1/';
-        const nonce = window.omniAiData?.nonce || '';
-        const res = await fetch(`${restUrl}logs?limit=5`, {
-          headers: { 'X-WP-Nonce': nonce },
-        });
-        const data = await res.json();
-        if (data.stats) {
-          setStats(data.stats);
-        }
-        if (data.logs) {
-          setRecentLogs(data.logs);
-        }
-      } catch (err) {
-        console.error('Failed to load dashboard data', err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchDashboardData();
   }, []);
 
-  if (loading) {
-    return (
-      <div style={{ textAlign: 'center', padding: '40px' }}>
-        <Spinner />
-      </div>
-    );
-  }
-
   return (
     <div>
+      {errorMsg && (
+        <div style={{ marginBottom: '16px' }}>
+          <Notice status="error" isDismissible={false}>
+            {errorMsg}
+          </Notice>
+        </div>
+      )}
+
+      {/* Header bar with Refresh */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+        <h2 style={{ margin: 0, fontSize: '18px', fontWeight: 600 }}>
+          {__('Overview & Generation Statistics', 'omni-ai-suite')}
+        </h2>
+        <Button
+          variant="secondary"
+          size="small"
+          onClick={fetchDashboardData}
+          disabled={loading}
+        >
+          {loading ? __('Refreshing...', 'omni-ai-suite') : __('🔄 Refresh Data', 'omni-ai-suite')}
+        </Button>
+      </div>
+
       {/* Stat cards */}
       <div className="omni-ai-stats-grid">
         <div className="omni-ai-stat-card">
           <div className="omni-ai-stat-label">{__('Total Generations', 'omni-ai-suite')}</div>
-          <div className="omni-ai-stat-val">{stats.total_generations.toLocaleString()}</div>
+          <div className="omni-ai-stat-val">
+            {Number(stats?.total_generations || 0).toLocaleString()}
+          </div>
         </div>
         <div className="omni-ai-stat-card">
           <div className="omni-ai-stat-label">{__('Estimated Tokens Used', 'omni-ai-suite')}</div>
-          <div className="omni-ai-stat-val">{stats.total_tokens.toLocaleString()}</div>
+          <div className="omni-ai-stat-val">
+            {Number(stats?.total_tokens || 0).toLocaleString()}
+          </div>
         </div>
         <div className="omni-ai-stat-card">
           <div className="omni-ai-stat-label">{__('Generations Today', 'omni-ai-suite')}</div>
           <div className="omni-ai-stat-val" style={{ color: '#2271b1' }}>
-            {stats.generations_today.toLocaleString()}
+            {Number(stats?.generations_today || 0).toLocaleString()}
           </div>
         </div>
       </div>
@@ -68,22 +98,23 @@ export default function Dashboard({ onNavigate }) {
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '20px', marginBottom: '28px' }}>
         <Card>
           <CardHeader>
-            <strong>{__('✍️ AI Content Studio', 'omni-ai-suite')}</strong>
+            <strong>{__('✍️ Article Creator (JSON Importer)', 'omni-ai-suite')}</strong>
           </CardHeader>
           <CardBody>
             <p style={{ color: '#646970', fontSize: '13px' }}>
-              {__('Generate blog posts, headlines, meta descriptions, and code with instant Server-Sent Events (SSE) streaming.', 'omni-ai-suite')}
+              {__('درج و پردازش سریع خروجی JSON از چت‌بات‌ها همراه با ایجاد پیش‌نویس، متادیتای کامل سئو و پرامپت‌های تصویر.', 'omni-ai-suite')}
             </p>
             <Button
               variant="primary"
               onClick={() => onNavigate('studio')}
               style={{ marginTop: '10px' }}
             >
-              {__('Open Content Studio', 'omni-ai-suite')}
+              {__('ورود به بخش ایجاد مقاله', 'omni-ai-suite')}
             </Button>
           </CardBody>
         </Card>
 
+        {/* Temporarily hidden - Bulk Generator
         <Card>
           <CardHeader>
             <strong>{__('⚡ Bulk Post Generator', 'omni-ai-suite')}</strong>
@@ -101,6 +132,7 @@ export default function Dashboard({ onNavigate }) {
             </Button>
           </CardBody>
         </Card>
+        */}
 
         <Card>
           <CardHeader>
@@ -130,7 +162,11 @@ export default function Dashboard({ onNavigate }) {
           </Button>
         </CardHeader>
         <CardBody>
-          {recentLogs.length === 0 ? (
+          {loading ? (
+            <div style={{ textAlign: 'center', padding: '30px' }}>
+              <Spinner />
+            </div>
+          ) : recentLogs.length === 0 ? (
             <p style={{ color: '#646970', margin: '10px 0' }}>
               {__('No generation history found yet. Head to the Content Studio to start writing!', 'omni-ai-suite')}
             </p>
@@ -151,7 +187,7 @@ export default function Dashboard({ onNavigate }) {
                       <td style={{ whiteSpace: 'nowrap', fontSize: '12px' }}>{log.created_at}</td>
                       <td>
                         <span style={{ textTransform: 'uppercase', fontSize: '11px', fontWeight: 'bold' }}>
-                          {log.provider}
+                          {log.provider || '—'}
                         </span>
                       </td>
                       <td style={{ fontSize: '12px', color: '#50575e' }}>{log.model}</td>

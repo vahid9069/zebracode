@@ -31,10 +31,65 @@ class OpenAI_Provider implements AI_Provider_Interface {
 
     public function get_supported_models(): array {
         return [
-            'gpt-4o-mini' => 'GPT-4o Mini (Fast & Affordable)',
-            'gpt-4o'      => 'GPT-4o (High Intelligence Flagship)',
-            'gpt-4-turbo' => 'GPT-4 Turbo',
+            'gpt-4o-mini'       => 'GPT-4o Mini (سریع، مقرون‌به‌صرفه و هوشمند - پیشنهادی)',
+            'gpt-4o'            => 'GPT-4o (پرچمدار هوشمند همه‌منظوره)',
+            'gpt-4o-2024-11-20' => 'GPT-4o (آخرین نسخه پایدار نوامبر)',
+            'chatgpt-4o-latest' => 'ChatGPT-4o (نسخه داینامیک چت‌جی‌پی‌تی)',
+            'o3-mini'           => 'o3-mini (جدیدترین مدل استدلال تخصصی و کدنویسی)',
+            'o1-mini'           => 'o1-mini (مدل استدلال ریاضی و سریع)',
+            'o1-preview'        => 'o1-preview (مدل استدلال و تحلیل عمیق)',
+            'gpt-4-turbo'       => 'GPT-4 Turbo (مدل ۱۲۸ هزار توکن)',
+            'gpt-4'             => 'GPT-4 (نسخه استاندارد ۴)',
+            'gpt-3.5-turbo'     => 'GPT-3.5 Turbo (مدل اقتصادی قدیمی)',
         ];
+    }
+
+    public function fetch_live_models(): array {
+        if (!$this->is_configured()) {
+            return $this->get_supported_models();
+        }
+
+        $response = wp_remote_get('https://api.openai.com/v1/models', [
+            'headers' => [
+                'Authorization' => 'Bearer ' . $this->api_key,
+            ],
+            'timeout' => 15,
+        ]);
+
+        if (is_wp_error($response) || wp_remote_retrieve_response_code($response) !== 200) {
+            return $this->get_supported_models();
+        }
+
+        $body = json_decode(wp_remote_retrieve_body($response), true);
+        if (empty($body['data']) || !is_array($body['data'])) {
+            return $this->get_supported_models();
+        }
+
+        $models = [];
+        $known_labels = $this->get_supported_models();
+
+        foreach ($body['data'] as $m) {
+            $id = $m['id'] ?? '';
+            // Only text/content generation models - strictly exclude image (dall-e), audio, and embedding models
+            if (
+                preg_match('/^(gpt-4|gpt-3\.5|o1|o3|chatgpt)/i', $id) &&
+                !str_contains($id, 'audio') &&
+                !str_contains($id, 'realtime') &&
+                !str_contains($id, 'image') &&
+                !str_contains($id, 'dall-e') &&
+                !str_contains($id, 'transcribe') &&
+                !str_contains($id, 'embedding')
+            ) {
+                $label = $known_labels[$id] ?? "OpenAI {$id}";
+                $models[$id] = $label;
+            }
+        }
+
+        uksort($models, function ($a, $b) {
+            return strcmp($b, $a);
+        });
+
+        return !empty($models) ? $models : $this->get_supported_models();
     }
 
     public function generate(string $prompt, array $options = []): array {

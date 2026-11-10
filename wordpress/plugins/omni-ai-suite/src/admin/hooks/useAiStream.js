@@ -1,4 +1,5 @@
 import { useState, useCallback, useRef } from '@wordpress/element';
+import { buildApiUrl, apiFetch } from '../utils/api';
 
 /**
  * Custom React hook for real-time Server-Sent Events (SSE) AI streaming.
@@ -35,31 +36,76 @@ export function useAiStream() {
     const abortController = new AbortController();
     abortControllerRef.current = abortController;
 
-    const restUrl = window.omniAiData?.restUrl || '/wp-json/omni-ai/v1/';
     const nonce = window.omniAiData?.nonce || '';
-
     let accumulatedText = '';
 
     try {
-      const response = await fetch(`${restUrl}stream-ai`, {
+      const streamBody = JSON.stringify({
+        prompt,
+        provider,
+        model,
+        system_prompt: systemPrompt,
+        temperature,
+        max_tokens: maxTokens,
+      });
+
+      let streamUrl = buildApiUrl('stream-ai');
+      let response = await fetch(streamUrl, {
         method: 'POST',
+        credentials: 'same-origin',
         headers: {
           'Content-Type': 'application/json',
           'X-WP-Nonce': nonce,
         },
-        body: JSON.stringify({
-          prompt,
-          provider,
-          model,
-          system_prompt: systemPrompt,
-          temperature,
-          max_tokens: maxTokens,
-        }),
+        body: streamBody,
         signal: abortController.signal,
       });
 
+      // Retry with plain route if 404
+      if (response.status === 404 && !streamUrl.includes('rest_route=')) {
+        streamUrl = buildApiUrl('stream-ai', {}, true);
+        response = await fetch(streamUrl, {
+          method: 'POST',
+          credentials: 'same-origin',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-WP-Nonce': nonce,
+          },
+          body: streamBody,
+          signal: abortController.signal,
+        });
+      }
+
       if (!response.ok) {
-        throw new Error(`HTTP error ${response.status}: ${response.statusText}`);
+        let errorMessage = `HTTP error ${response.status}: ${response.statusText}`;
+        try {
+          const errData = await response.json();
+          if (errData && (errData.message || errData.error)) {
+            errorMessage = errData.message || errData.error;
+          }
+        } catch (_) {
+          // If response is not JSON or stream text, fallback to status text
+        }
+        setError(errorMessage);
+        setStreaming(false);
+        abortControllerRef.current = null;
+
+        // Log connection/HTTP failure
+        try {
+          await apiFetch('save-log', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              prompt,
+              response: `ERROR: ${errorMessage}`,
+              model: model || 'default',
+              provider: provider || 'default',
+              tokens: 0,
+            }),
+          });
+        } catch (_) {}
+
+        return;
       }
 
       if (!response.body) {
@@ -70,6 +116,7 @@ export function useAiStream() {
       const decoder = new TextDecoder('utf-8');
       let buffer = '';
       let hasError = false;
+      let streamErrorMessage = '';
 
       while (true) {
         const { value, done } = await reader.read();
@@ -95,6 +142,7 @@ export function useAiStream() {
             }
 
             if (parsed.error) {
+              streamErrorMessage = parsed.error;
               setError(parsed.error);
               hasError = true;
               break;
@@ -112,13 +160,28 @@ export function useAiStream() {
       }
 
       // Phase 3: Post-stream saving to custom table (zero CPT/meta bloat)
-      if (!hasError && accumulatedText.trim().length > 0) {
+      if (hasError) {
         try {
-          await fetch(`${restUrl}save-log`, {
+          await apiFetch('save-log', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
-              'X-WP-Nonce': nonce,
+            },
+            body: JSON.stringify({
+              prompt,
+              response: `ERROR: ${streamErrorMessage || 'Unknown streaming error'}`,
+              model: model || 'default',
+              provider: provider || 'default',
+              tokens: 0,
+            }),
+          });
+        } catch (_) {}
+      } else if (accumulatedText.trim().length > 0) {
+        try {
+          await apiFetch('save-log', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
             },
             body: JSON.stringify({
               prompt,
@@ -138,7 +201,21 @@ export function useAiStream() {
       }
     } catch (err) {
       if (err.name !== 'AbortError') {
-        setError(err.message || 'Stream connection error occurred.');
+        const errMsg = err.message || 'Stream connection error occurred.';
+        setError(errMsg);
+        try {
+          await apiFetch('save-log', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              prompt,
+              response: `ERROR: ${errMsg}`,
+              model: model || 'default',
+              provider: provider || 'default',
+              tokens: 0,
+            }),
+          });
+        } catch (_) {}
       }
     } finally {
       setStreaming(false);

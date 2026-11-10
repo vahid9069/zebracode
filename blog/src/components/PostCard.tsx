@@ -8,7 +8,18 @@ const kinds = { guide: 'راهنمای کاربردی', concept: 'مفهوم ب�
 
 export default function PostCard({ post, category }: { post: PostSummary; category?: Category }) {
     return <article className="zc-post-card">
-        <Link href={postPath(post.slug)} className="zc-post-cover" tabIndex={-1} aria-hidden="true"><PostArtwork variant={post.cover} className="zc-post-artwork" /></Link>
+        <Link href={postPath(post.slug)} className="zc-post-cover" tabIndex={-1} aria-hidden="true">
+            {post.featuredImage?.url ? (
+                <img
+                    src={post.featuredImage.url}
+                    alt={post.featuredImage.alt || post.title}
+                    className="zc-post-img"
+                    loading="lazy"
+                />
+            ) : (
+                <PostArtwork variant={post.cover} className="zc-post-artwork" />
+            )}
+        </Link>
         <div className="zc-post-body">
             <div className="zc-post-labels"><span className="zc-category-pill">{category?.name || kinds[post.kind]}</span><span>{post.level === 'beginner' ? 'مقدماتی' : 'سطح متوسط'}</span></div>
             <h3><Link href={postPath(post.slug)}>{post.title}<ArrowUpLeft size={18} aria-hidden="true" /></Link></h3>

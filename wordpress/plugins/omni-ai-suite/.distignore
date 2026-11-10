@@ -1,0 +1,11 @@
+.git
+.gitignore
+.distignore
+node_modules/
+src/
+package.json
+package-lock.json
+tailwind.config.js
+README.md
+ARCHITECTURE.md
+webpack.config.js

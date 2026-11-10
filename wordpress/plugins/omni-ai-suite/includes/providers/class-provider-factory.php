@@ -40,6 +40,13 @@ class Provider_Factory {
     }
 
     /**
+     * Alias for get_provider() without arguments for default provider.
+     */
+    public static function get_default(): AI_Provider_Interface {
+        return self::get_provider();
+    }
+
+    /**
      * Retrieve all instantiated providers based on saved settings & core connectors.
      *
      * @return array<string, AI_Provider_Interface>
@@ -54,7 +61,7 @@ class Provider_Factory {
         self::$providers = [
             'gemini' => new Gemini_Provider(
                 $settings['gemini_api_key'] ?? '',
-                $settings['gemini_model'] ?? 'gemini-1.5-flash'
+                $settings['gemini_model'] ?? 'gemini-2.5-flash'
             ),
             'openai' => new OpenAI_Provider(
                 $settings['openai_api_key'] ?? '',
@@ -280,7 +287,7 @@ class Provider_Factory {
         return wp_parse_args($stored, [
             'default_provider'       => $default_provider,
             'fallback_provider'      => $stored['fallback_provider'] ?? 'none',
-            'default_image_provider' => $stored['default_image_provider'] ?? 'pollinations',
+            'default_image_provider' => $stored['default_image_provider'] ?? 'gemini',
             'gemini_api_key'         => '',
             'gemini_key_source'      => 'none',
             'gemini_model'           => 'gemini-1.5-flash',

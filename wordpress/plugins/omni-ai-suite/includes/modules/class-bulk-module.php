@@ -66,10 +66,13 @@ class Bulk_Module implements Module_Interface {
                 return;
             }
 
+            // Convert markdown to native Gutenberg blocks
+            $parsed_content = \OmniAI\Api\Rest_Controller::parse_markdown_to_html($content);
+
             // Create draft post
             $post_id = wp_insert_post([
                 'post_title'   => sanitize_text_field($title),
-                'post_content' => wp_kses_post($content),
+                'post_content' => $parsed_content,
                 'post_status'  => sanitize_text_field($options['post_status'] ?? 'draft'),
                 'post_author'  => $user_id,
                 'post_type'    => sanitize_text_field($options['post_type'] ?? 'post'),

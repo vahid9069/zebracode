@@ -32,6 +32,13 @@ interface AI_Provider_Interface {
     public function get_supported_models(): array;
 
     /**
+     * Fetch live list of active models directly from provider API.
+     *
+     * @return array<string, string> Key is model slug, value is label.
+     */
+    public function fetch_live_models(): array;
+
+    /**
      * Synchronous content generation.
      *
      * @param string $prompt Prompt string.

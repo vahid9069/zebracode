@@ -39,10 +39,15 @@ class Plugin {
         // Initialize Admin UI
         if (is_admin()) {
             $this->admin->init();
+            // Ensure table creation schema runs during admin initialization
+            add_action('admin_init', ['OmniAI\\Database\\Log_Repository', 'maybe_create_table']);
         }
 
         // Initialize active modules (inactive modules never load hooks or assets)
         Module_Manager::init();
+
+        // Initialize Frontend Assets (e.g. standalone Mermaid.js)
+        Assets::init();
     }
 
     public function load_textdomain(): void {

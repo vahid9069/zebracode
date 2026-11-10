@@ -1,6 +1,7 @@
 import React from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
+import * as repository from '@/lib/repository';
 import { getAllPosts, getCategories, getPostBySlug, getPostSummaries, getPostsByCategory, getRelatedPosts } from '@/lib/repository';
 import { filterPosts } from '@/lib/search';
 import { absoluteUrl, categoryPath, formatDate, getToolUrl, postPath } from '@/lib/site';
@@ -90,6 +91,34 @@ describe('blog routing and metadata', () => {
         expect(metadata.alternates?.canonical).toBe(absoluteUrl(postPath(post.slug)));
         expect(metadata.openGraph).toMatchObject({ type: 'article', locale: 'fa_IR' });
         await expect(ArticlePage({ params: Promise.resolve({ slug: 'missing' }) })).rejects.toThrow();
+    });
+
+    it('prioritizes Rank Math SEO metadata and directives when present', async () => {
+        const post = (await getPostBySlug('json-debugging'))!;
+        const customPost = {
+            ...post,
+            seo: {
+                title: 'عنوان اختصاصی رنک مث',
+                description: 'توضیحات اختصاصی سئو رنک مث',
+                focusKeyword: 'دیباگ جیسون',
+                canonicalUrl: 'https://zebracode.ir/custom-canonical/',
+                isNoindex: true,
+                isNofollow: true,
+                ogImage: 'https://zebracode.ir/og-image.webp',
+            },
+        };
+        const spy = vi.spyOn(repository, 'getPostBySlug').mockResolvedValueOnce(customPost);
+        const metadata = await generateMetadata({ params: Promise.resolve({ slug: post.slug }) });
+        spy.mockRestore();
+
+        expect(metadata.title).toBe('عنوان اختصاصی رنک مث');
+        expect(metadata.description).toBe('توضیحات اختصاصی سئو رنک مث');
+        expect(metadata.alternates?.canonical).toBe('https://zebracode.ir/custom-canonical/');
+        expect(metadata.keywords).toContain('دیباگ جیسون');
+        expect(metadata.robots).toEqual({ index: false, follow: false });
+        expect(metadata.openGraph?.images).toEqual([
+            expect.objectContaining({ url: 'https://zebracode.ir/og-image.webp' }),
+        ]);
     });
 });
 

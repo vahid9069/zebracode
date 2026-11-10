@@ -49,9 +49,14 @@ class Gutenberg_Module implements Module_Interface {
             true
         );
 
+        $post_id = get_the_ID() ?: 0;
+
         wp_localize_script('omni-ai-gutenberg', 'omniAiGutenberg', [
-            'restUrl' => esc_url_raw(rest_url('omni-ai/v1/')),
-            'nonce'   => wp_create_nonce('wp_rest'),
+            'restUrl'   => esc_url_raw(rest_url('omni-ai/v1/')),
+            'ajaxUrl'   => admin_url('admin-ajax.php'),
+            'nonce'     => wp_create_nonce('omni_ranking_nonce'),
+            'restNonce' => wp_create_nonce('wp_rest'),
+            'postId'    => $post_id,
         ]);
     }
 }

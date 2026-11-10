@@ -11,10 +11,12 @@ import {
   Notice,
 } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
+import { apiFetch } from '../utils/api';
 
 export default function ApiSettings({ onSettingsUpdated }) {
   const [settings, setSettings] = useState({
     default_provider: 'gemini',
+    default_image_provider: 'gemini',
     gemini_api_key: '',
     gemini_model: 'gemini-1.5-flash',
     openai_api_key: '',
@@ -44,15 +46,12 @@ export default function ApiSettings({ onSettingsUpdated }) {
 
   const fetchSettings = async () => {
     try {
-      const restUrl = window.omniAiData?.restUrl || '/wp-json/omni-ai/v1/';
-      const nonce = window.omniAiData?.nonce || '';
-      const res = await fetch(`${restUrl}settings`, {
-        headers: { 'X-WP-Nonce': nonce },
-      });
+      const res = await apiFetch('settings');
       const data = await res.json();
       if (data.settings) {
         setSettings({
           default_provider: data.settings.default_provider || 'gemini',
+          default_image_provider: data.settings.default_image_provider || 'gemini',
           gemini_api_key: '',
           gemini_model: data.settings.gemini_model || 'gemini-1.5-flash',
           openai_api_key: '',
@@ -85,11 +84,9 @@ export default function ApiSettings({ onSettingsUpdated }) {
     setNotice(null);
 
     try {
-      const restUrl = window.omniAiData?.restUrl || '/wp-json/omni-ai/v1/';
-      const nonce = window.omniAiData?.nonce || '';
-
       const payload = {
         default_provider: settings.default_provider,
+        default_image_provider: settings.default_image_provider,
         gemini_model: settings.gemini_model,
         openai_model: settings.openai_model,
         claude_model: settings.claude_model,
@@ -107,11 +104,10 @@ export default function ApiSettings({ onSettingsUpdated }) {
         payload.claude_api_key = settings.claude_api_key.trim();
       }
 
-      const res = await fetch(`${restUrl}settings`, {
+      const res = await apiFetch('settings', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'X-WP-Nonce': nonce,
         },
         body: JSON.stringify(payload),
       });
@@ -168,6 +164,16 @@ export default function ApiSettings({ onSettingsUpdated }) {
                   { label: 'Anthropic Claude', value: 'claude' },
                 ]}
                 onChange={(val) => setSettings({ ...settings, default_provider: val })}
+              />
+
+              <SelectControl
+                label={__('Default Image Generation Engine', 'omni-ai-suite')}
+                value={settings.default_image_provider || 'gemini'}
+                options={[
+                  { label: 'Google Gemini (Flash Image / Nano Banana)', value: 'gemini' },
+                  { label: 'OpenAI (DALL-E 3)', value: 'dall-e' },
+                ]}
+                onChange={(val) => setSettings({ ...settings, default_image_provider: val })}
               />
 
               <RangeControl

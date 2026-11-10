@@ -35,7 +35,7 @@ export default function DeveloperToolGuide({ slug, title, locale, content, toolT
             <div className="grid gap-4 md:grid-cols-2">
                 <section aria-labelledby={`${id}-steps`} className={cardClass}>
                     <h3 id={`${id}-steps`} className={headingClass}>{text.steps}</h3>
-                    <ol className="list-decimal space-y-2 ps-5">{content.steps.map((step, index) => <li key={index}>{step}</li>)}</ol>
+                    <ol className="list-decimal space-y-2 ps-5">{content.steps.map((step, index) => <li id={`step-${index + 1}`} key={index}>{step}</li>)}</ol>
                 </section>
                 <section aria-labelledby={`${id}-uses`} className={cardClass}>
                     <h3 id={`${id}-uses`} className={headingClass}>{text.useCases}</h3>

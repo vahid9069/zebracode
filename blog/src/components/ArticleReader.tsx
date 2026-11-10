@@ -2,6 +2,9 @@ import Link from 'next/link';
 import { Fragment } from 'react';
 import CodeBlock from '@/components/CodeBlock';
 import PostArtwork from '@/components/PostArtwork';
+import ArticleReadingBar from '@/components/ArticleReadingBar';
+import TableOfContents from '@/components/TableOfContents';
+import BackToTop from '@/components/BackToTop';
 import { categoryPath, formatDate, formatNumber, getToolUrl, postPath } from '@/lib/site';
 import type { ArticleBlock, Category, Post, PostSummary } from '@/lib/types';
 
@@ -40,17 +43,6 @@ function ArticleContentBlock({ block }: { block: ArticleBlock }) {
                 </div>
             );
     }
-}
-
-function TableOfContents({ post }: { post: Post }) {
-    const headings = post.blocks.filter((block) => block.type === 'heading');
-    return (
-        <ol className="reading-toc-list">
-            {headings.map((heading) => <li key={heading.id}><a href={`#${heading.id}`}>{heading.title}</a></li>)}
-            {post.faq.length > 0 && <li><a href="#reading-faq">پرسش‌های متداول</a></li>}
-            {post.references.length > 0 && <li><a href="#reading-references">منابع و مطالعه بیشتر</a></li>}
-        </ol>
-    );
 }
 
 function getAdInsertIndex(blocks: ArticleBlock[]) {
@@ -105,8 +97,20 @@ export default function ArticleReader({ post, categories, related }: ArticleRead
                             </div>
                         </div>
                     </div>
-                    <div className="article-hero-art"><PostArtwork variant={post.cover} /></div>
+                    <div className="article-hero-art">
+                        {post.featuredImage?.url ? (
+                            <img
+                                src={post.featuredImage.url}
+                                alt={post.featuredImage.alt || post.title}
+                                className="article-hero-img"
+                                loading="eager"
+                            />
+                        ) : (
+                            <PostArtwork variant={post.cover} />
+                        )}
+                    </div>
                 </header>
+                <ArticleReadingBar title={post.title} />
 
                 <div className="reading-shell">
                     {hasContents && (
@@ -179,6 +183,7 @@ export default function ArticleReader({ post, categories, related }: ArticleRead
                     ))}</div>
                 </section>
             )}
+            <BackToTop />
         </div>
     );
 }

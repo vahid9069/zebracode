@@ -20,27 +20,59 @@ export async function generateMetadata({ params }: ArticlePageProps): Promise<Me
     const { slug } = await params;
     const post = await getPostBySlug(slug);
     if (!post) notFound();
-    const url = absoluteUrl(postPath(post.slug));
+    const url = post.seo?.canonicalUrl || absoluteUrl(postPath(post.slug));
+    const title = post.seo?.title || post.title;
+    const description = post.seo?.description ?? post.metaDescription ?? post.excerpt;
+    const ogTitle = post.seo?.ogTitle || title;
+    const ogDescription = post.seo?.ogDescription || description;
+    const ogImage = post.seo?.ogImage || post.featuredImage?.url;
+    const twitterTitle = post.seo?.twitterTitle || ogTitle;
+    const twitterDescription = post.seo?.twitterDescription || ogDescription;
+    const twitterImage = post.seo?.twitterImage || ogImage;
+
+    const isNoindex = post.seo?.isNoindex;
+    const isNofollow = post.seo?.isNofollow;
 
     return {
-        title: post.title,
-        description: post.metaDescription ?? post.excerpt,
+        title,
+        description,
         alternates: { canonical: url },
         authors: [{ name: post.author.name }],
-        keywords: post.tags,
+        keywords: post.seo?.focusKeyword ? [post.seo.focusKeyword, ...post.tags] : post.tags,
+        ...(isNoindex || isNofollow ? {
+            robots: {
+                index: !isNoindex,
+                follow: !isNofollow,
+            },
+        } : {}),
         openGraph: {
             type: 'article',
             locale: 'fa_IR',
             siteName: site.name,
-            title: post.title,
-                 description: post.metaDescription ?? post.excerpt,
+            title: ogTitle,
+            description: ogDescription,
             url,
             publishedTime: post.publishedAt,
             modifiedTime: post.updatedAt ?? post.publishedAt,
             authors: [post.author.name],
             tags: post.tags,
+            ...(ogImage ? {
+                images: [
+                    {
+                        url: ogImage,
+                        width: post.featuredImage?.width ?? 1200,
+                        height: post.featuredImage?.height ?? 630,
+                        alt: post.featuredImage?.alt ?? ogTitle,
+                    },
+                ],
+            } : {}),
         },
-        twitter: { card: 'summary', title: post.title, description: post.excerpt },
+        twitter: {
+            card: ogImage ? 'summary_large_image' : 'summary',
+            title: twitterTitle,
+            description: twitterDescription,
+            ...(twitterImage ? { images: [twitterImage] } : {}),
+        },
     };
 }
 
@@ -80,6 +112,9 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
                 inLanguage: 'fa-IR',
                 datePublished: post.publishedAt,
                 dateModified: post.updatedAt ?? post.publishedAt,
+                ...(post.featuredImage?.url || post.seo?.ogImage ? {
+                    image: [post.featuredImage?.url || post.seo?.ogImage],
+                } : {}),
                 author: { '@type': 'Organization', name: post.author.name, description: post.author.bio },
                 publisher: { '@type': 'Organization', name: site.name, url: absoluteUrl('/') },
                 ...(category ? { articleSection: category.name } : {}),

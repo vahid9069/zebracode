@@ -31,10 +31,47 @@ class Claude_Provider implements AI_Provider_Interface {
 
     public function get_supported_models(): array {
         return [
-            'claude-3-5-sonnet-20241022' => 'Claude 3.5 Sonnet (State-of-the-Art Intelligence)',
-            'claude-3-5-haiku-20241022'  => 'Claude 3.5 Haiku (Ultra-Fast Response)',
-            'claude-3-opus-20240229'     => 'Claude 3 Opus (Deep Analysis)',
+            'claude-3-5-sonnet-20241022' => 'Claude 3.5 Sonnet v2 (پیشنهادی - هوشمندترین مدل نگارش و کدنویسی)',
+            'claude-3-5-haiku-20241022'  => 'Claude 3.5 Haiku (فوق سریع و سبک با درک بالا)',
+            'claude-3-opus-20240229'     => 'Claude 3 Opus (تحلیل عمیق و تخصصی مقالات طولانی)',
+            'claude-3-sonnet-20240229'   => 'Claude 3 Sonnet (نسخه استاندارد ۳)',
+            'claude-3-haiku-20240307'    => 'Claude 3 Haiku (نسخه اقتصادی ۳)',
         ];
+    }
+
+    public function fetch_live_models(): array {
+        if (!$this->is_configured()) {
+            return $this->get_supported_models();
+        }
+
+        $response = wp_remote_get('https://api.anthropic.com/v1/models', [
+            'headers' => [
+                'x-api-key'         => $this->api_key,
+                'anthropic-version' => '2023-06-01',
+            ],
+            'timeout' => 15,
+        ]);
+
+        if (is_wp_error($response) || wp_remote_retrieve_response_code($response) !== 200) {
+            return $this->get_supported_models();
+        }
+
+        $body = json_decode(wp_remote_retrieve_body($response), true);
+        if (empty($body['data']) || !is_array($body['data'])) {
+            return $this->get_supported_models();
+        }
+
+        $models = [];
+        $known = $this->get_supported_models();
+        foreach ($body['data'] as $m) {
+            $id = $m['id'] ?? '';
+            $name = $m['display_name'] ?? $id;
+            if (!empty($id)) {
+                $models[$id] = $known[$id] ?? "{$name} ({$id})";
+            }
+        }
+
+        return !empty($models) ? $models : $this->get_supported_models();
     }
 
     public function generate(string $prompt, array $options = []): array {

@@ -84,6 +84,24 @@ class Admin {
             self::MENU_SLUG . '#/settings',
             [$this, 'render_admin_app']
         );
+
+        add_submenu_page(
+            self::MENU_SLUG,
+            $is_fa ? 'رتبه‌بندی محتوا (SEO / AEO / GEO)' : 'Content Ranking',
+            $is_fa ? 'رتبه‌بندی محتوا' : 'Content Ranking',
+            'edit_posts',
+            self::MENU_SLUG . '#/ranking',
+            [$this, 'render_admin_app']
+        );
+
+        add_submenu_page(
+            'edit.php',
+            $is_fa ? 'رتبه‌بندی محتوا (SEO / AEO / GEO)' : 'Content Ranking',
+            $is_fa ? 'رتبه‌بندی محتوا (SEO/AEO/GEO)' : 'Content Ranking',
+            'edit_posts',
+            self::MENU_SLUG . '#/ranking',
+            [$this, 'render_admin_app']
+        );
     }
 
     public function enqueue_admin_assets(string $hook): void {
@@ -141,13 +159,48 @@ class Admin {
         $user_locale = get_user_locale();
         $is_persian = str_starts_with($user_locale, 'fa');
 
+        $wp_categories = get_categories(['hide_empty' => false]);
+        $cat_list = [];
+        if (is_array($wp_categories)) {
+            foreach ($wp_categories as $c) {
+                $cat_list[] = [
+                    'id'   => $c->term_id,
+                    'name' => html_entity_decode($c->name, ENT_QUOTES, 'UTF-8'),
+                ];
+            }
+        }
+
+        // Build dynamic modelsMap based on active API keys / available providers
+        $models_map = [];
+        try {
+            $providers = \OmniAI\Providers\Provider_Factory::get_all_providers();
+            foreach ($providers as $provider_id => $p) {
+                $supported = $p->get_supported_models();
+                $formatted_models = [];
+                foreach ($supported as $slug => $label) {
+                    $formatted_models[] = [
+                        'value' => (string) $slug,
+                        'label' => (string) $label,
+                    ];
+                }
+                $models_map[$provider_id] = $formatted_models;
+            }
+        } catch (\Throwable $e) {
+            error_log('[Omni AI] Failed to generate modelsMap for localization: ' . $e->getMessage());
+        }
+
         // Pass localized data without exposing any sensitive API keys
         wp_localize_script('omni-ai-admin-app', 'omniAiData', [
             'restUrl'     => esc_url_raw(rest_url('omni-ai/v1/')),
+            'siteUrl'     => esc_url_raw(site_url('/')),
+            'homeUrl'     => esc_url_raw(home_url('/')),
+            'adminUrl'    => esc_url_raw(admin_url('/')),
             'nonce'       => wp_create_nonce('wp_rest'),
             'locale'      => $user_locale,
             'isRtl'       => is_rtl() || $is_persian,
             'defaultLang' => $is_persian ? 'fa' : 'en',
+            'categories'  => $cat_list,
+            'modelsMap'   => $models_map,
             'currentUser' => [
                 'id'          => get_current_user_id(),
                 'name'        => wp_get_current_user()->display_name,

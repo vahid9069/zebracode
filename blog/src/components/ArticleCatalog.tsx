@@ -24,7 +24,7 @@ export default function ArticleCatalog({ initialPosts, categories, initialCatego
     const searchId = useId();
     const results = useMemo(() => filterPosts(initialPosts, query, category), [initialPosts, query, category]);
     const categoryFor = (slug: string) => categories.find((item) => item.slug === slug);
-    const visiblePosts = featured ? results.filter((post) => post.slug !== featured.slug) : results;
+    const visiblePosts = (featured && results.length > 2) ? results.filter((post) => post.slug !== featured.slug) : results;
     const search = (hero = false) => <div className={`zc-search-field ${hero ? 'zc-hero-search' : ''}`}>
         <Search size={20} aria-hidden="true" />
         <input id={`${searchId}-${hero ? 'hero' : 'catalog'}`} type="search" value={query} onChange={(event) => setQuery(event.target.value)} placeholder="دنبال چه راه‌حلی می‌گردی؟" aria-label="جست‌وجو در مقاله‌ها" autoComplete="off" />
@@ -42,7 +42,18 @@ export default function ArticleCatalog({ initialPosts, categories, initialCatego
                     <div className="zc-hero-footnote"><span>{formatNumber(initialPosts.length)} مقاله کاربردی</span><i /><span>مثال واقعی، توضیح روشن</span></div>
                 </div>
                 {featured && <article className="zc-featured">
-                    <Link href={postPath(featured.slug)} className="zc-featured-art" tabIndex={-1} aria-hidden="true"><PostArtwork variant={featured.cover} /></Link>
+                    <Link href={postPath(featured.slug)} className="zc-featured-art" tabIndex={-1} aria-hidden="true">
+                        {featured.featuredImage?.url ? (
+                            <img
+                                src={featured.featuredImage.url}
+                                alt={featured.featuredImage.alt || featured.title}
+                                className="zc-featured-img"
+                                loading="eager"
+                            />
+                        ) : (
+                            <PostArtwork variant={featured.cover} />
+                        )}
+                    </Link>
                     <div className="zc-featured-content"><div className="zc-featured-kicker"><span>پیشنهاد سردبیر</span><span>{categoryFor(featured.category)?.name}</span></div>
                         <h2><Link href={postPath(featured.slug)}>{featured.title}<ArrowUpLeft size={22} aria-hidden="true" /></Link></h2>
                         <p>{featured.excerpt}</p>
@@ -56,7 +67,20 @@ export default function ArticleCatalog({ initialPosts, categories, initialCatego
             </section>
         </>}
         {!home && featured && <section className="zc-listing-lead" aria-labelledby="listing-lead-heading">
-            <div className="zc-listing-lead-art"><Link href={postPath(featured.slug)} tabIndex={-1} aria-hidden="true"><PostArtwork variant={featured.cover} /></Link></div>
+            <div className="zc-listing-lead-art">
+                <Link href={postPath(featured.slug)} tabIndex={-1} aria-hidden="true">
+                    {featured.featuredImage?.url ? (
+                        <img
+                            src={featured.featuredImage.url}
+                            alt={featured.featuredImage.alt || featured.title}
+                            className="zc-listing-lead-img"
+                            loading="lazy"
+                        />
+                    ) : (
+                        <PostArtwork variant={featured.cover} />
+                    )}
+                </Link>
+            </div>
             <div className="zc-listing-lead-content">
                 <span className="zc-eyebrow"><span />مقاله منتخب این موضوع</span>
                 <h2 id="listing-lead-heading"><Link href={postPath(featured.slug)}>{featured.title}<ArrowUpLeft size={22} aria-hidden="true" /></Link></h2>

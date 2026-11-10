@@ -1,6 +1,10 @@
 <?php
 /**
  * Fired when the plugin is uninstalled.
+ *
+ * Cleans up all database tables and options created by Omni AI Suite.
+ *
+ * @package OmniAI
  */
 
 if (!defined('WP_UNINSTALL_PLUGIN')) {
@@ -9,17 +13,14 @@ if (!defined('WP_UNINSTALL_PLUGIN')) {
 
 global $wpdb;
 
-// Check if user requested complete data removal
-$settings = get_option('omni_ai_settings', []);
-$remove_all_data = !empty($settings['remove_data_on_uninstall']);
+// 1. Drop custom table for AI generation logs
+$table_name = $wpdb->prefix . 'ai_generation_logs';
+$wpdb->query("DROP TABLE IF EXISTS {$table_name}");
 
-if ($remove_all_data) {
-    // Delete custom table
-    $table_name = $wpdb->prefix . 'ai_generation_logs';
-    $wpdb->query("DROP TABLE IF EXISTS {$table_name}");
-
-    // Delete options
-    delete_option('omni_ai_settings');
-    delete_option('omni_ai_modules');
-    delete_option('omni_ai_db_version');
-}
+// 2. Delete all plugin options
+delete_option('omni_ai_settings');
+delete_option('omni_ai_modules');
+delete_option('omni_ai_custom_prompts');
+delete_option('omni_ai_backup_logs');
+delete_option('omni_ai_backup_stats');
+delete_option('omni_ai_db_version');

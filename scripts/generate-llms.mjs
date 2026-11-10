@@ -5,7 +5,8 @@ import nextEnv from '@next/env';
 nextEnv.loadEnvConfig(process.cwd(), false);
 
 const tools = JSON.parse(readFileSync('./scripts/tools.json', 'utf-8'));
-const baseUrl = (process.env.NEXT_PUBLIC_BASE_URL || 'https://zebracode.ir').replace(/\/+$/, '');
+const envBase = process.env.NEXT_PUBLIC_BASE_URL || 'https://zebracode.ir';
+const baseUrl = (envBase.includes('localhost') ? 'https://zebracode.ir' : envBase).replace(/\/+$/, '');
 const pathUrl = (path) => `${baseUrl}/${path ? `${path}/` : ''}`;
 
 const sections = [

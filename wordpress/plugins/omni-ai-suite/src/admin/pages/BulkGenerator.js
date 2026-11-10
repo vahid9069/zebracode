@@ -10,6 +10,7 @@ import {
   Spinner,
 } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
+import { apiFetch } from '../utils/api';
 
 export default function BulkGenerator() {
   const [promptsInput, setPromptsInput] = useState('');
@@ -39,19 +40,15 @@ export default function BulkGenerator() {
     setFeedback(null);
 
     try {
-      const restUrl = window.omniAiData?.restUrl || '/wp-json/omni-ai/v1/';
-      const nonce = window.omniAiData?.nonce || '';
-
       const promptsList = rawLines.map((line) => ({
         title: line,
         prompt: `Write a complete blog post on the topic: ${line}`,
       }));
 
-      const res = await fetch(`${restUrl}bulk`, {
+      const res = await apiFetch('bulk', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'X-WP-Nonce': nonce,
         },
         body: JSON.stringify({
           prompts: promptsList,
@@ -120,7 +117,7 @@ export default function BulkGenerator() {
                 )}
                 help={
                   lineCount > 0
-                    ? sprintf(__('%d articles detected to generate.', 'omni-ai-suite'), lineCount)
+                    ? `${lineCount} ${__('articles detected to generate.', 'omni-ai-suite')}`
                     : __('Enter one topic per line. Each will become a dedicated draft post.', 'omni-ai-suite')
                 }
               />
@@ -202,7 +199,7 @@ export default function BulkGenerator() {
                     <Spinner /> {__('Queueing Jobs...', 'omni-ai-suite')}
                   </>
                 ) : (
-                  sprintf(__('🚀 Enqueue %d Articles to Background Queue', 'omni-ai-suite'), Math.max(1, lineCount))
+                  `${__('🚀 Enqueue Articles to Background Queue', 'omni-ai-suite')} (${Math.max(1, lineCount)})`
                 )}
               </Button>
             </div>

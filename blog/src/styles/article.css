@@ -39,9 +39,13 @@
 .reading-toc > summary { padding-block: 15px; color: var(--ink); cursor: pointer; font-size: .83rem; font-weight: 750; list-style-position: inside; }
 .reading-toc > summary::marker { color: var(--brand); }
 .reading-toc nav { padding-block-start: 2px; }
-.reading-toc-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 28px; margin: 0; padding: 0; list-style: none; }
-.reading-toc-list a { display: block; padding-block: 5px; color: var(--muted); font-size: .77rem; line-height: 1.8; text-decoration: none; }
-.reading-toc-list a:hover { color: var(--brand); text-decoration: underline; text-underline-offset: 4px; }
+.reading-toc-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 4px 24px; margin: 0; padding: 0; list-style: none; }
+.reading-toc-list a { display: flex; align-items: center; gap: 8px; padding: 6px 10px; border-radius: 6px; color: var(--muted); font-size: .78rem; line-height: 1.8; text-decoration: none; transition: all .16s ease; }
+.reading-toc-list a:hover { color: var(--brand); background: var(--soft); text-decoration: none; }
+.reading-toc-list a.active { color: var(--brand); font-weight: 700; background: var(--soft); }
+.toc-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--line); flex-shrink: 0; transition: background .16s ease, transform .16s ease; }
+.reading-toc-list a:hover .toc-dot { background: var(--brand); }
+.reading-toc-list a.active .toc-dot { background: var(--brand); transform: scale(1.3); }
 
 .article-prose { font-size: 1rem; line-height: 2.18; }
 .article-prose > p:first-child { margin-block-start: 0; }
@@ -156,3 +160,33 @@
     .article-related-heading h2 { font-size: 1.2rem; }
     .article-related-heading > a { font-size: .71rem; }
 }
+
+/* Featured image in Article Reader */
+.article-hero-img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+/* Sticky Reading Progress and Action Bar */
+.article-reading-bar { position: sticky; top: 0; z-index: 50; background: color-mix(in srgb, var(--surface) 90%, transparent); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border-bottom: 1px solid var(--line); margin-inline: calc(50% - 50vw); width: 100vw; margin-block: 28px 0; }
+.article-reading-progress { height: 3px; background: linear-gradient(90deg, var(--brand), #60a5fa); transition: width .1s ease-out; }
+.article-reading-bar-inner { max-width: 900px; margin-inline: auto; padding: 10px 24px; display: flex; align-items: center; justify-content: space-between; gap: 16px; font-size: 13px; }
+.article-reading-title { font-weight: 600; color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 65%; font-size: .84rem; }
+.article-reading-actions { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+.article-share-btn { display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border: 1px solid var(--line); border-radius: 6px; background: var(--surface); color: var(--muted); font-size: 12px; font-weight: 500; cursor: pointer; text-decoration: none; transition: all .15s ease; }
+.article-share-btn:hover { color: var(--brand); border-color: var(--brand); background: var(--soft); }
+.article-share-btn.active { color: var(--brand); border-color: var(--brand); background: var(--soft); }
+[data-theme="dark"] .article-reading-bar { background: color-mix(in srgb, var(--surface) 85%, transparent); }
+
+/* Share Menu Dropdown for Desktop / Fallback */
+.article-share-container { position: relative; }
+.article-share-menu { position: absolute; inset-block-start: calc(100% + 8px); inset-inline-end: 0; min-width: 210px; background: var(--surface); border: 1px solid var(--line); border-radius: 9px; box-shadow: 0 12px 32px color-mix(in srgb, var(--ink) 14%, transparent); padding: 6px; z-index: 100; display: flex; flex-direction: column; gap: 3px; animation: shareFadeIn .16s ease-out; }
+@keyframes shareFadeIn { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: translateY(0); } }
+.article-share-item { display: flex; align-items: center; gap: 10px; padding: 8px 12px; border-radius: 6px; color: var(--ink); font-size: 12.5px; text-decoration: none; background: transparent; border: none; width: 100%; cursor: pointer; font: inherit; text-align: right; transition: all .15s ease; }
+.article-share-item:hover { background: var(--soft); color: var(--brand); }
+.article-share-item svg { flex-shrink: 0; color: var(--muted); }
+.article-share-item:hover svg { color: var(--brand); }
+
+/* Floating Back To Top Button */
+.back-to-top-btn { position: fixed; inset-block-end: 28px; inset-inline-end: 28px; z-index: 90; width: 44px; height: 44px; border-radius: 50%; background: var(--surface); color: var(--ink); border: 1px solid var(--line); box-shadow: 0 8px 24px color-mix(in srgb, var(--ink) 12%, transparent); display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all .2s ease; animation: backToTopFade .2s ease-out; }
+.back-to-top-btn:hover { background: var(--brand); color: #fff; border-color: var(--brand); transform: translateY(-3px); box-shadow: 0 12px 28px color-mix(in srgb, var(--brand) 30%, transparent); }
+[data-theme="dark"] .back-to-top-btn { background: var(--surface); color: var(--ink); border-color: var(--line); box-shadow: 0 8px 24px #00000088; }
+[data-theme="dark"] .back-to-top-btn:hover { background: var(--brand); color: #0b101b; border-color: var(--brand); }
+@keyframes backToTopFade { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }

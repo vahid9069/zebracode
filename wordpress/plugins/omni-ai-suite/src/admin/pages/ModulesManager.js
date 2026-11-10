@@ -1,6 +1,7 @@
 import { createElement, useState, useEffect } from '@wordpress/element';
 import { Card, CardBody, CardHeader, ToggleControl, Spinner, Notice } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
+import { apiFetch } from '../utils/api';
 
 export default function ModulesManager() {
   const [modules, setModules] = useState([]);
@@ -14,11 +15,7 @@ export default function ModulesManager() {
 
   const fetchModules = async () => {
     try {
-      const restUrl = window.omniAiData?.restUrl || '/wp-json/omni-ai/v1/';
-      const nonce = window.omniAiData?.nonce || '';
-      const res = await fetch(`${restUrl}modules`, {
-        headers: { 'X-WP-Nonce': nonce },
-      });
+      const res = await apiFetch('modules');
       const data = await res.json();
       setModules(data.modules || []);
     } catch (err) {
@@ -34,13 +31,10 @@ export default function ModulesManager() {
 
     const newState = !currentState;
     try {
-      const restUrl = window.omniAiData?.restUrl || '/wp-json/omni-ai/v1/';
-      const nonce = window.omniAiData?.nonce || '';
-      const res = await fetch(`${restUrl}modules`, {
+      const res = await apiFetch('modules', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'X-WP-Nonce': nonce,
         },
         body: JSON.stringify({
           module_id: moduleId,
@@ -53,12 +47,9 @@ export default function ModulesManager() {
         setModules(data.modules || []);
         setNotice({
           type: 'success',
-          message: sprintf(
-            newState
-              ? __('Module "%s" enabled.', 'omni-ai-suite')
-              : __('Module "%s" disabled. Inactive modules will not load any hooks or scripts.', 'omni-ai-suite'),
-            moduleId
-          ),
+          message: newState
+            ? `${__('Module enabled:', 'omni-ai-suite')} ${moduleId}`
+            : `${__('Module disabled:', 'omni-ai-suite')} ${moduleId}`,
         });
       } else {
         throw new Error(data.message || 'Failed to update module state.');

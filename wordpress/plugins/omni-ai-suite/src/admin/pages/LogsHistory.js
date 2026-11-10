@@ -11,8 +11,9 @@ import {
   Notice,
 } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
+import { apiFetch } from '../utils/api';
 
-export default function LogsHistory() {
+export default function LogsHistory({ onNavigate }) {
   const [logs, setLogs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
@@ -26,22 +27,33 @@ export default function LogsHistory() {
   const fetchLogs = async (p = 1) => {
     setLoading(true);
     try {
-      const restUrl = window.omniAiData?.restUrl || '/wp-json/omni-ai/v1/';
-      const nonce = window.omniAiData?.nonce || '';
-      let url = `${restUrl}logs?page=${p}&limit=15`;
-      if (search) url += `&search=${encodeURIComponent(search)}`;
-      if (providerFilter) url += `&provider=${encodeURIComponent(providerFilter)}`;
+      const params = { page: p, limit: 15 };
+      if (search) params.search = search;
+      if (providerFilter) params.provider = providerFilter;
 
-      const res = await fetch(url, {
-        headers: { 'X-WP-Nonce': nonce },
-      });
+      const res = await apiFetch('logs', {}, params);
+
+      if (!res.ok) {
+        let msg = `HTTP ${res.status}`;
+        try {
+          const errData = await res.json();
+          if (errData?.message) msg = `${errData.message} (${res.status})`;
+        } catch (_) {}
+        throw new Error(msg);
+      }
+
       const data = await res.json();
-      setLogs(data.logs || []);
-      setTotalPages(data.total_pages || 1);
-      setTotalCount(data.total || 0);
+      if (data && data.code) {
+        throw new Error(data.message || data.code);
+      }
+
+      setLogs(Array.isArray(data?.logs) ? data.logs : []);
+      setTotalPages(data?.total_pages || 1);
+      setTotalCount(data?.total || 0);
       setPage(p);
     } catch (err) {
-      setNotice({ type: 'error', message: 'Failed to fetch logs.' });
+      console.error('Failed to fetch logs', err);
+      setNotice({ type: 'error', message: err.message || __('Failed to fetch logs.', 'omni-ai-suite') });
     } finally {
       setLoading(false);
     }
@@ -61,16 +73,14 @@ export default function LogsHistory() {
       return;
     }
     try {
-      const restUrl = window.omniAiData?.restUrl || '/wp-json/omni-ai/v1/';
-      const nonce = window.omniAiData?.nonce || '';
-      await fetch(`${restUrl}logs/${id}`, {
-        method: 'DELETE',
-        headers: { 'X-WP-Nonce': nonce },
-      });
+      const res = await apiFetch(`logs/${id}`, { method: 'DELETE' });
+      if (!res.ok) {
+        throw new Error(`HTTP ${res.status}`);
+      }
       setLogs((prev) => prev.filter((l) => l.id !== id));
       setNotice({ type: 'success', message: __('Log entry deleted.', 'omni-ai-suite') });
     } catch (err) {
-      setNotice({ type: 'error', message: __('Failed to delete log entry.', 'omni-ai-suite') });
+      setNotice({ type: 'error', message: err.message || __('Failed to delete log entry.', 'omni-ai-suite') });
     }
   };
 
@@ -79,17 +89,15 @@ export default function LogsHistory() {
       return;
     }
     try {
-      const restUrl = window.omniAiData?.restUrl || '/wp-json/omni-ai/v1/';
-      const nonce = window.omniAiData?.nonce || '';
-      await fetch(`${restUrl}logs/clear`, {
-        method: 'POST',
-        headers: { 'X-WP-Nonce': nonce },
-      });
+      const res = await apiFetch('logs/clear', { method: 'POST' });
+      if (!res.ok) {
+        throw new Error(`HTTP ${res.status}`);
+      }
       setLogs([]);
       setTotalCount(0);
       setNotice({ type: 'success', message: __('All logs cleared.', 'omni-ai-suite') });
     } catch (err) {
-      setNotice({ type: 'error', message: __('Failed to clear logs.', 'omni-ai-suite') });
+      setNotice({ type: 'error', message: err.message || __('Failed to clear logs.', 'omni-ai-suite') });
     }
   };
 
@@ -111,11 +119,21 @@ export default function LogsHistory() {
               ({totalCount} {__('total entries stored in custom table', 'omni-ai-suite')})
             </span>
           </div>
-          {logs.length > 0 && (
-            <Button variant="tertiary" isDestructive size="small" onClick={handleClearAll}>
-              {__('Clear All Logs', 'omni-ai-suite')}
+          <div style={{ display: 'flex', gap: '8px' }}>
+            <Button
+              variant="secondary"
+              size="small"
+              onClick={() => fetchLogs(page)}
+              disabled={loading}
+            >
+              {loading ? __('Loading...', 'omni-ai-suite') : __('🔄 Refresh', 'omni-ai-suite')}
             </Button>
-          )}
+            {logs.length > 0 && (
+              <Button variant="tertiary" isDestructive size="small" onClick={handleClearAll}>
+                {__('Clear All Logs', 'omni-ai-suite')}
+              </Button>
+            )}
+          </div>
         </CardHeader>
         <CardBody>
           {/* Filter Bar */}
@@ -152,9 +170,23 @@ export default function LogsHistory() {
               <Spinner />
             </div>
           ) : logs.length === 0 ? (
-            <p style={{ color: '#646970', padding: '20px 0', textAlign: 'center' }}>
-              {__('No generation logs found.', 'omni-ai-suite')}
-            </p>
+            <div style={{ textAlign: 'center', padding: '30px 0', color: '#646970' }}>
+              <p style={{ margin: '0 0 10px', fontSize: '14px' }}>
+                {__('No generation logs found.', 'omni-ai-suite')}
+              </p>
+              <Button
+                variant="primary"
+                onClick={() => {
+                  if (typeof onNavigate === 'function') {
+                    onNavigate('studio');
+                  } else {
+                    window.location.hash = '#/studio';
+                  }
+                }}
+              >
+                {__('Go to Content Studio to Generate First Article', 'omni-ai-suite')}
+              </Button>
+            </div>
           ) : (
             <div style={{ overflowX: 'auto' }}>
               <table className="widefat striped" style={{ border: 'none' }}>
@@ -207,7 +239,7 @@ export default function LogsHistory() {
               {totalPages > 1 && (
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '16px', padding: '8px 0' }}>
                   <span style={{ fontSize: '13px', color: '#646970' }}>
-                    {sprintf(__('Page %1$d of %2$d', 'omni-ai-suite'), page, totalPages)}
+                    {`${__('Page', 'omni-ai-suite')} ${page} ${__('of', 'omni-ai-suite')} ${totalPages}`}
                   </span>
                   <div style={{ display: 'flex', gap: '8px' }}>
                     <Button

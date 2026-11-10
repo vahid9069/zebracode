@@ -39,6 +39,10 @@ class Module_Manager {
         self::add_module(new Woocommerce_Module());
         self::add_module(new Chatbot_Module());
         self::add_module(new Bulk_Module());
+        self::add_module(new Security_Module());
+        self::add_module(new Ranking_Module());
+        self::add_module(new Sitemap_Module());
+        self::add_module(new Redirect_Module());
     }
 
     public static function add_module(Module_Interface $module): void {
@@ -71,27 +75,43 @@ class Module_Manager {
         $fa_translations = [
             'content_generator' => [
                 'title' => 'استودیو تولید محتوا (هسته اصلی)',
-                'desc'  => 'تولید زنده مقالات، تیترها و توضیحات متا با استریم آنی SSE.',
+                'desc'  => 'تولید زنده مقالات پیشرفته و توضیحات متای سئو با استریم زنده SSE.',
             ],
             'gutenberg' => [
                 'title' => 'ادغام با ویرایشگر گوتنبرگ (Gutenberg)',
-                'desc'  => 'بلوک اختصاصی هوش مصنوعی داخل ویرایشگر گوتنبرگ وردپرس.',
+                'desc'  => 'بلوک اختصاصی هوش مصنوعی در محیط ویرایشگر گوتنبرگ وردپرس.',
             ],
             'elementor' => [
                 'title' => 'ویجت اختصاصی المنتور (Elementor)',
-                'desc'  => 'ابزارک هوشمند تولید محتوا مستقیماً در پنل طراحی المنتور.',
+                'desc'  => 'ابزارک هوشمند تولید محتوای مستقیم در پنل طراحی المنتور.',
             ],
             'woocommerce' => [
                 'title' => 'تولید محتوای فروشگاهی ووکامرس',
-                'desc'  => 'تولید هوشمند توضیحات محصول، چکیده و ویژگی‌های سئو ووکامرس.',
+                'desc'  => 'تولید هوشمند توضیحات محصولات، نگارش و ویژگی‌های سئو ووکامرس.',
             ],
             'chatbot' => [
                 'title' => 'چت‌بات هوشمند تعاملی',
-                'desc'  => 'دستیار شناور هوش مصنوعی برای پاسخ‌گویی به سوالات کاربران بر اساس سایت.',
+                'desc'  => 'دستیار شناور هوش مصنوعی برای پاسخگویی به سوالات کاربران بر اساس سایت.',
             ],
             'bulk_generator' => [
                 'title' => 'تولید انبوه مقالات (Bulk Generator)',
-                'desc'  => 'تولید دسته‌ای نوشته‌ها در صف پس‌زمینه با Action Scheduler بدون تایم‌اوت.',
+                'desc'  => 'تولید دسته‌ای نوشته‌ها در پس‌زمینه با Action Scheduler بدون تایم‌اوت.',
+            ],
+            'security' => [
+                'title' => 'امنیت و کنترل دسترسی',
+                'desc'  => 'محافظت از کلیدهای API و نظارت بر دسترسی‌های ماژول‌ها.',
+            ],
+            'content_ranking' => [
+                'title' => 'رتبه‌بندی محتوا (SEO / AEO / GEO)',
+                'desc'  => 'ارزیابی و امتیازدهی نوشته‌ها بر مبنای سئو، موتور پاسخگو (AEO) و موتور هوش مصنوعی (GEO) در لیست نوشته‌ها به همراه رفع خودکار نواقص با AI.',
+            ],
+            'sitemap' => [
+                'title' => 'نقشه سایت هوشمند XML (Sitemap Engine)',
+                'desc'  => 'تولید نقشه سایت XML بسیار سریع و سبک با پشتیبانی از تصاویر، دسته‌ها و حذف خودکار صفحات noindex.',
+            ],
+            'redirect' => [
+                'title' => 'تغییر مسیرها و مانیتور ۴۰۴ (Redirections & 404)',
+                'desc'  => 'مدیریت ریدایرکت‌های ۳۰۱ و ۳۰۲، انتقال خودکار هنگام تغییر اسلاگ نوشته و پایش خطاهای ۴۰۴.',
             ],
         ];
 

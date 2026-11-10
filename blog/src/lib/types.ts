@@ -1,4 +1,4 @@
-export type CategorySlug = 'data' | 'development' | 'security' | 'network' | 'productivity';
+export type CategorySlug = 'data' | 'development' | 'security' | 'network' | 'productivity' | (string & {});
 export type CoverStyle = 'json' | 'code' | 'security' | 'network' | 'text' | 'terminal';
 
 export interface Category {
@@ -6,6 +6,7 @@ export interface Category {
     name: string;
     description: string;
     symbol: string;
+    count?: number;
 }
 
 export type ArticleBlock =
@@ -18,6 +19,29 @@ export type ArticleBlock =
 
 export interface ToolLink { slug: string; title: string; description: string }
 export interface Author { name: string; role: string; bio: string; initials: string }
+
+export interface FeaturedImage {
+    url: string;
+    width?: number;
+    height?: number;
+    alt?: string;
+}
+
+export interface RankMathSeo {
+    title?: string;
+    description?: string;
+    focusKeyword?: string;
+    canonicalUrl?: string;
+    robots?: string[];
+    isNoindex?: boolean;
+    isNofollow?: boolean;
+    ogTitle?: string;
+    ogDescription?: string;
+    ogImage?: string;
+    twitterTitle?: string;
+    twitterDescription?: string;
+    twitterImage?: string;
+}
 
 export interface PostSummary {
     slug: string;
@@ -33,6 +57,8 @@ export interface PostSummary {
     cover: CoverStyle;
     tags: string[];
     author: Author;
+    featuredImage?: FeaturedImage;
+    seo?: RankMathSeo;
 }
 
 export interface Post extends PostSummary {
