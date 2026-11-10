@@ -389,7 +389,7 @@ export default function HomePageClient({ dict, locale }: HomePageClientProps) {
                     </div>
                 ) : (
                     <div className="mt-6 space-y-10">
-                        {groupedFilteredTools.map(({ key, tools }) => <section key={key} aria-labelledby={`home-tool-group-${key}`}>
+                        {groupedFilteredTools.map(({ key, tools }) => <section key={key} aria-labelledby={`home-tool-group-${key}`} className="[content-visibility:auto] [contain-intrinsic-size:auto_350px]">
                             <div className="mb-3 flex items-center gap-2 border-b border-border pb-2">
                                 <h3 id={`home-tool-group-${key}`} className="text-sm font-semibold text-text">{localizeCategory(dict.categories, key)}</h3>
                                 <span className="rounded-full bg-surface-inset px-2 py-0.5 font-sans text-[11px] text-text-subtle">{tools.length}</span>
@@ -443,7 +443,7 @@ function Assurance({ icon: Icon, color, text }: { icon: React.ComponentType<{ cl
 }
 
 function ModeButton({ active, onClick, icon, label, count }: { active: boolean; onClick: () => void; icon: React.ReactNode; label: string; count: number }) {
-    return <button type="button" role="tab" aria-selected={active} onClick={onClick} className={`flex min-w-max flex-1 cursor-pointer items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2 focus-visible:ring-offset-surface-inset ${active ? 'bg-action text-action-foreground shadow-md' : 'text-text-muted hover:bg-surface-raised hover:text-text'}`}>{icon}<span>{label}</span><span className={`rounded-full px-2 py-0.5 font-sans text-[11px] ${active ? 'bg-white/20' : 'bg-surface-raised text-text-subtle'}`}>{count}</span></button>;
+    return <button type="button" role="tab" aria-selected={active} onClick={onClick} className={`flex min-w-max flex-1 cursor-pointer items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2 focus-visible:ring-offset-surface-inset ${active ? 'bg-action text-action-foreground shadow-md' : 'text-text-muted hover:bg-surface-raised hover:text-text'}`}>{icon}<span>{label}</span><span className={`rounded-full px-2 py-0.5 font-sans text-[11px] font-bold ${active ? 'bg-black/25 text-white' : 'bg-surface-raised text-text-subtle'}`}>{count}</span></button>;
 }
 
 function ToolCard({ tool, locale, dict, list }: { tool: ToolMeta; locale: 'fa' | 'en'; dict: Dictionary; list: boolean }) {
