@@ -11,7 +11,8 @@ import {
     Maximize, PanelRightClose, PanelRightOpen, PanelLeftClose, PanelLeftOpen, X
 } from 'lucide-react';
 import { useTheme } from 'next-themes';
-import CommandMenu from '@/components/layout/CommandMenu';
+import dynamic from 'next/dynamic';
+const CommandMenu = dynamic(() => import('@/components/layout/CommandMenu'), { ssr: false });
 import { AllToolsList } from '@/lib/registry';
 import { ToolMeta } from '@/types/types';
 import renderIcon from '@/components/layout/renderIcon';
@@ -152,19 +153,20 @@ export default function AppLayout({ children, locale, dict }: { children: React.
     }, [locale, pathname]);
 
     const toolsArray = useMemo(() => Object.values(AllToolsList), []);
-    const groupedToolsList = useMemo(() => getGroupedTools(toolsArray), [toolsArray]);
+    const groupedToolsList = useMemo(() => showSidebar ? getGroupedTools(toolsArray) : [], [showSidebar, toolsArray]);
     const sidebarToolGroups = useMemo<SidebarToolGroup[]>(
-        () => groupedToolsList.flatMap(category =>
+        () => showSidebar ? groupedToolsList.flatMap(category =>
             category.items.map(subCategory => ({
                 category: category.title,
                 title: subCategory.title,
                 items: subCategory.items,
             }))
-        ).sort((first, second) => first.title === 'JSON' ? -1 : second.title === 'JSON' ? 1 : 0),
-        [groupedToolsList]
+        ).sort((first, second) => first.title === 'JSON' ? -1 : second.title === 'JSON' ? 1 : 0) : [],
+        [groupedToolsList, showSidebar]
     );
 
     const filteredTools = useMemo(() => {
+        if (!showSidebar) return [];
         const query = sidebarQuery.trim().toLowerCase();
         if (!query) return toolsArray;
         return toolsArray.filter(tool => {
@@ -179,7 +181,7 @@ export default function AppLayout({ children, locale, dict }: { children: React.
             ].filter(Boolean).join(' ').toLowerCase();
             return textToSearch.includes(query);
         });
-    }, [dict.categories, dict.tools, sidebarQuery, toolsArray]);
+    }, [dict.categories, dict.tools, showSidebar, sidebarQuery, toolsArray]);
 
     const recentTools = useMemo(
         () => recentToolIds
