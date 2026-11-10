@@ -414,29 +414,29 @@
   },
   {
     "path": "toml-to-json",
-    "titleFa": "TOML to JSON",
-    "descriptionFa": "Convert TOML configuration files to JSON online",
+    "titleFa": "تبدیل TOML به JSON",
+    "descriptionFa": "تبدیل فایل‌های TOML به JSON آنلاین",
     "titleEn": "TOML to JSON",
-    "descriptionEn": "Convert TOML configuration files to JSON online"
+    "descriptionEn": "Convert TOML files to JSON online"
   },
   {
     "path": "xml-to-json",
-    "titleFa": "XML to JSON",
-    "descriptionFa": "Parse and convert XML data to JSON format",
+    "titleFa": "تبدیل XML به JSON",
+    "descriptionFa": "تبدیل داده XML به فرمت JSON",
     "titleEn": "XML to JSON",
-    "descriptionEn": "Parse and convert XML data to JSON format"
+    "descriptionEn": "Convert XML data to JSON format"
   },
   {
     "path": "yaml-to-json",
-    "titleFa": "YAML to JSON",
-    "descriptionFa": "Convert YAML configs to JSON instantly",
+    "titleFa": "تبدیل YAML به JSON",
+    "descriptionFa": "تبدیل فوری YAML به JSON",
     "titleEn": "YAML to JSON",
-    "descriptionEn": "Convert YAML configs to JSON instantly"
+    "descriptionEn": "Convert YAML to JSON instantly"
   },
   {
     "path": "yaml-to-toml",
-    "titleFa": "YAML to TOML",
-    "descriptionFa": "Convert YAML files to TOML format",
+    "titleFa": "تبدیل YAML به TOML",
+    "descriptionFa": "تبدیل فایل‌های YAML به فرمت TOML",
     "titleEn": "YAML to TOML",
     "descriptionEn": "Convert YAML files to TOML format"
   },
@@ -523,5 +523,166 @@
     "descriptionFa": "مقایسه خط‌به‌خط دو متن و مشاهده تفاوت‌ها",
     "titleEn": "Text Diff Checker",
     "descriptionEn": "Compare two texts line by line and see the differences instantly"
+  },
+  {
+    "path": "uuid-generator",
+    "titleFa": "تولید UUID",
+    "descriptionFa": "شناسه UUID تصادفی نسخه ۴ یا زمان‌دار نسخه ۷ را در مرورگر بسازید. تا ۱۰۰۰ شناسه در هر اجرا تولید کنید و نتیجه را کپی یا دانلود کنید.",
+    "titleEn": "UUID Generator",
+    "descriptionEn": "Generate UUID v4 or timestamp-based v7 in your browser, one per line. Choose up to 1,000 identifiers and copy or download the result."
+  },
+  {
+    "path": "hash-generator",
+    "titleFa": "تولید هش",
+    "descriptionFa": "هش متن فعلی ویرایشگر را با SHA-1، SHA-256، SHA-384 یا SHA-512 محلی محاسبه کنید؛ خروجی هگزادسیمال UTF-8 با محدودیت‌های امنیتی روشن.",
+    "titleEn": "Hash Generator",
+    "descriptionEn": "Compute SHA-1, SHA-256, SHA-384 or SHA-512 digests of current UTF-8 editor text locally, with hexadecimal output and explicit security limits."
+  },
+  {
+    "path": "case-converter",
+    "titleFa": "تبدیل حالت حروف",
+    "descriptionFa": "متن را در مرورگر به camelCase، PascalCase، snake_case، kebab-case یا حروف بزرگ تبدیل کنید؛ با تشخیص واژه‌های یونیکد و مرز سرواژه‌ها.",
+    "titleEn": "Case Converter",
+    "descriptionEn": "Convert text to camelCase, PascalCase, snake_case, kebab-case or uppercase. Handle Unicode words and acronym boundaries directly in your browser."
+  },
+  {
+    "path": "slug-generator",
+    "titleFa": "تولید اسلاگ یونیکد",
+    "descriptionFa": "از عنوان فارسی یا انگلیسی، اسلاگ با حروف کوچک و خط تیره بسازید. حروف و اعداد یونیکد حفظ و نشانه‌گذاری‌ها در مرورگر حذف می‌شوند.",
+    "titleEn": "Unicode Slug Generator",
+    "descriptionEn": "Create lowercase, hyphen-separated slugs from Persian or English titles. Keep Unicode letters and digits while removing punctuation in your browser."
+  },
+  {
+    "path": "line-ending-converter",
+    "titleFa": "تبدیل پایان خط",
+    "descriptionFa": "پایان خط‌های ترکیبی متن را در مرورگر به LF، CRLF یا CR تبدیل کنید. خط‌های خالی و پایان خط نهایی حفظ می‌شوند و خروجی قابل دانلود است.",
+    "titleEn": "Line Ending Converter",
+    "descriptionEn": "Normalize mixed text line endings to LF, CRLF or CR in your browser. Keep blank lines and the final newline, then download the converted text."
+  },
+  {
+    "path": "whitespace-inspector",
+    "titleFa": "بررسی فاصله‌ها و نویسه‌های نامرئی",
+    "descriptionFa": "فاصله، تب، پایان خط، نیم‌فاصله فارسی و کنترل‌های نامرئی یونیکد را با نشانه‌های خوانا ببینید؛ بررسی محلی متن بدون بارگذاری ورودی.",
+    "titleEn": "Whitespace Inspector",
+    "descriptionEn": "Reveal spaces, tabs, line endings, Persian half-spaces and invisible Unicode controls as readable tokens. Inspect text locally without uploading it."
+  },
+  {
+    "path": "http-status-lookup",
+    "titleFa": "جست‌وجوی کد وضعیت HTTP",
+    "descriptionFa": "کدهای سه‌رقمی رایج HTTP را محلی جست‌وجو کنید. شماره کد و عبارت انگلیسی آن را به‌شکل JSON بگیرید؛ کدهای خارج از فهرست خطا می‌دهند.",
+    "titleEn": "HTTP Status Lookup",
+    "descriptionEn": "Look up common three-digit HTTP status codes locally. Get the numeric code and English reason phrase as JSON, with clear errors for unlisted codes."
+  },
+  {
+    "path": "mime-type-lookup",
+    "titleFa": "جست‌وجوی نوع MIME",
+    "descriptionFa": "نوع MIME رایج را با پسوند یا نام ساده فایل پیدا کنید یا پسوندهای یک نوع رسانه را ببینید؛ نتیجه JSON محلی و بدون بارگذاری فایل.",
+    "titleEn": "MIME Type Lookup",
+    "descriptionEn": "Find common MIME types from an extension or simple filename, or list extensions for a media type. Get local JSON results without file uploads."
+  },
+  {
+    "path": "regex-tester",
+    "titleFa": "آزمایش عبارت منظم",
+    "descriptionFa": "عبارت منظم جاوااسکریپت را محلی با پرچم‌ها، گروه‌های گیراندازی و موقعیت تطبیق آزمایش کنید؛ نتیجه JSON با اجرای جداگانه و محدود پردازشگر.",
+    "titleEn": "Regular expression tester",
+    "descriptionEn": "Test JavaScript regular expressions locally with flags, capture groups and match positions. Inspect JSON results with bounded, isolated worker execution."
+  },
+  {
+    "path": "jsonpath-tester",
+    "titleFa": "آزمایش JSONPath",
+    "descriptionFa": "مقادیر JSON را با ویژگی‌ها، نویسه عام و پیمایش بازگشتی JSONPath انتخاب کنید؛ بررسی محلی آرایه نتایج با اجرای اسکریپت و فیلتر غیرفعال.",
+    "titleEn": "JSONPath tester",
+    "descriptionEn": "Select JSON values with JSONPath properties, wildcards and recursive descent. Inspect array results locally with script evaluation and filters disabled."
+  },
+  {
+    "path": "sql-formatter",
+    "titleFa": "قالب‌بندی SQL",
+    "descriptionFa": "SQL را محلی با کلیدواژه‌های بزرگ و تورفتگی دو فاصله قالب‌بندی کنید. از میان هفت گویش انتخاب کنید و پس از بررسی چیدمان، خروجی را بگیرید.",
+    "titleEn": "SQL formatter",
+    "descriptionEn": "Format SQL locally with uppercase keywords and two-space indentation. Choose from seven dialects, review the layout and download the SQL result."
+  },
+  {
+    "path": "yaml-formatter",
+    "titleFa": "قالب‌بندی YAML",
+    "descriptionFa": "یک سند YAML را محلی با تورفتگی دو یا چهار فاصله قالب‌بندی کنید؛ تجزیه با JSON_SCHEMA کتابخانه js-yaml و بررسی خروجی پیش از ذخیره.",
+    "titleEn": "YAML formatter",
+    "descriptionEn": "Format one YAML document locally with two- or four-space indentation. Parse with js-yaml JSON_SCHEMA and review normalized output before saving."
+  },
+  {
+    "path": "env-parser",
+    "titleFa": "تبدیل Dotenv و JSON",
+    "descriptionFa": "متغیرهای خطی dotenv را به JSON تبدیل کنید یا از مقادیر ساده JSON، متغیر محیطی نقل‌قول‌شده بسازید؛ با پردازش محلی و قواعد نگارشی مشخص.",
+    "titleEn": "Dotenv and JSON converter",
+    "descriptionEn": "Convert line-based dotenv assignments to JSON or encode scalar JSON values as quoted environment variables, with local parsing and clear syntax limits."
+  },
+  {
+    "path": "query-string-parser",
+    "titleFa": "تبدیل رشته پرس‌وجو و JSON",
+    "descriptionFa": "پارامترهای کوئری را به JSON بخوانید، کلیدهای تکراری را به شکل آرایه حفظ کنید یا مقادیر ساده JSON را با قواعد فرم در مرورگر کدگذاری کنید.",
+    "titleEn": "Query string and JSON converter",
+    "descriptionEn": "Decode query parameters into JSON, preserve repeated keys as arrays, or encode scalar JSON values using form-style URL escaping in your browser."
+  },
+  {
+    "path": "url-parser",
+    "titleFa": "تجزیه URL",
+    "descriptionFa": "میزبان، پورت، مسیر، کوئری و قطعه پایانی URL مطلق را با تجزیه‌گر مرورگر بررسی کنید؛ بدون باز کردن نشانی یا ارسال درخواست به مقصد.",
+    "titleEn": "URL parser",
+    "descriptionEn": "Inspect an absolute URL's normalized host, port, path, query and fragment with the browser URL parser, without opening the address or making a request."
+  },
+  {
+    "path": "curl-to-fetch",
+    "titleFa": "تبدیل cURL به Fetch یا Axios",
+    "descriptionFa": "فرمان HTTP پشتیبانی‌شده cURL را با حفظ سربرگ و داده درون‌خطی به کد Fetch یا Axios تبدیل کنید؛ بدون اجرای فرمان یا ارسال درخواست.",
+    "titleEn": "cURL to Fetch or Axios",
+    "descriptionEn": "Convert a supported HTTP cURL command to Fetch or Axios source, preserving inline headers and data without executing commands or sending a request."
+  },
+  {
+    "path": "openapi-validator",
+    "titleFa": "بررسی ساختار OpenAPI",
+    "descriptionFa": "بخش‌های مشخصی از ساختار OpenAPI نسخه ۳٫۰ و ۳٫۱، از info تا مسیر و پاسخ را محلی بررسی کنید و گزارش اشکال‌ها و دامنه محدود بررسی را ببینید.",
+    "titleEn": "OpenAPI Structural Validator",
+    "descriptionEn": "Check selected OpenAPI 3.0 and 3.1 document structures locally, including info, paths and responses, with issue paths and an explicit limited scope."
+  },
+  {
+    "path": "json-schema-validator",
+    "titleFa": "اعتبارسنج JSON Schema",
+    "descriptionFa": "داده JSON را با اسکیمای draft-07 یا 2020-12، به کمک Ajv و بررسی قالب‌ها محلی اعتبارسنجی کنید؛ با مسیر دقیق خطا و بدون دریافت ارجاع خارجی.",
+    "titleEn": "JSON Schema Validator",
+    "descriptionEn": "Validate JSON against draft-07 or 2020-12 schemas locally with Ajv, format checks and precise error paths, without fetching remote references."
+  },
+  {
+    "path": "docker-compose-validator",
+    "titleFa": "بررسی ساختار Docker Compose",
+    "descriptionFa": "ساختار سرویس‌ها، پورت‌ها و مقادیر محیطی Compose را محلی بررسی کنید؛ با مسیر اشکال‌ها، بدون اجرای Docker یا ادعای انطباق کامل با مشخصات.",
+    "titleEn": "Docker Compose Structural Validator",
+    "descriptionEn": "Check Compose YAML service mappings, port shapes and environment values locally, with issue paths and no Docker execution or full compliance claim."
+  },
+  {
+    "path": "cidr-calculator",
+    "titleFa": "محاسبه‌گر CIDR برای IPv4",
+    "descriptionFa": "مرز شبکه IPv4، ماسک و بازه میزبان را از /0 تا /32 محاسبه کنید؛ با توضیح روشن قرارداد نقطه‌به‌نقطه و مسیر تک‌میزبان در خروجی.",
+    "titleEn": "IPv4 CIDR Calculator",
+    "descriptionEn": "Calculate IPv4 network boundaries, netmask and host ranges for /0 through /32, including explicit point-to-point and single-host conventions."
+  },
+  {
+    "path": "html-accessibility-checker",
+    "titleFa": "بررسی دسترس‌پذیری HTML",
+    "descriptionFa": "متن جایگزین تصویر، برچسب فرم، تیتر و ناحیه شاخص HTML را با تجزیه غیرفعال مرورگر بررسی کنید؛ همراه با محدودیت روشن بررسی‌های ابتکاری.",
+    "titleEn": "HTML Accessibility Checker",
+    "descriptionEn": "Review HTML for selected image alt, form label, heading and landmark issues using inert browser parsing, with clear limits beyond automated heuristics."
+  },
+  {
+    "path": "svg-optimizer",
+    "titleFa": "بهینه‌ساز متنی SVG",
+    "descriptionFa": "کد SVG را با افزونه‌های محافظه‌کارانه SVGO محلی بهینه کنید؛ توضیحات را حذف و مقادیر را ساده کنید، با حفظ viewBox، شناسه و داده دسترس‌پذیری.",
+    "titleEn": "SVG Text Optimizer",
+    "descriptionEn": "Optimize SVG source locally with conservative SVGO plugins, removing comments and simplifying values while preserving viewBox, IDs and useful accessibility data."
+  },
+  {
+    "path": "jwt-encoder-verifier",
+    "titleFa": "سازنده و تأییدکننده JWT با HS256",
+    "descriptionFa": "محتوای JSON را امضا یا JWT با HS256 را با کلید UTF-8 محلی تأیید کنید؛ با تفکیک اعتبار امضا از وضعیت زمانی exp و nbf و مجوز دسترسی.",
+    "titleEn": "JWT HS256 Encoder & Verifier",
+    "descriptionEn": "Sign a JSON payload or verify an HS256 JWT locally with a UTF-8 HMAC secret, separating signature status from exp and nbf time checks and authorization."
   }
 ]

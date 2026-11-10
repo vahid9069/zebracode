@@ -21,6 +21,7 @@ import {
   formatJalaliNumeric,
   formatNumber,
   localiseDigits,
+  normaliseDigits,
   partsToDate,
   relativeToNow,
   toInt,
@@ -96,8 +97,18 @@ export default function DateTimeSuite() {
   }, []);
 
   const clearDraft = useCallback((key: FieldKey) => {
-    setDraft((current) => ({ ...current, [key]: undefined }));
-  }, []);
+    setDraft((current) => {
+      const draftVal = current[key];
+      if (draftVal !== undefined && draftVal !== '') {
+        const numeric = toInt(draftVal, NaN);
+        if (parts && Number.isFinite(numeric)) {
+          const nextParts: DateParts = { ...parts, [key]: numeric };
+          setSelected(partsToDate(nextParts, system));
+        }
+      }
+      return { ...current, [key]: undefined };
+    });
+  }, [parts, system]);
 
   const commitField = useCallback(
     (key: FieldKey, raw: string) => {
@@ -105,6 +116,11 @@ export default function DateTimeSuite() {
       if (!selected || !parts) return;
       const numeric = toInt(raw, NaN);
       if (!Number.isFinite(numeric)) return;
+
+      // Do not corrupt calendar state on intermediate incomplete digits
+      if ((key === 'month' || key === 'day') && numeric === 0) return;
+      if (key === 'year' && numeric > 0 && numeric < 100) return;
+
       const nextParts: DateParts = { ...parts, [key]: numeric };
       setSelected(partsToDate(nextParts, system));
     },
@@ -290,7 +306,7 @@ export default function DateTimeSuite() {
                 inputMode="numeric"
                 aria-label={ui.copyTimestamp}
                 value={draftEpoch ?? (selectedEpoch === null ? '' : String(selectedEpoch))}
-                onChange={(e) => setDraftEpoch(e.target.value.replace(/[^\d-]/g, ''))}
+                onChange={(e) => setDraftEpoch(normaliseDigits(e.target.value).replace(/[^\d-]/g, ''))}
                 onBlur={(e) => commitEpochDraft(e.target.value)}
                 onKeyDown={(e) => {
                   if (e.key === 'Enter') {
@@ -424,7 +440,7 @@ export default function DateTimeSuite() {
                 <input
                   dir="ltr"
                   value={epochInput}
-                  onChange={(event) => setEpochInput(event.target.value.replace(/[^\d-]/g, ''))}
+                  onChange={(event) => setEpochInput(normaliseDigits(event.target.value).replace(/[^\d-]/g, ''))}
                   onKeyDown={(event) => {
                     if (event.key === 'Enter') setCommittedEpoch(epochInput);
                   }}
@@ -609,7 +625,8 @@ function DarkTimeField({ label, value, max, draft, onChange, onBlur }: { label: 
         aria-label={label}
         title={label}
         value={draft ?? (value === null ? '' : String(value).padStart(2, '0'))}
-        onChange={(event) => onChange(event.target.value.replace(/[^\d]/g, ''))}
+        onFocus={(event) => event.target.select()}
+        onChange={(event) => onChange(normaliseDigits(event.target.value).replace(/[^\d]/g, ''))}
         onBlur={onBlur}
         className="h-12 w-16 rounded-lg border border-white/10 bg-white/5 text-center font-sans text-xl font-bold tabular-nums text-white outline-none transition-colors focus-visible:border-focus focus-visible:ring-2 focus-visible:ring-focus/40"
       />

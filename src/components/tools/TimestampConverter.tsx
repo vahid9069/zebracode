@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import Link from 'next/link';
 import { toJalaali } from 'jalaali-js';
 import {
   AlarmClock,
@@ -43,6 +44,7 @@ import {
   epochSeconds,
   formatClock,
   formatCount,
+  normaliseDigits,
   formatIsoDate,
   formatJalaliNumeric,
   formatNumber,
@@ -106,8 +108,8 @@ export default function TimestampConverter() {
 
   useEffect(() => {
     const instant = new Date();
-    setStart(addDays(instant, -621));
-    setEnd(instant);
+    setStart(instant);
+    setEnd(addDays(instant, 30));
     setTick(instant);
     setCustomHolidays(readCustomHolidays());
     setMounted(true);
@@ -148,16 +150,41 @@ export default function TimestampConverter() {
     if (!current || !currentDate) return;
     const numeric = toInt(raw, NaN);
     if (!Number.isFinite(numeric)) return;
+
+    // Do not corrupt calendar state on intermediate incomplete digits (e.g. typing leading 0 for month or day)
+    if ((key === 'month' || key === 'day') && numeric === 0) return;
+    if (key === 'year' && numeric > 0 && numeric < 100) return;
+
     const next = partsToDate({ ...current, [key]: numeric }, system);
-    if (endpoint === 'start') setStart(next);
-    else setEnd(next);
+    if (endpoint === 'start') {
+      setStart(next);
+      setBaseDate(next);
+    } else {
+      setEnd(next);
+    }
   };
 
-  const clearDraft = (endpoint: Endpoint, key: FieldKey) =>
+  const clearDraft = (endpoint: Endpoint, key: FieldKey) => {
+    const draftVal = draft[endpoint][key];
+    if (draftVal !== undefined && draftVal !== '') {
+      const numeric = toInt(draftVal, NaN);
+      const current = endpointParts(endpoint);
+      const system = endpoint === 'start' ? startSystem : endSystem;
+      if (current && Number.isFinite(numeric)) {
+        const next = partsToDate({ ...current, [key]: numeric }, system);
+        if (endpoint === 'start') {
+          setStart(next);
+          setBaseDate(next);
+        } else {
+          setEnd(next);
+        }
+      }
+    }
     setDraft((current) => ({
       ...current,
       [endpoint]: { ...current[endpoint], [key]: undefined },
     }));
+  };
 
   const setEndpoint = (endpoint: Endpoint, next: Date) => {
     setDraft((current) => ({ ...current, [endpoint]: {} }));
@@ -427,13 +454,13 @@ func main() {
         {/* breadcrumbs + guarantee pill */}
         <div className="flex flex-wrap items-center justify-between gap-3 text-xs text-text-muted">
           <nav className="flex flex-wrap items-center gap-1.5">
-            <a href={locale === 'en' ? '/en' : '/'} className="hover:text-action dark:hover:text-focus focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus">
+            <Link href={locale === 'en' ? '/en' : '/'} className="hover:text-action dark:hover:text-focus focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus">
               {ui.home}
-            </a>
+            </Link>
             <span className="text-text-subtle">›</span>
             <span>{ui.tools}</span>
             <span className="text-text-subtle">›</span>
-            <b className="font-semibold text-text">{ui.category}</b>
+            <b className="font-semibold text-text">{ui.title}</b>
           </nav>
           <span className="inline-flex items-center gap-1.5 rounded-full bg-success-soft px-3 py-1 text-[11px] font-semibold text-success">
             <ShieldCheck className="h-3.5 w-3.5" />
@@ -520,7 +547,7 @@ func main() {
                       system={startSystem}
                       onSystemChange={setStartSystem}
                       labels={widgetLabels}
-                      today={null}
+                      today={tick ?? new Date()}
                       locale={locale}
                       variant="compact"
                     />
@@ -538,8 +565,10 @@ func main() {
                             dir="ltr"
                             inputMode="numeric"
                             value={String(shift[key])}
+                            onFocus={(event) => event.target.select()}
                             onChange={(event) => {
-                              const numeric = toInt(event.target.value.replace(/[^\d]/g, ''), 0);
+                              const raw = normaliseDigits(event.target.value).replace(/[^\d]/g, '');
+                              const numeric = raw === '' ? 0 : toInt(raw, 0);
                               setShift((current) => ({
                                 ...current,
                                 [key]: numeric,
@@ -592,6 +621,7 @@ func main() {
                 onClearDraft={(key) => clearDraft('start', key)}
                 onPreset={(preset) => applyPreset('start', preset)}
                 onDateChange={(next) => setEndpoint('start', next)}
+                today={tick ?? new Date()}
                 num={num}
               />
               <EndpointCard
@@ -611,6 +641,7 @@ func main() {
                 onClearDraft={(key) => clearDraft('end', key)}
                 onPreset={(preset) => applyPreset('end', preset)}
                 onDateChange={(next) => setEndpoint('end', next)}
+                today={tick ?? new Date()}
                 num={num}
               />
             </div>
@@ -972,6 +1003,7 @@ function EndpointCard({
   onClearDraft,
   onPreset,
   onDateChange,
+  today,
   num,
 }: {
   endpoint: Endpoint;
@@ -990,6 +1022,7 @@ function EndpointCard({
   onClearDraft: (key: FieldKey) => void;
   onPreset: (preset: 'now' | 'startOfToday' | 'firstOfMonth' | 'endOfYear' | 'plus30' | 'plus6m') => void;
   onDateChange: (next: Date) => void;
+  today: Date | null;
   num: (input: number) => string;
 }) {
   const parallel = useMemo(() => {
@@ -1054,7 +1087,7 @@ function EndpointCard({
         </FieldGroup>
 
         {value ? (
-          <DualCalendarWidget value={value} onChange={onDateChange} system={system} onSystemChange={onSystemChange} labels={widgetLabels} today={null} locale={locale} variant="compact" />
+          <DualCalendarWidget value={value} onChange={onDateChange} system={system} onSystemChange={onSystemChange} labels={widgetLabels} today={today} locale={locale} variant="compact" />
         ) : (
           <div className="h-56 animate-pulse rounded-md bg-surface-inset" />
         )}
@@ -1063,14 +1096,19 @@ function EndpointCard({
         <div className="flex flex-wrap items-center justify-between gap-2 rounded-md bg-surface-inset px-3 py-2">
           <span className="flex min-w-0 items-center gap-2 text-[11px] text-text-muted">
             <Clock3 className="h-3.5 w-3.5 shrink-0 text-success" />
-            <span className="shrink-0">{ui.equivalentGregorian}</span>
+            <span className="shrink-0">{system === 'jalali' ? ui.equivalentGregorian : ui.equivalentJalali}</span>
             <code dir="ltr" className="truncate font-sans text-[11px] font-semibold text-text">
-              {value ? `${formatIsoDate(value)} ${formatClock(value)}` : '—'}
+              {value
+                ? system === 'jalali'
+                  ? `${formatIsoDate(value)} ${formatClock(value)}`
+                  : `${parallel ?? ''} ${formatClock(value)}`
+                : '—'}
             </code>
           </span>
           <span className="flex shrink-0 items-center gap-1.5">
             <code className="rounded-full bg-success-soft px-2 py-0.5 font-sans text-[10px] font-semibold text-success">{shared.utcShort}</code>
-            {parallel ? <span className="text-[10px] text-text-subtle tabular-nums">{parallel}</span> : null}
+            {system === 'jalali' && parallel ? <span className="text-[10px] text-text-subtle tabular-nums">{parallel}</span> : null}
+            {system === 'gregorian' && value ? <span className="text-[10px] text-text-subtle tabular-nums">{formatIsoDate(value)}</span> : null}
           </span>
         </div>
       </div>
