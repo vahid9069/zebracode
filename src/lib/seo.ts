@@ -7,6 +7,8 @@ type LocalizedToolCopy = {
     title?: string;
     shortDescription?: string;
     description?: string;
+    seoTitle?: string;
+    metaDescription?: string;
 };
 
 export function getLocalizedToolPath(toolType: string, locale: 'fa' | 'en'): string | undefined {
@@ -36,9 +38,9 @@ export function generateToolMetadata(
         };
     }
 
-    const localizedTitle = localizedCopy?.title || tool.title;
+    const localizedTitle = localizedCopy?.seoTitle || localizedCopy?.title || tool.title;
     const title = `${localizedTitle} – ${locale === 'fa' ? 'ابزار آنلاین رایگان' : 'Free Online Tool'} | ZebraCode`;
-    const description = localizedCopy?.shortDescription || localizedCopy?.description || tool.shortDescription || tool.description;
+    const description = localizedCopy?.metaDescription || localizedCopy?.shortDescription || localizedCopy?.description || tool.shortDescription || tool.description;
     const path = getLocalizedToolPath(toolType, locale) || '/';
     const url = getLocalizedUrl(path);
     const faUrl = getLocalizedUrl(getLocalizedToolPath(toolType, 'fa') || '/');

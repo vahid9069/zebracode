@@ -1,5 +1,7 @@
 import ToolPageClient from '@/components/pages/ToolPageClient';
 import ToolStructuredData from '@/components/pages/ToolStructuredData';
+import DeveloperToolGuide from '@/components/pages/DeveloperToolGuide';
+import { getDeveloperToolContent } from '@/lib/developer-tools/content';
 import { getDictionary } from '@/i18n/getDictionary';
 import { AllToolsList } from '@/lib/registry/tools';
 import { generateToolMetadata } from '@/lib/seo';
@@ -19,7 +21,8 @@ export async function generateMetadata({ params }: { params: Promise<{ toolSlug:
   if (!foundEntry) return { title: 'Tool not found', robots: { index: false, follow: false } };
   const dict = await getDictionary('en');
   const localizedCopy = (dict.tools as Record<string, { title?: string; shortDescription?: string; description?: string }>)[foundEntry[0]];
-  return generateToolMetadata(foundEntry[0], 'en', localizedCopy);
+  const content = getDeveloperToolContent(toolSlug, 'en');
+  return generateToolMetadata(foundEntry[0], 'en', { ...localizedCopy, seoTitle: content?.seoTitle, metaDescription: content?.metaDescription });
 }
 
 export default async function EnToolPage({ params }: { params: Promise<{ toolSlug: string }> }) {
@@ -36,13 +39,16 @@ export default async function EnToolPage({ params }: { params: Promise<{ toolSlu
   }
 
   const localizedTool = (dict.tools as Record<string, { title?: string; shortDescription?: string; description?: string }>)[foundEntry[0]];
+  const content = getDeveloperToolContent(resolvedParams.toolSlug, 'en');
   return <>
     <ToolStructuredData
       toolType={foundEntry[0]}
       locale="en"
       title={localizedTool?.title}
-      description={localizedTool?.shortDescription || localizedTool?.description}
+      description={content?.metaDescription || localizedTool?.shortDescription || localizedTool?.description}
+      content={content}
     />
     <ToolPageClient toolType={foundEntry[0]} dict={dict} locale="en" />
+    {content && <DeveloperToolGuide slug={resolvedParams.toolSlug} title={localizedTool?.title || foundEntry[1].title} locale="en" content={content} toolTitles={dict.tools} />}
   </>;
 }

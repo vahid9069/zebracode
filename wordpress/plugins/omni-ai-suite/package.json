@@ -1,0 +1,34 @@
+{
+  "name": "omni-ai-suite",
+  "version": "1.0.0",
+  "description": "All-in-One Modular AI Plugin for WordPress with BYOK, Streaming, and Zero DB Bloat",
+  "main": "assets/js/admin.js",
+  "scripts": {
+    "build": "wp-scripts build src/admin/index.js --output-path=assets/js",
+    "build:gutenberg": "wp-scripts build src/gutenberg/index.js --output-path=assets/js",
+    "build:css": "tailwindcss -i ./src/admin/styles/admin.css -o ./assets/css/admin.css --minify",
+    "compile-all": "npm run build && npm run build:gutenberg && npm run build:css",
+    "start": "wp-scripts start src/admin/index.js --output-path=assets/js",
+    "prezip": "npm run compile-all && shx rm -rf dist && shx mkdir -p dist/omni-ai-suite && shx cp -r assets includes languages omni-ai-suite.php uninstall.php readme.txt README.md dist/omni-ai-suite/",
+    "zip": "cd dist && npx bestzip omni-ai-suite.zip omni-ai-suite/"
+  },
+  "keywords": [
+    "wordpress",
+    "plugin",
+    "ai",
+    "gemini",
+    "openai",
+    "claude",
+    "gutenberg",
+    "elementor",
+    "woocommerce"
+  ],
+  "author": "Omni AI Team",
+  "license": "GPL-2.0-or-later",
+  "devDependencies": {
+    "@wordpress/scripts": "^27.9.0",
+    "bestzip": "^2.2.7",
+    "shx": "^0.3.4",
+    "tailwindcss": "^3.4.1"
+  }
+}

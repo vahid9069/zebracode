@@ -1,0 +1,97 @@
+{
+  "uuid-generator": {
+    "title": "UUID Generator",
+    "shortDescription": "Generate secure UUID v4 or time-based UUID v7 identifiers locally.",
+    "description": "Create one or more standards-shaped UUIDs using your browser's cryptographically secure random generator. Choose random v4 or timestamp-prefixed v7 and copy one identifier per line.",
+    "fields": { "version": "UUID version", "count": "Number of identifiers" },
+    "options": { "v4": "UUID v4 — random", "v7": "UUID v7 — timestamp + random" },
+    "note": "Generate 1–1,000 UUIDs per run. UUID v7 includes the current Unix millisecond timestamp; identifiers generated in the same millisecond are not guaranteed to sort by creation order. Requires browser Web Crypto.",
+    "errors": {
+      "invalid_option": "Choose UUID v4 or UUID v7.",
+      "invalid_count": "Enter a whole number from 1 to 1,000.",
+      "crypto_unavailable": "Secure browser crypto is unavailable. Open the tool on HTTPS or localhost in a supported browser.",
+      "invalid_timestamp": "The current system time is outside the UUID v7 timestamp range. Check the device clock."
+    }
+  },
+  "hash-generator": {
+    "title": "Hash Generator",
+    "shortDescription": "Hash UTF-8 text with SHA-1, SHA-256, SHA-384 or SHA-512.",
+    "description": "Calculate a lowercase hexadecimal digest locally with the Web Crypto API. Text is encoded as UTF-8 exactly as entered, including whitespace and line endings; an empty string is valid.",
+    "fields": { "input": "Text to hash", "algorithm": "Hash algorithm" },
+    "options": { "SHA-1": "SHA-1", "SHA-256": "SHA-256", "SHA-384": "SHA-384", "SHA-512": "SHA-512" },
+    "note": "Text hashing only; no Unicode normalization is applied. Supports the four listed SHA algorithms, not MD5. Web Crypto requires HTTPS or localhost in a supported browser. SHA-1 is a legacy algorithm, not suitable for security-sensitive integrity checks.",
+    "errors": {
+      "invalid_option": "Choose one of the supported SHA algorithms.",
+      "invalid_unicode": "The text contains an unpaired UTF-16 surrogate. Replace the invalid character before hashing.",
+      "crypto_unavailable": "The selected digest could not run with browser Web Crypto. Use HTTPS or localhost in a supported browser."
+    }
+  },
+  "case-converter": {
+    "title": "Case Converter",
+    "shortDescription": "Convert Unicode text to camelCase, PascalCase, snake_case, kebab-case or uppercase.",
+    "description": "Split words at punctuation, spaces and existing lower-to-upper or acronym boundaries, then rebuild them in the selected identifier style. Persian and other Unicode letters and numbers are supported.",
+    "fields": { "input": "Text", "style": "Output style" },
+    "options": { "camel": "camelCase", "pascal": "PascalCase", "snake": "snake_case", "kebab": "kebab-case", "upper": "UPPERCASE" },
+    "note": "Identifier styles normalize text to NFC and remove punctuation. Uppercase preserves spacing and punctuation. Scripts without letter case remain unchanged; this tool does not transliterate or validate programming-language identifiers. Empty input produces empty output.",
+    "errors": {
+      "invalid_option": "Choose a supported output style.",
+      "invalid_unicode": "The text contains an unpaired UTF-16 surrogate. Replace the invalid character."
+    }
+  },
+  "slug-generator": {
+    "title": "Unicode Slug Generator",
+    "shortDescription": "Create readable Persian and English URL slugs without transliteration.",
+    "description": "Normalize text to NFC, lowercase it and join Unicode letter-and-number words with hyphens. Persian letters, Persian digits and combining accents are retained; punctuation, emoji, spaces and joiners become word separators.",
+    "fields": { "input": "Text or title" },
+    "note": "Persian half-spaces (ZWNJ) and zero-width joiners become hyphens. The result is a Unicode slug, not a percent-encoded URL; encode it when constructing a URL if required. No transliteration or automatic uniqueness checking is performed.",
+    "errors": {
+      "empty_input": "Enter a title or some text to create a slug.",
+      "no_slug": "Include at least one Unicode letter or number.",
+      "invalid_unicode": "The text contains an unpaired UTF-16 surrogate. Replace the invalid character."
+    }
+  },
+  "line-ending-converter": {
+    "title": "Line Ending Converter",
+    "shortDescription": "Normalize mixed text line endings to LF, CRLF or CR.",
+    "description": "Replace CRLF pairs, standalone carriage returns and standalone line feeds with the selected line ending. Preserve the text content, blank lines and whether the text ends with a newline.",
+    "fields": { "input": "Text", "ending": "Target line ending" },
+    "options": { "LF": "LF — Unix / Linux / macOS", "CRLF": "CRLF — Windows", "CR": "CR — classic Mac" },
+    "note": "Only CR and LF are converted. Unicode line and paragraph separators are preserved. The preview may look identical for all formats; use the downloaded text to retain the exact output bytes. Empty input is valid.",
+    "errors": {
+      "invalid_option": "Choose LF, CRLF or CR.",
+      "invalid_unicode": "The text contains an unpaired UTF-16 surrogate. Replace the invalid character."
+    }
+  },
+  "whitespace-inspector": {
+    "title": "Whitespace Inspector",
+    "shortDescription": "Reveal spaces, tabs, line endings and invisible Unicode characters as text.",
+    "description": "Display visible tokens for spaces, tabs, CR, LF, non-breaking spaces, zero-width characters, joiners and directional marks. Other Unicode whitespace, control and format characters are shown by code point, without interpreting the input as HTML.",
+    "fields": { "input": "Text to inspect" },
+    "note": "Tokens include [SP], [TAB], [CR], [LF], [NBSP], [ZWSP], [ZWNJ], [ZWJ] and [BOM]. LF also adds a display line break. Other invisible controls use [U+XXXX]. Literal text is preserved, so existing token-like text is not escaped and the output is diagnostic, not a reversible encoding.",
+    "errors": { "invalid_unicode": "The text contains an unpaired UTF-16 surrogate. Replace the invalid character." }
+  },
+  "http-status-lookup": {
+    "title": "HTTP Status Lookup",
+    "shortDescription": "Find standard reason phrases for common HTTP response status codes.",
+    "description": "Look up a three-digit HTTP status code in a local reference catalog and receive its numeric code and standard English reason phrase as JSON. Covers informational, success, redirect, client-error and server-error responses, including WebDAV codes and the familiar 418 teapot code.",
+    "fields": { "code": "HTTP status code" },
+    "note": "A finite reference catalog of common codes, including some historic ones; not a live IANA registry. Unassigned, vendor-specific and unlisted codes return an explicit error. Reason phrases are English reference data; a real server may use a different phrase.",
+    "errors": {
+      "invalid_status": "Enter exactly three ASCII digits, such as 200 or 404.",
+      "unknown_status": "That status code is not in this tool's reference catalog."
+    }
+  },
+  "mime-type-lookup": {
+    "title": "MIME Type Lookup",
+    "shortDescription": "Look up common file extensions or media types in a local catalog.",
+    "description": "Enter an extension, simple filename or MIME type to return its media type and known extensions as JSON. The local catalog covers common web, text, document, archive, image, audio, video and font formats.",
+    "fields": { "query": "Extension, filename or MIME type" },
+    "note": "Examples: .jpg, report.pdf, application/json or text/html; charset=utf-8. Case is ignored and MIME parameters are ignored, not validated. For filenames, only the final extension is used. This finite catalog is not the complete IANA registry; it does not inspect file contents, detect types, accept paths or URLs, or guess a fallback for unknown formats. Some extensions have multiple valid MIME conventions; one common mapping is returned.",
+    "errors": {
+      "empty_input": "Enter an extension, simple filename or MIME type.",
+      "invalid_unicode": "The query contains an unpaired UTF-16 surrogate. Replace the invalid character.",
+      "invalid_mime_input": "Enter a simple extension or filename without spaces, or a MIME type such as application/json.",
+      "unknown_mime": "No matching extension or MIME type exists in this tool's local catalog."
+    }
+  }
+}

@@ -1,0 +1,375 @@
+{
+  "env-parser": {
+    "seoTitle": "Dotenv to JSON and JSON to Dotenv Converter",
+    "metaDescription": "Convert line-based dotenv assignments to JSON or encode scalar JSON values as quoted environment variables, with local parsing and clear syntax limits.",
+    "answer": "This dotenv converter turns line-based KEY=value assignments into a JSON object of strings, or a JSON object of scalar values into quoted dotenv assignments. It supports optional export prefixes, comments and single or double quotes, without expanding variables or executing shell commands.",
+    "steps": [
+      "Choose Dotenv → JSON or JSON → Dotenv to match the input you will paste.",
+      "Paste one assignment per line for dotenv, or a JSON object with scalar values for the reverse direction.",
+      "Run the conversion and review quoting, duplicate keys and the resulting string values.",
+      "Copy or download the output for your configuration workflow."
+    ],
+    "useCases": [
+      "Turn an application's example .env file into JSON for reviewing configuration names and values.",
+      "Prepare quoted dotenv assignments from a flat JSON configuration before adapting them to a deployment."
+    ],
+    "limitations": [
+      "This is a line-based dotenv subset: no variable expansion, command substitution or physical multiline values. Double quotes use JSON escapes; single quotes are literal.",
+      "Keys must be ASCII identifiers; prototype-related names are rejected. JSON input must be an object of strings, finite numbers, booleans or null, not nested objects or arrays.",
+      "All decoded values are strings, the last duplicate assignment wins, and an unquoted # begins a comment. Comments, original quoting and JSON value types do not round-trip.",
+      "Each input field is limited to 200,000 characters. Generated assignments are dotenv text, not a shell script or a guarantee of compatibility with every dotenv loader."
+    ],
+    "example": {
+      "input": "Mode: env-to-json\n\nexport APP_NAME=\"ZebraCode\"\nPORT=3000 # local port\nMESSAGE=\"hello\\nworld\"",
+      "output": "{\n  \"APP_NAME\": \"ZebraCode\",\n  \"PORT\": \"3000\",\n  \"MESSAGE\": \"hello\\nworld\"\n}"
+    },
+    "faq": [
+      { "question": "Why is PORT a string after converting dotenv to JSON?", "answer": "Environment assignments are decoded as text, so PORT=3000 produces the JSON string \"3000\", not a number. In the other direction, JSON numbers, booleans and null are converted to the strings \"3000\", \"true\" and \"null\" and then quoted." },
+      { "question": "How do I preserve a hash sign or a newline in a value?", "answer": "Quote a value containing # because unquoted # starts a comment. Double-quoted values accept JSON-style escapes such as \\n for a newline and \\\\ for a backslash; single-quoted values keep backslashes literally. A value cannot span physical input lines." },
+      { "question": "Will ${HOST} be expanded or export commands be run?", "answer": "No expansion or execution takes place. The optional export prefix is recognized as assignment syntax only, and ${HOST} remains literal text in the value. The tool does not read your operating system's environment." },
+      { "question": "What happens to duplicate keys and nested JSON?", "answer": "For repeated dotenv assignments, the last value replaces earlier ones. JSON-to-dotenv accepts only a flat object of scalar values; nested objects and arrays are rejected instead of being silently serialized into ambiguous configuration values." }
+    ],
+    "relatedSlugs": ["docker-compose-validator", "json-schema-validator", "query-string-parser"],
+    "references": [{ "label": "Node.js dotenv file format", "url": "https://nodejs.org/api/environment_variables.html#dotenv" }]
+  },
+  "query-string-parser": {
+    "seoTitle": "Query String Parser and JSON Encoder",
+    "metaDescription": "Decode query parameters into JSON, preserve repeated keys as arrays, or encode scalar JSON values using form-style URL escaping in your browser.",
+    "answer": "This query string parser converts URL parameters into a JSON object and collects repeated keys into ordered arrays. Its reverse mode encodes scalar JSON values or arrays of scalars as a query string using URLSearchParams, with spaces represented by plus signs.",
+    "steps": [
+      "Select Query string → JSON or JSON → Query string.",
+      "Paste only the query, optionally beginning with ?, or supply a JSON object for encoding.",
+      "Run the conversion and inspect repeated keys, spaces and literal plus signs.",
+      "Copy or download the result; add the encoded query to your URL separately."
+    ],
+    "useCases": [
+      "Inspect repeated search filters such as tag=json&tag=tools without losing either value.",
+      "Encode Unicode search terms and literal plus signs for an API request's query parameters.",
+      "Compare a frontend's query parameters with the flat JSON values expected by a test fixture."
+    ],
+    "limitations": [
+      "Input is a query string, not a full URL. A plus sign decodes to a space; use %2B for a literal plus. Invalid percent escapes or UTF-8 sequences are rejected.",
+      "Bracket notation has no special nesting meaning: filter[name] is a literal key. JSON encoding supports scalars and arrays of scalars, not nested objects or nested arrays.",
+      "Values decode as strings; null encodes as the text null and an empty array produces no parameter. Grouping repeated keys into JSON loses interleaved ordering between different keys.",
+      "Each input field is limited to 200,000 characters. Prototype-related keys cannot be encoded from JSON, and the tool does not send a request."
+    ],
+    "example": {
+      "input": "Mode: query-to-json\n\n?tag=json&tag=tools&q=hello+world",
+      "output": "{\n  \"tag\": [\n    \"json\",\n    \"tools\"\n  ],\n  \"q\": \"hello world\"\n}"
+    },
+    "faq": [
+      { "question": "Why did a plus sign become a space?", "answer": "The parser uses form-style query encoding, in which + represents a space. For example, q=C%2B%2B decodes to C++, whereas q=C++ decodes to C followed by two spaces. The JSON-to-query direction escapes literal plus signs automatically." },
+      { "question": "How are repeated keys and empty values represented?", "answer": "A single key maps to a string; repeated occurrences become an array in their encounter order. Both flag and flag= produce an empty string value. Encoding an array repeats the key once for each scalar element." },
+      { "question": "Can I paste an entire URL or use nested bracket parameters?", "answer": "Paste only the part after ?, with the initial ? optionally retained. Use the URL parser to inspect a complete address first. Bracketed names such as user[name] remain literal keys rather than creating nested JSON objects." },
+      { "question": "Will encoding and decoding preserve the exact original query?", "answer": "Not necessarily: spaces and escaping are normalized, types become strings and duplicate keys are grouped. For a=1&b=2&a=3, JSON groups the two a values, so re-encoding does not preserve the original interleaving with b." }
+    ],
+    "relatedSlugs": ["url-parser", "curl-to-fetch", "env-parser"],
+    "references": [{ "label": "MDN URLSearchParams", "url": "https://developer.mozilla.org/en-US/docs/Web/API/URLSearchParams" }]
+  },
+  "url-parser": {
+    "seoTitle": "URL Parser for Address Components and Queries",
+    "metaDescription": "Inspect an absolute URL's normalized host, port, path, query and fragment with the browser URL parser, without opening the address or making a request.",
+    "answer": "This URL parser splits an absolute address into normalized components including its scheme, origin, credentials, host, port, path, query and fragment. It uses the browser's WHATWG URL implementation and groups repeated query parameters into arrays without opening or requesting the address.",
+    "steps": [
+      "Paste an absolute URL with a scheme, such as https://example.com/path?tag=json.",
+      "Run the parser to generate the JSON component report.",
+      "Compare hostname, host, port and origin, then inspect search, hash and the decoded query object.",
+      "Review any credentials included in the report before copying or downloading it."
+    ],
+    "useCases": [
+      "Find a mismatched API port or path in a copied endpoint URL.",
+      "Inspect repeated query filters separately from a client-side fragment.",
+      "Understand browser normalization of a hostname, a default port or an internationalized domain."
+    ],
+    "limitations": [
+      "An absolute URL is required; relative paths have no base URL here. Control characters and malformed query percent encoding or UTF-8 are rejected.",
+      "The browser normalizes the URL, so the report may differ from the original casing, default port, whitespace or internationalized hostname. Some non-network schemes have the origin string null.",
+      "Username and password components, if present, appear in the output. Parsing does not test DNS, reachability, TLS, redirects, reputation or endpoint responses.",
+      "The input field is limited to 200,000 characters. A successful parse describes syntax and components, not whether an address is safe or reachable."
+    ],
+    "example": {
+      "input": "https://example.com:8443/tools?tag=json&tag=yaml#details",
+      "output": "{\n  \"href\": \"https://example.com:8443/tools?tag=json&tag=yaml#details\",\n  \"origin\": \"https://example.com:8443\",\n  \"protocol\": \"https:\",\n  \"username\": \"\",\n  \"password\": \"\",\n  \"host\": \"example.com:8443\",\n  \"hostname\": \"example.com\",\n  \"port\": \"8443\",\n  \"pathname\": \"/tools\",\n  \"search\": \"?tag=json&tag=yaml\",\n  \"hash\": \"#details\",\n  \"query\": {\n    \"tag\": [\n      \"json\",\n      \"yaml\"\n    ]\n  }\n}"
+    },
+    "faq": [
+      { "question": "What is the difference between host, hostname and origin?", "answer": "hostname contains the domain or IP address, while host includes a non-default port when present. For an HTTPS address, origin combines the scheme and host. The port field is empty if the browser removes a default port such as 443 for HTTPS." },
+      { "question": "Why does the parsed URL look different from my input?", "answer": "The WHATWG parser normalizes addresses rather than preserving their exact spelling. It can lowercase hostnames, remove default ports, encode path characters and represent internationalized domains in ASCII. href is the normalized serialization used in the report." },
+      { "question": "Does parsing a URL contact the site or verify that it works?", "answer": "No address is opened and no endpoint request is made. The report only describes the browser's interpretation of the text; it does not resolve DNS, follow redirects or validate a certificate or response." },
+      { "question": "Are query parameters and fragments decoded the same way?", "answer": "search and hash retain their URL component serialization, including the leading ? or #. The separate query object decodes parameters using form-style rules, including + as a space and repeated keys as arrays. The fragment is not included in that query object." }
+    ],
+    "relatedSlugs": ["query-string-parser", "curl-to-fetch", "cidr-calculator"],
+    "references": [{ "label": "WHATWG URL Standard", "url": "https://url.spec.whatwg.org/" }]
+  },
+  "curl-to-fetch": {
+    "seoTitle": "Convert cURL to JavaScript Fetch or Axios",
+    "metaDescription": "Convert a supported HTTP cURL command to Fetch or Axios source, preserving inline headers and data without executing commands or sending a request.",
+    "answer": "This converter parses a supported single-URL HTTP(S) cURL command and generates JavaScript source for Fetch or Axios. It reads method, header and inline data arguments as text, without executing a shell command or making the generated request.",
+    "steps": [
+      "Paste one curl command using a quoted HTTP(S) URL and supported flags.",
+      "Choose Fetch API or Axios as the generated client.",
+      "Run the conversion and review the method, headers and body in the source output.",
+      "Copy or download the code, then adapt it to your application's credentials, CORS and response handling."
+    ],
+    "useCases": [
+      "Turn an API documentation example with inline JSON data into a Fetch snippet.",
+      "Move a supported cURL request into an Axios-based frontend while reviewing its headers.",
+      "Inspect how repeated inline data arguments become a single request body without calling an API."
+    ],
+    "limitations": [
+      "Supported flags are -X/--request, -H/--header, -d/--data, --data-raw, --url, -I/--head and --. Attached short values and --flag=value are accepted; other flags are rejected.",
+      "Only one HTTP(S) URL without embedded credentials is allowed. There is no file reading, shell expansion, substitution, pipe or redirect; quote literal shell metacharacters. POSIX-style quotes and backslash continuations are supported, not all shell dialects.",
+      "GET/HEAD bodies, empty or removal headers and CONNECT/TRACE/TRACK are rejected. Repeated data joins with &; data defaults to POST and a form content type unless specified. Browser forbidden headers, CORS and Axios serialization may require changes.",
+      "The command is limited to 200,000 characters and 1,000 tokens. Output is source text only; it is not executed or tested against the endpoint."
+    ],
+    "example": {
+      "input": "Target: fetch\n\ncurl 'https://example.com/api/items' -X POST -H 'Content-Type: application/json' --data-raw '{\"name\":\"ZebraCode\"}'",
+      "output": "const response = await fetch(\"https://example.com/api/items\", {\n  \"method\": \"POST\",\n  \"headers\": [\n    [\n      \"Content-Type\",\n      \"application/json\"\n    ]\n  ],\n  \"body\": \"{\\\"name\\\":\\\"ZebraCode\\\"}\"\n});"
+    },
+    "faq": [
+      { "question": "Does converting cURL call my API or run the command?", "answer": "No. The command is tokenized as input text and turned into source text; neither cURL nor the generated JavaScript is executed. Headers and inline data remain visible in the output, so review a copied snippet before sharing it." },
+      { "question": "Which cURL flags can I convert?", "answer": "Use request, header, inline data, URL and HEAD flags: -X/--request, -H/--header, -d/--data, --data-raw, --url and -I/--head, plus -- to end options. Features such as -u, -F, --data-binary, -L and --compressed are not implemented and are rejected rather than silently ignored." },
+      { "question": "How are data and repeated headers translated?", "answer": "Inline data arguments are joined with &, and their presence defaults the method to POST. If no Content-Type is provided, the converter adds application/x-www-form-urlencoded. Fetch output retains header pairs; Axios output lowercases header names and groups repeated names into arrays, whose behavior should be reviewed in the target client." },
+      { "question": "Why might generated code behave differently from cURL?", "answer": "A browser enforces CORS and forbidden-header rules that cURL does not, and Axios can apply its own request transforms. Shell expansion, file uploads and credential options are not reproduced. Treat the output as a supported request translation and review it in your actual application environment." }
+    ],
+    "relatedSlugs": ["url-parser", "query-string-parser", "openapi-validator"],
+    "references": [{ "label": "MDN Fetch API", "url": "https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API" }]
+  },
+  "openapi-validator": {
+    "seoTitle": "OpenAPI 3.0 and 3.1 Structural Checker",
+    "metaDescription": "Check selected OpenAPI 3.0 and 3.1 document structures locally, including info, paths and responses, with issue paths and an explicit limited scope.",
+    "answer": "This OpenAPI checker reads JSON or YAML and checks selected structural rules for OpenAPI 3.0 and 3.1 documents. It reports issue paths for version, info, root objects, servers, path items, operation shapes and responses, without claiming full OpenAPI compliance.",
+    "steps": [
+      "Paste one OpenAPI JSON or YAML document into the document field.",
+      "Run the structural check and read status, issues and scope in the JSON report.",
+      "Use each reported path to correct the document, then run the check again.",
+      "Copy or download the report and use a full OpenAPI validator and API tests for broader verification."
+    ],
+    "useCases": [
+      "Catch a missing info.version or an incorrectly shaped paths object before reviewing an API definition.",
+      "Find operation responses with invalid status keys or missing descriptions in an OpenAPI 3.0 draft.",
+      "Check basic document structure after editing an OpenAPI YAML file without contacting its servers."
+    ],
+    "limitations": [
+      "Only selected OpenAPI 3.0.x and 3.1.x structures are checked. A structural-checks-passed result is not full standards validation and does not validate all parameters, security definitions or embedded schemas.",
+      "References are checked only for nonempty string shape where implemented; they are not resolved locally or remotely. Endpoint URLs are never requested.",
+      "The input must be a single JSON or YAML document with an object root. Unsupported YAML tags, duplicate mapping keys and parse errors prevent structural checking.",
+      "Each field is limited to 200,000 characters. Parsing runs in an isolated browser worker with a five-second timeout, so large or complex documents may not finish."
+    ],
+    "example": {
+      "input": "openapi: 3.1.0\ninfo:\n  title: Local example\n  version: 1.0.0\npaths:\n  /health:\n    get:\n      responses:\n        \"200\":\n          description: Healthy\n",
+      "output": "JSON report excerpt (scope omitted):\n{\n  \"status\": \"structural-checks-passed\",\n  \"issues\": []\n}"
+    },
+    "faq": [
+      { "question": "Does a passed result mean my OpenAPI document is fully valid?", "answer": "No. structural-checks-passed means only that the implemented structural checks found no issue. The checker does not cover the entire OpenAPI specification, validate embedded request/response schemas or establish that an API behaves according to the document." },
+      { "question": "Which differences between OpenAPI 3.0 and 3.1 are checked?", "answer": "For 3.0, paths must be an object and operation responses must be a nonempty object. For 3.1, at least one of paths, webhooks or components must be an object; responses are checked when supplied. Both versions also receive selected info, server, path-item and response-shape checks." },
+      { "question": "Are $ref targets or live servers validated?", "answer": "No references are resolved and no server or endpoint is contacted. A nonempty $ref string can pass its shape check even when its target does not exist. Validate reference resolution and runtime behavior separately with tooling suited to your API project." },
+      { "question": "How do I use a path such as /paths/~1health/get/responses/200?", "answer": "The issue path identifies the relevant part of the document. In its escaped key segments, ~1 represents / and ~0 represents ~, so ~1health points to the /health path key. Fix the reported response or structure in the source, then rerun the check." }
+    ],
+    "relatedSlugs": ["json-schema-validator", "yaml-formatter", "curl-to-fetch"],
+    "references": [{ "label": "OpenAPI Specification 3.1.0", "url": "https://spec.openapis.org/oas/v3.1.0.html" }]
+  },
+  "json-schema-validator": {
+    "seoTitle": "JSON Schema Validator for Draft-07 and 2020-12",
+    "metaDescription": "Validate JSON against draft-07 or 2020-12 schemas locally with Ajv, format checks and precise error paths, without fetching remote references.",
+    "answer": "This JSON Schema validator checks a JSON value against a draft-07 or 2020-12 schema using Ajv and ajv-formats in the browser. It reports validity and error locations without modifying the data, including the original values in the report or fetching remote schemas.",
+    "steps": [
+      "Paste a JSON object or boolean schema into the schema field; use $schema to select a supported draft if needed.",
+      "Paste the JSON value to validate into the separate data field.",
+      "Run validation and inspect valid, draft and the errors array, including instancePath and schemaPath.",
+      "Correct the data or schema, rerun validation, and copy or download the report."
+    ],
+    "useCases": [
+      "Check a JSON API fixture for required properties, value types and unwanted extra properties.",
+      "Validate standard email or date-time formats with ajv-formats before integrating a data contract.",
+      "Compare a payload against a local schema using fragment references such as #/$defs/item."
+    ],
+    "limitations": [
+      "Only draft-07 and 2020-12 are supported; omitting $schema selects draft-07. Boolean schemas are accepted, but asynchronous schemas and other drafts are not.",
+      "Only fragment references beginning with # are accepted. Remote or relative schema references are disabled, no schema is fetched, and unresolved local references cause compilation failure.",
+      "Ajv uses non-strict mode and ajv-formats: unknown keywords and unknown format names can be ignored. Validation does not coerce types, add defaults, sanitize content or decide authorization.",
+      "Each input field is limited to 200,000 characters. Validation runs in an isolated browser worker with a five-second timeout; complex schemas or patterns may exceed it."
+    ],
+    "example": {
+      "input": "Schema:\n{\"$schema\":\"https://json-schema.org/draft/2020-12/schema\",\"type\":\"object\",\"properties\":{\"email\":{\"type\":\"string\",\"format\":\"email\"}},\"required\":[\"email\"],\"additionalProperties\":false}\n\nData:\n{\"email\":\"developer@example.com\"}",
+      "output": "JSON report excerpt (scope omitted):\n{\n  \"valid\": true,\n  \"draft\": \"2020-12\",\n  \"errors\": []\n}"
+    },
+    "faq": [
+      { "question": "How do I select draft-07 or 2020-12?", "answer": "Without $schema, draft-07 is used. Declare http://json-schema.org/draft-07/schema# for draft-07 or https://json-schema.org/draft/2020-12/schema for 2020-12; supported HTTP/HTTPS aliases are normalized. Other declared drafts are rejected rather than guessed." },
+      { "question": "Can the schema reference another file or a schema URL?", "answer": "No. References must start with # and resolve within the supplied schema, such as #/definitions/item or #/$defs/item for the appropriate draft. External URLs and relative file references are rejected, so include the required definitions in the schema you paste." },
+      { "question": "What do instancePath, location and schemaPath mean?", "answer": "instancePath is the JSON Pointer to the affected data location; an empty pointer means the root. location shows (root) for that case, while schemaPath identifies the failing schema rule. keyword and message explain the failure without placing the original data values in the report." },
+      { "question": "Will validation change data types or check every custom format?", "answer": "No type coercion or default insertion is enabled, so a numeric string remains a string. Standard formats from ajv-formats are checked, but non-strict mode can ignore unknown formats and keywords. A passed result reflects the supported schema rules, not content safety or application permissions." }
+    ],
+    "relatedSlugs": ["openapi-validator", "env-parser", "query-string-parser"],
+    "references": [{ "label": "JSON Schema draft 2020-12", "url": "https://json-schema.org/draft/2020-12/json-schema-core" }, { "label": "Ajv JSON Schema guide", "url": "https://ajv.js.org/json-schema.html" }]
+  },
+  "docker-compose-validator": {
+    "seoTitle": "Docker Compose YAML Structural Checker",
+    "metaDescription": "Check Compose YAML service mappings, port shapes and environment values locally, with issue paths and no Docker execution or full compliance claim.",
+    "answer": "This Docker Compose checker reads a YAML document and checks selected shapes for services, ports and environment values. It returns structural issues with document paths, without running Docker, resolving interpolation or performing full Compose specification validation.",
+    "steps": [
+      "Paste one Compose YAML document containing a nonempty services mapping.",
+      "Run the structural check and read status, issues and scope in the JSON report.",
+      "Correct reported service, ports or environment shapes and run the check again.",
+      "Copy or download the report, then validate resolved configuration and runtime behavior in your Docker environment."
+    ],
+    "useCases": [
+      "Find a service accidentally written as a scalar instead of a YAML mapping.",
+      "Catch a numeric container port outside 1–65535 or an unsupported long-form port protocol.",
+      "Identify nested environment values that should be scalars or NAME=value list entries."
+    ],
+    "limitations": [
+      "This is a limited static structure checker, not a complete Compose validator or Docker runtime check. It checks nonempty services, service mappings, ports and environment shapes only.",
+      "Short port strings are checked for nonemptiness, not fully parsed. Interpolation, extends/includes, profiles, volumes and networks are not resolved or validated.",
+      "No command runs and no local environment, file, registry, image or Docker daemon is inspected. A passed result does not establish image existence, port availability or successful startup.",
+      "Input must be one YAML document with a mapping root, up to 200,000 characters per field. Parsing runs in an isolated browser worker with a five-second timeout."
+    ],
+    "example": {
+      "input": "services:\n  web:\n    image: nginx:alpine\n    ports:\n      - \"8080:80\"\n    environment:\n      APP_MODE: development\n",
+      "output": "JSON report excerpt (scope omitted):\n{\n  \"status\": \"structural-checks-passed\",\n  \"issues\": []\n}"
+    },
+    "faq": [
+      { "question": "Does a passed check mean docker compose up will succeed?", "answer": "No. structural-checks-passed only covers the service, port and environment structures implemented here. The checker does not resolve the effective Compose configuration, contact Docker, pull images or test resources, so runtime validation remains a separate step." },
+      { "question": "Which port rules are actually checked?", "answer": "ports must be a list. Numeric short entries must be integers from 1 to 65535, while short strings only need to be nonempty. Long entries require a numeric port or nonempty target string; published must be a string or number, protocol must be tcp, udp or sctp, and host_ip must be a string when provided." },
+      { "question": "Which environment forms are accepted?", "answer": "A mapping can contain string, number, boolean or null values, but not arrays or nested objects. A list must contain strings in NAME or NAME=value form. The checker verifies these shapes without reading environment variables or replacing ${VARIABLE} expressions." },
+      { "question": "Are YAML anchors and Compose includes evaluated?", "answer": "The YAML parser supports aliases and merges within the supplied document, so their resulting structures can be checked. Compose-specific include or extends files are not loaded or resolved, and profiles or deployment semantics are not evaluated. Paste the relevant configuration and use Compose tooling for the resolved application model." }
+    ],
+    "relatedSlugs": ["env-parser", "yaml-formatter", "cidr-calculator"],
+    "references": [{ "label": "Docker Compose file reference", "url": "https://docs.docker.com/reference/compose-file/" }]
+  },
+  "cidr-calculator": {
+    "seoTitle": "IPv4 CIDR Calculator for Subnets and Host Ranges",
+    "metaDescription": "Calculate IPv4 network boundaries, netmask and host ranges for /0 through /32, including explicit point-to-point and single-host conventions.",
+    "answer": "This IPv4 CIDR calculator derives a normalized subnet, netmask, numeric address boundaries and usable-host range from an address and prefix. It supports /0 through /32, treating both /31 addresses as usable for point-to-point links and /32 as a single-host route.",
+    "steps": [
+      "Enter an IPv4 address and slash prefix, such as 192.168.1.42/24.",
+      "Run the calculation to obtain the JSON subnet report.",
+      "Review cidr, netmask, network, totalAddresses and the firstUsable/lastUsable range.",
+      "Read convention and scope, especially for /31 or /32, before copying or downloading the result."
+    ],
+    "useCases": [
+      "Normalize a host address to its subnet before writing an IPv4 allowlist rule.",
+      "Compare address counts and conventional host ranges when planning a private subnet.",
+      "Check the two-address /31 point-to-point convention or a single-address /32 host route."
+    ],
+    "limitations": [
+      "IPv4 only: enter four decimal octets from 0 to 255 and a prefix from /0 to /32. IPv6 and dotted netmask input are not supported; leading-zero octets are interpreted as decimal.",
+      "For /31 and /32, broadcast is the numeric upper boundary, not a directed broadcast destination. Both /31 addresses and the single /32 address are counted as usable under the stated conventions.",
+      "Counts are mathematical and do not remove reserved, private or otherwise non-public ranges. The calculator does not test routing, ownership, address availability or actual network reachability.",
+      "The input field is limited to 200,000 characters. The report describes the entire subnet arithmetically rather than enumerating every address."
+    ],
+    "example": {
+      "input": "192.168.1.42/24",
+      "output": "JSON report excerpt (convention and scope omitted):\n{\n  \"cidr\": \"192.168.1.0/24\",\n  \"address\": \"192.168.1.42\",\n  \"prefix\": 24,\n  \"netmask\": \"255.255.255.0\",\n  \"network\": \"192.168.1.0\",\n  \"broadcast\": \"192.168.1.255\",\n  \"firstAddress\": \"192.168.1.0\",\n  \"lastAddress\": \"192.168.1.255\",\n  \"totalAddresses\": 256,\n  \"firstUsable\": \"192.168.1.1\",\n  \"lastUsable\": \"192.168.1.254\",\n  \"usableAddresses\": 254\n}"
+    },
+    "faq": [
+      { "question": "Why does entering 192.168.1.42/24 return 192.168.1.0/24?", "answer": "The supplied address can be any host inside the subnet. cidr is normalized to the network boundary, while address retains the parsed input address. For /24, the block contains 256 addresses, and the conventional usable range excludes the first and last addresses." },
+      { "question": "How does the calculator handle /0?", "answer": "A /0 block covers 0.0.0.0 through 255.255.255.255 with netmask 0.0.0.0 and 4,294,967,296 total addresses. Under the conventional exclusion rule it reports 4,294,967,294 usable addresses; this arithmetic count does not imply that all those addresses are assignable or publicly routable." },
+      { "question": "Why are both addresses usable in /31 and one address usable in /32?", "answer": "For /31, the report uses the RFC 3021 point-to-point convention, which does not reserve the two addresses as network and directed broadcast hosts. A /32 is a single-host route. In both cases, broadcast is retained only as the numeric upper subnet boundary and the convention field explains its meaning." },
+      { "question": "Does this calculate IPv6 or tell me whether a subnet is available?", "answer": "No. IPv6 input is explicitly rejected, and calculations are limited to IPv4 address arithmetic. No network probe, route lookup or allocation database is consulted, so use your network configuration and allocation records to determine availability and deployment suitability." }
+    ],
+    "relatedSlugs": ["url-parser", "docker-compose-validator"],
+    "references": [{ "label": "RFC 3021: 31-bit prefixes on IPv4 point-to-point links", "url": "https://www.rfc-editor.org/rfc/rfc3021.html" }]
+  },
+  "html-accessibility-checker": {
+    "seoTitle": "Static HTML Accessibility Checker",
+    "metaDescription": "Review HTML for selected image alt, form label, heading and landmark issues using inert browser parsing, with clear limits beyond automated heuristics.",
+    "answer": "This checker reviews pasted HTML for selected image alternatives, form label associations, heading structure and main/navigation landmarks. It returns potential issues from static heuristics using inert browser parsing, without executing the markup or certifying WCAG conformance.",
+    "steps": [
+      "Paste the HTML fragment or source you want to review into the HTML field.",
+      "Run the checker in a browser with DOMParser support.",
+      "Read each potential issue and revise image alternatives, labels, headings or landmarks in your source.",
+      "Rerun the check and combine its report with keyboard, contrast and assistive-technology review."
+    ],
+    "useCases": [
+      "Catch a missing image alternative or an unnamed image-only link in a markup snippet.",
+      "Find an input without an associated label before integrating a form component.",
+      "Review heading jumps and main/navigation landmark structure in a page template."
+    ],
+    "limitations": [
+      "Findings are static heuristics, not a WCAG conformance audit or certification. Zero potential issues does not prove that a page is accessible.",
+      "Markup stays in an inert detached template: scripts do not run, resources are not loaded and no preview is inserted. Dynamic states, keyboard behavior, contrast and assistive-technology behavior are not tested.",
+      "The checker handles selected labels and hidden/aria-hidden attributes, not CSS visibility or the full accessible-name algorithm. Empty alt is treated as decorative except for an otherwise unnamed image-only link or button; author intent still needs review.",
+      "DOMParser in a browser is required. The input field is limited to 200,000 characters, and this review does not visit a URL or inspect a live application's rendered state."
+    ],
+    "example": {
+      "input": "<main><h1>Contact</h1><h3>Details</h3><img src=\"photo.png\"></main>",
+      "output": "Report excerpt (scope omitted):\nStatic HTML accessibility review\n2 potential issue(s).\n- Image 1: missing or empty alternative text.\n- Heading 2: skipped a heading level."
+    },
+    "faq": [
+      { "question": "Can I use a clean report as proof of WCAG compliance?", "answer": "No. The tool checks a small set of static patterns and labels findings as potential issues. It does not evaluate every WCAG criterion or replace review of semantics, content, keyboard interaction, focus, contrast, dynamic states or assistive-technology behavior." },
+      { "question": "How are decorative images and image-only links handled?", "answer": "An explicit empty alt is treated as decorative unless the image is inside a link or button that otherwise lacks a name. Hidden images and images with presentation or none roles are also excluded from the image warning. These rules do not determine whether the image is genuinely decorative, so verify the intended meaning manually." },
+      { "question": "Which form-label and heading patterns are recognized?", "answer": "The checker looks for nonempty explicit labels, wrapping labels, aria-label and resolvable aria-labelledby text for selected form controls. It also checks nonempty heading text, a nonempty h1 and upward skips in heading levels. These are simplified patterns rather than a browser's complete accessible-name calculation." },
+      { "question": "Will pasted scripts run or images be fetched during checking?", "answer": "No. The markup is parsed inside an inert template in a detached document and is never inserted into the page. This also means the checker cannot observe script-generated content, CSS-derived visibility or the interactions a user experiences on the deployed page." }
+    ],
+    "relatedSlugs": ["svg-optimizer", "url-parser"],
+    "references": [{ "label": "W3C WAI Easy Checks", "url": "https://www.w3.org/WAI/test-evaluate/easy-checks/" }]
+  },
+  "svg-optimizer": {
+    "seoTitle": "SVG Source Optimizer with viewBox Preservation",
+    "metaDescription": "Optimize SVG source locally with conservative SVGO plugins, removing comments and simplifying values while preserving viewBox, IDs and useful accessibility data.",
+    "answer": "This SVG optimizer uses the browser build of SVGO to remove comments and metadata and simplify selected attributes, numbers and colors. Its conservative plugin set preserves viewBox, IDs and useful accessibility structure while returning SVG source text without rendering it.",
+    "steps": [
+      "Paste well-formed SVG XML with one svg root into the SVG field.",
+      "Run optimization to generate the source-text output.",
+      "Compare the result with the original, including viewBox, IDs, title and referenced elements.",
+      "Copy or download the SVG and review it in its intended application context before using it."
+    ],
+    "useCases": [
+      "Remove editor comments and metadata from an SVG asset before adding it to a project.",
+      "Simplify numeric attributes and color notation while retaining a responsive viewBox.",
+      "Clean an icon's source conservatively without intentionally stripping IDs or title elements."
+    ],
+    "limitations": [
+      "Optimization is not sanitization. Scripts, event handlers and external links may remain in the output; untrusted SVG needs separate security review before embedding elsewhere.",
+      "Only well-formed XML with one svg root is accepted. DOCTYPE and ENTITY declarations are rejected; an explicit root namespace must be http://www.w3.org/2000/svg.",
+      "SVG is not inserted into the DOM, previewed or executed, and external resources are not fetched. The tool does not verify visual equivalence in your application or guarantee minimum file size.",
+      "The input field is limited to 200,000 characters. SVGO runs in an isolated browser worker with a five-second timeout, and conservative plugins can leave size unchanged."
+    ],
+    "example": {
+      "input": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 100 100\"><!-- sample --><rect x=\"10.000\" y=\"10.000\" width=\"80\" height=\"80\" fill=\"#ff0000\"/></svg>",
+      "output": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 100 100\"><rect width=\"80\" height=\"80\" x=\"10\" y=\"10\" fill=\"red\"/></svg>"
+    },
+    "faq": [
+      { "question": "Will the optimizer remove viewBox or rename my IDs?", "answer": "The configured plugins preserve the original viewBox and do not include ID cleanup or renaming. Useful title and accessibility structure are retained rather than intentionally stripped. Review references and rendering in the target application because source optimization is not a complete integration test." },
+      { "question": "Is optimized SVG safe to embed as untrusted content?", "answer": "Not necessarily. The tool optimizes source and is not an SVG sanitizer; scripts, event handlers or external references can survive. The tool itself does not render or execute the source, but embedding it elsewhere can have different behavior and needs a separate trust decision." },
+      { "question": "Why did the file shrink very little or keep the same size?", "answer": "The plugin set is intentionally conservative: it removes comments, metadata and some redundant attribute formatting, but does not aggressively rewrite every shape or remove IDs. Already-clean SVG may have little to remove. The result is not a promise of the smallest possible representation." },
+      { "question": "Why are DOCTYPE and ENTITY declarations rejected?", "answer": "These declarations and dependencies on custom entities are outside the accepted input subset, including external-entity declarations. Supply self-contained, well-formed XML with one svg root instead. The optimizer never fetches an external resource to resolve the input." }
+    ],
+    "relatedSlugs": ["html-accessibility-checker", "url-parser"],
+    "references": [{ "label": "SVGO documentation", "url": "https://svgo.dev/docs/" }]
+  },
+  "jwt-encoder-verifier": {
+    "seoTitle": "HS256 JWT Encoder and Signature Verifier",
+    "metaDescription": "Sign a JSON payload or verify an HS256 JWT locally with a UTF-8 HMAC secret, separating signature status from exp and nbf time checks and authorization.",
+    "answer": "This JWT tool signs a JSON object with a fixed HS256 header or verifies an HS256 compact token using the supplied UTF-8 secret and Web Crypto. Verification reports signature validity separately from exp and nbf time status, without including the secret or payload in the verification report.",
+    "steps": [
+      "Choose Encode to sign a payload or Verify to check a token; use the public demo sample to explore the workflow.",
+      "For Encode, fill the JSON payload field; for Verify, fill the token field. Enter the matching UTF-8 HMAC secret in the password field.",
+      "Run the operation and review the generated token or the signature and temporalStatus fields of the verification report.",
+      "Keep the secret private; copy or download only the output you need and evaluate issuer, audience and application policy separately."
+    ],
+    "useCases": [
+      "Create a deterministic HS256 token from a public demo payload for a development fixture.",
+      "Check whether a test token's signature matches the supplied shared secret.",
+      "Distinguish a signature mismatch from an expired or not-yet-active token during local debugging."
+    ],
+    "limitations": [
+      "HS256 only: alg:none and other algorithms are rejected, as are crit and b64 header extensions. Encode uses the fixed header {\"alg\":\"HS256\",\"typ\":\"JWT\"} and a JSON object payload.",
+      "Signing is not encryption, and a valid signature is not authorization. Issuer, audience, replay, secret strength and application policy are not checked; the public sample key must never protect real tokens.",
+      "exp and nbf, when present, must be finite numbers in Unix seconds. Time checks use the local clock without leeway and run only after a valid signature; missing time claims are reported, not added or required.",
+      "Each field is limited to 200,000 characters. Web Crypto requires a supported secure browser context such as HTTPS or localhost; the secret is used as UTF-8 text, not decoded from Base64 or hex."
+    ],
+    "example": {
+      "input": "Mode: encode\nPayload: {\"sub\":\"demo-user\",\"role\":\"reader\"}\nSecret (public demo only): public-demo-key-not-for-production",
+      "output": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJkZW1vLXVzZXIiLCJyb2xlIjoicmVhZGVyIn0.k2pPbG47DrTZswIN57cNkJE97Msgc4zA1fS4uMhTt9Y"
+    },
+    "faq": [
+      { "question": "Which fields do Encode and Verify use, and is the sample reproducible?", "answer": "Encode uses payload and secret, while Verify uses token and secret; the other content field is not used for that operation. No iat, exp or nbf is inserted. The displayed public payload, property order and demo secret generate the exact displayed token; verifying it with that secret returns signature valid and reports both time claims absent." },
+      { "question": "How is the secret handled, and should I Base64-decode it first?", "answer": "The tool imports the entered text directly as UTF-8 bytes for HMAC SHA-256; it does not interpret Base64 or hex. The secret remains in browser memory, is not persisted, and is not echoed into error or verification output. The sample key is deliberately public and only suitable for demonstrations." },
+      { "question": "What do signature and temporalStatus tell me?", "answer": "A mismatch returns signature invalid, temporalStatus not-evaluated and trusted false, without evaluating untrusted payload claims. A matching signature is reported separately from expired and notYetActive, using exp <= now and nbf > now. within-provided-time-bounds can also mean neither time claim was supplied, so inspect the presence fields." },
+      { "question": "Does a valid signature prove the user is allowed access?", "answer": "No. It shows that the token's signed bytes match the supplied HS256 secret, not that an application should accept the token. The verifier does not enforce issuer, audience, replay protection, required claims, key strength or your authorization rules, and the payload is signed rather than encrypted." }
+    ],
+    "relatedSlugs": ["json-schema-validator", "env-parser", "curl-to-fetch"],
+    "references": [{ "label": "RFC 7519: JSON Web Token", "url": "https://www.rfc-editor.org/rfc/rfc7519.html" }, { "label": "RFC 7518: JSON Web Algorithms", "url": "https://www.rfc-editor.org/rfc/rfc7518.html" }]
+  }
+}

@@ -5,6 +5,7 @@
 import React from 'react';
 import { Copy } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { normaliseDigits } from '@/lib/datetime/jalali';
 import { CopyButton } from './feedback';
 import { IconButton } from '@/components/ui/icon-button';
 
@@ -75,7 +76,7 @@ export function NumberField({
         inputMode="numeric"
         value={draft ?? (value === null ? '' : String(value))}
         max={max}
-        onChange={(event) => onChange(event.target.value.replace(/[^\d]/g, ''))}
+        onChange={(event) => onChange(normaliseDigits(event.target.value).replace(/[^\d]/g, ''))}
         onBlur={onBlur}
         className="h-9 w-full rounded-md border border-border-strong bg-surface px-2 text-center font-sans text-sm tabular-nums text-text outline-none transition-colors focus-visible:border-focus focus-visible:ring-2 focus-visible:ring-focus/30"
       />
@@ -120,7 +121,7 @@ export function TimeFields({
       title={labels[key]}
       max={max}
       value={draft?.[key] ?? (value === null ? '' : String(value).padStart(2, '0'))}
-      onChange={(event) => onChange(key, event.target.value.replace(/[^\d]/g, ''))}
+      onChange={(event) => onChange(key, normaliseDigits(event.target.value).replace(/[^\d]/g, ''))}
       onBlur={() => onBlur?.(key)}
       className="h-9 w-12 rounded-md border border-border-strong bg-surface text-center font-sans text-sm tabular-nums text-text outline-none transition-colors focus-visible:border-focus focus-visible:ring-2 focus-visible:ring-focus/30"
     />
