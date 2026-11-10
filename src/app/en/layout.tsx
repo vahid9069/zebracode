@@ -9,6 +9,13 @@ export const metadata: Metadata = {
   metadataBase: new URL(BASE_URL),
   title: 'ZebraCode - Developer Tools',
   description: 'Online tools for developers',
+  icons: {
+    icon: [
+      { url: '/favicon.ico', sizes: 'any' },
+      { url: '/icon.png', type: 'image/png' },
+    ],
+    apple: '/apple-touch-icon.png',
+  },
 };
 
 export default async function EnRootLayout({ children }: { children: React.ReactNode }) {

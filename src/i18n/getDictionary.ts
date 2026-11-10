@@ -27,8 +27,28 @@ async function developerCopy(locale: 'fa' | 'en'): Promise<DeveloperToolCopies> 
   };
 }
 
+export interface ToolFAQ {
+  question: string;
+  answer: string;
+}
+
+export type CommonDictionary = Omit<typeof import("@/dictionaries/fa/common.json"), 'faqByTool'> & {
+  faqByTool?: Record<string, ToolFAQ[]>;
+};
+
+export interface Dictionary {
+  layout: typeof import("@/dictionaries/fa/layout.json");
+  home: typeof import("@/dictionaries/fa/home.json");
+  about: typeof import("@/dictionaries/fa/about.json");
+  tools: Record<string, ToolStrings>;
+  developerTools: DeveloperToolCopies;
+  developerUi: typeof import("@/dictionaries/fa/developer-ui.json");
+  categories: typeof import("@/dictionaries/fa/categories.json");
+  common: CommonDictionary;
+}
+
 const dictionaries = {
-  fa: async () => ({
+  fa: async (): Promise<Dictionary> => ({
     layout: (await import("@/dictionaries/fa/layout.json")).default,
     home: (await import("@/dictionaries/fa/home.json")).default,
     about: (await import("@/dictionaries/fa/about.json")).default,
@@ -36,9 +56,9 @@ const dictionaries = {
     developerTools: await developerCopy('fa'),
     developerUi: (await import('@/dictionaries/fa/developer-ui.json')).default,
     categories: (await import("@/dictionaries/fa/categories.json")).default,
-    common: (await import("@/dictionaries/fa/common.json")).default,
+    common: (await import("@/dictionaries/fa/common.json")).default as CommonDictionary,
   }),
-  en: async () => ({
+  en: async (): Promise<Dictionary> => ({
     layout: (await import("@/dictionaries/en/layout.json")).default,
     home: (await import("@/dictionaries/en/home.json")).default,
     about: (await import("@/dictionaries/en/about.json")).default,
@@ -46,13 +66,12 @@ const dictionaries = {
     developerTools: await developerCopy('en'),
     developerUi: (await import('@/dictionaries/en/developer-ui.json')).default,
     categories: (await import("@/dictionaries/en/categories.json")).default,
-    common: (await import("@/dictionaries/en/common.json")).default,
+    common: (await import("@/dictionaries/en/common.json")).default as CommonDictionary,
   }),
 };
 
 export type Locale = keyof typeof dictionaries;
-export type Dictionary = Awaited<ReturnType<(typeof dictionaries)["fa"]>>;
 
-export const getDictionary = async (locale: Locale) => {
+export const getDictionary = async (locale: Locale): Promise<Dictionary> => {
   return dictionaries[locale]();
 };

@@ -389,7 +389,7 @@ export default function HomePageClient({ dict, locale }: HomePageClientProps) {
                     </div>
                 ) : (
                     <div className="mt-6 space-y-10">
-                        {groupedFilteredTools.map(({ key, tools }) => <section key={key} aria-labelledby={`home-tool-group-${key}`}>
+                        {groupedFilteredTools.map(({ key, tools }) => <section key={key} aria-labelledby={`home-tool-group-${key}`} className="[content-visibility:auto] [contain-intrinsic-size:auto_350px]">
                             <div className="mb-3 flex items-center gap-2 border-b border-border pb-2">
                                 <h3 id={`home-tool-group-${key}`} className="text-sm font-semibold text-text">{localizeCategory(dict.categories, key)}</h3>
                                 <span className="rounded-full bg-surface-inset px-2 py-0.5 font-sans text-[11px] text-text-subtle">{tools.length}</span>
@@ -425,7 +425,11 @@ export default function HomePageClient({ dict, locale }: HomePageClientProps) {
             <footer className="border-t border-border bg-surface-inset">
                 <div className="mx-auto grid max-w-7xl gap-8 px-4 py-12 md:grid-cols-2 md:px-8 lg:grid-cols-4">
                     <div className="lg:col-span-2">
-                        <div className="flex items-center gap-2 text-text"><span className="flex h-8 w-8 items-center justify-center rounded-lg border border-border-strong bg-surface-raised text-focus"><Terminal className="h-4 w-4" /></span><strong>ZebraCode</strong><span className="rounded border border-border-strong bg-surface-raised px-1.5 py-0.5 font-sans text-[10px] text-text-muted">/dev</span></div>
+                        <div className="flex items-center gap-2">
+                            <img src="/logo-light.png" alt="ZebraCode" width={150} height={23} className="h-6 w-auto object-contain dark:hidden" />
+                            <img src="/logo-dark.png" alt="ZebraCode" width={150} height={23} className="h-6 w-auto object-contain hidden dark:block" />
+                            <span className="rounded border border-border-strong bg-surface-raised px-1.5 py-0.5 font-sans text-[10px] text-text-muted">/dev</span>
+                        </div>
                         <p className="mt-4 max-w-md text-sm leading-7 text-text-muted">{home.footerDescription}</p>
                         <div className="mt-5 flex gap-2"><a href="https://github.com/vahid9069/zebracode" target="_blank" rel="noreferrer" aria-label="GitHub" className="rounded-lg border border-border-strong bg-surface-raised p-2 text-text-muted transition hover:text-focus focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2 focus-visible:ring-offset-surface-inset"><Github className="h-4 w-4" /></a><span aria-hidden="true" className="rounded-lg border border-border-strong bg-surface-raised p-2 text-text-muted"><LockKeyhole className="h-4 w-4" /></span></div>
                     </div>
@@ -443,10 +447,10 @@ function Assurance({ icon: Icon, color, text }: { icon: React.ComponentType<{ cl
 }
 
 function ModeButton({ active, onClick, icon, label, count }: { active: boolean; onClick: () => void; icon: React.ReactNode; label: string; count: number }) {
-    return <button type="button" role="tab" aria-selected={active} onClick={onClick} className={`flex min-w-max flex-1 cursor-pointer items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2 focus-visible:ring-offset-surface-inset ${active ? 'bg-action text-action-foreground shadow-md' : 'text-text-muted hover:bg-surface-raised hover:text-text'}`}>{icon}<span>{label}</span><span className={`rounded-full px-2 py-0.5 font-sans text-[11px] ${active ? 'bg-white/20' : 'bg-surface-raised text-text-subtle'}`}>{count}</span></button>;
+    return <button type="button" role="tab" aria-selected={active} onClick={onClick} className={`flex min-w-max flex-1 cursor-pointer items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2 focus-visible:ring-offset-surface-inset ${active ? 'bg-action text-action-foreground shadow-md' : 'text-text-muted hover:bg-surface-raised hover:text-text'}`}>{icon}<span>{label}</span><span className={`rounded-full px-2 py-0.5 font-sans text-[11px] font-bold ${active ? 'bg-black/25 text-white' : 'bg-surface-raised text-text-subtle'}`}>{count}</span></button>;
 }
 
-function ToolCard({ tool, locale, dict, list }: { tool: ToolMeta; locale: 'fa' | 'en'; dict: Dictionary; list: boolean }) {
+const ToolCard = React.memo(function ToolCard({ tool, locale, dict, list }: { tool: ToolMeta; locale: 'fa' | 'en'; dict: Dictionary; list: boolean }) {
     const localizedTool = localizeTool(tool, dict.tools);
     const Icon = tool.icon;
     return <Card className={`group border-border bg-surface-raised text-text shadow-sm transition-all duration-200 hover:border-focus/60 hover:shadow-lg ${list ? 'rounded-xl' : ''}`}>
@@ -463,4 +467,4 @@ function ToolCard({ tool, locale, dict, list }: { tool: ToolMeta; locale: 'fa' |
             {list && <ArrowUpLeft className="h-4 w-4 shrink-0 text-text-subtle transition group-hover:text-focus" />}
         </Link>
     </Card>;
-}
+});

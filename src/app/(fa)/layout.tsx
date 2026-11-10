@@ -9,6 +9,13 @@ export const metadata: Metadata = {
   metadataBase: new URL(BASE_URL),
   title: 'زبرا کد - ابزارهای توسعه‌دهندگان',
   description: 'مجموعه‌ای از ابزارهای آنلاین برنامه‌نویسی',
+  icons: {
+    icon: [
+      { url: '/favicon.ico', sizes: 'any' },
+      { url: '/icon.png', type: 'image/png' },
+    ],
+    apple: '/apple-touch-icon.png',
+  },
 };
 
 export default async function FaRootLayout({ children }: { children: React.ReactNode }) {
@@ -18,6 +25,7 @@ export default async function FaRootLayout({ children }: { children: React.React
   return (
     <html lang="fa-IR" dir="rtl" suppressHydrationWarning>
       <head>
+        <link rel="preload" href="/fonts/IRANSansWeb.woff2" as="font" type="font/woff2" crossOrigin="anonymous" />
         <script dangerouslySetInnerHTML={{ __html: `
           (function() {
             try {

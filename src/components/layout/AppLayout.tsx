@@ -11,7 +11,8 @@ import {
     Maximize, PanelRightClose, PanelRightOpen, PanelLeftClose, PanelLeftOpen, X
 } from 'lucide-react';
 import { useTheme } from 'next-themes';
-import CommandMenu from '@/components/layout/CommandMenu';
+import dynamic from 'next/dynamic';
+const CommandMenu = dynamic(() => import('@/components/layout/CommandMenu'), { ssr: false });
 import { AllToolsList } from '@/lib/registry';
 import { ToolMeta } from '@/types/types';
 import renderIcon from '@/components/layout/renderIcon';
@@ -152,19 +153,20 @@ export default function AppLayout({ children, locale, dict }: { children: React.
     }, [locale, pathname]);
 
     const toolsArray = useMemo(() => Object.values(AllToolsList), []);
-    const groupedToolsList = useMemo(() => getGroupedTools(toolsArray), [toolsArray]);
+    const groupedToolsList = useMemo(() => showSidebar ? getGroupedTools(toolsArray) : [], [showSidebar, toolsArray]);
     const sidebarToolGroups = useMemo<SidebarToolGroup[]>(
-        () => groupedToolsList.flatMap(category =>
+        () => showSidebar ? groupedToolsList.flatMap(category =>
             category.items.map(subCategory => ({
                 category: category.title,
                 title: subCategory.title,
                 items: subCategory.items,
             }))
-        ).sort((first, second) => first.title === 'JSON' ? -1 : second.title === 'JSON' ? 1 : 0),
-        [groupedToolsList]
+        ).sort((first, second) => first.title === 'JSON' ? -1 : second.title === 'JSON' ? 1 : 0) : [],
+        [groupedToolsList, showSidebar]
     );
 
     const filteredTools = useMemo(() => {
+        if (!showSidebar) return [];
         const query = sidebarQuery.trim().toLowerCase();
         if (!query) return toolsArray;
         return toolsArray.filter(tool => {
@@ -179,7 +181,7 @@ export default function AppLayout({ children, locale, dict }: { children: React.
             ].filter(Boolean).join(' ').toLowerCase();
             return textToSearch.includes(query);
         });
-    }, [dict.categories, dict.tools, sidebarQuery, toolsArray]);
+    }, [dict.categories, dict.tools, showSidebar, sidebarQuery, toolsArray]);
 
     const recentTools = useMemo(
         () => recentToolIds
@@ -305,7 +307,7 @@ export default function AppLayout({ children, locale, dict }: { children: React.
                     setIsMobileNavigationOpen(false);
                     localStorage.setItem('zebracode-lang', locale === 'en' ? 'fa' : 'en');
                 }}
-                aria-label={dict.layout.switchLanguage}
+                aria-label={compact ? `${dict.layout.langCode} - ${dict.layout.switchLanguage}` : dict.layout.switchLanguage}
                 title={dict.layout.switchLanguage}
                 className="flex min-h-11 items-center justify-center rounded-lg border border-border-strong bg-surface-raised px-2.5 py-1.5 text-sm font-bold text-text-muted transition-colors hover:bg-action-soft hover:text-action dark:hover:text-focus focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2 focus-visible:ring-offset-surface"
             >
@@ -402,11 +404,9 @@ export default function AppLayout({ children, locale, dict }: { children: React.
                             <Menu className="w-6 h-6" />
                         </button>
                     )}
-                    <Link ref={brandRef} href={locale === 'en' ? '/en/' : '/'} className="group flex min-w-0 items-center gap-2 text-text focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2 focus-visible:ring-offset-surface">
-                        <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-border-strong bg-surface-raised text-action dark:text-focus">
-                            <Terminal className="h-4 w-4" />
-                        </span>
-                        <span className="truncate text-lg font-bold tracking-tight transition-colors group-hover:text-action dark:group-hover:text-focus">ZebraCode</span>
+                    <Link ref={brandRef} href={locale === 'en' ? '/en/' : '/'} className="group flex min-w-0 items-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2 focus-visible:ring-offset-surface">
+                        <img src="/logo-light.png" alt="ZebraCode" width={160} height={25} className="h-6 sm:h-7 w-auto object-contain dark:hidden" />
+                        <img src="/logo-dark.png" alt="ZebraCode" width={160} height={25} className="h-6 sm:h-7 w-auto object-contain hidden dark:block" />
                         <span className="hidden rounded border border-border-strong bg-surface-raised px-1.5 py-0.5 font-sans text-[10px] font-bold tracking-widest text-text-muted sm:inline">/dev</span>
                     </Link>
                     <nav aria-label={dict.layout.primaryNavigation} className="hidden items-center gap-1 lg:flex lg:ms-6">
