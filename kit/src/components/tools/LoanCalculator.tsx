@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { CreditCard, Calculator } from 'lucide-react';
+import { NumericInput } from '@/components/ui/NumericInput';
 
 export function LoanCalculator() {
   const [amount, setAmount] = useState<number>(100000000); // 100 million Tomans
@@ -46,12 +47,10 @@ export function LoanCalculator() {
             <label className="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1.5">
               مبلغ وام (تومان):
             </label>
-            <input
-              type="number"
-              step={1000000}
+            <NumericInput
               value={amount}
-              onChange={(e) => setAmount(Number(e.target.value))}
-              className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800 text-sm font-bold"
+              onChange={(val) => setAmount(val)}
+              unit="تومان"
             />
             <span className="text-[11px] text-slate-400 mt-1 block">
               {(amount).toLocaleString('fa-IR')} تومان
@@ -67,9 +66,11 @@ export function LoanCalculator() {
               step={0.5}
               value={rate}
               onChange={(e) => setRate(Number(e.target.value))}
-              className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800 text-sm font-bold"
+              className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800 text-sm font-bold font-mono focus:outline-none focus:border-blue-500"
             />
-            <span className="text-[11px] text-slate-400 mt-1 block">معمولاً ۱۸٪ تا ۲۳٪</span>
+            <span className="text-[11px] text-slate-400 mt-1 block">
+              مصوب بانک مرکزی (معمولاً ۲۳٪ یا قرض‌الحسنه ۴٪)
+            </span>
           </div>
 
           <div>
@@ -78,40 +79,49 @@ export function LoanCalculator() {
             </label>
             <input
               type="number"
+              min={1}
+              max={360}
               value={months}
               onChange={(e) => setMonths(Number(e.target.value))}
-              className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800 text-sm font-bold"
+              className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800 text-sm font-bold font-mono focus:outline-none focus:border-blue-500"
             />
-            <span className="text-[11px] text-slate-400 mt-1 block">{(months / 12).toFixed(1)} سال</span>
+            <span className="text-[11px] text-slate-400 mt-1 block">
+              معادل {Math.floor(months / 12)} سال {months % 12 > 0 ? `و ${months % 12} ماه` : ''}
+            </span>
           </div>
         </div>
       </div>
 
       {result && (
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="p-5 rounded-2xl bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-900/60 text-center">
-            <span className="text-xs text-blue-700 dark:text-blue-300 font-medium flex items-center justify-center gap-1">
-              <CreditCard className="w-4 h-4" /> مبلغ هر قسط ماهانه
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div className="bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-slate-800 dark:to-slate-800/60 border border-blue-100 dark:border-slate-700 rounded-2xl p-5 text-center">
+            <span className="text-xs text-slate-500 dark:text-slate-400 block mb-1">
+              مبلغ هر قسط ماهانه
             </span>
-            <div className="mt-2 text-2xl font-black text-blue-600 dark:text-blue-400">
-              {result.monthlyInstallment.toLocaleString('fa-IR')} <span className="text-xs font-normal">تومان</span>
-            </div>
+            <span className="text-xl sm:text-2xl font-black text-blue-600 dark:text-blue-400 font-mono">
+              {result.monthlyInstallment.toLocaleString('fa-IR')}
+            </span>
+            <span className="text-xs text-slate-400 block mt-0.5">تومان</span>
           </div>
 
-          <div className="p-5 rounded-2xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-900/60 text-center">
-            <span className="text-xs text-amber-700 dark:text-amber-300 font-medium flex items-center justify-center gap-1">
-              <Calculator className="w-4 h-4" /> کل سود پرداختی
+          <div className="bg-gradient-to-br from-amber-50 to-orange-50 dark:from-slate-800 dark:to-slate-800/60 border border-amber-100 dark:border-slate-700 rounded-2xl p-5 text-center">
+            <span className="text-xs text-slate-500 dark:text-slate-400 block mb-1">
+              کل سود پرداختی به بانک
             </span>
-            <div className="mt-2 text-2xl font-black text-amber-600 dark:text-amber-400">
-              {result.totalInterest.toLocaleString('fa-IR')} <span className="text-xs font-normal">تومان</span>
-            </div>
+            <span className="text-xl sm:text-2xl font-black text-amber-600 dark:text-amber-400 font-mono">
+              {result.totalInterest.toLocaleString('fa-IR')}
+            </span>
+            <span className="text-xs text-slate-400 block mt-0.5">تومان</span>
           </div>
 
-          <div className="p-5 rounded-2xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-center">
-            <span className="text-xs text-slate-600 dark:text-slate-400 font-medium">مجموع اصل و سود</span>
-            <div className="mt-2 text-2xl font-black text-slate-800 dark:text-slate-200">
-              {result.totalPayment.toLocaleString('fa-IR')} <span className="text-xs font-normal">تومان</span>
-            </div>
+          <div className="bg-gradient-to-br from-emerald-50 to-teal-50 dark:from-slate-800 dark:to-slate-800/60 border border-emerald-100 dark:border-slate-700 rounded-2xl p-5 text-center">
+            <span className="text-xs text-slate-500 dark:text-slate-400 block mb-1">
+              مجموع بازپرداخت (اصل + سود)
+            </span>
+            <span className="text-xl sm:text-2xl font-black text-emerald-600 dark:text-emerald-400 font-mono">
+              {result.totalPayment.toLocaleString('fa-IR')}
+            </span>
+            <span className="text-xs text-slate-400 block mt-0.5">تومان</span>
           </div>
         </div>
       )}

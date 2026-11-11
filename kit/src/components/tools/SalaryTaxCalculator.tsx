@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { Receipt, Calculator, ShieldCheck } from 'lucide-react';
+import { NumericInput } from '@/components/ui/NumericInput';
 
 export function SalaryTaxCalculator() {
   const [grossSalary, setGrossSalary] = useState<number>(25000000); // ۲۵ میلیون تومان
@@ -63,12 +64,10 @@ export function SalaryTaxCalculator() {
           <label className="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1.5">
             حقوق و مزایای ماهانه (تومان):
           </label>
-          <input
-            type="number"
-            step={1000000}
+          <NumericInput
             value={grossSalary}
-            onChange={(e) => setGrossSalary(Number(e.target.value))}
-            className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800 text-sm font-bold"
+            onChange={(val) => setGrossSalary(val)}
+            unit="تومان"
           />
           <span className="text-[11px] text-slate-400 mt-1 block">
             {(grossSalary).toLocaleString('fa-IR')} تومان

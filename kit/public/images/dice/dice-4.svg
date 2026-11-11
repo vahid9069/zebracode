@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="100%" height="100%">
+  <defs>
+    <radialGradient id="diceBg4" cx="35%" cy="30%" r="75%">
+      <stop offset="0%" stop-color="#FFFFFF"/>
+      <stop offset="60%" stop-color="#F1F5F9"/>
+      <stop offset="90%" stop-color="#E2E8F0"/>
+      <stop offset="100%" stop-color="#CBD5E1"/>
+    </radialGradient>
+    <radialGradient id="blackPip4" cx="35%" cy="30%" r="70%">
+      <stop offset="0%" stop-color="#475569"/>
+      <stop offset="40%" stop-color="#1E293B"/>
+      <stop offset="85%" stop-color="#0F172A"/>
+      <stop offset="100%" stop-color="#020617"/>
+    </radialGradient>
+    <filter id="diceShadow4" x="-10%" y="-10%" width="125%" height="125%">
+      <feDropShadow dx="0" dy="8" stdDeviation="6" flood-color="#0F172A" flood-opacity="0.22"/>
+    </filter>
+    <filter id="pipInset4" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="2" stdDeviation="1.5" flood-color="#000000" flood-opacity="0.45"/>
+    </filter>
+  </defs>
+
+  <rect x="15" y="15" width="170" height="170" rx="36" ry="36" fill="url(#diceBg4)" filter="url(#diceShadow4)" stroke="#E2E8F0" stroke-width="2"/>
+  <rect x="18" y="18" width="164" height="164" rx="33" ry="33" fill="none" stroke="#FFFFFF" stroke-width="2" opacity="0.9"/>
+
+  <g filter="url(#pipInset4)" fill="url(#blackPip4)">
+    <circle cx="58" cy="58" r="15"/>
+    <circle cx="142" cy="58" r="15"/>
+    <circle cx="58" cy="142" r="15"/>
+    <circle cx="142" cy="142" r="15"/>
+  </g>
+  <circle cx="54" cy="54" r="4" fill="#FFFFFF" opacity="0.4"/>
+  <circle cx="138" cy="54" r="4" fill="#FFFFFF" opacity="0.4"/>
+  <circle cx="54" cy="138" r="4" fill="#FFFFFF" opacity="0.4"/>
+  <circle cx="138" cy="138" r="4" fill="#FFFFFF" opacity="0.4"/>
+</svg>

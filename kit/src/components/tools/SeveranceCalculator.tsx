@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { Briefcase, Calculator, HelpCircle } from 'lucide-react';
+import { NumericInput } from '@/components/ui/NumericInput';
 
 export function SeveranceCalculator() {
   const [baseSalary, setBaseSalary] = useState<number>(12000000); // ۱۲ میلیون پایه حقوق
@@ -44,12 +45,10 @@ export function SeveranceCalculator() {
             <label className="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1.5">
               حقوق پایه ماهانه (تومان):
             </label>
-            <input
-              type="number"
-              step={500000}
+            <NumericInput
               value={baseSalary}
-              onChange={(e) => setBaseSalary(Number(e.target.value))}
-              className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800 text-sm font-bold"
+              onChange={(val) => setBaseSalary(val)}
+              unit="تومان"
             />
             <span className="text-[11px] text-slate-400 mt-1 block">
               {(baseSalary).toLocaleString('fa-IR')} تومان

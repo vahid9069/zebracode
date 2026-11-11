@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { Percent, Calculator, HelpCircle } from 'lucide-react';
+import { NumericInput } from '@/components/ui/NumericInput';
 
 export function GharzolhasanehLoan() {
   const [amount, setAmount] = useState<number>(50000000); // ۵۰ میلیون تومان
@@ -55,12 +56,10 @@ export function GharzolhasanehLoan() {
             <label className="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1.5">
               مبلغ وام (تومان):
             </label>
-            <input
-              type="number"
-              step={5000000}
+            <NumericInput
               value={amount}
-              onChange={(e) => setAmount(Number(e.target.value))}
-              className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800 text-sm font-bold"
+              onChange={(val) => setAmount(val)}
+              unit="تومان"
             />
             <span className="text-[11px] text-slate-400 mt-1 block">
               {(amount).toLocaleString('fa-IR')} تومان

@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { Coins, CircleDollarSign, Calculator, HelpCircle } from 'lucide-react';
+import { NumericInput } from '@/components/ui/NumericInput';
 
 export function GoldCalculator() {
   const [tab, setTab] = useState<'jewelry' | 'coin'>('jewelry');
@@ -122,12 +123,10 @@ export function GoldCalculator() {
                 <label className="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">
                   قیمت هر گرم طلا ۱۸ عیار (تومان):
                 </label>
-                <input
-                  type="number"
-                  step={50000}
+                <NumericInput
                   value={rawPrice}
-                  onChange={(e) => setRawPrice(Number(e.target.value))}
-                  className="w-full px-3 py-2 border rounded-xl border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800 text-sm font-bold"
+                  onChange={(val) => setRawPrice(val)}
+                  unit="تومان"
                 />
                 <span className="text-[10px] text-slate-400 mt-1 block">
                   {rawPrice.toLocaleString('fa-IR')} تومان
@@ -244,12 +243,10 @@ export function GoldCalculator() {
                 <label className="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">
                   قیمت معاملاتی بازار (تومان):
                 </label>
-                <input
-                  type="number"
-                  step={100000}
+                <NumericInput
                   value={marketCoinPrice}
-                  onChange={(e) => setMarketCoinPrice(Number(e.target.value))}
-                  className="w-full px-3 py-2 border rounded-xl border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800 text-sm font-bold"
+                  onChange={(val) => setMarketCoinPrice(val)}
+                  unit="تومان"
                 />
               </div>
             </div>

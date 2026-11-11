@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="100%" height="100%">
+  <defs>
+    <radialGradient id="diceBg" cx="35%" cy="30%" r="75%">
+      <stop offset="0%" stop-color="#FFFFFF"/>
+      <stop offset="60%" stop-color="#F1F5F9"/>
+      <stop offset="90%" stop-color="#E2E8F0"/>
+      <stop offset="100%" stop-color="#CBD5E1"/>
+    </radialGradient>
+    <radialGradient id="redPip" cx="35%" cy="30%" r="70%">
+      <stop offset="0%" stop-color="#EF4444"/>
+      <stop offset="40%" stop-color="#DC2626"/>
+      <stop offset="85%" stop-color="#991B1B"/>
+      <stop offset="100%" stop-color="#450A0A"/>
+    </radialGradient>
+    <filter id="diceShadow" x="-10%" y="-10%" width="125%" height="125%">
+      <feDropShadow dx="0" dy="8" stdDeviation="6" flood-color="#0F172A" flood-opacity="0.22"/>
+    </filter>
+    <filter id="pipInset" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="2" stdDeviation="1.5" flood-color="#000000" flood-opacity="0.45"/>
+    </filter>
+  </defs>
+
+  <!-- بدنه مکعبی تاس با گوشه‌های گرد -->
+  <rect x="15" y="15" width="170" height="170" rx="36" ry="36" fill="url(#diceBg)" filter="url(#diceShadow)" stroke="#E2E8F0" stroke-width="2"/>
+  <rect x="18" y="18" width="164" height="164" rx="33" ry="33" fill="none" stroke="#FFFFFF" stroke-width="2" opacity="0.9"/>
+
+  <!-- تک‌خال قرمز بزرگ در مرکز -->
+  <circle cx="100" cy="100" r="26" fill="url(#redPip)" filter="url(#pipInset)"/>
+  <!-- بازتاب نور روی نقطه -->
+  <circle cx="94" cy="94" r="7" fill="#FFFFFF" opacity="0.4"/>
+</svg>
