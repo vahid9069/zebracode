@@ -171,6 +171,20 @@ export default function PasswordGenerator() {
                     <div className="flex flex-wrap items-center justify-center gap-4 rounded-xl bg-surface-inset p-3"><Metric label={ui.metricEntropy} value={`${metrics.entropy} bit`} /><Metric label={ui.metricCrackTime} value={strengthInfo.time} green /><Metric label={ui.metricRandom} value={ui.webCrypto} /></div>
                 </Card>
 
+                {locale === 'fa' && (
+                    <div className="rounded-xl border border-border-strong/40 bg-surface-raised px-4 py-3 text-xs flex flex-wrap items-center justify-between gap-3 text-text-muted shadow-2xs">
+                        <span>قصد ساخت رمز عبور روزمره و ساده برای اکانت‌های اینستاگرام، تلگرام یا حساب‌های شخصی را دارید؟</span>
+                        <a
+                            href="https://kit.zebracode.ir/password-generator/"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="font-bold text-action hover:underline flex items-center gap-1"
+                        >
+                            ورود به نسخه عمومی در زبراکد کیت ←
+                        </a>
+                    </div>
+                )}
+
                 <div className="grid items-start gap-6 lg:grid-cols-12">
                     <div className="space-y-6 lg:col-span-7">
                         <Card className="space-y-6 border-0 bg-surface p-6 shadow-sm">

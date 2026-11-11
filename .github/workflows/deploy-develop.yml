@@ -1,8 +1,11 @@
-name: Build and Deploy via FTP
+name: Build and Deploy Developer Tools (Staging)
 
 on:
   push:
     branches: [ develop ]
+    paths-ignore:
+      - 'kit/**'
+  workflow_dispatch:
 
 jobs:
   build-and-deploy:
@@ -11,7 +14,7 @@ jobs:
     environment:
       name: staging
     env:
-      NEXT_PUBLIC_BASE_URL: ${{ vars.NEXT_PUBLIC_BASE_URL }}
+      NEXT_PUBLIC_BASE_URL: ${{ vars.NEXT_PUBLIC_BASE_URL || 'https://test.zebracode.ir' }}
 
     steps:
       - name: 📥 Checkout repository
@@ -28,6 +31,24 @@ jobs:
 
       - name: 🏗️ Build static export
         run: npm run build
+
+      - name: 🛡️ Enforce No-Index on Staging Environment
+        run: |
+          echo "1. Overwriting robots.txt with Disallow: /"
+          cat << 'EOF' > ./out/robots.txt
+          User-agent: *
+          Disallow: /
+          EOF
+
+          echo "2. Adding .htaccess with X-Robots-Tag header"
+          cat << 'EOF' > ./out/.htaccess
+          <IfModule mod_headers.c>
+            Header set X-Robots-Tag "noindex, nofollow, noarchive, nosnippet"
+          </IfModule>
+          EOF
+
+          echo "3. Injecting <meta name=\"robots\" content=\"noindex, nofollow\"> into all HTML files"
+          find ./out -name "*.html" -exec sed -i 's/<head>/<head><meta name="robots" content="noindex, nofollow">/g' {} +
 
       - name: 🚀 Deploy to server via FTP
         uses: SamKirkland/FTP-Deploy-Action@v4.3.4

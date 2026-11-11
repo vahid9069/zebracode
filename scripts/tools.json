@@ -505,8 +505,8 @@
   },
   {
     "path": "password-generator",
-    "titleFa": "تولیدکننده رمز عبور",
-    "descriptionFa": "تولید رمزهای قوی و امن به‌صورت آنلاین",
+    "titleFa": "تولید پسورد و توکن امن (توسعه‌دهندگان)",
+    "descriptionFa": "تولید رمز تصادفی، سکرت و توکن امن کریپتوگرافیک برای برنامه‌نویسان",
     "titleEn": "Password Generator",
     "descriptionEn": "Generate strong, cryptographically secure passwords online"
   },

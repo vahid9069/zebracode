@@ -10,7 +10,10 @@
     "lint": "next lint",
     "postbuild": "tsx scripts/export-tools.ts && node scripts/generate-sitemap.mjs && node scripts/generate-llms.mjs",
     "test": "vitest",
-    "plugin:zip": "cd wordpress/plugins/omni-ai-suite && npm run zip"
+    "plugin:zip": "cd wordpress/plugins/omni-ai-suite && npm run zip",
+    "dev:kit": "npm --prefix kit run dev",
+    "build:kit": "npm --prefix kit run build",
+    "install:kit": "npm --prefix kit install"
   },
   "dependencies": {
     "@babel/core": "^7.29.0",

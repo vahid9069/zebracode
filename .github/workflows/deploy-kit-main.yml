@@ -1,0 +1,47 @@
+name: Build and Deploy General Tools - Kit (Production)
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'kit/**'
+      - '.github/workflows/deploy-kit-main.yml'
+  workflow_dispatch:
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    environment:
+      name: production
+    env:
+      NEXT_PUBLIC_BASE_URL: ${{ vars.NEXT_PUBLIC_KIT_BASE_URL || 'https://kit.zebracode.ir' }}
+
+    steps:
+      - name: 📥 Checkout repository
+        uses: actions/checkout@v4
+
+      - name: 🟢 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'npm'
+
+      - name: 📦 Install root dependencies
+        run: npm ci
+
+      - name: 📦 Install kit dependencies
+        run: npm --prefix kit ci || npm --prefix kit install
+
+      - name: 🏗️ Build static export for kit
+        run: npm --prefix kit run build
+
+      - name: 🚀 Deploy kit to server via FTP
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.4
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USER_KIT_MAIN || secrets.FTP_USER_MAIN }}
+          password: ${{ secrets.FTP_PASS_KIT_MAIN || secrets.FTP_PASS_MAIN }}
+          local-dir: ./kit/out/
+          server-dir: ${{ vars.FTP_DIR_KIT_MAIN || '/' }}
+          dangerous-clean-slate: false
