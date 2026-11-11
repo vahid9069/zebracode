@@ -24,6 +24,8 @@ NUL
 # next.js
 /.next/
 /out/
+kit/.next/
+kit/out/
 
 # production
 /build

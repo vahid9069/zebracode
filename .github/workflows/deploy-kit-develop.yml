@@ -1,0 +1,65 @@
+name: Build and Deploy General Tools - Kit (Staging)
+
+on:
+  push:
+    branches: [ develop ]
+    paths:
+      - 'kit/**'
+      - '.github/workflows/deploy-kit-develop.yml'
+  workflow_dispatch:
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    environment:
+      name: staging
+    env:
+      NEXT_PUBLIC_BASE_URL: ${{ vars.NEXT_PUBLIC_KIT_DEV_BASE_URL || 'https://test-kit.zebracode.ir' }}
+
+    steps:
+      - name: 📥 Checkout repository
+        uses: actions/checkout@v4
+
+      - name: 🟢 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'npm'
+
+      - name: 📦 Install root dependencies
+        run: npm ci
+
+      - name: 📦 Install kit dependencies
+        run: npm --prefix kit ci || npm --prefix kit install
+
+      - name: 🏗️ Build static export for kit
+        run: npm --prefix kit run build
+
+      - name: 🛡️ Enforce No-Index on Kit Staging Environment
+        run: |
+          echo "1. Overwriting robots.txt with Disallow: /"
+          cat << 'EOF' > ./kit/out/robots.txt
+          User-agent: *
+          Disallow: /
+          EOF
+
+          echo "2. Adding .htaccess with X-Robots-Tag header"
+          cat << 'EOF' > ./kit/out/.htaccess
+          <IfModule mod_headers.c>
+            Header set X-Robots-Tag "noindex, nofollow, noarchive, nosnippet"
+          </IfModule>
+          EOF
+
+          echo "3. Injecting <meta name=\"robots\" content=\"noindex, nofollow\"> into all HTML files"
+          find ./kit/out -name "*.html" -exec sed -i 's/<head>/<head><meta name="robots" content="noindex, nofollow">/g' {} +
+
+      - name: 🚀 Deploy kit to server via FTP
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.4
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USER_KIT_DEV || secrets.FTP_USER_DEV }}
+          password: ${{ secrets.FTP_PASS_KIT_DEV || secrets.FTP_PASS_DEV }}
+          local-dir: ./kit/out/
+          server-dir: ${{ vars.FTP_DIR_KIT_DEV || '/' }}
+          dangerous-clean-slate: false

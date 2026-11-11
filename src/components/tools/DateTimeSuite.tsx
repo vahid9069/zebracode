@@ -275,6 +275,20 @@ export default function DateTimeSuite() {
           </div>
         </div>
 
+        {locale === 'fa' && (
+          <div className="rounded-xl border border-border-strong/40 bg-surface-raised px-4 py-3 text-xs flex flex-wrap items-center justify-between gap-3 text-text-muted shadow-2xs">
+            <span>برای تبدیل ساده تقویم شمسی و میلادی یا محاسبه سن روزمره:</span>
+            <a
+              href="https://kit.zebracode.ir/date-converter/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-bold text-action hover:underline flex items-center gap-1"
+            >
+              ورود به مبدل تاریخ در زبراکد کیت ←
+            </a>
+          </div>
+        )}
+
         {/* calendar + day panel */}
         <div className="grid items-start gap-5 lg:grid-cols-[minmax(0,1fr)_20rem]">
           <div className={cn(CARD, 'p-4')}>

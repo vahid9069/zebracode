@@ -1,8 +1,11 @@
-name: Build and Deploy via FTP
+name: Build and Deploy Developer Tools (Production)
 
 on:
   push:
     branches: [ main ]
+    paths-ignore:
+      - 'kit/**'
+  workflow_dispatch:
 
 jobs:
   build-and-deploy:
@@ -11,7 +14,8 @@ jobs:
     environment:
       name: production
     env:
-      NEXT_PUBLIC_BASE_URL: ${{ vars.NEXT_PUBLIC_BASE_URL }}
+      NEXT_PUBLIC_BASE_URL: ${{ vars.NEXT_PUBLIC_BASE_URL || 'https://zebracode.ir' }}
+
     steps:
       - name: 📥 Checkout repository
         uses: actions/checkout@v4
