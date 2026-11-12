@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "next dev -p 3001",
     "build": "next build",
-    "postbuild": "tsx scripts/generate-llms.mjs",
+    "postbuild": "tsx scripts/generate-sitemap.mjs && tsx scripts/generate-llms.mjs",
     "start": "next start -p 3001",
     "lint": "next lint"
   },
