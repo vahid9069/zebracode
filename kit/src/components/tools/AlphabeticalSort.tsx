@@ -1,39 +1,105 @@
 'use client';
 
-import React, { useState } from 'react';
-import { ArrowDownAZ, ArrowUpAZ, Shuffle, Copy, Check, Clipboard, Trash2 } from 'lucide-react';
+import React, { useState, useMemo } from 'react';
+import {
+  ArrowDownAZ,
+  ArrowUpAZ,
+  Shuffle,
+  Copy,
+  Check,
+  Clipboard,
+  Trash2,
+  Download,
+  RotateCcw,
+  Sparkles,
+  ArrowUpDown,
+  Hash
+} from 'lucide-react';
 
-export function AlphabeticalSort() {
-  const [text, setText] = useState('انار\nموز\nسیب\nپرتقال\nهلو\nگیلاس');
-  const [copied, setCopied] = useState(false);
+interface AlphabeticalSortProps {
+  locale?: string;
+  dict?: any;
+}
 
-  const getLines = () => text.split('\n').filter((l) => l.trim().length > 0);
+const SAMPLE_FA = `انار
+موز
+سیب
+پرتقال
+هلو
+گیلاس
+خیار
+انگور
+توت‌فرنگی
+کیوی`;
+
+const SAMPLE_EN = `Banana
+Apple
+Orange
+Mango
+Pineapple
+Cherry
+Blueberry
+Peach
+Strawberry`;
+
+export function AlphabeticalSort({ locale = 'fa', dict }: AlphabeticalSortProps) {
+  const isEn = locale === 'en';
+  const [text, setText] = useState<string>(isEn ? SAMPLE_EN : SAMPLE_FA);
+  const [caseSensitive, setCaseSensitive] = useState<boolean>(false);
+  const [naturalSort, setNaturalSort] = useState<boolean>(true);
+  const [copied, setCopied] = useState<boolean>(false);
+
+  const lines = useMemo(() => {
+    return text.split('\n').filter((l) => l.trim().length > 0);
+  }, [text]);
 
   const sortAsc = () => {
-    const lines = getLines();
-    lines.sort((a, b) => a.localeCompare(b, 'fa', { numeric: true }));
-    setText(lines.join('\n'));
+    const list = [...lines];
+    list.sort((a, b) =>
+      a.localeCompare(b, isEn ? 'en' : 'fa', {
+        numeric: naturalSort,
+        sensitivity: caseSensitive ? 'case' : 'base',
+      })
+    );
+    setText(list.join('\n'));
   };
 
   const sortDesc = () => {
-    const lines = getLines();
-    lines.sort((a, b) => b.localeCompare(a, 'fa', { numeric: true }));
-    setText(lines.join('\n'));
+    const list = [...lines];
+    list.sort((a, b) =>
+      b.localeCompare(a, isEn ? 'en' : 'fa', {
+        numeric: naturalSort,
+        sensitivity: caseSensitive ? 'case' : 'base',
+      })
+    );
+    setText(list.join('\n'));
+  };
+
+  const sortByLengthAsc = () => {
+    const list = [...lines];
+    list.sort((a, b) => a.length - b.length || a.localeCompare(b, isEn ? 'en' : 'fa'));
+    setText(list.join('\n'));
+  };
+
+  const sortByLengthDesc = () => {
+    const list = [...lines];
+    list.sort((a, b) => b.length - a.length || b.localeCompare(a, isEn ? 'en' : 'fa'));
+    setText(list.join('\n'));
   };
 
   const reverseLines = () => {
-    const lines = text.split('\n');
-    lines.reverse();
-    setText(lines.join('\n'));
+    const list = text.split('\n');
+    list.reverse();
+    setText(list.join('\n'));
   };
 
   const shuffleLines = () => {
-    const lines = getLines();
-    for (let i = lines.length - 1; i > 0; i--) {
+    const list = [...lines];
+    for (let i = list.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
-      [lines[i], lines[j]] = [lines[j], lines[i]];
+      [list[i], list[j]] = [list[j], list[i]];
     }
-    setText(lines.join('\n'));
+    setText(list.join('\n'));
   };
 
   const handleCopy = () => {
@@ -42,73 +108,188 @@ export function AlphabeticalSort() {
     setTimeout(() => setCopied(false), 2000);
   };
 
+  const handlePaste = async () => {
+    try {
+      const clip = await navigator.clipboard.readText();
+      setText(clip);
+    } catch {
+      // ignore
+    }
+  };
+
+  const handleDownload = () => {
+    const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `sorted-list-${Date.now()}.txt`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const handleReset = () => {
+    setText(isEn ? SAMPLE_EN : SAMPLE_FA);
+  };
+
   return (
     <div className="space-y-6">
-      {/* نوار دکمه‌های مرتب‌سازی */}
-      <div className="flex flex-wrap items-center gap-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 shadow-sm">
-        <button
-          onClick={sortAsc}
-          className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-blue-600 text-white text-xs font-bold hover:bg-blue-700 transition-colors shadow-sm"
-        >
-          <ArrowDownAZ className="w-4 h-4" />
-          مرتب‌سازی صعودی (الف تا ی / A-Z)
-        </button>
+      {/* Action Buttons Toolbar */}
+      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-5 shadow-sm space-y-4">
+        <div className="flex flex-wrap items-center gap-2.5">
+          <button
+            type="button"
+            onClick={sortAsc}
+            className="flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-blue-600 text-white text-xs sm:text-sm font-bold hover:bg-blue-700 active:scale-95 transition-all shadow-sm shadow-blue-500/20"
+          >
+            <ArrowDownAZ className="w-4 h-4" />
+            <span>{isEn ? 'Sort A to Z (Ascending)' : 'مرتب‌سازی الف تا ی (صعودی)'}</span>
+          </button>
 
-        <button
-          onClick={sortDesc}
-          className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 text-xs font-bold transition-colors"
-        >
-          <ArrowUpAZ className="w-4 h-4" />
-          مرتب‌سازی نزولی (ی تا الف / Z-A)
-        </button>
+          <button
+            type="button"
+            onClick={sortDesc}
+            className="flex items-center gap-2 px-4 py-2.5 rounded-2xl border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 text-xs sm:text-sm font-bold active:scale-95 transition-all"
+          >
+            <ArrowUpAZ className="w-4 h-4" />
+            <span>{isEn ? 'Sort Z to A (Descending)' : 'مرتب‌سازی ی تا الف (نزولی)'}</span>
+          </button>
 
-        <button
-          onClick={reverseLines}
-          className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 text-xs font-semibold transition-colors"
-        >
-          معکوس کردن خطوط
-        </button>
+          <button
+            type="button"
+            onClick={sortByLengthAsc}
+            className="flex items-center gap-2 px-4 py-2.5 rounded-2xl border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 text-xs sm:text-sm font-semibold active:scale-95 transition-all"
+          >
+            <span>{isEn ? 'Shortest First' : 'کوتاه‌ترین به بلندترین'}</span>
+          </button>
 
-        <button
-          onClick={shuffleLines}
-          className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 text-xs font-semibold transition-colors"
-        >
-          <Shuffle className="w-4 h-4" />
-          بُر زدن تصادفی
-        </button>
+          <button
+            type="button"
+            onClick={sortByLengthDesc}
+            className="flex items-center gap-2 px-4 py-2.5 rounded-2xl border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 text-xs sm:text-sm font-semibold active:scale-95 transition-all"
+          >
+            <span>{isEn ? 'Longest First' : 'بلندترین به کوتاه‌ترین'}</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={reverseLines}
+            className="flex items-center gap-2 px-4 py-2.5 rounded-2xl border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 text-xs sm:text-sm font-semibold active:scale-95 transition-all"
+          >
+            <ArrowUpDown className="w-4 h-4" />
+            <span>{isEn ? 'Reverse Order' : 'معکوس کردن ترتیب'}</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={shuffleLines}
+            className="flex items-center gap-2 px-4 py-2.5 rounded-2xl border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 text-xs sm:text-sm font-semibold active:scale-95 transition-all"
+          >
+            <Shuffle className="w-4 h-4" />
+            <span>{isEn ? 'Random Shuffle' : 'بُر زدن تصادفی'}</span>
+          </button>
+        </div>
+
+        {/* Options Row */}
+        <div className="flex flex-wrap items-center justify-between gap-4 pt-3 border-t border-slate-100 dark:border-slate-800/80 text-xs">
+          <div className="flex flex-wrap items-center gap-4">
+            <label className="flex items-center gap-2 cursor-pointer text-slate-700 dark:text-slate-300">
+              <input
+                type="checkbox"
+                checked={naturalSort}
+                onChange={(e) => setNaturalSort(e.target.checked)}
+                className="rounded border-slate-300 text-blue-600 focus:ring-0"
+              />
+              <span>{isEn ? 'Natural numeric sorting (1, 2, 10)' : 'مرتب‌سازی طبیعی اعداد (۱، ۲، ۱۰)'}</span>
+            </label>
+
+            <label className="flex items-center gap-2 cursor-pointer text-slate-700 dark:text-slate-300">
+              <input
+                type="checkbox"
+                checked={caseSensitive}
+                onChange={(e) => setCaseSensitive(e.target.checked)}
+                className="rounded border-slate-300 text-blue-600 focus:ring-0"
+              />
+              <span>{isEn ? 'Case sensitive (A-Z before a-z)' : 'حساس به حروف بزرگ و کوچک'}</span>
+            </label>
+          </div>
+
+          <button
+            type="button"
+            onClick={handleReset}
+            className="flex items-center gap-1.5 text-xs font-medium text-slate-500 hover:text-blue-600 transition-colors"
+          >
+            <RotateCcw className="w-3.5 h-3.5" />
+            <span>{isEn ? 'Reset Sample' : 'بارگذاری متن نمونه'}</span>
+          </button>
+        </div>
       </div>
 
-      {/* ادیتور متن */}
-      <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm overflow-hidden">
-        <div className="flex items-center justify-between px-4 py-3 bg-slate-50 dark:bg-slate-950/50 border-b border-slate-200 dark:border-slate-800 text-xs font-bold">
-          <span>متن ورودی (هر مورد در یک خط):</span>
+      {/* Text Editor Box */}
+      <div className="rounded-3xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm overflow-hidden">
+        {/* Header */}
+        <div className="flex items-center justify-between px-5 py-3.5 bg-slate-50 dark:bg-slate-950/50 border-b border-slate-200 dark:border-slate-800">
+          <div className="flex items-center gap-2">
+            <span className="flex items-center gap-1.5" aria-hidden="true">
+              <span className="w-2.5 h-2.5 rounded-full bg-red-400" />
+              <span className="w-2.5 h-2.5 rounded-full bg-amber-400" />
+              <span className="w-2.5 h-2.5 rounded-full bg-emerald-400" />
+            </span>
+            <span className="text-xs font-bold text-slate-700 dark:text-slate-200 mr-1">
+              {isEn ? `List items (${lines.length} lines)` : `لیست ورودی (${lines.length.toLocaleString('fa-IR')} خط)`}
+            </span>
+          </div>
+
           <div className="flex items-center gap-2">
             <button
-              onClick={() => setText('')}
-              className="text-rose-600 hover:underline px-2 py-1 text-xs"
+              type="button"
+              onClick={handlePaste}
+              className="flex items-center gap-1 px-3 py-1.5 text-xs font-semibold rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors"
             >
-              پاک‌سازی
+              <Clipboard className="w-3.5 h-3.5" />
+              <span>{isEn ? 'Paste' : 'پیست'}</span>
             </button>
             <button
+              type="button"
+              onClick={handleDownload}
+              disabled={!text}
+              className="flex items-center gap-1 px-3 py-1.5 text-xs font-semibold rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-800 disabled:opacity-40 transition-colors"
+            >
+              <Download className="w-3.5 h-3.5" />
+              <span>{isEn ? 'Download' : 'دانلود'}</span>
+            </button>
+            <button
+              type="button"
               onClick={handleCopy}
-              className="flex items-center gap-1 px-3 py-1 rounded-lg bg-blue-600 text-white hover:bg-blue-700 text-xs shadow-sm"
+              disabled={!text}
+              className="flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-bold rounded-xl bg-blue-600 text-white hover:bg-blue-700 shadow-sm disabled:opacity-40 transition-all"
             >
               {copied ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
-              <span>{copied ? 'کپی شد' : 'کپی کل متن'}</span>
+              <span>{copied ? (isEn ? 'Copied' : 'کپی شد') : (isEn ? 'Copy' : 'کپی')}</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setText('')}
+              disabled={!text}
+              className="flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium rounded-xl text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 disabled:opacity-40 transition-colors"
+            >
+              <Trash2 className="w-3.5 h-3.5" />
             </button>
           </div>
         </div>
 
+        {/* Text Area */}
         <textarea
           value={text}
           onChange={(e) => setText(e.target.value)}
+          placeholder={isEn ? 'Enter items, one per line...' : 'آیتم‌ها را وارد کنید (هر مورد در یک خط)...'}
           rows={14}
-          placeholder="خطوط متن خود را اینجا وارد کنید..."
-          className="w-full p-4 bg-transparent text-sm leading-relaxed focus:outline-none resize-none font-sans"
+          className="w-full p-5 bg-transparent text-sm leading-relaxed text-slate-800 dark:text-slate-200 placeholder:text-slate-400 focus:outline-none resize-none font-vazir"
         />
 
-        <div className="px-4 py-2 bg-slate-50 dark:bg-slate-950/40 border-t border-slate-100 dark:border-slate-800 text-xs text-slate-500">
-          تعداد کل خطوط: {text ? text.split('\n').length.toLocaleString('fa-IR') : 0} ردیف
+        {/* Footer */}
+        <div className="flex items-center justify-between px-5 py-2.5 bg-slate-50 dark:bg-slate-950/40 border-t border-slate-100 dark:border-slate-800/80 text-xs text-slate-500">
+          <span>{isEn ? `${lines.length} non-empty items` : `${lines.length.toLocaleString('fa-IR')} آیتم شناسایی شد`}</span>
+          <span className="text-slate-400">{isEn ? '100% In-Browser' : '۱۰۰٪ در مرورگر'}</span>
         </div>
       </div>
     </div>

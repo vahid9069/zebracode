@@ -14,6 +14,7 @@ import {ToolMeta} from "@/types/types";
 import {DateTimeToolsList} from "@/lib/registry/dateTimeToolsList";
 import {GeneratorToolsList} from "@/lib/registry/GeneratorToolsList";
 import {DeveloperToolsList} from "@/lib/registry/developerToolsList";
+import {ImageToolsList} from "@/lib/registry/imageToolsList";
 
 export const AllToolsList: Record<string, ToolMeta> = {
     ...JsonToolsList,
@@ -30,5 +31,6 @@ export const AllToolsList: Record<string, ToolMeta> = {
     ...FlowToolsList,
     ...DateTimeToolsList,
     ...GeneratorToolsList,
-    ...DeveloperToolsList
+    ...DeveloperToolsList,
+    ...ImageToolsList
 };

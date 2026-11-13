@@ -1,139 +1,219 @@
 'use client';
 
-import React, { useState } from 'react';
-import { Copy, Check, Trash2, ArrowDownUp } from 'lucide-react';
+import React, { useState, useMemo, useCallback } from 'react';
+import {
+  Copy,
+  Check,
+  Trash2,
+  Sparkles,
+  Type,
+  Code2,
+  FileText,
+  Scissors,
+  Layers,
+  Wand2,
+} from 'lucide-react';
+import type { CaseResultItem, CaseStyleId } from '@/lib/case-converter/types';
+import {
+  calculateTextStatistics,
+  convertToAllCases,
+} from '@/lib/case-converter/converter';
 
-export function CaseConverter() {
-  const [text, setText] = useState<string>('Hello World! Welcome to ZebraCode Developer Tools.');
-  const [copiedKey, setCopiedKey] = useState<string | null>(null);
+interface CaseConverterProps {
+  locale?: 'fa' | 'en';
+  dict?: any;
+}
 
-  const handleCopy = (val: string, key: string) => {
-    navigator.clipboard.writeText(val);
-    setCopiedKey(key);
-    setTimeout(() => setCopiedKey(null), 2000);
+export function CaseConverter({ locale = 'fa', dict }: CaseConverterProps) {
+  const isEn = locale === 'en';
+
+  const [input, setInput] = useState<string>(
+    isEn ? 'userProfileAuthenticationToken and HTTP response' : 'خوش آمدید Welcome to ZebraCode Developer Tools'
+  );
+  const [selectedCategory, setSelectedCategory] = useState<'all' | 'code' | 'text' | 'fun'>('all');
+  const [copiedId, setCopiedId] = useState<string | null>(null);
+
+  // Compute stats and conversions
+  const stats = useMemo(() => calculateTextStatistics(input), [input]);
+  const allResults = useMemo(() => convertToAllCases(input), [input]);
+
+  const filteredResults = useMemo(() => {
+    if (selectedCategory === 'all') return allResults;
+    return allResults.filter((r) => r.category === selectedCategory);
+  }, [allResults, selectedCategory]);
+
+  const handleCopy = (text: string, id: string) => {
+    navigator.clipboard.writeText(text);
+    setCopiedId(id);
+    setTimeout(() => setCopiedId(null), 2000);
   };
 
-  // الگوریتم‌های تبدیل
-  const toUpper = (s: string) => s.toUpperCase();
-  const toLower = (s: string) => s.toLowerCase();
-
-  const toSentence = (s: string) => {
-    return s.toLowerCase().replace(/(^\s*\w|[.!?]\s*\w)/g, (c) => c.toUpperCase());
+  const handleCopyAllAsJson = () => {
+    const obj: Record<string, string> = {};
+    allResults.forEach((r) => {
+      obj[r.id] = r.value;
+    });
+    navigator.clipboard.writeText(JSON.stringify(obj, null, 2));
+    setCopiedId('all-json');
+    setTimeout(() => setCopiedId(null), 2000);
   };
 
-  const toTitle = (s: string) => {
-    return s.toLowerCase().replace(/\b\w/g, (c) => c.toUpperCase());
+  const handleSample = (text: string) => {
+    setInput(text);
   };
-
-  const toCamel = (s: string) => {
-    return s
-      .toLowerCase()
-      .replace(/[^a-zA-Z0-9]+(.)/g, (_, chr) => chr.toUpperCase())
-      .replace(/^([A-Z])/, (_, chr) => chr.toLowerCase());
-  };
-
-  const toPascal = (s: string) => {
-    const camel = toCamel(s);
-    return camel.charAt(0).toUpperCase() + camel.slice(1);
-  };
-
-  const toSnake = (s: string) => {
-    return s
-      .trim()
-      .replace(/([a-z])([A-Z])/g, '$1_$2')
-      .replace(/[\s\W-]+/g, '_')
-      .toLowerCase();
-  };
-
-  const toKebab = (s: string) => {
-    return s
-      .trim()
-      .replace(/([a-z])([A-Z])/g, '$1-$2')
-      .replace(/[\s\W_]+/g, '-')
-      .toLowerCase();
-  };
-
-  const toAlternating = (s: string) => {
-    return s
-      .split('')
-      .map((c, i) => (i % 2 === 0 ? c.toLowerCase() : c.toUpperCase()))
-      .join('');
-  };
-
-  const formats = [
-    { key: 'upper', title: 'UPPERCASE (تمام حروف بزرگ)', value: toUpper(text) },
-    { key: 'lower', title: 'lowercase (تمام حروف کوچک)', value: toLower(text) },
-    { key: 'title', title: 'Title Case (حرف اول هر کلمه بزرگ)', value: toTitle(text) },
-    { key: 'sentence', title: 'Sentence case (حرف اول هر جمله بزرگ)', value: toSentence(text) },
-    { key: 'camel', title: 'camelCase (مخصوص متغیرهای برنامه‌نویسی)', value: toCamel(text) },
-    { key: 'pascal', title: 'PascalCase (مخصوص نام کلاس‌ها)', value: toPascal(text) },
-    { key: 'snake', title: 'snake_case (با خط فاصله پایین _)', value: toSnake(text) },
-    { key: 'kebab', title: 'kebab-case (با خط تیره -)', value: toKebab(text) },
-    { key: 'alt', title: 'aLtErNaTiNg cAsE (حروف یکی‌درمیان)', value: toAlternating(text) },
-  ];
 
   return (
-    <div className="space-y-6">
-      {/* باکس ورودی اصلی */}
-      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 shadow-sm space-y-3">
-        <div className="flex items-center justify-between text-xs text-slate-500">
-          <label className="font-bold text-slate-700 dark:text-slate-300">متن انگلیسی ورودی را وارد کنید:</label>
-          <div className="flex items-center gap-2">
-            <span>کاراکترها: <strong className="font-mono text-slate-800 dark:text-slate-200">{text.length}</strong></span>
-            {text && (
-              <button
-                onClick={() => setText('')}
-                className="p-1 text-rose-500 hover:text-rose-600 rounded transition-colors"
-                title="پاک کردن متن"
-              >
-                <Trash2 className="w-3.5 h-3.5" />
-              </button>
-            )}
+    <div className="space-y-6" dir={isEn ? 'ltr' : 'rtl'}>
+      {/* Input Workspace */}
+      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 shadow-sm space-y-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <label className="text-xs font-bold text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
+            <Type className="w-4 h-4 text-blue-600" />
+            <span>{isEn ? 'Enter Text or Variable Identifier:' : 'متن یا نام متغیر را اینجا وارد کنید:'}</span>
+          </label>
+
+          {/* Quick Samples */}
+          <div className="flex items-center gap-1.5 flex-wrap">
+            <span className="text-[11px] text-slate-400 mx-1">{isEn ? 'Samples:' : 'نمونه‌ها:'}</span>
+            <button
+              type="button"
+              onClick={() => handleSample('getHTTPResponseCode')}
+              className="px-2 py-1 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-blue-50 dark:hover:bg-blue-950/40 text-[11px] font-mono text-slate-600 dark:text-slate-400 hover:text-blue-600 transition-colors"
+            >
+              getHTTPResponseCode
+            </button>
+            <button
+              type="button"
+              onClick={() => handleSample('The quick brown fox jumps over the lazy dog')}
+              className="px-2 py-1 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-blue-50 dark:hover:bg-blue-950/40 text-[11px] font-mono text-slate-600 dark:text-slate-400 hover:text-blue-600 transition-colors"
+            >
+              quick brown fox
+            </button>
+            <button
+              type="button"
+              onClick={() => handleSample('database_connection_timeout_ms')}
+              className="px-2 py-1 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-blue-50 dark:hover:bg-blue-950/40 text-[11px] font-mono text-slate-600 dark:text-slate-400 hover:text-blue-600 transition-colors"
+            >
+              database_connection
+            </button>
           </div>
         </div>
 
-        <textarea
-          value={text}
-          onChange={(e) => setText(e.target.value)}
-          placeholder="Type or paste English text here..."
-          rows={3}
-          dir="ltr"
-          className="w-full p-3.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50 font-mono text-sm focus:outline-none focus:border-blue-500"
-        />
+        <div className="relative">
+          <textarea
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            rows={4}
+            placeholder={isEn ? 'Type or paste text to convert...' : 'متن دلخواه یا نام متغیر مورد نظرتان را تایپ یا پیست نمایید...'}
+            className="w-full p-4 rounded-2xl border-2 border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950/50 text-sm font-mono text-slate-900 dark:text-slate-100 placeholder:text-slate-400 focus:outline-none focus:border-blue-600 transition-all resize-y"
+          />
+          {input && (
+            <button
+              type="button"
+              onClick={() => setInput('')}
+              className={`absolute ${isEn ? 'right-3' : 'left-3'} bottom-4 p-1.5 rounded-lg text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors`}
+              title={isEn ? 'Clear' : 'پاک‌سازی'}
+            >
+              <Trash2 className="w-4 h-4" />
+            </button>
+          )}
+        </div>
+
+        {/* Text Metrics Bar */}
+        <div className="flex flex-wrap items-center justify-between gap-4 pt-3 border-t border-slate-100 dark:border-slate-800 text-xs text-slate-500 dark:text-slate-400">
+          <div className="flex items-center gap-4 font-mono">
+            <span>
+              {isEn ? 'Characters:' : 'کاراکتر:'} <strong className="text-slate-900 dark:text-white">{stats.characters}</strong>
+            </span>
+            <span>•</span>
+            <span>
+              {isEn ? 'Words:' : 'کلمات:'} <strong className="text-slate-900 dark:text-white">{stats.words}</strong>
+            </span>
+            <span>•</span>
+            <span>
+              {isEn ? 'Lines:' : 'خطوط:'} <strong className="text-slate-900 dark:text-white">{stats.lines}</strong>
+            </span>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={handleCopyAllAsJson}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 font-semibold text-xs text-slate-700 dark:text-slate-300 transition-colors"
+            >
+              {copiedId === 'all-json' ? <Check className="w-3.5 h-3.5 text-emerald-500" /> : <Copy className="w-3.5 h-3.5" />}
+              <span>{copiedId === 'all-json' ? (isEn ? 'Copied All!' : 'همه کپی شد!') : (isEn ? 'Copy All as JSON' : 'کپی همه در قالب JSON')}</span>
+            </button>
+          </div>
+        </div>
       </div>
 
-      {/* لیست خروجی‌های تبدیل شده با قابلیت کپی سریع */}
+      {/* Category Tabs */}
+      <div className="flex items-center gap-2 border-b border-slate-200 dark:border-slate-800 pb-3">
+        {[
+          { id: 'all', label: isEn ? 'All Standards' : 'تمام استانداردها', count: allResults.length },
+          { id: 'code', label: isEn ? 'Programming (Code)' : 'کدنویسی و متغیرها', count: allResults.filter((r) => r.category === 'code').length },
+          { id: 'text', label: isEn ? 'Natural Text' : 'متون عادی و مقالات', count: allResults.filter((r) => r.category === 'text').length },
+          { id: 'fun', label: isEn ? 'Stylized / Creative' : 'خلاقانه و فان', count: allResults.filter((r) => r.category === 'fun').length },
+        ].map((tab) => {
+          const active = selectedCategory === tab.id;
+          return (
+            <button
+              key={tab.id}
+              type="button"
+              onClick={() => setSelectedCategory(tab.id as any)}
+              className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all ${
+                active
+                  ? 'bg-blue-600 text-white shadow-xs'
+                  : 'bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 hover:border-slate-300'
+              }`}
+            >
+              {tab.label} ({tab.count})
+            </button>
+          );
+        })}
+      </div>
+
+      {/* Grid of Converted Cases */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {formats.map((fmt) => (
+        {filteredResults.map((item) => (
           <div
-            key={fmt.key}
-            className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 shadow-sm space-y-2 hover:border-blue-300 dark:hover:border-blue-900 transition-all"
+            key={item.id}
+            className="group relative bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:border-blue-500/60 rounded-2xl p-5 shadow-xs flex flex-col justify-between transition-all"
           >
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-bold text-slate-600 dark:text-slate-400">{fmt.title}</span>
-              <button
-                onClick={() => handleCopy(fmt.value, fmt.key)}
-                className="flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-medium bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 transition-colors"
-              >
-                {copiedKey === fmt.key ? (
-                  <>
-                    <Check className="w-3.5 h-3.5 text-emerald-500" />
-                    <span>کپی شد!</span>
-                  </>
-                ) : (
-                  <>
-                    <Copy className="w-3.5 h-3.5" />
-                    <span>کپی</span>
-                  </>
-                )}
-              </button>
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="font-bold text-xs text-slate-900 dark:text-white">
+                  {isEn ? item.nameEn : item.nameFa}
+                </span>
+                <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500">
+                  {item.category}
+                </span>
+              </div>
+
+              <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-950/60 border border-slate-100 dark:border-slate-800/80 font-mono text-sm break-all select-all text-slate-800 dark:text-slate-200 min-h-[44px] flex items-center">
+                {item.value || <span className="text-slate-400 text-xs italic">({isEn ? 'Empty' : 'خالی'})</span>}
+              </div>
+
+              <p className="text-[11px] text-slate-400 leading-relaxed">
+                {isEn ? item.descriptionEn : item.descriptionFa}
+              </p>
             </div>
 
-            <div
-              className="p-3 bg-slate-50 dark:bg-slate-800/60 rounded-xl font-mono text-xs text-slate-800 dark:text-slate-200 break-all select-all min-h-[44px] flex items-center"
-              dir="ltr"
-            >
-              {fmt.value || <span className="text-slate-400 italic font-sans text-xs">خالی</span>}
+            <div className="mt-4 pt-3 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between">
+              <span className="text-[10px] text-slate-400 font-mono">{item.value.length} {isEn ? 'chars' : 'کاراکتر'}</span>
+              <button
+                type="button"
+                onClick={() => handleCopy(item.value, item.id)}
+                className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all ${
+                  copiedId === item.id
+                    ? 'bg-emerald-600 text-white'
+                    : 'bg-slate-100 dark:bg-slate-800 hover:bg-blue-600 hover:text-white text-slate-700 dark:text-slate-300'
+                }`}
+              >
+                {copiedId === item.id ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
+                <span>{copiedId === item.id ? (isEn ? 'Copied!' : 'کپی شد!') : (isEn ? 'Copy' : 'کپی')}</span>
+              </button>
             </div>
           </div>
         ))}

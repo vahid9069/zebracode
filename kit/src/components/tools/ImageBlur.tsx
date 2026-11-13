@@ -1,18 +1,39 @@
 'use client';
 
 import React, { useState, useRef, useEffect, useCallback } from 'react';
-import { Upload, Download, EyeOff, RotateCcw, Undo2, Sliders, Grid3X3, Square, Sparkles } from 'lucide-react';
+import {
+  Upload,
+  Download,
+  EyeOff,
+  RotateCcw,
+  Undo2,
+  Sliders,
+  Grid3X3,
+  Square,
+  Sparkles,
+  Check,
+  Clipboard,
+  Layers,
+} from 'lucide-react';
+
+interface ImageBlurProps {
+  locale?: 'fa' | 'en';
+  dict?: any;
+}
 
 type CensorMode = 'pixelate' | 'blur' | 'blackout';
 
-export function ImageBlur() {
+export function ImageBlur({ locale = 'fa', dict }: ImageBlurProps) {
+  const isEn = locale === 'en';
+
   const [imageSrc, setImageSrc] = useState<string | null>(null);
   const [imgElement, setImgElement] = useState<HTMLImageElement | null>(null);
   const [censorMode, setCensorMode] = useState<CensorMode>('blur');
-  const [intensity, setIntensity] = useState<number>(15); // شدت مات‌شدن یا اندازه پیکسل‌ها
+  const [intensity, setIntensity] = useState<number>(15);
   const [history, setHistory] = useState<ImageData[]>([]);
+  const [copied, setCopied] = useState<boolean>(false);
 
-  // انتخاب مستطیلی با ماوس
+  // Selection state
   const [isSelecting, setIsSelecting] = useState(false);
   const [startPoint, setStartPoint] = useState<{ x: number; y: number } | null>(null);
   const [currentPoint, setCurrentPoint] = useState<{ x: number; y: number } | null>(null);
@@ -37,7 +58,6 @@ export function ImageBlur() {
     reader.readAsDataURL(file);
   };
 
-  // رسم تصویر روی بوم به محض بارگذاری
   const setupCanvas = useCallback(() => {
     if (!imgElement || !canvasRef.current) return;
     const canvas = canvasRef.current;
@@ -47,7 +67,6 @@ export function ImageBlur() {
     if (!ctx) return;
     ctx.drawImage(imgElement, 0, 0);
 
-    // ذخیره وضعیت اولیه در تاریخچه
     const initialData = ctx.getImageData(0, 0, canvas.width, canvas.height);
     setHistory([initialData]);
   }, [imgElement]);
@@ -56,17 +75,15 @@ export function ImageBlur() {
     setupCanvas();
   }, [setupCanvas]);
 
-  // ذخیره وضعیت قبل از اعمال فیلتر برای Undo
   const saveStateForUndo = () => {
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext('2d', { willReadFrequently: true });
     if (!ctx) return;
     const data = ctx.getImageData(0, 0, canvas.width, canvas.height);
-    setHistory((prev) => [...prev.slice(-10), data]); // نگه‌داری تا ۱۰ گام گذشته
+    setHistory((prev) => [...prev.slice(-15), data]);
   };
 
-  // اعمال سانسور روی محدوده مستطیل
   const applyCensorToRect = (x: number, y: number, w: number, h: number) => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -115,7 +132,6 @@ export function ImageBlur() {
     }
 
     if (censorMode === 'blur') {
-      // ایجاد افکت مات روان از طریق کوچک و بزرگ کردن ناحیه
       const tempCanvas = document.createElement('canvas');
       const tempCtx = tempCanvas.getContext('2d');
       if (!tempCtx) return;
@@ -127,24 +143,20 @@ export function ImageBlur() {
       tempCanvas.width = downW;
       tempCanvas.height = downH;
 
-      // ترسیم نسخه مینیاتوری تار شده
       tempCtx.drawImage(canvas, rx, ry, rw, rh, 0, 0, downW, downH);
 
-      // برگرداندن به ابعاد اصلی با اعمال انترپولاسیون تار
       ctx.imageSmoothingEnabled = true;
       ctx.imageSmoothingQuality = 'high';
       ctx.drawImage(tempCanvas, 0, 0, downW, downH, rx, ry, rw, rh);
     }
   };
 
-  // مات کردن کل تصویر
   const applyBlurToEntireImage = () => {
     if (!canvasRef.current) return;
     saveStateForUndo();
     applyCensorToRect(0, 0, canvasRef.current.width, canvasRef.current.height);
   };
 
-  // بازگشت به یک مرحله قبل (Undo)
   const handleUndo = () => {
     if (history.length <= 1 || !canvasRef.current) return;
     const previous = history[history.length - 2];
@@ -154,7 +166,6 @@ export function ImageBlur() {
     setHistory((prev) => prev.slice(0, -1));
   };
 
-  // بازنشانی کامل به تصویر اول
   const handleReset = () => {
     if (!history[0] || !canvasRef.current) return;
     const ctx = canvasRef.current.getContext('2d', { willReadFrequently: true });
@@ -163,7 +174,6 @@ export function ImageBlur() {
     setHistory([history[0]]);
   };
 
-  // محاسبه مختصات واقعی روی Canvas از رویداد ماوس یا لمس
   const getCanvasCoords = (clientX: number, clientY: number) => {
     const canvas = canvasRef.current;
     if (!canvas) return { x: 0, y: 0 };
@@ -218,7 +228,59 @@ export function ImageBlur() {
     link.click();
   };
 
-  // ابعاد کادر پیش‌نمایش هنگام کشیدن ماوس
+  const handleCopy = () => {
+    const canvas = canvasRef.current;
+    if (!canvas || !navigator.clipboard) return;
+    canvas.toBlob(async (blob) => {
+      if (blob) {
+        try {
+          await navigator.clipboard.write([
+            new ClipboardItem({ 'image/png': blob }),
+          ]);
+          setCopied(true);
+          setTimeout(() => setCopied(false), 2000);
+        } catch (err) {
+          console.warn('Copy failed', err);
+        }
+      }
+    });
+  };
+
+  const handleLoadSample = () => {
+    const canvas = document.createElement('canvas');
+    canvas.width = 1200;
+    canvas.height = 700;
+    const ctx = canvas.getContext('2d')!;
+
+    // Background gradient
+    const grad = ctx.createLinearGradient(0, 0, 1200, 700);
+    grad.addColorStop(0, '#1e293b');
+    grad.addColorStop(1, '#0f172a');
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, 1200, 700);
+
+    // Mock Credit Card / Secret Document
+    ctx.fillStyle = '#334155';
+    ctx.roundRect?.(200, 150, 800, 400, 24);
+    ctx.fill();
+
+    ctx.fillStyle = '#f8fafc';
+    ctx.font = 'bold 36px monospace';
+    ctx.fillText('CONFIDENTIAL DOCUMENT / اسناد محرمانه', 250, 240);
+
+    ctx.fillStyle = '#38bdf8';
+    ctx.font = 'bold 30px monospace';
+    ctx.fillText('Card: 5022 2910 8834 1928', 250, 320);
+    ctx.fillText('API Secret: sk_live_9482740192384', 250, 380);
+    ctx.fillText('Phone: +98 912 345 6789', 250, 440);
+
+    const src = canvas.toDataURL('image/png');
+    setImageSrc(src);
+    const img = new Image();
+    img.onload = () => setImgElement(img);
+    img.src = src;
+  };
+
   const getSelectionBoxStyle = () => {
     if (!isSelecting || !startPoint || !currentPoint || !canvasRef.current) return null;
     const canvas = canvasRef.current;
@@ -242,155 +304,188 @@ export function ImageBlur() {
   const selectionBoxStyle = getSelectionBoxStyle();
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6" dir={isEn ? 'ltr' : 'rtl'}>
       {!imageSrc ? (
         <div
           onClick={() => fileInputRef.current?.click()}
-          className="border-2 border-dashed border-slate-300 dark:border-slate-700 hover:border-blue-500 rounded-3xl p-12 text-center cursor-pointer bg-white dark:bg-slate-900 shadow-sm transition-all group"
+          className="border-2 border-dashed border-slate-300 dark:border-slate-700 hover:border-blue-500 rounded-3xl p-10 sm:p-14 text-center cursor-pointer bg-white/50 dark:bg-slate-900/50 hover:bg-blue-50/20 dark:hover:bg-blue-950/10 shadow-sm transition-all group"
         >
           <input
-            ref={fileInputRef}
             type="file"
+            ref={fileInputRef}
             onChange={handleFileChange}
             accept="image/*"
             className="hidden"
           />
-          <div className="w-16 h-16 rounded-2xl bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
+          <div className="w-16 h-16 rounded-2xl bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform shadow-inner">
             <EyeOff className="w-8 h-8" />
           </div>
-          <h3 className="text-base font-bold text-slate-800 dark:text-slate-200">
-            تصویر مورد نظر را انتخاب یا اینجا رها کنید
+          <h3 className="text-lg font-bold text-slate-900 dark:text-white">
+            {isEn ? 'Select an image to blur, censor, or pixelate' : 'انتخاب تصویر جهت مات‌کردن، سانسور یا شطرنجی'}
           </h3>
-          <p className="text-xs text-slate-500 dark:text-slate-400 mt-2">
-            مات کردن چهره، پلاک ماشین، اطلاعات حساس بانکی و شخصی به صورت ۱۰۰٪ امن در مرورگر
+          <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 max-w-sm mx-auto">
+            {isEn
+              ? 'Easily hide sensitive info, faces, phone numbers, or credit cards directly in your browser.'
+              : 'مخفی‌سازی اطلاعات حساس، شماره کارت، چهره افراد و پیام‌های خصوصی با انتخاب محدوده دلخواه بدون ارسال به سرور.'}
           </p>
+
+          <div className="pt-4 flex justify-center">
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                handleLoadSample();
+              }}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 transition-colors"
+            >
+              <Sparkles className="w-3.5 h-3.5 text-amber-500" />
+              {isEn ? 'Try Sample Sensitive Image' : 'تست با تصویر اطلاعات نمونه'}
+            </button>
+          </div>
         </div>
       ) : (
-        <div className="space-y-4">
-          {/* نوار تنظیمات ابزار سانسور */}
-          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 shadow-sm flex flex-wrap items-center justify-between gap-4">
-            {/* انتخاب حالت سانسور */}
-            <div className="flex items-center gap-1.5 bg-slate-100 dark:bg-slate-800 p-1 rounded-xl">
-              <button
-                onClick={() => setCensorMode('blur')}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
-                  censorMode === 'blur'
-                    ? 'bg-white dark:bg-slate-900 text-blue-600 shadow-sm'
-                    : 'text-slate-600 dark:text-slate-400'
-                }`}
-              >
-                <Sparkles className="w-3.5 h-3.5" />
-                مات روان (Blur)
-              </button>
-              <button
-                onClick={() => setCensorMode('pixelate')}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
-                  censorMode === 'pixelate'
-                    ? 'bg-white dark:bg-slate-900 text-blue-600 shadow-sm'
-                    : 'text-slate-600 dark:text-slate-400'
-                }`}
-              >
-                <Grid3X3 className="w-3.5 h-3.5" />
-                شطرنجی (Pixelate)
-              </button>
-              <button
-                onClick={() => setCensorMode('blackout')}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
-                  censorMode === 'blackout'
-                    ? 'bg-white dark:bg-slate-900 text-blue-600 shadow-sm'
-                    : 'text-slate-600 dark:text-slate-400'
-                }`}
-              >
-                <Square className="w-3.5 h-3.5" />
-                نوار مشکی
-              </button>
+        <div className="space-y-6">
+          {/* Controls Bar */}
+          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-5 shadow-sm space-y-4">
+            <div className="flex flex-wrap items-center justify-between gap-4">
+              {/* Censor Mode Selector */}
+              <div className="flex items-center gap-2">
+                {[
+                  { id: 'blur', label: isEn ? 'Blur' : 'مات و محو', icon: EyeOff },
+                  { id: 'pixelate', label: isEn ? 'Pixelate' : 'شطرنجی (پیکسل)', icon: Grid3X3 },
+                  { id: 'blackout', label: isEn ? 'Blackout' : 'کادر سیاه', icon: Square },
+                ].map((m) => {
+                  const Icon = m.icon;
+                  const active = censorMode === m.id;
+                  return (
+                    <button
+                      key={m.id}
+                      type="button"
+                      onClick={() => setCensorMode(m.id as CensorMode)}
+                      className={`flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold transition-all ${
+                        active
+                          ? 'bg-blue-600 text-white shadow-xs'
+                          : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:text-slate-900'
+                      }`}
+                    >
+                      <Icon className="w-4 h-4" />
+                      <span>{m.label}</span>
+                    </button>
+                  );
+                })}
+              </div>
+
+              {/* Undo / Reset Actions */}
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={handleUndo}
+                  disabled={history.length <= 1}
+                  className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-800 text-xs font-semibold text-slate-700 dark:text-slate-300 transition-colors disabled:opacity-40"
+                  title={isEn ? 'Undo' : 'بازگشت یک مرحله'}
+                >
+                  <Undo2 className="w-4 h-4" />
+                  <span>{isEn ? 'Undo' : 'بازگشت'}</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={handleReset}
+                  className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-800 text-xs font-semibold text-slate-700 dark:text-slate-300 transition-colors"
+                  title={isEn ? 'Reset to original' : 'بازنشانی کامل'}
+                >
+                  <RotateCcw className="w-4 h-4" />
+                  <span>{isEn ? 'Reset' : 'شروع مجدد'}</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={applyBlurToEntireImage}
+                  className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-xs font-semibold text-slate-700 dark:text-slate-300 transition-colors"
+                >
+                  <Sliders className="w-4 h-4" />
+                  <span>{isEn ? 'Blur All' : 'مات‌کردن کل عکس'}</span>
+                </button>
+              </div>
             </div>
 
-            {/* اسلایدر شدت */}
+            {/* Intensity Slider */}
             {censorMode !== 'blackout' && (
-              <div className="flex items-center gap-2">
-                <span className="text-xs text-slate-500 font-medium">شدت:</span>
-                <input
-                  type="range"
-                  min="5"
-                  max="40"
-                  value={intensity}
-                  onChange={(e) => setIntensity(parseInt(e.target.value))}
-                  className="w-24 sm:w-32 accent-blue-600 cursor-pointer"
-                />
-                <span className="text-xs font-mono font-bold text-slate-700 dark:text-slate-300 w-6">
-                  {intensity}
+              <div className="pt-2 border-t border-slate-100 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+                <span className="font-semibold text-slate-700 dark:text-slate-300">
+                  {isEn ? 'Blur / Pixel Intensity:' : 'میزان شدت مات‌شدن یا اندازه پیکسل‌ها:'}
                 </span>
+                <div className="flex items-center gap-3 w-full sm:w-64">
+                  <input
+                    type="range"
+                    min={5}
+                    max={40}
+                    value={intensity}
+                    onChange={(e) => setIntensity(Number(e.target.value))}
+                    className="w-full accent-blue-600 cursor-pointer"
+                  />
+                  <span className="font-mono font-bold text-blue-600 w-8">{intensity}</span>
+                </div>
               </div>
             )}
-
-            {/* دکمه‌های اقدام */}
-            <div className="flex items-center gap-2">
-              <button
-                onClick={applyBlurToEntireImage}
-                className="px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 text-xs font-semibold text-slate-700 dark:text-slate-300"
-                title="مات کردن یکدست تمام تصویر"
-              >
-                مات کردن کل تصویر
-              </button>
-              <button
-                onClick={handleUndo}
-                disabled={history.length <= 1}
-                className="p-2 rounded-xl border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 disabled:opacity-40"
-                title="مرحله قبل (Undo)"
-              >
-                <Undo2 className="w-4 h-4" />
-              </button>
-              <button
-                onClick={handleReset}
-                className="p-2 rounded-xl border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300"
-                title="بازنشانی تصویر اولیه"
-              >
-                <RotateCcw className="w-4 h-4" />
-              </button>
-              <button
-                onClick={handleDownload}
-                className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold shadow-sm transition-all"
-              >
-                <Download className="w-4 h-4" />
-                دانلود تصویر
-              </button>
-              <button
-                onClick={() => {
-                  setImageSrc(null);
-                  setImgElement(null);
-                  setHistory([]);
-                }}
-                className="text-xs text-rose-500 hover:underline px-2"
-              >
-                تعویض عکس
-              </button>
-            </div>
           </div>
 
-          {/* راهنمای تعاملی */}
-          <div className="text-xs text-slate-500 dark:text-slate-400 bg-blue-50/50 dark:bg-blue-950/20 border border-blue-100 dark:border-blue-900/40 p-2.5 rounded-xl text-center">
-            با کشیدن ماوس (یا انگشت روی صفحه لمسی) یک کادر روی نقطه مورد نظر بکشید تا فوراً مات شود.
-          </div>
+          {/* Interactive Canvas Workspace */}
+          <div className="bg-slate-950/5 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800 rounded-3xl p-4 sm:p-6 text-center space-y-4">
+            <span className="text-xs text-slate-500 font-semibold block">
+              {isEn ? 'Click and drag on any part of the image to apply censor effect:' : 'با کلیک و کشیدن ماوس (یا لمس)، روی بخش‌های مورد نظر کادر بکشید تا سانسور شوند:'}
+            </span>
 
-          {/* بوم نمایش با کادر پیش‌نمایش زنده */}
-          <div className="relative bg-slate-100 dark:bg-slate-950 p-4 rounded-2xl border border-slate-200 dark:border-slate-800 overflow-auto max-h-[75vh] flex items-center justify-center select-none">
-            <div className="relative inline-block">
+            <div className="relative inline-block overflow-hidden rounded-2xl shadow-md border border-slate-300 dark:border-slate-700 max-w-full select-none touch-none">
               <canvas
                 ref={canvasRef}
                 onPointerDown={handlePointerDown}
                 onPointerMove={handlePointerMove}
                 onPointerUp={handlePointerUp}
-                className="max-w-full h-auto cursor-crosshair rounded-lg shadow-md border touch-none block"
+                className="max-h-[500px] w-auto max-w-full cursor-crosshair block"
               />
 
-              {/* کادر انتخابی تعاملی هنگام درگ کردن */}
+              {/* Selection box indicator */}
               {selectionBoxStyle && (
                 <div
-                  className="absolute pointer-events-none border-2 border-dashed border-blue-500 bg-blue-500/20 rounded shadow-sm"
                   style={selectionBoxStyle}
+                  className="absolute border-2 border-blue-500 bg-blue-500/20 pointer-events-none"
                 />
               )}
+            </div>
+
+            {/* Action Bar */}
+            <div className="flex flex-wrap items-center justify-center gap-3 pt-3">
+              <button
+                type="button"
+                onClick={handleDownload}
+                className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-blue-600 text-white font-bold text-xs hover:bg-blue-700 shadow-md transition-all"
+              >
+                <Download className="w-4 h-4" />
+                <span>{isEn ? 'Download Censored Image (PNG)' : 'دانلود تصویر سانسورشده (PNG)'}</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={handleCopy}
+                className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-800 text-xs font-semibold text-slate-700 dark:text-slate-300 transition-colors"
+                title={isEn ? 'Copy image' : 'کپی تصویر'}
+              >
+                {copied ? <Check className="w-4 h-4 text-emerald-500" /> : <Clipboard className="w-4 h-4" />}
+                <span>{copied ? (isEn ? 'Copied!' : 'کپی شد!') : (isEn ? 'Copy' : 'کپی')}</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  setImageSrc(null);
+                  setImgElement(null);
+                  setHistory([]);
+                }}
+                className="px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 text-xs font-semibold hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-400"
+              >
+                {isEn ? 'Choose Another Photo' : 'تصویر جدید'}
+              </button>
             </div>
           </div>
         </div>

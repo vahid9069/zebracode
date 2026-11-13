@@ -684,5 +684,19 @@
     "descriptionFa": "محتوای JSON را امضا یا JWT با HS256 را با کلید UTF-8 محلی تأیید کنید؛ با تفکیک اعتبار امضا از وضعیت زمانی exp و nbf و مجوز دسترسی.",
     "titleEn": "JWT HS256 Encoder & Verifier",
     "descriptionEn": "Sign a JSON payload or verify an HS256 JWT locally with a UTF-8 HMAC secret, separating signature status from exp and nbf time checks and authorization."
+  },
+  {
+    "path": "image-compressor",
+    "titleFa": "فشرده‌ساز و بهینه‌ساز عکس آنلاین",
+    "descriptionFa": "کاهش حجم و تغییر فرمت تصاویر JPG، PNG، WebP و AVIF با حفظ کیفیت در مرورگر",
+    "titleEn": "Image Compressor & Converter",
+    "descriptionEn": "Compress and optimize JPG, PNG, WebP, and AVIF images locally in your browser"
+  },
+  {
+    "path": "image-converter",
+    "titleFa": "مبدل فرمت تصاویر آنلاین (Image Converter)",
+    "descriptionFa": "تبدیل رایگان و سریع فرمت‌های PNG، JPG، WebP، AVIF، SVG، ICO و BMP در مرورگر",
+    "titleEn": "Image Format Converter",
+    "descriptionEn": "Convert PNG, JPG, WebP, AVIF, SVG, ICO, and BMP images online for free"
   }
 ]

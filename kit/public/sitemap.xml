@@ -1,0 +1,732 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:xhtml="http://www.w3.org/1999/xhtml">
+  <url>
+    <loc>https://kit.zebracode.ir/</loc>
+    <lastmod>2026-11-13</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>1.0</priority>
+    
+  </url>
+  <url>
+    <loc>https://kit.zebracode.ir/en/</loc>
+    <lastmod>2026-11-13</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>1.0</priority>
+    
+  </url>
+  <url>
+    <loc>https://kit.zebracode.ir/image-compressor/</loc>
+    <lastmod>2026-11-13</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://kit.zebracode.ir/en/image-compressor/" />
+  </url>
+  <url>
+    <loc>https://kit.zebracode.ir/en/image-compressor/</loc>
+    <lastmod>2026-11-13</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+    <xhtml:link rel="alternate" hreflang="fa" href="https://kit.zebracode.ir/image-compressor/" />
+  </url>
+  <url>
+    <loc>https://kit.zebracode.ir/image-resizer/</loc>
+    <lastmod>2026-11-13</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://kit.zebracode.ir/en/image-resizer/" />
+  </url>
+  <url>
+    <loc>https://kit.zebracode.ir/en/image-resizer/</loc>
+    <lastmod>2026-11-13</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+    <xhtml:link rel="alternate" hreflang="fa" href="https://kit.zebracode.ir/image-resizer/" />
+  </url>
+  <url>
+    <loc>https://kit.zebracode.ir/circle-avatar/</loc>
+    <lastmod>2026-11-13</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://kit.zebracode.ir/en/circle-avatar/" />
+  </url>
+  <url>
+    <loc>https://kit.zebracode.ir/en/circle-avatar/</loc>
+    <lastmod>2026-11-13</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+    <xhtml:link rel="alternate" hreflang="fa" href="https://kit.zebracode.ir/circle-avatar/" />
+  </url>
+  <url>
+    <loc>https://kit.zebracode.ir/image-converter/</loc>
+    <lastmod>2026-11-13</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://kit.zebracode.ir/en/image-converter/" />
+  </url>
+  <url>
+    <loc>https://kit.zebracode.ir/en/image-converter/</loc>
+    <lastmod>2026-11-13</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+    <xhtml:link rel="alternate" hreflang="fa" href="https://kit.zebracode.ir/image-converter/" />
+  </url>
+  <url>
+    <loc>https://kit.zebracode.ir/image-blur/</loc>
+    <lastmod>2026-11-13</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://kit.zebracode.ir/en/image-blur/" />
+  </url>
+  <url>
+    <loc>https://kit.zebracode.ir/en/image-blur/</loc>
+    <lastmod>2026-11-13</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+    <xhtml:link rel="alternate" hreflang="fa" href="https://kit.zebracode.ir/image-blur/" />
+  </url>
+  <url>
+    <loc>https://kit.zebracode.ir/loan-calculator/</loc>
+    <lastmod>2026-11-13</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://kit.zebracode.ir/en/loan-calculator/" />
+  </url>
+  <url>
+    <loc>https://kit.zebracode.ir/en/loan-calculator/</loc>
+    <lastmod>2026-11-13</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+    <xhtml:link rel="alternate" hreflang="fa" href="https://kit.zebracode.ir/loan-calculator/" />
+  </url>
+  <url>
+    <loc>https://kit.zebracode.ir/gold-calculator/</loc>
+    <lastmod>2026-11-13</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://kit.zebracode.ir/en/gold-calculator/" />
+  </url>
+  <url>
+    <loc>https://kit.zebracode.ir/en/gold-calculator/</loc>
+    <lastmod>2026-11-13</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+    <xhtml:link rel="alternate" hreflang="fa" href="https://kit.zebracode.ir/gold-calculator/" />
+  </url>
+  <url>
+    <loc>https://kit.zebracode.ir/number-to-words/</loc>
+    <lastmod>2026-11-13</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://kit.zebracode.ir/en/number-to-words/" />
+  </url>
+  <url>
+    <loc>https://kit.zebracode.ir/en/number-to-words/</loc>
+    <lastmod>2026-11-13</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+    <xhtml:link rel="alternate" hreflang="fa" href="https://kit.zebracode.ir/number-to-words/" />
+  </url>
+  <url>
+    <loc>https://kit.zebracode.ir/bank-deposit-interest/</loc>
+    <lastmod>2026-11-13</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://kit.zebracode.ir/en/bank-deposit-interest/" />
+  </url>
+  <url>
+    <loc>https://kit.zebracode.ir/en/bank-deposit-interest/</loc>
+    <lastmod>2026-11-13</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+    <xhtml:link rel="alternate" hreflang="fa" href="https://kit.zebracode.ir/bank-deposit-interest/" />
+  </url>
+  <url>
+    <loc>https://kit.zebracode.ir/severance-calculator/</loc>
+    <lastmod>2026-11-13</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://kit.zebracode.ir/en/severance-calculator/" />
+  </url>
+  <url>
+    <loc>https://kit.zebracode.ir/en/severance-calculator/</loc>
+    <lastmod>2026-11-13</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+    <xhtml:link rel="alternate" hreflang="fa" href="https://kit.zebracode.ir/severance-calculator/" />
+  </url>
+  <url>
+    <loc>https://kit.zebracode.ir/salary-tax-calculator/</loc>
+    <lastmod>2026-11-13</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://kit.zebracode.ir/en/salary-tax-calculator/" />
+  </url>
+  <url>
+    <loc>https://kit.zebracode.ir/en/salary-tax-calculator/</loc>
+    <lastmod>2026-11-13</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+    <xhtml:link rel="alternate" hreflang="fa" href="https://kit.zebracode.ir/salary-tax-calculator/" />
+  </url>
+  <url>
+    <loc>https://kit.zebracode.ir/percentage-calculator/</loc>
+    <lastmod>2026-11-13</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://kit.zebracode.ir/en/percentage-calculator/" />
+  </url>
+  <url>
+    <loc>https://kit.zebracode.ir/en/percentage-calculator/</loc>
+    <lastmod>2026-11-13</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+    <xhtml:link rel="alternate" hreflang="fa" href="https://kit.zebracode.ir/percentage-calculator/" />
+  </url>
+  <url>
+    <loc>https://kit.zebracode.ir/invoice-generator/</loc>
+    <lastmod>2026-11-13</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://kit.zebracode.ir/en/invoice-generator/" />
+  </url>
+  <url>
+    <loc>https://kit.zebracode.ir/en/invoice-generator/</loc>
+    <lastmod>2026-11-13</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+    <xhtml:link rel="alternate" hreflang="fa" href="https://kit.zebracode.ir/invoice-generator/" />
+  </url>
+  <url>
+    <loc>https://kit.zebracode.ir/age-calculator/</loc>
+    <lastmod>2026-11-13</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://kit.zebracode.ir/en/age-calculator/" />
+  </url>
+  <url>
+    <loc>https://kit.zebracode.ir/en/age-calculator/</loc>
+    <lastmod>2026-11-13</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+    <xhtml:link rel="alternate" hreflang="fa" href="https://kit.zebracode.ir/age-calculator/" />
+  </url>
+  <url>
+    <loc>https://kit.zebracode.ir/date-converter/</loc>
+    <lastmod>2026-11-13</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://kit.zebracode.ir/en/date-converter/" />
+  </url>
+  <url>
+    <loc>https://kit.zebracode.ir/en/date-converter/</loc>
+    <lastmod>2026-11-13</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+    <xhtml:link rel="alternate" hreflang="fa" href="https://kit.zebracode.ir/date-converter/" />
+  </url>
+  <url>
+    <loc>https://kit.zebracode.ir/date-diff/</loc>
+    <lastmod>2026-11-13</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://kit.zebracode.ir/en/date-diff/" />
+  </url>
+  <url>
+    <loc>https://kit.zebracode.ir/en/date-diff/</loc>
+    <lastmod>2026-11-13</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+    <xhtml:link rel="alternate" hreflang="fa" href="https://kit.zebracode.ir/date-diff/" />
+  </url>
+  <url>
+    <loc>https://kit.zebracode.ir/pregnancy-calculator/</loc>
+    <lastmod>2026-11-13</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://kit.zebracode.ir/en/pregnancy-calculator/" />
+  </url>
+  <url>
+    <loc>https://kit.zebracode.ir/en/pregnancy-calculator/</loc>
+    <lastmod>2026-11-13</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+    <xhtml:link rel="alternate" hreflang="fa" href="https://kit.zebracode.ir/pregnancy-calculator/" />
+  </url>
+  <url>
+    <loc>https://kit.zebracode.ir/persian-editor/</loc>
+    <lastmod>2026-11-13</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://kit.zebracode.ir/en/persian-editor/" />
+  </url>
+  <url>
+    <loc>https://kit.zebracode.ir/en/persian-editor/</loc>
+    <lastmod>2026-11-13</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+    <xhtml:link rel="alternate" hreflang="fa" href="https://kit.zebracode.ir/persian-editor/" />
+  </url>
+  <url>
+    <loc>https://kit.zebracode.ir/word-counter/</loc>
+    <lastmod>2026-11-13</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://kit.zebracode.ir/en/word-counter/" />
+  </url>
+  <url>
+    <loc>https://kit.zebracode.ir/en/word-counter/</loc>
+    <lastmod>2026-11-13</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+    <xhtml:link rel="alternate" hreflang="fa" href="https://kit.zebracode.ir/word-counter/" />
+  </url>
+  <url>
+    <loc>https://kit.zebracode.ir/remove-duplicate-lines/</loc>
+    <lastmod>2026-11-13</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://kit.zebracode.ir/en/remove-duplicate-lines/" />
+  </url>
+  <url>
+    <loc>https://kit.zebracode.ir/en/remove-duplicate-lines/</loc>
+    <lastmod>2026-11-13</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+    <xhtml:link rel="alternate" hreflang="fa" href="https://kit.zebracode.ir/remove-duplicate-lines/" />
+  </url>
+  <url>
+    <loc>https://kit.zebracode.ir/alphabetical-sort/</loc>
+    <lastmod>2026-11-13</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://kit.zebracode.ir/en/alphabetical-sort/" />
+  </url>
+  <url>
+    <loc>https://kit.zebracode.ir/en/alphabetical-sort/</loc>
+    <lastmod>2026-11-13</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+    <xhtml:link rel="alternate" hreflang="fa" href="https://kit.zebracode.ir/alphabetical-sort/" />
+  </url>
+  <url>
+    <loc>https://kit.zebracode.ir/clean-text-lines/</loc>
+    <lastmod>2026-11-13</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://kit.zebracode.ir/en/clean-text-lines/" />
+  </url>
+  <url>
+    <loc>https://kit.zebracode.ir/en/clean-text-lines/</loc>
+    <lastmod>2026-11-13</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+    <xhtml:link rel="alternate" hreflang="fa" href="https://kit.zebracode.ir/clean-text-lines/" />
+  </url>
+  <url>
+    <loc>https://kit.zebracode.ir/finglish-converter/</loc>
+    <lastmod>2026-11-13</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://kit.zebracode.ir/en/finglish-converter/" />
+  </url>
+  <url>
+    <loc>https://kit.zebracode.ir/en/finglish-converter/</loc>
+    <lastmod>2026-11-13</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+    <xhtml:link rel="alternate" hreflang="fa" href="https://kit.zebracode.ir/finglish-converter/" />
+  </url>
+  <url>
+    <loc>https://kit.zebracode.ir/pdf-merge/</loc>
+    <lastmod>2026-11-13</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://kit.zebracode.ir/en/pdf-merge/" />
+  </url>
+  <url>
+    <loc>https://kit.zebracode.ir/en/pdf-merge/</loc>
+    <lastmod>2026-11-13</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+    <xhtml:link rel="alternate" hreflang="fa" href="https://kit.zebracode.ir/pdf-merge/" />
+  </url>
+  <url>
+    <loc>https://kit.zebracode.ir/images-to-pdf/</loc>
+    <lastmod>2026-11-13</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://kit.zebracode.ir/en/images-to-pdf/" />
+  </url>
+  <url>
+    <loc>https://kit.zebracode.ir/en/images-to-pdf/</loc>
+    <lastmod>2026-11-13</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+    <xhtml:link rel="alternate" hreflang="fa" href="https://kit.zebracode.ir/images-to-pdf/" />
+  </url>
+  <url>
+    <loc>https://kit.zebracode.ir/qr-generator/</loc>
+    <lastmod>2026-11-13</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://kit.zebracode.ir/en/qr-generator/" />
+  </url>
+  <url>
+    <loc>https://kit.zebracode.ir/en/qr-generator/</loc>
+    <lastmod>2026-11-13</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+    <xhtml:link rel="alternate" hreflang="fa" href="https://kit.zebracode.ir/qr-generator/" />
+  </url>
+  <url>
+    <loc>https://kit.zebracode.ir/barcode-generator/</loc>
+    <lastmod>2026-11-13</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://kit.zebracode.ir/en/barcode-generator/" />
+  </url>
+  <url>
+    <loc>https://kit.zebracode.ir/en/barcode-generator/</loc>
+    <lastmod>2026-11-13</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+    <xhtml:link rel="alternate" hreflang="fa" href="https://kit.zebracode.ir/barcode-generator/" />
+  </url>
+  <url>
+    <loc>https://kit.zebracode.ir/whatsapp-link-generator/</loc>
+    <lastmod>2026-11-13</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://kit.zebracode.ir/en/whatsapp-link-generator/" />
+  </url>
+  <url>
+    <loc>https://kit.zebracode.ir/en/whatsapp-link-generator/</loc>
+    <lastmod>2026-11-13</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+    <xhtml:link rel="alternate" hreflang="fa" href="https://kit.zebracode.ir/whatsapp-link-generator/" />
+  </url>
+  <url>
+    <loc>https://kit.zebracode.ir/social-counter/</loc>
+    <lastmod>2026-11-13</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://kit.zebracode.ir/en/social-counter/" />
+  </url>
+  <url>
+    <loc>https://kit.zebracode.ir/en/social-counter/</loc>
+    <lastmod>2026-11-13</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+    <xhtml:link rel="alternate" hreflang="fa" href="https://kit.zebracode.ir/social-counter/" />
+  </url>
+  <url>
+    <loc>https://kit.zebracode.ir/bmi-calculator/</loc>
+    <lastmod>2026-11-13</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://kit.zebracode.ir/en/bmi-calculator/" />
+  </url>
+  <url>
+    <loc>https://kit.zebracode.ir/en/bmi-calculator/</loc>
+    <lastmod>2026-11-13</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+    <xhtml:link rel="alternate" hreflang="fa" href="https://kit.zebracode.ir/bmi-calculator/" />
+  </url>
+  <url>
+    <loc>https://kit.zebracode.ir/calorie-calculator/</loc>
+    <lastmod>2026-11-13</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://kit.zebracode.ir/en/calorie-calculator/" />
+  </url>
+  <url>
+    <loc>https://kit.zebracode.ir/en/calorie-calculator/</loc>
+    <lastmod>2026-11-13</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+    <xhtml:link rel="alternate" hreflang="fa" href="https://kit.zebracode.ir/calorie-calculator/" />
+  </url>
+  <url>
+    <loc>https://kit.zebracode.ir/password-generator/</loc>
+    <lastmod>2026-11-13</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://kit.zebracode.ir/en/password-generator/" />
+  </url>
+  <url>
+    <loc>https://kit.zebracode.ir/en/password-generator/</loc>
+    <lastmod>2026-11-13</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+    <xhtml:link rel="alternate" hreflang="fa" href="https://kit.zebracode.ir/password-generator/" />
+  </url>
+  <url>
+    <loc>https://kit.zebracode.ir/national-code/</loc>
+    <lastmod>2026-11-13</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://kit.zebracode.ir/en/national-code/" />
+  </url>
+  <url>
+    <loc>https://kit.zebracode.ir/en/national-code/</loc>
+    <lastmod>2026-11-13</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+    <xhtml:link rel="alternate" hreflang="fa" href="https://kit.zebracode.ir/national-code/" />
+  </url>
+  <url>
+    <loc>https://kit.zebracode.ir/random-picker/</loc>
+    <lastmod>2026-11-13</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://kit.zebracode.ir/en/random-picker/" />
+  </url>
+  <url>
+    <loc>https://kit.zebracode.ir/en/random-picker/</loc>
+    <lastmod>2026-11-13</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+    <xhtml:link rel="alternate" hreflang="fa" href="https://kit.zebracode.ir/random-picker/" />
+  </url>
+  <url>
+    <loc>https://kit.zebracode.ir/coin-dice/</loc>
+    <lastmod>2026-11-13</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://kit.zebracode.ir/en/coin-dice/" />
+  </url>
+  <url>
+    <loc>https://kit.zebracode.ir/en/coin-dice/</loc>
+    <lastmod>2026-11-13</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+    <xhtml:link rel="alternate" hreflang="fa" href="https://kit.zebracode.ir/coin-dice/" />
+  </url>
+  <url>
+    <loc>https://kit.zebracode.ir/table-builder/</loc>
+    <lastmod>2026-11-13</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://kit.zebracode.ir/en/table-builder/" />
+  </url>
+  <url>
+    <loc>https://kit.zebracode.ir/en/table-builder/</loc>
+    <lastmod>2026-11-13</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+    <xhtml:link rel="alternate" hreflang="fa" href="https://kit.zebracode.ir/table-builder/" />
+  </url>
+  <url>
+    <loc>https://kit.zebracode.ir/html-table-to-excel/</loc>
+    <lastmod>2026-11-13</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://kit.zebracode.ir/en/html-table-to-excel/" />
+  </url>
+  <url>
+    <loc>https://kit.zebracode.ir/en/html-table-to-excel/</loc>
+    <lastmod>2026-11-13</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+    <xhtml:link rel="alternate" hreflang="fa" href="https://kit.zebracode.ir/html-table-to-excel/" />
+  </url>
+  <url>
+    <loc>https://kit.zebracode.ir/csv-viewer/</loc>
+    <lastmod>2026-11-13</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://kit.zebracode.ir/en/csv-viewer/" />
+  </url>
+  <url>
+    <loc>https://kit.zebracode.ir/en/csv-viewer/</loc>
+    <lastmod>2026-11-13</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+    <xhtml:link rel="alternate" hreflang="fa" href="https://kit.zebracode.ir/csv-viewer/" />
+  </url>
+  <url>
+    <loc>https://kit.zebracode.ir/markdown-table/</loc>
+    <lastmod>2026-11-13</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://kit.zebracode.ir/en/markdown-table/" />
+  </url>
+  <url>
+    <loc>https://kit.zebracode.ir/en/markdown-table/</loc>
+    <lastmod>2026-11-13</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+    <xhtml:link rel="alternate" hreflang="fa" href="https://kit.zebracode.ir/markdown-table/" />
+  </url>
+  <url>
+    <loc>https://kit.zebracode.ir/text-table/</loc>
+    <lastmod>2026-11-13</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://kit.zebracode.ir/en/text-table/" />
+  </url>
+  <url>
+    <loc>https://kit.zebracode.ir/en/text-table/</loc>
+    <lastmod>2026-11-13</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+    <xhtml:link rel="alternate" hreflang="fa" href="https://kit.zebracode.ir/text-table/" />
+  </url>
+  <url>
+    <loc>https://kit.zebracode.ir/unit-converter/</loc>
+    <lastmod>2026-11-13</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://kit.zebracode.ir/en/unit-converter/" />
+  </url>
+  <url>
+    <loc>https://kit.zebracode.ir/en/unit-converter/</loc>
+    <lastmod>2026-11-13</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+    <xhtml:link rel="alternate" hreflang="fa" href="https://kit.zebracode.ir/unit-converter/" />
+  </url>
+  <url>
+    <loc>https://kit.zebracode.ir/toman-rial-converter/</loc>
+    <lastmod>2026-11-13</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://kit.zebracode.ir/en/toman-rial-converter/" />
+  </url>
+  <url>
+    <loc>https://kit.zebracode.ir/en/toman-rial-converter/</loc>
+    <lastmod>2026-11-13</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+    <xhtml:link rel="alternate" hreflang="fa" href="https://kit.zebracode.ir/toman-rial-converter/" />
+  </url>
+  <url>
+    <loc>https://kit.zebracode.ir/gharzolhasaneh-loan/</loc>
+    <lastmod>2026-11-13</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://kit.zebracode.ir/en/gharzolhasaneh-loan/" />
+  </url>
+  <url>
+    <loc>https://kit.zebracode.ir/en/gharzolhasaneh-loan/</loc>
+    <lastmod>2026-11-13</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+    <xhtml:link rel="alternate" hreflang="fa" href="https://kit.zebracode.ir/gharzolhasaneh-loan/" />
+  </url>
+  <url>
+    <loc>https://kit.zebracode.ir/timer-stopwatch/</loc>
+    <lastmod>2026-11-13</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://kit.zebracode.ir/en/timer-stopwatch/" />
+  </url>
+  <url>
+    <loc>https://kit.zebracode.ir/en/timer-stopwatch/</loc>
+    <lastmod>2026-11-13</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+    <xhtml:link rel="alternate" hreflang="fa" href="https://kit.zebracode.ir/timer-stopwatch/" />
+  </url>
+  <url>
+    <loc>https://kit.zebracode.ir/world-clock/</loc>
+    <lastmod>2026-11-13</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://kit.zebracode.ir/en/world-clock/" />
+  </url>
+  <url>
+    <loc>https://kit.zebracode.ir/en/world-clock/</loc>
+    <lastmod>2026-11-13</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+    <xhtml:link rel="alternate" hreflang="fa" href="https://kit.zebracode.ir/world-clock/" />
+  </url>
+  <url>
+    <loc>https://kit.zebracode.ir/lorem-generator/</loc>
+    <lastmod>2026-11-13</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://kit.zebracode.ir/en/lorem-generator/" />
+  </url>
+  <url>
+    <loc>https://kit.zebracode.ir/en/lorem-generator/</loc>
+    <lastmod>2026-11-13</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+    <xhtml:link rel="alternate" hreflang="fa" href="https://kit.zebracode.ir/lorem-generator/" />
+  </url>
+  <url>
+    <loc>https://kit.zebracode.ir/case-converter/</loc>
+    <lastmod>2026-11-13</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://kit.zebracode.ir/en/case-converter/" />
+  </url>
+  <url>
+    <loc>https://kit.zebracode.ir/en/case-converter/</loc>
+    <lastmod>2026-11-13</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+    <xhtml:link rel="alternate" hreflang="fa" href="https://kit.zebracode.ir/case-converter/" />
+  </url>
+  <url>
+    <loc>https://kit.zebracode.ir/water-intake/</loc>
+    <lastmod>2026-11-13</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://kit.zebracode.ir/en/water-intake/" />
+  </url>
+  <url>
+    <loc>https://kit.zebracode.ir/en/water-intake/</loc>
+    <lastmod>2026-11-13</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+    <xhtml:link rel="alternate" hreflang="fa" href="https://kit.zebracode.ir/water-intake/" />
+  </url>
+  <url>
+    <loc>https://kit.zebracode.ir/blood-type/</loc>
+    <lastmod>2026-11-13</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://kit.zebracode.ir/en/blood-type/" />
+  </url>
+  <url>
+    <loc>https://kit.zebracode.ir/en/blood-type/</loc>
+    <lastmod>2026-11-13</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+    <xhtml:link rel="alternate" hreflang="fa" href="https://kit.zebracode.ir/blood-type/" />
+  </url>
+  <url>
+    <loc>https://kit.zebracode.ir/random-number/</loc>
+    <lastmod>2026-11-13</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://kit.zebracode.ir/en/random-number/" />
+  </url>
+  <url>
+    <loc>https://kit.zebracode.ir/en/random-number/</loc>
+    <lastmod>2026-11-13</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+    <xhtml:link rel="alternate" hreflang="fa" href="https://kit.zebracode.ir/random-number/" />
+  </url>
+  <url>
+    <loc>https://kit.zebracode.ir/color-picker-image/</loc>
+    <lastmod>2026-11-13</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://kit.zebracode.ir/en/color-picker-image/" />
+  </url>
+  <url>
+    <loc>https://kit.zebracode.ir/en/color-picker-image/</loc>
+    <lastmod>2026-11-13</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+    <xhtml:link rel="alternate" hreflang="fa" href="https://kit.zebracode.ir/color-picker-image/" />
+  </url>
+</urlset>

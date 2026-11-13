@@ -1,6 +1,6 @@
 import Link from 'next/link';
 
-export default function NotFound() {
+export default function FaNotFound() {
   return (
     <div className="text-center py-24 space-y-4">
       <h2 className="text-4xl font-black text-slate-900 dark:text-white">۴۰۴</h2>

@@ -1,60 +1,91 @@
 'use client';
 
 import React, { useState } from 'react';
-import { ArrowLeftRight, Scale, Ruler, Thermometer, Box, HardDrive } from 'lucide-react';
+import {
+  ArrowLeftRight,
+  Scale,
+  Ruler,
+  Thermometer,
+  HardDrive,
+  Copy,
+  Check,
+  Maximize2,
+  Gauge,
+  Sparkles
+} from 'lucide-react';
 
-type UnitType = 'length' | 'weight' | 'temp' | 'data';
+interface UnitConverterProps {
+  locale?: string;
+  dict?: any;
+}
+
+type UnitType = 'length' | 'weight' | 'temp' | 'data' | 'area' | 'speed';
 
 interface UnitDef {
-  name: string;
-  factor: number; // نسبت به واحد پایه
+  nameFa: string;
+  nameEn: string;
+  factor: number; // relative to base unit
 }
 
 const UNITS: Record<UnitType, Record<string, UnitDef>> = {
   length: {
-    meter: { name: 'متر (m)', factor: 1 },
-    cm: { name: 'سانتی‌متر (cm)', factor: 0.01 },
-    mm: { name: 'میلی‌متر (mm)', factor: 0.001 },
-    km: { name: 'کیلومتر (km)', factor: 1000 },
-    inch: { name: 'اینچ (Inch)', factor: 0.0254 },
-    foot: { name: 'فوت (Foot)', factor: 0.3048 },
-    yard: { name: 'یارد (Yard)', factor: 0.9144 },
-    mile: { name: 'مایل (Mile)', factor: 1609.344 },
+    meter: { nameFa: 'متر (m)', nameEn: 'Meter (m)', factor: 1 },
+    cm: { nameFa: 'سانتی‌متر (cm)', nameEn: 'Centimeter (cm)', factor: 0.01 },
+    mm: { nameFa: 'میلی‌متر (mm)', nameEn: 'Millimeter (mm)', factor: 0.001 },
+    km: { nameFa: 'کیلومتر (km)', nameEn: 'Kilometer (km)', factor: 1000 },
+    inch: { nameFa: 'اینچ (in)', nameEn: 'Inch (in)', factor: 0.0254 },
+    foot: { nameFa: 'فوت (ft)', nameEn: 'Foot (ft)', factor: 0.3048 },
+    yard: { nameFa: 'یارد (yd)', nameEn: 'Yard (yd)', factor: 0.9144 },
+    mile: { nameFa: 'مایل (mi)', nameEn: 'Mile (mi)', factor: 1609.344 },
   },
   weight: {
-    kg: { name: 'کیلوگرم (kg)', factor: 1 },
-    gram: { name: 'گرم (g)', factor: 0.001 },
-    mesghal: { name: 'مثقال ایرانی (۴.۶۰۸ گرم)', factor: 0.004608 },
-    soot: { name: 'سوت (۰.۰۰۱ گرم)', factor: 0.000001 },
-    pound: { name: 'پوند (lb)', factor: 0.45359237 },
-    ounce: { name: 'اونس (oz)', factor: 0.0283495 },
-    ton: { name: 'تن (Tonne)', factor: 1000 },
+    kg: { nameFa: 'کیلوگرم (kg)', nameEn: 'Kilogram (kg)', factor: 1 },
+    gram: { nameFa: 'گرم (g)', nameEn: 'Gram (g)', factor: 0.001 },
+    mesghal: { nameFa: 'مثقال ایرانی (۴.۶۰۸ گرم)', nameEn: 'Mesghal (4.608g)', factor: 0.004608 },
+    soot: { nameFa: 'سوت زرگری (۰.۰۰۱ گرم)', nameEn: 'Soot (1mg)', factor: 0.000001 },
+    pound: { nameFa: 'پوند (lb)', nameEn: 'Pound (lb)', factor: 0.45359237 },
+    ounce: { nameFa: 'اونس (oz)', nameEn: 'Ounce (oz)', factor: 0.0283495 },
+    ton: { nameFa: 'تن متریک (Tonne)', nameEn: 'Metric Ton (t)', factor: 1000 },
   },
   temp: {
-    celsius: { name: 'سلسیوس / سانتی‌گراد (°C)', factor: 1 },
-    fahrenheit: { name: 'فارنهایت (°F)', factor: 1 },
-    kelvin: { name: 'کلوین (K)', factor: 1 },
+    celsius: { nameFa: 'سلسیوس / سانتی‌گراد (°C)', nameEn: 'Celsius (°C)', factor: 1 },
+    fahrenheit: { nameFa: 'فارنهایت (°F)', nameEn: 'Fahrenheit (°F)', factor: 1 },
+    kelvin: { nameFa: 'کلوین (K)', nameEn: 'Kelvin (K)', factor: 1 },
   },
   data: {
-    mb: { name: 'مگابایت (MB)', factor: 1 },
-    gb: { name: 'گیگابایت (GB)', factor: 1024 },
-    tb: { name: 'ترابایت (TB)', factor: 1024 * 1024 },
-    kb: { name: 'کیلوبایت (KB)', factor: 1 / 1024 },
-    byte: { name: 'بایت (Byte)', factor: 1 / (1024 * 1024) },
-    mbit: { name: 'مگابیت اینترنت (Mbps)', factor: 1 / 8 },
+    mb: { nameFa: 'مگابایت (MB)', nameEn: 'Megabyte (MB)', factor: 1 },
+    gb: { nameFa: 'گیگابایت (GB)', nameEn: 'Gigabyte (GB)', factor: 1024 },
+    tb: { nameFa: 'ترابایت (TB)', nameEn: 'Terabyte (TB)', factor: 1024 * 1024 },
+    kb: { nameFa: 'کیلوبایت (KB)', nameEn: 'Kilobyte (KB)', factor: 1 / 1024 },
+    byte: { nameFa: 'بایت (Byte)', nameEn: 'Byte (B)', factor: 1 / (1024 * 1024) },
+    mbit: { nameFa: 'مگابیت شبکه (Mbps)', nameEn: 'Megabit (Mbit)', factor: 1 / 8 },
+  },
+  area: {
+    sqm: { nameFa: 'متر مربع (m²)', nameEn: 'Square Meter (m²)', factor: 1 },
+    hectare: { nameFa: 'هکتار (۱۰,۰۰۰ متر)', nameEn: 'Hectare (ha)', factor: 10000 },
+    sqkm: { nameFa: 'کیلومتر مربع (km²)', nameEn: 'Square Kilometer (km²)', factor: 1000000 },
+    acre: { nameFa: 'جریب / ایکر (Acre)', nameEn: 'Acre (ac)', factor: 4046.86 },
+    sqft: { nameFa: 'فوت مربع (ft²)', nameEn: 'Square Foot (ft²)', factor: 0.092903 },
+  },
+  speed: {
+    kmh: { nameFa: 'کیلومتر بر ساعت (km/h)', nameEn: 'Kilometers per hour (km/h)', factor: 1 },
+    ms: { nameFa: 'متر بر ثانیه (m/s)', nameEn: 'Meters per second (m/s)', factor: 3.6 },
+    mph: { nameFa: 'مایل بر ساعت (mph)', nameEn: 'Miles per hour (mph)', factor: 1.60934 },
+    knot: { nameFa: 'گره دریایی (Knot)', nameEn: 'Knot (kn)', factor: 1.852 },
   },
 };
 
-export function UnitConverter() {
+export function UnitConverter({ locale = 'fa', dict }: UnitConverterProps) {
+  const isEn = locale === 'en';
   const [category, setCategory] = useState<UnitType>('weight');
   const [amount, setAmount] = useState<number>(1);
   const [fromUnit, setFromUnit] = useState<string>('kg');
   const [toUnit, setToUnit] = useState<string>('gram');
+  const [copied, setCopied] = useState<boolean>(false);
 
   const convert = () => {
     const val = Number(amount) || 0;
     if (category === 'temp') {
-      // تبدیل دما
       let celsius = val;
       if (fromUnit === 'fahrenheit') celsius = ((val - 32) * 5) / 9;
       else if (fromUnit === 'kelvin') celsius = val - 273.15;
@@ -88,112 +119,128 @@ export function UnitConverter() {
     setToUnit(temp);
   };
 
+  const handleCopy = () => {
+    navigator.clipboard.writeText(result.toString());
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  const categories = [
+    { id: 'weight' as UnitType, labelFa: 'وزن و جرم', labelEn: 'Weight & Mass', icon: Scale },
+    { id: 'length' as UnitType, labelFa: 'طول و مسافت', labelEn: 'Length & Distance', icon: Ruler },
+    { id: 'temp' as UnitType, labelFa: 'دما و حرارت', labelEn: 'Temperature', icon: Thermometer },
+    { id: 'data' as UnitType, labelFa: 'داده و حافظه', labelEn: 'Digital Data', icon: HardDrive },
+    { id: 'area' as UnitType, labelFa: 'مساحت و زمین', labelEn: 'Area', icon: Maximize2 },
+    { id: 'speed' as UnitType, labelFa: 'سرعت و شتاب', labelEn: 'Speed', icon: Gauge },
+  ];
+
+  const currentUnits = UNITS[category];
+
   return (
     <div className="space-y-6">
-      {/* تب‌های نوع واحد */}
-      <div className="flex flex-wrap border-b border-slate-200 dark:border-slate-800 gap-1">
-        <button
-          onClick={() => handleCategoryChange('weight')}
-          className={`px-4 py-3 text-xs font-bold border-b-2 transition-all flex items-center gap-1.5 ${
-            category === 'weight'
-              ? 'border-blue-600 text-blue-600 dark:text-blue-400'
-              : 'border-transparent text-slate-500 hover:text-slate-800'
-          }`}
-        >
-          <Scale className="w-4 h-4" />
-          وزن و جرم (مثقال، گرم، اونس)
-        </button>
-        <button
-          onClick={() => handleCategoryChange('length')}
-          className={`px-4 py-3 text-xs font-bold border-b-2 transition-all flex items-center gap-1.5 ${
-            category === 'length'
-              ? 'border-blue-600 text-blue-600 dark:text-blue-400'
-              : 'border-transparent text-slate-500 hover:text-slate-800'
-          }`}
-        >
-          <Ruler className="w-4 h-4" />
-          طول و مسافت (اینچ، متر، فوت)
-        </button>
-        <button
-          onClick={() => handleCategoryChange('temp')}
-          className={`px-4 py-3 text-xs font-bold border-b-2 transition-all flex items-center gap-1.5 ${
-            category === 'temp'
-              ? 'border-blue-600 text-blue-600 dark:text-blue-400'
-              : 'border-transparent text-slate-500 hover:text-slate-800'
-          }`}
-        >
-          <Thermometer className="w-4 h-4" />
-          دما (°C و °F)
-        </button>
-        <button
-          onClick={() => handleCategoryChange('data')}
-          className={`px-4 py-3 text-xs font-bold border-b-2 transition-all flex items-center gap-1.5 ${
-            category === 'data'
-              ? 'border-blue-600 text-blue-600 dark:text-blue-400'
-              : 'border-transparent text-slate-500 hover:text-slate-800'
-          }`}
-        >
-          <HardDrive className="w-4 h-4" />
-          حافظه و سرعت اینترنت (MB, GB, Mbps)
-        </button>
+      {/* Category Tabs */}
+      <div className="flex flex-wrap border-b border-slate-200 dark:border-slate-800 gap-2 pb-2">
+        {categories.map((cat) => {
+          const Icon = cat.icon;
+          const isActive = category === cat.id;
+          return (
+            <button
+              key={cat.id}
+              type="button"
+              onClick={() => handleCategoryChange(cat.id)}
+              className={`px-4 py-2.5 rounded-2xl text-xs sm:text-sm font-bold transition-all flex items-center gap-2 ${
+                isActive
+                  ? 'bg-blue-600 text-white shadow-sm shadow-blue-500/20'
+                  : 'bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 hover:border-blue-400'
+              }`}
+            >
+              <Icon className="w-4 h-4" />
+              <span>{isEn ? cat.labelEn : cat.labelFa}</span>
+            </button>
+          );
+        })}
       </div>
 
-      {/* فرم تبدیل واحد */}
-      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-sm space-y-5">
-        <div className="grid grid-cols-1 md:grid-cols-5 items-center gap-3">
-          <div className="md:col-span-2 space-y-1.5">
-            <label className="text-xs font-semibold text-slate-600 dark:text-slate-400">مقدار و واحد مبدأ:</label>
-            <input
-              type="number"
-              step="any"
-              value={amount}
-              onChange={(e) => setAmount(Number(e.target.value))}
-              className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800 text-sm font-bold mb-2"
-            />
-            <select
-              value={fromUnit}
-              onChange={(e) => setFromUnit(e.target.value)}
-              className="w-full px-3 py-2 border rounded-xl border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800 text-xs font-medium"
-            >
-              {Object.entries(UNITS[category]).map(([key, u]) => (
-                <option key={key} value={key}>{u.name}</option>
-              ))}
-            </select>
+      {/* Main Converter Card */}
+      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 shadow-sm space-y-6">
+        <div className="grid grid-cols-1 md:grid-cols-5 gap-4 items-center">
+          {/* Amount and From Unit */}
+          <div className="md:col-span-2 space-y-2">
+            <label className="block text-xs font-bold text-slate-500">{isEn ? 'From:' : 'مقدار و واحد مبدأ:'}</label>
+            <div className="flex gap-2">
+              <input
+                type="number"
+                value={amount}
+                onChange={(e) => setAmount(Number(e.target.value))}
+                className="w-1/2 px-4 py-3 rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-base font-bold font-mono focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+              />
+              <select
+                value={fromUnit}
+                onChange={(e) => setFromUnit(e.target.value)}
+                className="w-1/2 px-3 py-3 rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs sm:text-sm font-semibold focus:outline-none"
+              >
+                {Object.entries(currentUnits).map(([key, u]) => (
+                  <option key={key} value={key}>
+                    {isEn ? u.nameEn : u.nameFa}
+                  </option>
+                ))}
+              </select>
+            </div>
           </div>
 
-          <div className="flex justify-center md:pt-4">
+          {/* Swap Button */}
+          <div className="flex justify-center pt-4 md:pt-6">
             <button
+              type="button"
               onClick={swapUnits}
-              title="جابجایی واحدها"
-              className="p-3 rounded-full border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 hover:bg-blue-50 dark:hover:bg-blue-950/60 hover:text-blue-600 transition-colors"
+              className="p-3 rounded-2xl bg-slate-100 dark:bg-slate-800 hover:bg-blue-50 dark:hover:bg-blue-900/30 text-slate-700 dark:text-slate-300 hover:text-blue-600 transition-colors shadow-xs"
+              title={isEn ? 'Swap units' : 'جابجایی واحدها'}
             >
-              <ArrowLeftRight className="w-4 h-4" />
+              <ArrowLeftRight className="w-5 h-5" />
             </button>
           </div>
 
-          <div className="md:col-span-2 space-y-1.5">
-            <label className="text-xs font-semibold text-slate-600 dark:text-slate-400">واحد مقصد جهت تبدیل:</label>
-            <div className="w-full px-3.5 py-2.5 rounded-xl border border-blue-200 dark:border-blue-900 bg-blue-50/50 dark:bg-blue-950/30 text-sm font-black text-blue-600 dark:text-blue-400 mb-2 truncate">
-              {Number(result.toFixed(6)).toLocaleString('fa-IR')}
+          {/* Result and To Unit */}
+          <div className="md:col-span-2 space-y-2">
+            <label className="block text-xs font-bold text-slate-500">{isEn ? 'To:' : 'واحد مقصد و تبدیل‌شده:'}</label>
+            <div className="flex gap-2">
+              <select
+                value={toUnit}
+                onChange={(e) => setToUnit(e.target.value)}
+                className="w-full px-3 py-3 rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs sm:text-sm font-semibold focus:outline-none"
+              >
+                {Object.entries(currentUnits).map(([key, u]) => (
+                  <option key={key} value={key}>
+                    {isEn ? u.nameEn : u.nameFa}
+                  </option>
+                ))}
+              </select>
             </div>
-            <select
-              value={toUnit}
-              onChange={(e) => setToUnit(e.target.value)}
-              className="w-full px-3 py-2 border rounded-xl border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800 text-xs font-medium"
-            >
-              {Object.entries(UNITS[category]).map(([key, u]) => (
-                <option key={key} value={key}>{u.name}</option>
-              ))}
-            </select>
           </div>
         </div>
-      </div>
 
-      {/* کارت نتیجه نهایی */}
-      <div className="p-6 rounded-2xl bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950/40 dark:to-indigo-950/30 border border-blue-200 dark:border-blue-900/60 text-center">
-        <span className="text-xs text-blue-700 dark:text-blue-300 font-semibold">نتیجه تبدیل دقیق:</span>
-        <div className="mt-2 text-2xl sm:text-3xl font-black text-blue-600 dark:text-blue-400">
-          {amount.toLocaleString('fa-IR')} {UNITS[category][fromUnit]?.name} = {Number(result.toFixed(6)).toLocaleString('fa-IR')} {UNITS[category][toUnit]?.name}
+        {/* Big Conversion Display */}
+        <div className="p-6 rounded-3xl bg-gradient-to-br from-blue-50 to-indigo-50/50 dark:from-slate-900 dark:to-slate-800 border border-blue-200/60 dark:border-slate-700 flex flex-wrap items-center justify-between gap-4">
+          <div className="space-y-1">
+            <span className="text-xs text-slate-500 dark:text-slate-400 font-medium">
+              {isEn ? 'Calculated Equivalent' : 'نتیجه تبدیل دقیق'}
+            </span>
+            <div className="text-2xl sm:text-4xl font-black text-blue-600 dark:text-blue-400 font-mono tracking-tight">
+              {isEn ? result.toLocaleString(undefined, { maximumFractionDigits: 8 }) : result.toLocaleString('fa-IR', { maximumFractionDigits: 8 })}
+              <span className="text-sm font-normal text-slate-600 dark:text-slate-300 mr-2">
+                {isEn ? currentUnits[toUnit]?.nameEn : currentUnits[toUnit]?.nameFa}
+              </span>
+            </div>
+          </div>
+
+          <button
+            type="button"
+            onClick={handleCopy}
+            className="flex items-center gap-1.5 px-4 py-2.5 rounded-2xl bg-white dark:bg-slate-800 border border-blue-200 dark:border-slate-700 text-xs font-bold text-slate-700 dark:text-slate-300 hover:bg-blue-50 shadow-sm transition-all"
+          >
+            {copied ? <Check className="w-4 h-4 text-emerald-500" /> : <Copy className="w-4 h-4" />}
+            <span>{copied ? (isEn ? 'Copied' : 'کپی شد') : (isEn ? 'Copy' : 'کپی مقدار')}</span>
+          </button>
         </div>
       </div>
     </div>

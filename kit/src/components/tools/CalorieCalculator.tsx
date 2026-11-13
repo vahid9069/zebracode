@@ -1,23 +1,67 @@
 'use client';
 
-import React, { useState } from 'react';
-import { Flame, Activity, Target } from 'lucide-react';
+import React, { useState, useMemo } from 'react';
+import {
+  Flame,
+  Activity,
+  Target,
+  Dumbbell,
+  TrendingDown,
+  TrendingUp,
+  RotateCcw,
+  Sparkles,
+  Info
+} from 'lucide-react';
 
-export function CalorieCalculator() {
+interface CalorieCalculatorProps {
+  locale?: string;
+  dict?: any;
+}
+
+export function CalorieCalculator({ locale = 'fa', dict }: CalorieCalculatorProps) {
+  const isEn = locale === 'en';
   const [gender, setGender] = useState<'male' | 'female'>('male');
   const [age, setAge] = useState<number>(28);
   const [weight, setWeight] = useState<number>(75); // kg
   const [height, setHeight] = useState<number>(178); // cm
-  const [activity, setActivity] = useState<number>(1.375); // ورزش سبک
+  const [activity, setActivity] = useState<number>(1.375); // Light exercise
 
-  const calculateCalories = () => {
+  const activityOptions = [
+    {
+      factor: 1.2,
+      labelFa: 'کم‌تحرک و پشت‌میزنشین (بدون ورزش)',
+      labelEn: 'Sedentary (Little or no exercise)',
+    },
+    {
+      factor: 1.375,
+      labelFa: 'فعالیت سبک (۱ تا ۳ روز ورزش در هفته)',
+      labelEn: 'Lightly Active (Exercise 1-3 days/week)',
+    },
+    {
+      factor: 1.55,
+      labelFa: 'فعالیت متوسط (۳ تا ۵ روز ورزش در هفته)',
+      labelEn: 'Moderately Active (Exercise 3-5 days/week)',
+    },
+    {
+      factor: 1.725,
+      labelFa: 'بسیار فعال (۶ تا ۷ روز ورزش سنگین)',
+      labelEn: 'Very Active (Hard exercise 6-7 days/week)',
+    },
+    {
+      factor: 1.9,
+      labelFa: 'فوق‌العاده فعال (ورزشکار حرفه‌ای یا شغل بدنی)',
+      labelEn: 'Extra Active (Physical job or 2x/day training)',
+    },
+  ];
+
+  const calculation = useMemo(() => {
     const W = Number(weight);
     const H = Number(height);
     const A = Number(age);
 
     if (W <= 0 || H <= 0 || A <= 0) return null;
 
-    // فرمول میفلین-سنت جور (Mifflin-St Jeor Equation)
+    // Clinically validated Mifflin-St Jeor Equation
     let bmr = 10 * W + 6.25 * H - 5 * A;
     if (gender === 'male') {
       bmr += 5;
@@ -30,125 +74,183 @@ export function CalorieCalculator() {
     return {
       bmr: Math.round(bmr),
       maintain: tdee,
-      mildLoss: Math.round(tdee - 300), // کاهش ملایم
-      fastLoss: Math.round(tdee - 600), // کاهش سریع
-      gain: Math.round(tdee + 400), // افزایش وزن
+      mildLoss: Math.round(tdee - 300), // ~0.25 kg/week
+      weightLoss: Math.round(tdee - 500), // ~0.5 kg/week (standard deficit)
+      fastLoss: Math.round(tdee - 800), // ~0.8 kg/week
+      mildGain: Math.round(tdee + 300), // lean bulk
+      weightGain: Math.round(tdee + 500), // bulk
     };
-  };
-
-  const res = calculateCalories();
+  }, [gender, age, weight, height, activity]);
 
   return (
     <div className="space-y-6">
-      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-sm space-y-4">
-        <h3 className="text-sm font-bold text-slate-800 dark:text-slate-200 flex items-center gap-2">
-          <Flame className="w-4 h-4 text-orange-500" />
-          مشخصات فردی و سطح فعالیت:
-        </h3>
+      {/* Parameters Card */}
+      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 shadow-sm space-y-5">
+        <div className="flex items-center gap-2 pb-4 border-b border-slate-100 dark:border-slate-800">
+          <Flame className="w-5 h-5 text-amber-500" />
+          <h3 className="text-sm font-bold text-slate-800 dark:text-slate-100">
+            {isEn ? 'Biometrics & Daily Physical Activity' : 'مشخصات بدنی و سطح فعالیت روزانه:'}
+          </h3>
+        </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <div>
-            <label className="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1.5">جنسیت:</label>
+            <label className="block text-xs font-bold text-slate-600 dark:text-slate-400 mb-2">
+              {isEn ? 'Gender:' : 'جنسیت:'}
+            </label>
             <div className="grid grid-cols-2 gap-2">
               <button
                 type="button"
                 onClick={() => setGender('male')}
-                className={`py-2 text-xs font-bold rounded-xl border transition-all ${
-                  gender === 'male' ? 'border-blue-600 bg-blue-50 dark:bg-blue-950/60 text-blue-600' : 'border-slate-200 dark:border-slate-800'
+                className={`py-2.5 text-xs font-bold rounded-2xl border transition-all ${
+                  gender === 'male'
+                    ? 'border-blue-600 bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 shadow-xs'
+                    : 'border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400'
                 }`}
               >
-                آقا
+                {isEn ? 'Male' : 'آقا'}
               </button>
               <button
                 type="button"
                 onClick={() => setGender('female')}
-                className={`py-2 text-xs font-bold rounded-xl border transition-all ${
-                  gender === 'female' ? 'border-pink-600 bg-pink-50 dark:bg-pink-950/60 text-pink-600' : 'border-slate-200 dark:border-slate-800'
+                className={`py-2.5 text-xs font-bold rounded-2xl border transition-all ${
+                  gender === 'female'
+                    ? 'border-pink-600 bg-pink-50 dark:bg-pink-950/60 text-pink-600 dark:text-pink-400 shadow-xs'
+                    : 'border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400'
                 }`}
               >
-                خانم
+                {isEn ? 'Female' : 'خانم'}
               </button>
             </div>
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1.5">سن (سال):</label>
+            <label className="block text-xs font-bold text-slate-600 dark:text-slate-400 mb-2">
+              {isEn ? 'Age (Years):' : 'سن (سال):'}
+            </label>
             <input
               type="number"
+              min={12}
+              max={110}
               value={age}
-              onChange={(e) => setAge(Number(e.target.value))}
-              className="w-full px-3 py-2 border rounded-xl border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800 text-sm font-bold"
+              onChange={(e) => setAge(Math.max(1, Math.min(120, Number(e.target.value))))}
+              className="w-full px-4 py-2.5 rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-sm font-bold font-mono focus:outline-none"
             />
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1.5">قد (سانتی‌متر):</label>
+            <label className="block text-xs font-bold text-slate-600 dark:text-slate-400 mb-2">
+              {isEn ? 'Height (cm):' : 'قد (سانتی‌متر):'}
+            </label>
             <input
               type="number"
+              min={100}
+              max={250}
               value={height}
-              onChange={(e) => setHeight(Number(e.target.value))}
-              className="w-full px-3 py-2 border rounded-xl border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800 text-sm font-bold"
+              onChange={(e) => setHeight(Math.max(50, Math.min(250, Number(e.target.value))))}
+              className="w-full px-4 py-2.5 rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-sm font-bold font-mono focus:outline-none"
             />
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1.5">وزن (کیلوگرم):</label>
+            <label className="block text-xs font-bold text-slate-600 dark:text-slate-400 mb-2">
+              {isEn ? 'Weight (kg):' : 'وزن (کیلوگرم):'}
+            </label>
             <input
               type="number"
+              min={30}
+              max={300}
+              step={0.5}
               value={weight}
-              onChange={(e) => setWeight(Number(e.target.value))}
-              className="w-full px-3 py-2 border rounded-xl border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800 text-sm font-bold"
+              onChange={(e) => setWeight(Math.max(10, Math.min(300, Number(e.target.value))))}
+              className="w-full px-4 py-2.5 rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-sm font-bold font-mono focus:outline-none"
             />
           </div>
         </div>
 
+        {/* Activity Level Selector */}
         <div>
-          <label className="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1.5">میزان تحرک و ورزش در هفته:</label>
+          <label className="block text-xs font-bold text-slate-600 dark:text-slate-400 mb-2">
+            {isEn ? 'Daily Exercise & Activity Level:' : 'سطح تحرک و فعالیت بدنی روزانه:'}
+          </label>
           <select
             value={activity}
             onChange={(e) => setActivity(Number(e.target.value))}
-            className="w-full max-w-md px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800 text-xs font-medium"
+            className="w-full px-4 py-3 rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs sm:text-sm font-semibold text-slate-800 dark:text-slate-200 focus:outline-none"
           >
-            <option value={1.2}>بی‌تحرک و پشت‌میز‌نشین (بدون ورزش)</option>
-            <option value={1.375}>فعالیت سبک (۱ تا ۳ روز ورزش در هفته)</option>
-            <option value={1.55}>فعالیت متوسط (۳ تا ۵ روز ورزش باشگاهی)</option>
-            <option value={1.725}>ورزش سنگین و حرفه‌ای (۶ تا ۷ روز ورزش)</option>
+            {activityOptions.map((opt) => (
+              <option key={opt.factor} value={opt.factor}>
+                {isEn ? opt.labelEn : opt.labelFa}
+              </option>
+            ))}
           </select>
         </div>
       </div>
 
-      {res && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          <div className="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-center shadow-sm">
-            <span className="text-xs text-slate-500 font-semibold">تثبیت وزن فعلی</span>
-            <div className="mt-2 text-2xl font-black text-blue-600 dark:text-blue-400">
-              {res.maintain.toLocaleString('fa-IR')} <span className="text-xs font-normal">کالری/روز</span>
+      {/* Target Breakdown Cards */}
+      {calculation && (
+        <div className="space-y-6">
+          {/* Main Maintenance Highlight */}
+          <div className="p-8 rounded-3xl bg-gradient-to-br from-amber-500 via-orange-500 to-amber-600 text-white shadow-xl shadow-amber-500/20 text-center space-y-3">
+            <span className="text-xs uppercase tracking-widest text-amber-100 font-bold">
+              {isEn ? 'Daily Maintenance Energy (TDEE)' : 'کالری روزانه تثبیت وزن کنونی (TDEE)'}
+            </span>
+
+            <div className="text-4xl sm:text-6xl font-black font-mono tracking-tight">
+              {isEn ? calculation.maintain.toLocaleString() : calculation.maintain.toLocaleString('fa-IR')}
+              <span className="text-lg font-normal mr-2">{isEn ? ' kcal/day' : ' کالری در روز'}</span>
             </div>
-            <p className="text-[11px] text-slate-400 mt-1">بدون تغییر وزن</p>
+
+            <p className="text-xs text-amber-100">
+              {isEn
+                ? `Basal Metabolic Rate (BMR at rest): ${calculation.bmr} kcal`
+                : `میزان متابولیسم پایه بدون تحرک (BMR): ${calculation.bmr.toLocaleString('fa-IR')} کالری`}
+            </p>
           </div>
 
-          <div className="p-5 rounded-2xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-900/60 text-center">
-            <span className="text-xs text-emerald-700 dark:text-emerald-300 font-semibold">کاهش وزن ملایم (ایده‌آل)</span>
-            <div className="mt-2 text-2xl font-black text-emerald-600 dark:text-emerald-400">
-              {res.mildLoss.toLocaleString('fa-IR')} <span className="text-xs font-normal">کالری/روز</span>
+          {/* Goal Targets Grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            {/* Weight Loss */}
+            <div className="p-6 rounded-3xl bg-emerald-50/70 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-900/60 text-center shadow-sm space-y-3">
+              <span className="text-xs font-bold text-emerald-700 dark:text-emerald-400 flex items-center justify-center gap-1.5">
+                <TrendingDown className="w-4 h-4" />
+                <span>{isEn ? 'Weight Loss (~0.5 kg/week)' : 'کاهش وزن اصولی (نیم کیلو در هفته)'}</span>
+              </span>
+              <div className="text-3xl font-black text-emerald-600 dark:text-emerald-400 font-mono">
+                {isEn ? calculation.weightLoss.toLocaleString() : calculation.weightLoss.toLocaleString('fa-IR')}
+              </div>
+              <span className="text-[11px] text-slate-500 block">
+                {isEn ? `${calculation.mildLoss} kcal for mild loss` : `کاهش ملایم: ${calculation.mildLoss.toLocaleString('fa-IR')} کالری`}
+              </span>
             </div>
-            <p className="text-[11px] text-slate-500 mt-1">حدود ۰.۵ کیلو لاغری در هفته</p>
-          </div>
 
-          <div className="p-5 rounded-2xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-900/60 text-center">
-            <span className="text-xs text-amber-700 dark:text-amber-300 font-semibold">کاهش وزن سریع</span>
-            <div className="mt-2 text-2xl font-black text-amber-600 dark:text-amber-400">
-              {res.fastLoss.toLocaleString('fa-IR')} <span className="text-xs font-normal">کالری/روز</span>
+            {/* Extreme Loss */}
+            <div className="p-6 rounded-3xl bg-blue-50/70 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-900/60 text-center shadow-sm space-y-3">
+              <span className="text-xs font-bold text-blue-700 dark:text-blue-400 flex items-center justify-center gap-1.5">
+                <Target className="w-4 h-4" />
+                <span>{isEn ? 'Rapid Loss (~0.8 kg/week)' : 'کاهش وزن سریع (نزدیک ۱ کیلو)'}</span>
+              </span>
+              <div className="text-3xl font-black text-blue-600 dark:text-blue-400 font-mono">
+                {isEn ? calculation.fastLoss.toLocaleString() : calculation.fastLoss.toLocaleString('fa-IR')}
+              </div>
+              <span className="text-[11px] text-slate-500 block">
+                {isEn ? 'Deficit of ~800 kcal/day' : 'کسری ۸۰۰ کالری در روز'}
+              </span>
             </div>
-            <p className="text-[11px] text-slate-500 mt-1">حدود ۱ کیلو لاغری در هفته</p>
-          </div>
 
-          <div className="p-5 rounded-2xl bg-purple-50 dark:bg-purple-950/40 border border-purple-200 dark:border-purple-900/60 text-center">
-            <span className="text-xs text-purple-700 dark:text-purple-300 font-semibold">افزایش وزن و حجم</span>
-            <div className="mt-2 text-2xl font-black text-purple-600 dark:text-purple-400">
-              {res.gain.toLocaleString('fa-IR')} <span className="text-xs font-normal">کالری/روز</span>
+            {/* Muscle / Weight Gain */}
+            <div className="p-6 rounded-3xl bg-purple-50/70 dark:bg-purple-950/30 border border-purple-200 dark:border-purple-900/60 text-center shadow-sm space-y-3">
+              <span className="text-xs font-bold text-purple-700 dark:text-purple-400 flex items-center justify-center gap-1.5">
+                <TrendingUp className="w-4 h-4" />
+                <span>{isEn ? 'Muscle & Weight Gain' : 'افزایش وزن و عضله‌سازی'}</span>
+              </span>
+              <div className="text-3xl font-black text-purple-600 dark:text-purple-400 font-mono">
+                {isEn ? calculation.weightGain.toLocaleString() : calculation.weightGain.toLocaleString('fa-IR')}
+              </div>
+              <span className="text-[11px] text-slate-500 block">
+                {isEn ? `Lean bulk: ${calculation.mildGain} kcal` : `افزایش ملایم: ${calculation.mildGain.toLocaleString('fa-IR')} کالری`}
+              </span>
             </div>
-            <p className="text-[11px] text-slate-500 mt-1">برای عضله‌سازی و چاقی</p>
           </div>
         </div>
       )}

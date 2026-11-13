@@ -1,76 +1,95 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Globe, Clock, Sun, Moon, Search, Plus, Trash2, RotateCcw, X, Check } from 'lucide-react';
+import {
+  Globe,
+  Clock,
+  Sun,
+  Moon,
+  Search,
+  Plus,
+  Trash2,
+  RotateCcw,
+  X,
+  Check,
+  MapPin,
+  Sparkles
+} from 'lucide-react';
 
 interface CityClock {
   id: string;
-  name: string;
-  country: string;
+  nameFa: string;
+  nameEn: string;
+  countryFa: string;
+  countryEn: string;
   timeZone: string;
 }
 
-// کتابخانه جامع شهرهای جهان
 const AVAILABLE_CITIES: CityClock[] = [
-  // ایران و خاورمیانه
-  { id: 'tehran', name: 'تهران', country: 'ایران (مبنا)', timeZone: 'Asia/Tehran' },
-  { id: 'mashhad', name: 'مشهد', country: 'ایران', timeZone: 'Asia/Tehran' },
-  { id: 'istanbul', name: 'استانبول', country: 'ترکیه', timeZone: 'Europe/Istanbul' },
-  { id: 'dubai', name: 'دبی', country: 'امارات متحده عربی', timeZone: 'Asia/Dubai' },
-  { id: 'baku', name: 'باکو', country: 'جمهوری آذربایجان', timeZone: 'Asia/Baku' },
-  { id: 'yerevan', name: 'ایروان', country: 'ارمنستان', timeZone: 'Asia/Yerevan' },
-  { id: 'baghdad', name: 'بغداد', country: 'عراق', timeZone: 'Asia/Baghdad' },
-  { id: 'doha', name: 'دوحه', country: 'قطر', timeZone: 'Asia/Qatar' },
-  { id: 'riyadh', name: 'ریاض', country: 'عربستان سعودی', timeZone: 'Asia/Riyadh' },
-  { id: 'muscat', name: 'مسقط', country: 'عمان', timeZone: 'Asia/Muscat' },
-  { id: 'kuwait', name: 'کویت', country: 'کویت', timeZone: 'Asia/Kuwait' },
+  // Middle East & Iran
+  { id: 'tehran', nameFa: 'تهران', nameEn: 'Tehran', countryFa: 'ایران (مبنا)', countryEn: 'Iran (Base)', timeZone: 'Asia/Tehran' },
+  { id: 'mashhad', nameFa: 'مشهد', nameEn: 'Mashhad', countryFa: 'ایران', countryEn: 'Iran', timeZone: 'Asia/Tehran' },
+  { id: 'istanbul', nameFa: 'استانبول', nameEn: 'Istanbul', countryFa: 'ترکیه', countryEn: 'Turkey', timeZone: 'Europe/Istanbul' },
+  { id: 'dubai', nameFa: 'دبی', nameEn: 'Dubai', countryFa: 'امارات متحده عربی', countryEn: 'UAE', timeZone: 'Asia/Dubai' },
+  { id: 'baku', nameFa: 'باکو', nameEn: 'Baku', countryFa: 'جمهوری آذربایجان', countryEn: 'Azerbaijan', timeZone: 'Asia/Baku' },
+  { id: 'yerevan', nameFa: 'ایروان', nameEn: 'Yerevan', countryFa: 'ارمنستان', countryEn: 'Armenia', timeZone: 'Asia/Yerevan' },
+  { id: 'baghdad', nameFa: 'بغداد', nameEn: 'Baghdad', countryFa: 'عراق', countryEn: 'Iraq', timeZone: 'Asia/Baghdad' },
+  { id: 'doha', nameFa: 'دوحه', nameEn: 'Doha', countryFa: 'قطر', countryEn: 'Qatar', timeZone: 'Asia/Qatar' },
+  { id: 'riyadh', nameFa: 'ریاض', nameEn: 'Riyadh', countryFa: 'عربستان سعودی', countryEn: 'Saudi Arabia', timeZone: 'Asia/Riyadh' },
+  { id: 'muscat', nameFa: 'مسقط', nameEn: 'Muscat', countryFa: 'عمان', countryEn: 'Oman', timeZone: 'Asia/Muscat' },
+  { id: 'kuwait', nameFa: 'کویت', nameEn: 'Kuwait City', countryFa: 'کویت', countryEn: 'Kuwait', timeZone: 'Asia/Kuwait' },
 
-  // اروپا
-  { id: 'london', name: 'لندن', country: 'انگلستان', timeZone: 'Europe/London' },
-  { id: 'frankfurt', name: 'فرانکفورت', country: 'آلمان', timeZone: 'Europe/Berlin' },
-  { id: 'berlin', name: 'برلین', country: 'آلمان', timeZone: 'Europe/Berlin' },
-  { id: 'paris', name: 'پاریس', country: 'فرانسه', timeZone: 'Europe/Paris' },
-  { id: 'rome', name: 'رم', country: 'ایتالیا', timeZone: 'Europe/Rome' },
-  { id: 'amsterdam', name: 'آمستردام', country: 'هلند', timeZone: 'Europe/Amsterdam' },
-  { id: 'stockholm', name: 'استکهلم', country: 'سوئد', timeZone: 'Europe/Stockholm' },
-  { id: 'vienna', name: 'وین', country: 'اتریش', timeZone: 'Europe/Vienna' },
-  { id: 'geneva', name: 'ژنو', country: 'سوئیس', timeZone: 'Europe/Zurich' },
-  { id: 'madrid', name: 'مادرید', country: 'اسپانیا', timeZone: 'Europe/Madrid' },
-  { id: 'moscow', name: 'مسکو', country: 'روسیه', timeZone: 'Europe/Moscow' },
+  // Europe
+  { id: 'london', nameFa: 'لندن', nameEn: 'London', countryFa: 'انگلستان (UTC)', countryEn: 'UK (UTC)', timeZone: 'Europe/London' },
+  { id: 'frankfurt', nameFa: 'فرانکفورت', nameEn: 'Frankfurt', countryFa: 'آلمان (CET)', countryEn: 'Germany (CET)', timeZone: 'Europe/Berlin' },
+  { id: 'berlin', nameFa: 'برلین', nameEn: 'Berlin', countryFa: 'آلمان', countryEn: 'Germany', timeZone: 'Europe/Berlin' },
+  { id: 'paris', nameFa: 'پاریس', nameEn: 'Paris', countryFa: 'فرانسه', countryEn: 'France', timeZone: 'Europe/Paris' },
+  { id: 'rome', nameFa: 'رم', nameEn: 'Rome', countryFa: 'ایتالیا', countryEn: 'Italy', timeZone: 'Europe/Rome' },
+  { id: 'amsterdam', nameFa: 'آمستردام', nameEn: 'Amsterdam', countryFa: 'هلند', countryEn: 'Netherlands', timeZone: 'Europe/Amsterdam' },
+  { id: 'stockholm', nameFa: 'استکهلم', nameEn: 'Stockholm', countryFa: 'سوئد', countryEn: 'Sweden', timeZone: 'Europe/Stockholm' },
+  { id: 'vienna', nameFa: 'وین', nameEn: 'Vienna', countryFa: 'اتریش', countryEn: 'Austria', timeZone: 'Europe/Vienna' },
+  { id: 'geneva', nameFa: 'ژنو', nameEn: 'Geneva', countryFa: 'سوئیس', countryEn: 'Switzerland', timeZone: 'Europe/Zurich' },
+  { id: 'madrid', nameFa: 'مادرید', nameEn: 'Madrid', countryFa: 'اسپانیا', countryEn: 'Spain', timeZone: 'Europe/Madrid' },
+  { id: 'moscow', nameFa: 'مسکو', nameEn: 'Moscow', countryFa: 'روسیه', countryEn: 'Russia', timeZone: 'Europe/Moscow' },
 
-  // قاره آمریکا
-  { id: 'toronto', name: 'تورنتو', country: 'کانادا', timeZone: 'America/Toronto' },
-  { id: 'vancouver', name: 'ونکوور', country: 'کانادا', timeZone: 'America/Vancouver' },
-  { id: 'montreal', name: 'مونترال', country: 'کانادا', timeZone: 'America/Toronto' },
-  { id: 'new_york', name: 'نیویورک', country: 'ایالات متحده آمریکا', timeZone: 'America/New_York' },
-  { id: 'washington', name: 'واشنگتن', country: 'ایالات متحده آمریکا', timeZone: 'America/New_York' },
-  { id: 'chicago', name: 'شیکاگو', country: 'ایالات متحده آمریکا', timeZone: 'America/Chicago' },
-  { id: 'los_angeles', name: 'لس آنجلس', country: 'ایالات متحده آمریکا', timeZone: 'America/Los_Angeles' },
-  { id: 'san_francisco', name: 'سان فرانسیسکو', country: 'ایالات متحده آمریکا', timeZone: 'America/Los_Angeles' },
+  // Americas
+  { id: 'toronto', nameFa: 'تورنتو', nameEn: 'Toronto', countryFa: 'کانادا (EST)', countryEn: 'Canada (EST)', timeZone: 'America/Toronto' },
+  { id: 'vancouver', nameFa: 'ونکوور', nameEn: 'Vancouver', countryFa: 'کانادا (PST)', countryEn: 'Canada (PST)', timeZone: 'America/Vancouver' },
+  { id: 'montreal', nameFa: 'مونترال', nameEn: 'Montreal', countryFa: 'کانادا', countryEn: 'Canada', timeZone: 'America/Toronto' },
+  { id: 'new_york', nameFa: 'نیویورک', nameEn: 'New York', countryFa: 'ایالات متحده (EST)', countryEn: 'USA (EST)', timeZone: 'America/New_York' },
+  { id: 'washington', nameFa: 'واشنگتن', nameEn: 'Washington DC', countryFa: 'ایالات متحده آمریکا', countryEn: 'USA', timeZone: 'America/New_York' },
+  { id: 'chicago', nameFa: 'شیکاگو', nameEn: 'Chicago', countryFa: 'ایالات متحده (CST)', countryEn: 'USA (CST)', timeZone: 'America/Chicago' },
+  { id: 'los_angeles', nameFa: 'لس آنجلس', nameEn: 'Los Angeles', countryFa: 'ایالات متحده (PST)', countryEn: 'USA (PST)', timeZone: 'America/Los_Angeles' },
+  { id: 'san_francisco', nameFa: 'سان فرانسیسکو', nameEn: 'San Francisco', countryFa: 'ایالات متحده آمریکا', countryEn: 'USA', timeZone: 'America/Los_Angeles' },
 
-  // شرق و جنوب آسیا و اقیانوسیه
-  { id: 'tokyo', name: 'توکیو', country: 'ژاپن', timeZone: 'Asia/Tokyo' },
-  { id: 'seoul', name: 'سئول', country: 'کره جنوبی', timeZone: 'Asia/Seoul' },
-  { id: 'beijing', name: 'پکن', country: 'چین', timeZone: 'Asia/Shanghai' },
-  { id: 'singapore', name: 'سنگاپور', country: 'سنگاپور', timeZone: 'Asia/Singapore' },
-  { id: 'kuala_lumpur', name: 'کوالالامپور', country: 'مالزی', timeZone: 'Asia/Kuala_Lumpur' },
-  { id: 'delhi', name: 'دهلی نو', country: 'هند', timeZone: 'Asia/Kolkata' },
-  { id: 'sydney', name: 'سیدنی', country: 'استرالیا', timeZone: 'Australia/Sydney' },
-  { id: 'melbourne', name: 'ملبورن', country: 'استرالیا', timeZone: 'Australia/Melbourne' },
-  { id: 'auckland', name: 'اوکلند', country: 'نیوزیلند', timeZone: 'Pacific/Auckland' },
+  // Asia Pacific
+  { id: 'tokyo', nameFa: 'توکیو', nameEn: 'Tokyo', countryFa: 'ژاپن', countryEn: 'Japan', timeZone: 'Asia/Tokyo' },
+  { id: 'seoul', nameFa: 'سئول', nameEn: 'Seoul', countryFa: 'کره جنوبی', countryEn: 'South Korea', timeZone: 'Asia/Seoul' },
+  { id: 'beijing', nameFa: 'پکن', nameEn: 'Beijing', countryFa: 'چین', countryEn: 'China', timeZone: 'Asia/Shanghai' },
+  { id: 'singapore', nameFa: 'سنگاپور', nameEn: 'Singapore', countryFa: 'سنگاپور', countryEn: 'Singapore', timeZone: 'Asia/Singapore' },
+  { id: 'kuala_lumpur', nameFa: 'کوالالامپور', nameEn: 'Kuala Lumpur', countryFa: 'مالزی', countryEn: 'Malaysia', timeZone: 'Asia/Kuala_Lumpur' },
+  { id: 'delhi', nameFa: 'دهلی نو', nameEn: 'New Delhi', countryFa: 'هند', countryEn: 'India', timeZone: 'Asia/Kolkata' },
+  { id: 'sydney', nameFa: 'سیدنی', nameEn: 'Sydney', countryFa: 'استرالیا', countryEn: 'Australia', timeZone: 'Australia/Sydney' },
+  { id: 'melbourne', nameFa: 'ملبورن', nameEn: 'Melbourne', countryFa: 'استرالیا', countryEn: 'Australia', timeZone: 'Australia/Melbourne' },
+  { id: 'auckland', nameFa: 'اوکلند', nameEn: 'Auckland', countryFa: 'نیوزیلند', countryEn: 'New Zealand', timeZone: 'Pacific/Auckland' },
 ];
 
 const DEFAULT_CITY_IDS = ['tehran', 'istanbul', 'dubai', 'london', 'frankfurt', 'toronto', 'new_york', 'tokyo'];
 const STORAGE_KEY = 'zebracode_kit_user_cities';
 
-export function WorldClock() {
+interface WorldClockProps {
+  locale?: string;
+  dict?: any;
+}
+
+export function WorldClock({ locale = 'fa', dict }: WorldClockProps) {
+  const isEn = locale === 'en';
   const [now, setNow] = useState<Date>(new Date());
   const [userCityIds, setUserCityIds] = useState<string[]>(DEFAULT_CITY_IDS);
   const [search, setSearch] = useState<string>('');
   const [showAddModal, setShowAddModal] = useState<boolean>(false);
   const [modalSearch, setModalSearch] = useState<string>('');
 
-  // بازیابی شهرهای ذخیره شده کاربر از حافظه مرورگر
   useEffect(() => {
     try {
       const saved = localStorage.getItem(STORAGE_KEY);
@@ -85,7 +104,6 @@ export function WorldClock() {
     }
   }, []);
 
-  // ذخیره در localStorage با هر تغییر
   const saveCities = (ids: string[]) => {
     setUserCityIds(ids);
     try {
@@ -95,24 +113,20 @@ export function WorldClock() {
     }
   };
 
-  // اضافه کردن شهر جدید
   const handleAddCity = (id: string) => {
     if (!userCityIds.includes(id)) {
       saveCities([...userCityIds, id]);
     }
   };
 
-  // حذف شهر از لیست
   const handleRemoveCity = (id: string) => {
     saveCities(userCityIds.filter((item) => item !== id));
   };
 
-  // ریست به شهرهای پیش‌فرض
   const handleResetToDefault = () => {
     saveCities(DEFAULT_CITY_IDS);
   };
 
-  // آپدیت ثانیه‌ای زمان زنده
   useEffect(() => {
     const timer = setInterval(() => {
       setNow(new Date());
@@ -121,7 +135,7 @@ export function WorldClock() {
   }, []);
 
   const getTimeInfo = (timeZone: string) => {
-    const timeFormatter = new Intl.DateTimeFormat('fa-IR', {
+    const timeFormatter = new Intl.DateTimeFormat(isEn ? 'en-US' : 'fa-IR', {
       timeZone,
       hour: '2-digit',
       minute: '2-digit',
@@ -135,7 +149,7 @@ export function WorldClock() {
       hour12: false,
     });
 
-    const dateFormatter = new Intl.DateTimeFormat('fa-IR', {
+    const dateFormatter = new Intl.DateTimeFormat(isEn ? 'en-US' : 'fa-IR', {
       timeZone,
       weekday: 'long',
       day: 'numeric',
@@ -150,9 +164,8 @@ export function WorldClock() {
     return { timeStr, dateStr, hourNum, isDay };
   };
 
-  // محاسبه اختلاف زمانی با تهران
   const getDiffWithTehran = (timeZone: string) => {
-    if (timeZone === 'Asia/Tehran') return 'زمان مبنا';
+    if (timeZone === 'Asia/Tehran') return isEn ? 'Base Time (Tehran)' : 'زمان مبنا (تهران)';
     try {
       const tehranDate = new Date(now.toLocaleString('en-US', { timeZone: 'Asia/Tehran' }));
       const targetDate = new Date(now.toLocaleString('en-US', { timeZone }));
@@ -164,231 +177,207 @@ export function WorldClock() {
 
       let text = '';
       if (absM > 0) {
-        text = `${absH} ساعت و ${absM} دقیقه`;
+        text = isEn ? `${absH}h ${absM}m` : `${absH} ساعت و ${absM} دقیقه`;
       } else {
-        text = `${absH} ساعت`;
+        text = isEn ? `${absH}h` : `${absH} ساعت`;
       }
 
-      if (diffHours > 0) return `${text} جلوتر از تهران (+${diffHours}h)`;
-      if (diffHours < 0) return `${text} عقب‌تر از تهران (${diffHours}h)`;
-      return 'هم‌زمان با تهران';
+      if (diffHours > 0) return isEn ? `${text} ahead of Tehran (+${diffHours}h)` : `${text} جلوتر از تهران (+${diffHours}h)`;
+      if (diffHours < 0) return isEn ? `${text} behind Tehran (${diffHours}h)` : `${text} عقب‌تر از تهران (${diffHours}h)`;
+      return isEn ? 'Same time as Tehran' : 'هم‌زمان با تهران';
     } catch {
       return '';
     }
   };
 
-  // شهرهای فعال کاربر
   const activeCities = userCityIds
     .map((id) => AVAILABLE_CITIES.find((c) => c.id === id))
     .filter(Boolean) as CityClock[];
 
-  const filteredActiveCities = activeCities.filter(
-    (c) =>
-      c.name.includes(search) ||
-      c.country.includes(search) ||
-      c.timeZone.toLowerCase().includes(search.toLowerCase())
-  );
+  const filteredActiveCities = activeCities.filter((c) => {
+    const q = search.toLowerCase();
+    return (
+      c.nameFa.toLowerCase().includes(q) ||
+      c.nameEn.toLowerCase().includes(q) ||
+      c.countryFa.toLowerCase().includes(q) ||
+      c.countryEn.toLowerCase().includes(q) ||
+      c.timeZone.toLowerCase().includes(q)
+    );
+  });
 
-  // شهرهای قابل اضافه شدن در مدال
-  const availableToAdd = AVAILABLE_CITIES.filter(
-    (c) =>
-      !userCityIds.includes(c.id) &&
-      (c.name.includes(modalSearch) ||
-        c.country.includes(modalSearch) ||
-        c.timeZone.toLowerCase().includes(modalSearch.toLowerCase()))
-  );
+  const availableToAdd = AVAILABLE_CITIES.filter((c) => {
+    if (userCityIds.includes(c.id)) return false;
+    const q = modalSearch.toLowerCase();
+    return (
+      c.nameFa.toLowerCase().includes(q) ||
+      c.nameEn.toLowerCase().includes(q) ||
+      c.countryFa.toLowerCase().includes(q) ||
+      c.countryEn.toLowerCase().includes(q)
+    );
+  });
 
   return (
     <div className="space-y-6">
-      {/* ساعت شاخص تهران */}
-      {(() => {
-        const tehran = getTimeInfo('Asia/Tehran');
-        return (
-          <div className="bg-gradient-to-br from-blue-600 to-indigo-700 rounded-3xl p-6 sm:p-8 text-white shadow-lg shadow-blue-500/20 flex flex-col sm:flex-row items-center justify-between gap-6">
-            <div className="space-y-1 text-center sm:text-right">
-              <div className="flex items-center justify-center sm:justify-start gap-2 text-blue-100 text-xs sm:text-sm font-semibold">
-                <Globe className="w-4 h-4" />
-                ساعت رسمی جمهوری اسلامی ایران
-              </div>
-              <h2 className="text-2xl sm:text-3xl font-black">تهران، ایران</h2>
-              <p className="text-blue-100 text-xs sm:text-sm pt-1">{tehran.dateStr}</p>
-            </div>
-            <div className="text-center sm:text-left font-mono font-black text-4xl sm:text-6xl tracking-widest bg-white/10 px-6 py-4 rounded-2xl backdrop-blur-sm" dir="ltr">
-              {tehran.timeStr}
-            </div>
-          </div>
-        );
-      })()}
-
-      {/* نوار کنترل، جستجو و دکمه افزودن شهر */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-        <div className="relative flex-1 max-w-sm">
-          <Search className="w-4 h-4 absolute right-3.5 top-3.5 text-slate-400" />
+      {/* Search and Action Bar */}
+      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-5 shadow-sm flex flex-wrap items-center justify-between gap-4">
+        <div className="relative flex-1 min-w-[240px]">
+          <Search className="w-4 h-4 text-slate-400 absolute right-3.5 top-3.5 pointer-events-none" />
           <input
             type="text"
-            placeholder="جستجو بین شهرهای فعال شما..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-4 pr-10 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-xs sm:text-sm focus:outline-none focus:border-blue-500"
+            placeholder={isEn ? 'Search active cities...' : 'جستجو در شهرهای فعال...'}
+            className="w-full pr-10 pl-4 py-2.5 rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs sm:text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-blue-500/20"
           />
         </div>
 
         <div className="flex items-center gap-2">
           <button
+            type="button"
             onClick={() => setShowAddModal(true)}
-            className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold shadow-sm shadow-blue-500/20 transition-all"
+            className="flex items-center gap-1.5 px-4 py-2.5 rounded-2xl bg-blue-600 hover:bg-blue-700 text-white text-xs sm:text-sm font-bold shadow-sm shadow-blue-500/20 active:scale-95 transition-all"
           >
             <Plus className="w-4 h-4" />
-            افزودن شهر جدید ({AVAILABLE_CITIES.length - userCityIds.length} شهر دیگر)
+            <span>{isEn ? 'Add City' : 'افزودن شهر'}</span>
           </button>
 
           <button
+            type="button"
             onClick={handleResetToDefault}
-            className="p-2.5 rounded-xl border border-slate-200 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500 transition-colors"
-            title="بازنشانی به شهرهای پیش‌فرض"
+            className="p-2.5 rounded-2xl border border-slate-200 dark:border-slate-700 text-slate-500 hover:text-slate-800 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
+            title={isEn ? 'Reset to defaults' : 'ریست به شهرهای پیش‌فرض'}
           >
             <RotateCcw className="w-4 h-4" />
           </button>
         </div>
       </div>
 
-      {/* شبکه کارت‌های ساعت شهرهای فعال */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      {/* Clocks Grid */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {filteredActiveCities.map((city) => {
-          const info = getTimeInfo(city.timeZone);
-          const diff = getDiffWithTehran(city.timeZone);
+          const { timeStr, dateStr, isDay } = getTimeInfo(city.timeZone);
+          const diffStr = getDiffWithTehran(city.timeZone);
 
           return (
             <div
               key={city.id}
-              className={`group relative p-5 rounded-2xl border transition-all ${
-                city.id === 'tehran'
-                  ? 'border-blue-500/40 bg-blue-50/30 dark:bg-blue-950/20'
-                  : 'border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 hover:border-slate-300 dark:hover:border-slate-700'
-              }`}
+              className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-5 shadow-sm flex flex-col justify-between space-y-4 hover:border-blue-400 transition-all relative group"
             >
-              {/* دکمه حذف شهر */}
-              <button
-                onClick={() => handleRemoveCity(city.id)}
-                className="absolute top-4 left-4 p-1.5 rounded-lg text-slate-300 dark:text-slate-600 hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/50 transition-colors"
-                title={`حذف ${city.name} از لیست شما`}
-              >
-                <Trash2 className="w-3.5 h-3.5" />
-              </button>
-
-              <div className="flex items-start justify-between pl-8">
+              {/* Header */}
+              <div className="flex items-start justify-between">
                 <div>
-                  <h3 className="text-lg font-bold text-slate-900 dark:text-slate-100">{city.name}</h3>
-                  <span className="text-xs text-slate-400">{city.country}</span>
+                  <h4 className="text-base font-bold text-slate-800 dark:text-slate-100 flex items-center gap-1.5">
+                    <MapPin className="w-4 h-4 text-blue-500" />
+                    <span>{isEn ? city.nameEn : city.nameFa}</span>
+                  </h4>
+                  <span className="text-xs text-slate-400 block mt-0.5">{isEn ? city.countryEn : city.countryFa}</span>
                 </div>
-                <div
-                  className={`p-2 rounded-xl flex items-center justify-center ${
-                    info.isDay
-                      ? 'bg-amber-100 dark:bg-amber-950/40 text-amber-600 dark:text-amber-400'
-                      : 'bg-indigo-100 dark:bg-indigo-950/40 text-indigo-600 dark:text-indigo-400'
-                  }`}
-                  title={info.isDay ? 'روز' : 'شب'}
-                >
-                  {info.isDay ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+
+                <div className="flex items-center gap-2">
+                  <div
+                    className={`p-1.5 rounded-xl ${
+                      isDay ? 'bg-amber-500/10 text-amber-500' : 'bg-indigo-500/10 text-indigo-400'
+                    }`}
+                  >
+                    {isDay ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+                  </div>
+
+                  {city.id !== 'tehran' && (
+                    <button
+                      type="button"
+                      onClick={() => handleRemoveCity(city.id)}
+                      className="p-1 text-slate-300 hover:text-rose-500 opacity-0 group-hover:opacity-100 transition-all"
+                      title={isEn ? 'Remove' : 'حذف'}
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </button>
+                  )}
                 </div>
               </div>
 
-              <div className="mt-4 flex items-baseline justify-between">
-                <span className="text-2xl sm:text-3xl font-mono font-bold text-slate-900 dark:text-white" dir="ltr">
-                  {info.timeStr}
-                </span>
-                <span className="text-xs text-slate-400">{info.dateStr}</span>
+              {/* Time Display */}
+              <div className="py-2 text-center">
+                <div className="text-3xl sm:text-4xl font-mono font-black text-slate-900 dark:text-white tracking-widest" dir="ltr">
+                  {timeStr}
+                </div>
+                <div className="text-xs text-slate-500 mt-2 font-medium">{dateStr}</div>
               </div>
 
-              <div className="mt-3 pt-3 border-t border-slate-100 dark:border-slate-800/80 text-[11px] text-slate-500 dark:text-slate-400 flex items-center gap-1.5">
-                <Clock className="w-3 h-3 text-slate-400" />
-                <span>{diff}</span>
+              {/* Time difference badge */}
+              <div className="pt-3 border-t border-slate-100 dark:border-slate-800 text-[11px] text-slate-500 text-center font-medium">
+                {diffStr}
               </div>
             </div>
           );
         })}
       </div>
 
-      {filteredActiveCities.length === 0 && (
-        <div className="text-center py-12 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-6 space-y-3">
-          <p className="text-sm text-slate-500">شهری با این نام در لیست فعال شما یافت نشد.</p>
-          <button
-            onClick={() => setShowAddModal(true)}
-            className="px-4 py-2 bg-blue-600 text-white rounded-xl text-xs font-bold"
-          >
-            جستجو و افزودن از بین تمام شهرهای جهان
-          </button>
-        </div>
-      )}
-
-      {/* مدال انتخاب و افزودن شهر جدید */}
+      {/* Add City Modal */}
       {showAddModal && (
-        <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl max-w-lg w-full max-h-[80vh] flex flex-col shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200">
-            {/* هدر مدال */}
-            <div className="p-5 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
-              <div>
-                <h3 className="text-base font-bold text-slate-900 dark:text-white">افزودن شهر به ساعت جهانی</h3>
-                <p className="text-xs text-slate-400 mt-0.5">شهر مورد نظر خود را انتخاب کنید تا به داشبورد شما اضافه شود.</p>
-              </div>
+        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl max-w-lg w-full p-6 shadow-2xl space-y-4">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
+              <h3 className="text-sm font-bold text-slate-800 dark:text-slate-100 flex items-center gap-2">
+                <Globe className="w-5 h-5 text-blue-600" />
+                <span>{isEn ? 'Add City to World Clock' : 'افزودن شهر به ساعت جهانی'}</span>
+              </h3>
               <button
+                type="button"
                 onClick={() => setShowAddModal(false)}
-                className="p-2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 rounded-xl"
+                className="p-1 rounded-xl text-slate-400 hover:text-slate-700 dark:hover:text-slate-200"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
-            {/* کادر سرچ داخل مدال */}
-            <div className="p-4 border-b border-slate-100 dark:border-slate-800">
-              <div className="relative">
-                <Search className="w-4 h-4 absolute right-3.5 top-3.5 text-slate-400" />
-                <input
-                  type="text"
-                  placeholder="جستجوی شهر یا کشور (مثلاً: پاریس، ونکوور، باکو)..."
-                  value={modalSearch}
-                  onChange={(e) => setModalSearch(e.target.value)}
-                  className="w-full pl-4 pr-10 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-sm focus:outline-none focus:border-blue-500"
-                />
-              </div>
+            <div className="relative">
+              <Search className="w-4 h-4 text-slate-400 absolute right-3 top-3 pointer-events-none" />
+              <input
+                type="text"
+                value={modalSearch}
+                onChange={(e) => setModalSearch(e.target.value)}
+                placeholder={isEn ? 'Type city or country name...' : 'نام شهر یا کشور را جستجو کنید...'}
+                className="w-full pr-10 pl-4 py-2.5 rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs sm:text-sm font-semibold focus:outline-none"
+              />
             </div>
 
-            {/* لیست اسکرول‌خور شهرهای قابل افزودن */}
-            <div className="p-4 overflow-y-auto flex-1 divide-y divide-slate-100 dark:divide-slate-800/80">
+            <div className="max-h-64 overflow-y-auto divide-y divide-slate-100 dark:divide-slate-800">
               {availableToAdd.length > 0 ? (
                 availableToAdd.map((city) => (
                   <div
                     key={city.id}
-                    className="py-3 flex items-center justify-between hover:bg-slate-50 dark:hover:bg-slate-800/50 px-2 rounded-xl transition-colors"
+                    className="py-2.5 px-2 flex items-center justify-between hover:bg-slate-50 dark:hover:bg-slate-800/40 rounded-xl transition-colors"
                   >
                     <div>
-                      <h4 className="text-sm font-bold text-slate-800 dark:text-slate-200">{city.name}</h4>
-                      <span className="text-xs text-slate-400">{city.country} • {city.timeZone}</span>
+                      <span className="text-xs font-bold text-slate-800 dark:text-slate-200">
+                        {isEn ? city.nameEn : city.nameFa}
+                      </span>
+                      <span className="text-[11px] text-slate-400 block">{isEn ? city.countryEn : city.countryFa}</span>
                     </div>
 
                     <button
+                      type="button"
                       onClick={() => handleAddCity(city.id)}
-                      className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-blue-50 hover:bg-blue-600 text-blue-600 hover:text-white dark:bg-blue-950/60 dark:text-blue-400 dark:hover:text-white text-xs font-bold transition-all"
+                      className="px-3 py-1.5 rounded-xl bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 hover:bg-blue-600 hover:text-white text-xs font-bold transition-all"
                     >
-                      <Plus className="w-3.5 h-3.5" />
-                      افزودن
+                      {isEn ? 'Add' : 'افزودن'}
                     </button>
                   </div>
                 ))
               ) : (
-                <div className="py-12 text-center text-xs text-slate-400">
-                  {modalSearch ? 'شهری با این عنوان یافت نشد.' : 'تمامی شهرهای موجود در کتابخانه به لیست شما افزوده شده‌اند!'}
+                <div className="p-4 text-center text-xs text-slate-400">
+                  {isEn ? 'No remaining cities found' : 'شهری با این عنوان یافت نشد یا قبلاً اضافه شده است'}
                 </div>
               )}
             </div>
 
-            {/* فوتر مدال */}
-            <div className="p-4 border-t border-slate-100 dark:border-slate-800 flex justify-end">
+            <div className="pt-2 flex justify-end">
               <button
+                type="button"
                 onClick={() => setShowAddModal(false)}
-                className="px-5 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-xs font-bold text-slate-700 dark:text-slate-300"
+                className="px-5 py-2 rounded-2xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-xs font-bold"
               >
-                بستن
+                {isEn ? 'Close' : 'بستن'}
               </button>
             </div>
           </div>
