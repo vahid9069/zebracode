@@ -281,7 +281,7 @@ export function KitHomePageClient({ locale = 'fa', dict }: KitHomePageClientProp
                 {tools.map((tool) => (
                   <Link
                     key={tool.slug}
-                    href={`${prefix}/${tool.slug}`}
+                    href={`${prefix}/${tool.slug}/`}
                     onClick={() => {
                       if (searchQuery.trim()) {
                         saveRecentSearch(searchQuery);

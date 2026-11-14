@@ -75,10 +75,10 @@ describe('home catalog helpers', () => {
 
     it('preserves the complete registry and produces only registry-backed localized routes', () => {
         const catalog = Object.values(AllToolsList);
-        const validRoutes = new Set(catalog.map((item) => item.href));
+        const validRoutes = new Set(catalog.map((item) => item.href.replace(/\/+$/, '')));
         expect(catalog).toHaveLength(validRoutes.size);
         expect(catalog.every((item) => item.href.startsWith('/'))).toBe(true);
-        expect(catalog.every((item) => validRoutes.has(getHomeToolHref(item, 'en').replace(/^\/en/, '')))).toBe(true);
-        expect(catalog.every((item) => validRoutes.has(getHomeToolHref(item, 'fa')))).toBe(true);
+        expect(catalog.every((item) => validRoutes.has(getHomeToolHref(item, 'en').replace(/^\/en/, '').replace(/\/+$/, '')))).toBe(true);
+        expect(catalog.every((item) => validRoutes.has(getHomeToolHref(item, 'fa').replace(/\/+$/, '')))).toBe(true);
     });
 });

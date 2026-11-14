@@ -1,7 +1,7 @@
 import ToolPageClient from '@/components/pages/ToolPageClient';
 import ToolStructuredData from '@/components/pages/ToolStructuredData';
 import DeveloperToolGuide from '@/components/pages/DeveloperToolGuide';
-import { getDeveloperToolContent } from '@/lib/developer-tools/content';
+import { getComprehensiveToolContent } from '@/lib/developer-tools/universal-content';
 import { getDictionary } from '@/i18n/getDictionary';
 import { AllToolsList } from '@/lib/registry/tools';
 import { generateToolMetadata } from '@/lib/seo';
@@ -21,7 +21,7 @@ export async function generateMetadata({ params }: { params: Promise<{ toolSlug:
   if (!foundEntry) return { title: 'Tool not found', robots: { index: false, follow: false } };
   const dict = await getDictionary('en');
   const localizedCopy = (dict.tools as Record<string, { title?: string; shortDescription?: string; description?: string }>)[foundEntry[0]];
-  const content = getDeveloperToolContent(toolSlug, 'en');
+  const content = getComprehensiveToolContent(foundEntry[0], toolSlug, 'en', dict);
   return generateToolMetadata(foundEntry[0], 'en', { ...localizedCopy, seoTitle: content?.seoTitle, metaDescription: content?.metaDescription });
 }
 
@@ -39,7 +39,7 @@ export default async function EnToolPage({ params }: { params: Promise<{ toolSlu
   }
 
   const localizedTool = (dict.tools as Record<string, { title?: string; shortDescription?: string; description?: string }>)[foundEntry[0]];
-  const content = getDeveloperToolContent(resolvedParams.toolSlug, 'en');
+  const content = getComprehensiveToolContent(foundEntry[0], resolvedParams.toolSlug, 'en', dict);
   return <>
     <ToolStructuredData
       toolType={foundEntry[0]}

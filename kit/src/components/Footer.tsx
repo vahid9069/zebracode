@@ -23,12 +23,12 @@ export function Footer({ locale = 'fa', dict }: FooterProps) {
           )}
         </p>
         <div className="flex items-center gap-4">
-          <Link href={isEn ? "/en" : "/"} className="hover:text-blue-600 transition-colors">
+          <Link href={isEn ? "/en/" : "/"} className="hover:text-blue-600 transition-colors">
             {isEn ? 'Home' : 'صفحه اصلی'}
           </Link>
           <span>•</span>
           <a
-            href={isEn ? "https://zebracode.ir/en" : "https://zebracode.ir"}
+            href={isEn ? "https://zebracode.ir/en/" : "https://zebracode.ir/"}
             target="_blank"
             rel="noopener noreferrer"
             className="hover:text-blue-600 transition-colors"

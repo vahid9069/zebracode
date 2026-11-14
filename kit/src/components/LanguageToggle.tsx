@@ -18,10 +18,11 @@ export function LanguageToggle({ currentLocale }: LanguageToggleProps) {
     // Current is English, switch to Persian
     targetHref = pathname.replace(/^\/en(\/|$)/, '/$1') || '/';
     if (!targetHref.startsWith('/')) targetHref = '/' + targetHref;
+    if (!targetHref.endsWith('/')) targetHref += '/';
     targetLabel = 'فارسی';
   } else {
     // Current is Persian, switch to English
-    targetHref = pathname === '/' ? '/en' : `/en${pathname}`;
+    targetHref = pathname === '/' ? '/en/' : `/en${pathname.endsWith('/') ? pathname : `${pathname}/`}`;
     targetLabel = 'English';
   }
 

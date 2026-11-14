@@ -10,7 +10,7 @@ interface HeaderProps {
 
 export function Header({ locale = 'fa', dict }: HeaderProps) {
   const isEn = locale === 'en';
-  const homeHref = isEn ? '/en' : '/';
+  const homeHref = isEn ? '/en/' : '/';
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md">
@@ -35,7 +35,7 @@ export function Header({ locale = 'fa', dict }: HeaderProps) {
 
         <div className="flex items-center gap-2 sm:gap-3">
           <a
-            href={isEn ? "https://zebracode.ir/en" : "https://zebracode.ir"}
+            href={isEn ? "https://zebracode.ir/en/" : "https://zebracode.ir/"}
             target="_blank"
             rel="noopener noreferrer"
             className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg text-slate-600 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400 border border-slate-200 dark:border-slate-800 hover:border-blue-500/30 transition-all"

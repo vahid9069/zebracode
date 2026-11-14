@@ -14,6 +14,7 @@ export const metadata: Metadata = {
     languages: {
       'fa-IR': 'https://kit.zebracode.ir/',
       'en-US': 'https://kit.zebracode.ir/en/',
+      'x-default': 'https://kit.zebracode.ir/',
     },
   },
   icons: {
