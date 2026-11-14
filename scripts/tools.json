@@ -2,527 +2,527 @@
   {
     "path": "json-format",
     "titleFa": "مرتب‌ساز JSON",
-    "descriptionFa": "زیباسازی و مرتب‌سازی داده‌های JSON شما",
+    "descriptionFa": "زیباسازی و مرتب‌سازی داده‌های JSON شما - پردازش ۱۰۰٪ محلی در مرورگر بدون ارسال اطلاعات به سرور با امنیت تضمین‌شده برای برنامه‌نویسان.",
     "titleEn": "JSON Format",
-    "descriptionEn": "Prettify and format your JSON data"
+    "descriptionEn": "Prettify and format your JSON data - Processed 100% in-browser with zero server uploads, privacy guaranteed for backend & frontend developers."
   },
   {
     "path": "json-to-big-query",
     "titleFa": "تبدیل JSON به BigQuery",
-    "descriptionFa": "تبدیل JSON به اسکیمای جداول BigQuery",
+    "descriptionFa": "تبدیل JSON به اسکیمای جداول BigQuery - پردازش ۱۰۰٪ محلی در مرورگر بدون ارسال اطلاعات به سرور با امنیت تضمین‌شده برای برنامه‌نویسان.",
     "titleEn": "JSON to BigQuery",
-    "descriptionEn": "Convert JSON to BigQuery table schema"
+    "descriptionEn": "Convert JSON to BigQuery table schema - Processed 100% in-browser with zero server uploads, privacy guaranteed for backend & frontend developers."
   },
   {
     "path": "json-to-flow",
     "titleFa": "تبدیل JSON به Flow",
-    "descriptionFa": "تولید تایپ‌های Flow از روی داده‌های JSON",
+    "descriptionFa": "تولید تایپ‌های Flow از روی داده‌های JSON - پردازش ۱۰۰٪ محلی در مرورگر بدون ارسال اطلاعات به سرور با امنیت تضمین‌شده برای برنامه‌نویسان.",
     "titleEn": "JSON to Flow",
-    "descriptionEn": "Generate Flow type definitions from JSON"
+    "descriptionEn": "Generate Flow type definitions from JSON - Processed 100% in-browser with zero server uploads, privacy guaranteed for backend & frontend developers."
   },
   {
     "path": "json-to-go",
     "titleFa": "تبدیل JSON به Go",
-    "descriptionFa": "تبدیل JSON به ساختارهای (Struct) زبان Go",
+    "descriptionFa": "تبدیل JSON به ساختارهای (Struct) زبان Go - پردازش ۱۰۰٪ محلی در مرورگر بدون ارسال اطلاعات به سرور با امنیت تضمین‌شده برای برنامه‌نویسان.",
     "titleEn": "JSON to Go",
-    "descriptionEn": "Convert JSON to Go struct definitions"
+    "descriptionEn": "Convert JSON to Go struct definitions - Processed 100% in-browser with zero server uploads, privacy guaranteed for backend & frontend developers."
   },
   {
     "path": "json-to-go-bson",
     "titleFa": "تبدیل JSON به Go BSON",
-    "descriptionFa": "ایجاد ساختارهای Go با تگ‌های BSON از JSON",
+    "descriptionFa": "ایجاد ساختارهای Go با تگ‌های BSON از JSON - پردازش ۱۰۰٪ محلی در مرورگر بدون ارسال اطلاعات به سرور با امنیت تضمین‌شده برای برنامه‌نویسان.",
     "titleEn": "JSON to Go BSON",
-    "descriptionEn": "Create Go structs with BSON tags from JSON"
+    "descriptionEn": "Create Go structs with BSON tags from JSON - Processed 100% in-browser with zero server uploads, privacy guaranteed for backend & frontend developers."
   },
   {
     "path": "json-to-graphql",
     "titleFa": "تبدیل JSON به GraphQL",
-    "descriptionFa": "تبدیل یک آبجکت JSON به اسکیمای GraphQL",
+    "descriptionFa": "تبدیل یک آبجکت JSON به اسکیمای GraphQL - پردازش ۱۰۰٪ محلی در مرورگر بدون ارسال اطلاعات به سرور با امنیت تضمین‌شده برای برنامه‌نویسان.",
     "titleEn": "JSON to GraphQL",
-    "descriptionEn": "Turn a JSON object into a GraphQL schema"
+    "descriptionEn": "Turn a JSON object into a GraphQL schema - Processed 100% in-browser with zero server uploads, privacy guaranteed for backend & frontend developers."
   },
   {
     "path": "json-to-io-ts",
     "titleFa": "تبدیل JSON به io-ts",
-    "descriptionFa": "تولید کدهای اعتبارسنجی io-ts از روی JSON",
+    "descriptionFa": "تولید کدهای اعتبارسنجی io-ts از روی JSON - پردازش ۱۰۰٪ محلی در مرورگر بدون ارسال اطلاعات به سرور با امنیت تضمین‌شده برای برنامه‌نویسان.",
     "titleEn": "JSON to io-ts",
-    "descriptionEn": "Generate io-ts codec definitions from JSON"
+    "descriptionEn": "Generate io-ts codec definitions from JSON - Processed 100% in-browser with zero server uploads, privacy guaranteed for backend & frontend developers."
   },
   {
     "path": "json-to-java",
     "titleFa": "تبدیل JSON به Java",
-    "descriptionFa": "تولید کلاس‌های POJO جاوا از داده‌های JSON",
+    "descriptionFa": "تولید کلاس‌های POJO جاوا از داده‌های JSON - پردازش ۱۰۰٪ محلی در مرورگر بدون ارسال اطلاعات به سرور با امنیت تضمین‌شده برای برنامه‌نویسان.",
     "titleEn": "JSON to Java",
-    "descriptionEn": "Create Java POJOs from JSON data"
+    "descriptionEn": "Create Java POJOs from JSON data - Processed 100% in-browser with zero server uploads, privacy guaranteed for backend & frontend developers."
   },
   {
     "path": "json-to-jsdoc",
     "titleFa": "تبدیل JSON به JSDoc",
-    "descriptionFa": "تولید حاشیه‌نویسی‌ها و تایپ‌های JSDoc از روی JSON",
+    "descriptionFa": "تولید حاشیه‌نویسی‌ها و تایپ‌های JSDoc از روی JSON - پردازش ۱۰۰٪ محلی در مرورگر بدون ارسال اطلاعات به سرور با امنیت تضمین‌شده برای برنامه‌نویسان.",
     "titleEn": "JSON to JSDoc",
-    "descriptionEn": "Generate JSDoc type annotations from JSON"
+    "descriptionEn": "Generate JSDoc type annotations from JSON - Processed 100% in-browser with zero server uploads, privacy guaranteed for backend & frontend developers."
   },
   {
     "path": "json-to-json-schema",
     "titleFa": "تبدیل JSON به JSON Schema",
-    "descriptionFa": "استنتاج و تولید خودکار JSON Schema از یک نمونه JSON",
+    "descriptionFa": "استنتاج و تولید خودکار JSON Schema از یک نمونه JSON - پردازش ۱۰۰٪ محلی در مرورگر بدون ارسال اطلاعات به سرور با امنیت تضمین‌شده برای برنامه‌نویسان.",
     "titleEn": "JSON to JSON Schema",
-    "descriptionEn": "Infer a JSON Schema from a JSON sample"
+    "descriptionEn": "Infer a JSON Schema from a JSON sample - Processed 100% in-browser with zero server uploads, privacy guaranteed for backend & frontend developers."
   },
   {
     "path": "json-to-kotlin",
     "titleFa": "تبدیل JSON به Kotlin",
-    "descriptionFa": "ایجاد کلاس‌های داده‌ای (Data Classes) کاتلین از JSON",
+    "descriptionFa": "ایجاد کلاس‌های داده‌ای (Data Classes) کاتلین از JSON - پردازش ۱۰۰٪ محلی در مرورگر بدون ارسال اطلاعات به سرور با امنیت تضمین‌شده برای برنامه‌نویسان.",
     "titleEn": "JSON to Kotlin",
-    "descriptionEn": "Create Kotlin data classes from JSON"
+    "descriptionEn": "Create Kotlin data classes from JSON - Processed 100% in-browser with zero server uploads, privacy guaranteed for backend & frontend developers."
   },
   {
     "path": "json-to-mobx-state-tree",
     "titleFa": "تبدیل JSON به MST",
-    "descriptionFa": "تولید مدل‌های MobX State Tree از داده‌های JSON",
+    "descriptionFa": "تولید مدل‌های MobX State Tree از داده‌های JSON - پردازش ۱۰۰٪ محلی در مرورگر بدون ارسال اطلاعات به سرور با امنیت تضمین‌شده برای برنامه‌نویسان.",
     "titleEn": "JSON to MobX State Tree",
-    "descriptionEn": "Generate MobX State Tree models from JSON"
+    "descriptionEn": "Generate MobX State Tree models from JSON - Processed 100% in-browser with zero server uploads, privacy guaranteed for backend & frontend developers."
   },
   {
     "path": "json-to-mongoose",
     "titleFa": "تبدیل JSON به Mongoose",
-    "descriptionFa": "تبدیل آبجکت JSON به اسکیمای Mongoose",
+    "descriptionFa": "تبدیل آبجکت JSON به اسکیمای Mongoose - پردازش ۱۰۰٪ محلی در مرورگر بدون ارسال اطلاعات به سرور با امنیت تضمین‌شده برای برنامه‌نویسان.",
     "titleEn": "JSON to Mongoose",
-    "descriptionEn": "Convert JSON to Mongoose schemas"
+    "descriptionEn": "Convert JSON to Mongoose schemas - Processed 100% in-browser with zero server uploads, privacy guaranteed for backend & frontend developers."
   },
   {
     "path": "json-to-mysql",
     "titleFa": "تبدیل JSON به MySQL",
-    "descriptionFa": "تبدیل JSON به اسکریپت‌های CREATE TABLE در MySQL",
+    "descriptionFa": "تبدیل JSON به اسکریپت‌های CREATE TABLE در MySQL - پردازش ۱۰۰٪ محلی در مرورگر بدون ارسال اطلاعات به سرور با امنیت تضمین‌شده برای برنامه‌نویسان.",
     "titleEn": "JSON to MySQL",
-    "descriptionEn": "Turn JSON into MySQL CREATE TABLE scripts"
+    "descriptionEn": "Turn JSON into MySQL CREATE TABLE scripts - Processed 100% in-browser with zero server uploads, privacy guaranteed for backend & frontend developers."
   },
   {
     "path": "json-to-proptypes",
     "titleFa": "تبدیل JSON به PropTypes",
-    "descriptionFa": "تولید اعتبارسنجی React PropTypes از داده‌های JSON",
+    "descriptionFa": "تولید اعتبارسنجی React PropTypes از داده‌های JSON - پردازش ۱۰۰٪ محلی در مرورگر بدون ارسال اطلاعات به سرور با امنیت تضمین‌شده برای برنامه‌نویسان.",
     "titleEn": "JSON to PropTypes",
-    "descriptionEn": "Generate React PropTypes from JSON data"
+    "descriptionEn": "Generate React PropTypes from JSON data - Processed 100% in-browser with zero server uploads, privacy guaranteed for backend & frontend developers."
   },
   {
     "path": "json-to-rust-serde",
     "titleFa": "تبدیل JSON به Rust Serde",
-    "descriptionFa": "ساخت Struct های Rust با ویژگی Serde از JSON",
+    "descriptionFa": "ساخت Struct های Rust با ویژگی Serde از JSON - پردازش ۱۰۰٪ محلی در مرورگر بدون ارسال اطلاعات به سرور با امنیت تضمین‌شده برای برنامه‌نویسان.",
     "titleEn": "JSON to Rust Serde",
-    "descriptionEn": "Create Rust structs with Serde attributes from JSON"
+    "descriptionEn": "Create Rust structs with Serde attributes from JSON - Processed 100% in-browser with zero server uploads, privacy guaranteed for backend & frontend developers."
   },
   {
     "path": "json-to-sarcastic",
     "titleFa": "تبدیل JSON به Sarcastic",
-    "descriptionFa": "تولید تایپ‌های کنایه‌آمیز (طنز) از داده‌های JSON",
+    "descriptionFa": "تولید تایپ‌های کنایه‌آمیز (طنز) از داده‌های JSON - پردازش ۱۰۰٪ محلی در مرورگر بدون ارسال اطلاعات به سرور با امنیت تضمین‌شده برای برنامه‌نویسان.",
     "titleEn": "JSON to Sarcastic",
-    "descriptionEn": "Generate Sarcastic type definitions from JSON (humorous tool)"
+    "descriptionEn": "Generate Sarcastic type definitions from JSON (humorous tool) - Processed 100% in-browser with zero server uploads, privacy guaranteed for backend & frontend develop"
   },
   {
     "path": "json-to-scala-case-class",
     "titleFa": "تبدیل JSON به Case Class اسکالا",
-    "descriptionFa": "ایجاد Case Class های زبان اسکالا از روی JSON",
+    "descriptionFa": "ایجاد Case Class های زبان اسکالا از روی JSON - پردازش ۱۰۰٪ محلی در مرورگر بدون ارسال اطلاعات به سرور با امنیت تضمین‌شده برای برنامه‌نویسان.",
     "titleEn": "JSON to Scala Case Class",
-    "descriptionEn": "Create Scala case classes from JSON"
+    "descriptionEn": "Create Scala case classes from JSON - Processed 100% in-browser with zero server uploads, privacy guaranteed for backend & frontend developers."
   },
   {
     "path": "json-to-toml",
     "titleFa": "تبدیل JSON به TOML",
-    "descriptionFa": "تبدیل فایل‌های کانفیگ JSON به فرمت TOML",
+    "descriptionFa": "تبدیل فایل‌های کانفیگ JSON به فرمت TOML - پردازش ۱۰۰٪ محلی در مرورگر بدون ارسال اطلاعات به سرور با امنیت تضمین‌شده برای برنامه‌نویسان.",
     "titleEn": "JSON to TOML",
-    "descriptionEn": "Convert JSON data to TOML format"
+    "descriptionEn": "Convert JSON data to TOML format - Processed 100% in-browser with zero server uploads, privacy guaranteed for backend & frontend developers."
   },
   {
     "path": "json-to-typescript",
     "titleFa": "تبدیل JSON به TypeScript",
-    "descriptionFa": "تولید اینترفیس‌های تایپ‌اسکریپت از روی نمونه JSON",
+    "descriptionFa": "تولید اینترفیس‌های تایپ‌اسکریپت از روی نمونه JSON - پردازش ۱۰۰٪ محلی در مرورگر بدون ارسال اطلاعات به سرور با امنیت تضمین‌شده برای برنامه‌نویسان.",
     "titleEn": "JSON to TypeScript",
-    "descriptionEn": "Generate TypeScript interfaces from JSON"
+    "descriptionEn": "Generate TypeScript interfaces from JSON - Processed 100% in-browser with zero server uploads, privacy guaranteed for backend & frontend developers."
   },
   {
     "path": "json-to-yaml",
     "titleFa": "تبدیل JSON به YAML",
-    "descriptionFa": "تبدیل سریع داده‌های JSON به YAML به صورت آنلاین",
+    "descriptionFa": "تبدیل سریع داده‌های JSON به YAML به صورت آنلاین - پردازش ۱۰۰٪ محلی در مرورگر بدون ارسال اطلاعات به سرور با امنیت تضمین‌شده برای برنامه‌نویسان.",
     "titleEn": "JSON to YAML",
-    "descriptionEn": "Convert JSON to YAML online"
+    "descriptionEn": "Convert JSON to YAML online - Processed 100% in-browser with zero server uploads, privacy guaranteed for backend & frontend developers."
   },
   {
     "path": "json-to-zod",
     "titleFa": "تبدیل JSON به Zod",
-    "descriptionFa": "تولید اسکیمای اعتبارسنجی Zod از داده‌های JSON",
+    "descriptionFa": "تولید اسکیمای اعتبارسنجی Zod از داده‌های JSON - پردازش ۱۰۰٪ محلی در مرورگر بدون ارسال اطلاعات به سرور با امنیت تضمین‌شده برای برنامه‌نویسان.",
     "titleEn": "JSON to Zod",
-    "descriptionEn": "Generate Zod schemas from your JSON data"
+    "descriptionEn": "Generate Zod schemas from your JSON data - Processed 100% in-browser with zero server uploads, privacy guaranteed for backend & frontend developers."
   },
   {
     "path": "es5-to-es6",
     "titleFa": "تبدیل ES5 به ES6",
-    "descriptionFa": "تبدیل جاوااسکریپت ES5 به سینتکس مدرن ES6+",
+    "descriptionFa": "تبدیل جاوااسکریپت ES5 به سینتکس مدرن ES6+ - پردازش ۱۰۰٪ محلی در مرورگر بدون ارسال اطلاعات به سرور با امنیت تضمین‌شده برای برنامه‌نویسان.",
     "titleEn": "ES5 to ES6",
-    "descriptionEn": "Convert ES5 JavaScript code to modern ES6+ syntax"
+    "descriptionEn": "Convert ES5 JavaScript code to modern ES6+ syntax - Processed 100% in-browser with zero server uploads, privacy guaranteed for backend & frontend developers."
   },
   {
     "path": "es6-to-es5",
     "titleFa": "تبدیل ES6 به ES5",
-    "descriptionFa": "ترنسپایل ES6+ به ES5 برای سازگاری",
+    "descriptionFa": "ترنسپایل ES6+ به ES5 برای سازگاری - پردازش ۱۰۰٪ محلی در مرورگر بدون ارسال اطلاعات به سرور با امنیت تضمین‌شده برای برنامه‌نویسان.",
     "titleEn": "ES6 to ES5",
-    "descriptionEn": "Transpile ES6+ JavaScript down to ES5 for compatibility"
+    "descriptionEn": "Transpile ES6+ JavaScript down to ES5 for compatibility - Processed 100% in-browser with zero server uploads, privacy guaranteed for backend & frontend developers."
   },
   {
     "path": "js-to-json",
     "titleFa": "تبدیل JS به JSON",
-    "descriptionFa": "تبدیل آبجکت جاوااسکریپت به JSON",
+    "descriptionFa": "تبدیل آبجکت جاوااسکریپت به JSON - پردازش ۱۰۰٪ محلی در مرورگر بدون ارسال اطلاعات به سرور با امنیت تضمین‌شده برای برنامه‌نویسان.",
     "titleEn": "JS to JSON",
-    "descriptionEn": "Extract or convert a JavaScript object to JSON"
+    "descriptionEn": "Extract or convert a JavaScript object to JSON - Processed 100% in-browser with zero server uploads, privacy guaranteed for backend & frontend developers."
   },
   {
     "path": "js-to-typescript",
     "titleFa": "تبدیل JS به تایپ‌اسکریپت",
-    "descriptionFa": "تبدیل جاوااسکریپت به TypeScript با حاشیه‌نویسی تایپ",
+    "descriptionFa": "تبدیل جاوااسکریپت به TypeScript با حاشیه‌نویسی تایپ - پردازش ۱۰۰٪ محلی در مرورگر بدون ارسال اطلاعات به سرور با امنیت تضمین‌شده برای برنامه‌نویسان.",
     "titleEn": "JS to TypeScript",
-    "descriptionEn": "Convert JavaScript code to TypeScript with type annotations"
+    "descriptionEn": "Convert JavaScript code to TypeScript with type annotations - Processed 100% in-browser with zero server uploads, privacy guaranteed for backend & frontend developer"
   },
   {
     "path": "css-to-js",
     "titleFa": "تبدیل CSS به JS",
-    "descriptionFa": "تبدیل CSS به آبجکت جاوااسکریپت",
+    "descriptionFa": "تبدیل CSS به آبجکت جاوااسکریپت - پردازش ۱۰۰٪ محلی در مرورگر بدون ارسال اطلاعات به سرور با امنیت تضمین‌شده برای برنامه‌نویسان.",
     "titleEn": "CSS to JS",
-    "descriptionEn": "Convert CSS to a JavaScript object"
+    "descriptionEn": "Convert CSS to a JavaScript object - Processed 100% in-browser with zero server uploads, privacy guaranteed for backend & frontend developers."
   },
   {
     "path": "css-to-scss",
     "titleFa": "تبدیل CSS به SCSS",
-    "descriptionFa": "تبدیل CSS به SCSS (Sassy CSS)",
+    "descriptionFa": "تبدیل CSS به SCSS (Sassy CSS) - پردازش ۱۰۰٪ محلی در مرورگر بدون ارسال اطلاعات به سرور با امنیت تضمین‌شده برای برنامه‌نویسان.",
     "titleEn": "CSS to SCSS",
-    "descriptionEn": "Convert CSS to SCSS (Sassy CSS)"
+    "descriptionEn": "Convert CSS to SCSS (Sassy CSS) - Processed 100% in-browser with zero server uploads, privacy guaranteed for backend & frontend developers."
   },
   {
     "path": "css-to-tailwind",
     "titleFa": "تبدیل CSS به Tailwind",
-    "descriptionFa": "تبدیل کلاس‌های CSS به utilityهای Tailwind",
+    "descriptionFa": "تبدیل کلاس‌های CSS به utilityهای Tailwind - پردازش ۱۰۰٪ محلی در مرورگر بدون ارسال اطلاعات به سرور با امنیت تضمین‌شده برای برنامه‌نویسان.",
     "titleEn": "CSS to Tailwind",
-    "descriptionEn": "Convert CSS classes to Tailwind CSS utilities"
+    "descriptionEn": "Convert CSS classes to Tailwind CSS utilities - Processed 100% in-browser with zero server uploads, privacy guaranteed for backend & frontend developers."
   },
   {
     "path": "scss-to-css",
     "titleFa": "تبدیل SCSS به CSS",
-    "descriptionFa": "کامپایل SCSS به CSS استاندارد",
+    "descriptionFa": "کامپایل SCSS به CSS استاندارد - پردازش ۱۰۰٪ محلی در مرورگر بدون ارسال اطلاعات به سرور با امنیت تضمین‌شده برای برنامه‌نویسان.",
     "titleEn": "SCSS to CSS",
-    "descriptionEn": "Compile SCSS to standard CSS"
+    "descriptionEn": "Compile SCSS to standard CSS - Processed 100% in-browser with zero server uploads, privacy guaranteed for backend & frontend developers."
   },
   {
     "path": "html-to-jsx",
     "titleFa": "تبدیل HTML به JSX",
-    "descriptionFa": "تبدیل HTML به JSX برای React",
+    "descriptionFa": "تبدیل HTML به JSX برای React - پردازش ۱۰۰٪ محلی در مرورگر بدون ارسال اطلاعات به سرور با امنیت تضمین‌شده برای برنامه‌نویسان.",
     "titleEn": "HTML to JSX",
-    "descriptionEn": "Convert HTML to JSX for React"
+    "descriptionEn": "Convert HTML to JSX for React - Processed 100% in-browser with zero server uploads, privacy guaranteed for backend & frontend developers."
   },
   {
     "path": "html-to-pug",
     "titleFa": "تبدیل HTML به Pug",
-    "descriptionFa": "تبدیل HTML به قالب Pug",
+    "descriptionFa": "تبدیل HTML به قالب Pug - پردازش ۱۰۰٪ محلی در مرورگر بدون ارسال اطلاعات به سرور با امنیت تضمین‌شده برای برنامه‌نویسان.",
     "titleEn": "HTML to Pug",
-    "descriptionEn": "Transform HTML into Pug (formerly Jade) templates"
+    "descriptionEn": "Transform HTML into Pug (formerly Jade) templates - Processed 100% in-browser with zero server uploads, privacy guaranteed for backend & frontend developers."
   },
   {
     "path": "graphql-to-flow",
     "titleFa": "تبدیل GraphQL به Flow",
-    "descriptionFa": "تبدیل اسکیمای GraphQL به تایپ‌های Flow",
+    "descriptionFa": "تبدیل اسکیمای GraphQL به تایپ‌های Flow - پردازش ۱۰۰٪ محلی در مرورگر بدون ارسال اطلاعات به سرور با امنیت تضمین‌شده برای برنامه‌نویسان.",
     "titleEn": "GraphQL to Flow",
-    "descriptionEn": "Convert GraphQL schema to Flow type definitions"
+    "descriptionEn": "Convert GraphQL schema to Flow type definitions - Processed 100% in-browser with zero server uploads, privacy guaranteed for backend & frontend developers."
   },
   {
     "path": "graphql-to-typescript",
     "titleFa": "تبدیل GraphQL به تایپ‌اسکریپت",
-    "descriptionFa": "تولید تایپ‌های TypeScript از اسکیمای GraphQL",
+    "descriptionFa": "تولید تایپ‌های TypeScript از اسکیمای GraphQL - پردازش ۱۰۰٪ محلی در مرورگر بدون ارسال اطلاعات به سرور با امنیت تضمین‌شده برای برنامه‌نویسان.",
     "titleEn": "GraphQL to TypeScript",
-    "descriptionEn": "Generate TypeScript types from a GraphQL schema"
+    "descriptionEn": "Generate TypeScript types from a GraphQL schema - Processed 100% in-browser with zero server uploads, privacy guaranteed for backend & frontend developers."
   },
   {
     "path": "graphql-to-java",
     "titleFa": "تبدیل GraphQL به Java",
-    "descriptionFa": "نگاشت اسکیمای GraphQL به کلاس‌های جاوا",
+    "descriptionFa": "نگاشت اسکیمای GraphQL به کلاس‌های جاوا - پردازش ۱۰۰٪ محلی در مرورگر بدون ارسال اطلاعات به سرور با امنیت تضمین‌شده برای برنامه‌نویسان.",
     "titleEn": "GraphQL to Java",
-    "descriptionEn": "Map your GraphQL schema to Java classes"
+    "descriptionEn": "Map your GraphQL schema to Java classes - Processed 100% in-browser with zero server uploads, privacy guaranteed for backend & frontend developers."
   },
   {
     "path": "graphql-to-typescript-mongodb",
     "titleFa": "تبدیل GraphQL به مدل MongoDB تایپ‌اسکریپت",
-    "descriptionFa": "تولید مدل‌های TypeScript برای MongoDB از GraphQL",
+    "descriptionFa": "تولید مدل‌های TypeScript برای MongoDB از GraphQL - پردازش ۱۰۰٪ محلی در مرورگر بدون ارسال اطلاعات به سرور با امنیت تضمین‌شده برای برنامه‌نویسان.",
     "titleEn": "GraphQL to TypeScript MongoDB",
-    "descriptionEn": "Generate TypeScript models for MongoDB from GraphQL schema"
+    "descriptionEn": "Generate TypeScript models for MongoDB from GraphQL schema - Processed 100% in-browser with zero server uploads, privacy guaranteed for backend & frontend developers"
   },
   {
     "path": "graphql-to-schema-ast",
     "titleFa": "AST اسکیمای GraphQL",
-    "descriptionFa": "خروجی درخت نحوی انتزاعی اسکیمای GraphQL",
+    "descriptionFa": "خروجی درخت نحوی انتزاعی اسکیمای GraphQL - پردازش ۱۰۰٪ محلی در مرورگر بدون ارسال اطلاعات به سرور با امنیت تضمین‌شده برای برنامه‌نویسان.",
     "titleEn": "GraphQL Schema AST",
-    "descriptionEn": "Output the Abstract Syntax Tree of your GraphQL schema"
+    "descriptionEn": "Output the Abstract Syntax Tree of your GraphQL schema - Processed 100% in-browser with zero server uploads, privacy guaranteed for backend & frontend developers."
   },
   {
     "path": "graphql-to-resolvers-signature",
     "titleFa": "امضای Resolverهای GraphQL",
-    "descriptionFa": "تولید امضای توابع resolver از اسکیمای GraphQL",
+    "descriptionFa": "تولید امضای توابع resolver از اسکیمای GraphQL - پردازش ۱۰۰٪ محلی در مرورگر بدون ارسال اطلاعات به سرور با امنیت تضمین‌شده برای برنامه‌نویسان.",
     "titleEn": "GraphQL Resolvers Signature",
-    "descriptionEn": "Generate resolver function signatures from GraphQL schema"
+    "descriptionEn": "Generate resolver function signatures from GraphQL schema - Processed 100% in-browser with zero server uploads, privacy guaranteed for backend & frontend developers."
   },
   {
     "path": "graphql-to-introspection-json",
     "titleFa": "JSON اینتروسپکشن GraphQL",
-    "descriptionFa": "تبدیل اسکیمای GraphQL به JSON اینتروسپکشن",
+    "descriptionFa": "تبدیل اسکیمای GraphQL به JSON اینتروسپکشن - پردازش ۱۰۰٪ محلی در مرورگر بدون ارسال اطلاعات به سرور با امنیت تضمین‌شده برای برنامه‌نویسان.",
     "titleEn": "GraphQL Introspection JSON",
-    "descriptionEn": "Convert GraphQL schema to introspection JSON"
+    "descriptionEn": "Convert GraphQL schema to introspection JSON - Processed 100% in-browser with zero server uploads, privacy guaranteed for backend & frontend developers."
   },
   {
     "path": "graphql-to-fragment-matcher",
     "titleFa": "Fragment Matcher برای GraphQL",
-    "descriptionFa": "تولید تنظیمات fragment matcher از اسکیما",
+    "descriptionFa": "تولید تنظیمات fragment matcher از اسکیما - پردازش ۱۰۰٪ محلی در مرورگر بدون ارسال اطلاعات به سرور با امنیت تضمین‌شده برای برنامه‌نویسان.",
     "titleEn": "GraphQL Fragment Matcher",
-    "descriptionEn": "Generate a fragment matcher config from a GraphQL schema"
+    "descriptionEn": "Generate a fragment matcher config from a GraphQL schema - Processed 100% in-browser with zero server uploads, privacy guaranteed for backend & frontend developers."
   },
   {
     "path": "graphql-to-components",
     "titleFa": "تبدیل GraphQL به کامپوننت",
-    "descriptionFa": "تولید کامپوننت React/Vue از اسکیمای GraphQL",
+    "descriptionFa": "تولید کامپوننت React/Vue از اسکیمای GraphQL - پردازش ۱۰۰٪ محلی در مرورگر بدون ارسال اطلاعات به سرور با امنیت تضمین‌شده برای برنامه‌نویسان.",
     "titleEn": "GraphQL to Components",
-    "descriptionEn": "Generate React/Vue components from GraphQL schema"
+    "descriptionEn": "Generate React/Vue components from GraphQL schema - Processed 100% in-browser with zero server uploads, privacy guaranteed for backend & frontend developers."
   },
   {
     "path": "jsonld-to-compacted",
     "titleFa": "فشرده‌سازی JSON-LD",
-    "descriptionFa": "فشرده کردن سند JSON-LD با یک context",
+    "descriptionFa": "فشرده کردن سند JSON-LD با یک context - پردازش ۱۰۰٪ محلی در مرورگر بدون ارسال اطلاعات به سرور با امنیت تضمین‌شده برای برنامه‌نویسان.",
     "titleEn": "JSON-LD to Compacted",
-    "descriptionEn": "Compact a JSON-LD document with a given context"
+    "descriptionEn": "Compact a JSON-LD document with a given context - Processed 100% in-browser with zero server uploads, privacy guaranteed for backend & frontend developers."
   },
   {
     "path": "jsonld-to-flattened",
     "titleFa": "تخت‌سازی JSON-LD",
-    "descriptionFa": "تبدیل سند JSON-LD به گراف مبتنی بر نود",
+    "descriptionFa": "تبدیل سند JSON-LD به گراف مبتنی بر نود - پردازش ۱۰۰٪ محلی در مرورگر بدون ارسال اطلاعات به سرور با امنیت تضمین‌شده برای برنامه‌نویسان.",
     "titleEn": "JSON-LD to Flattened",
-    "descriptionEn": "Flatten a JSON-LD document to a node-based graph"
+    "descriptionEn": "Flatten a JSON-LD document to a node-based graph - Processed 100% in-browser with zero server uploads, privacy guaranteed for backend & frontend developers."
   },
   {
     "path": "jsonld-to-framed",
     "titleFa": "فریم کردن JSON-LD",
-    "descriptionFa": "شکل‌دهی سند JSON-LD با اعمال frame",
+    "descriptionFa": "شکل‌دهی سند JSON-LD با اعمال frame - پردازش ۱۰۰٪ محلی در مرورگر بدون ارسال اطلاعات به سرور با امنیت تضمین‌شده برای برنامه‌نویسان.",
     "titleEn": "JSON-LD to Framed",
-    "descriptionEn": "Shape a JSON-LD document by applying a frame"
+    "descriptionEn": "Shape a JSON-LD document by applying a frame - Processed 100% in-browser with zero server uploads, privacy guaranteed for backend & frontend developers."
   },
   {
     "path": "jsonld-to-normalized",
     "titleFa": "نرمال‌سازی JSON-LD",
-    "descriptionFa": "نرمال‌سازی سند JSON-LD (RDF Dataset Normalization)",
+    "descriptionFa": "نرمال‌سازی سند JSON-LD (RDF Dataset Normalization) - پردازش ۱۰۰٪ محلی در مرورگر بدون ارسال اطلاعات به سرور با امنیت تضمین‌شده برای برنامه‌نویسان.",
     "titleEn": "JSON-LD to Normalized",
-    "descriptionEn": "Normalize a JSON-LD document (RDF Dataset Normalization)"
+    "descriptionEn": "Normalize a JSON-LD document (RDF Dataset Normalization) - Processed 100% in-browser with zero server uploads, privacy guaranteed for backend & frontend developers."
   },
   {
     "path": "jsonld-to-nquads",
     "titleFa": "تبدیل JSON-LD به N-Quads",
-    "descriptionFa": "تبدیل سند JSON-LD به فرمت N-Quads",
+    "descriptionFa": "تبدیل سند JSON-LD به فرمت N-Quads - پردازش ۱۰۰٪ محلی در مرورگر بدون ارسال اطلاعات به سرور با امنیت تضمین‌شده برای برنامه‌نویسان.",
     "titleEn": "JSON-LD to N-Quads",
-    "descriptionEn": "Convert JSON-LD document to N-Quads format"
+    "descriptionEn": "Convert JSON-LD document to N-Quads format - Processed 100% in-browser with zero server uploads, privacy guaranteed for backend & frontend developers."
   },
   {
     "path": "json-schema-to-openapi-schema",
     "titleFa": "تبدیل JSON Schema به OpenAPI",
-    "descriptionFa": "تبدیل تعریف JSON Schema به مشخصات OpenAPI",
+    "descriptionFa": "تبدیل تعریف JSON Schema به مشخصات OpenAPI - پردازش ۱۰۰٪ محلی در مرورگر بدون ارسال اطلاعات به سرور با امنیت تضمین‌شده برای برنامه‌نویسان.",
     "titleEn": "JSON Schema to OpenAPI",
-    "descriptionEn": "Convert JSON Schema definitions to OpenAPI specifications"
+    "descriptionEn": "Convert JSON Schema definitions to OpenAPI specifications - Processed 100% in-browser with zero server uploads, privacy guaranteed for backend & frontend developers."
   },
   {
     "path": "json-schema-to-typescript",
     "titleFa": "تبدیل JSON Schema به تایپ‌اسکریپت",
-    "descriptionFa": "تولید تایپ‌های TypeScript از JSON Schema",
+    "descriptionFa": "تولید تایپ‌های TypeScript از JSON Schema - پردازش ۱۰۰٪ محلی در مرورگر بدون ارسال اطلاعات به سرور با امنیت تضمین‌شده برای برنامه‌نویسان.",
     "titleEn": "JSON Schema to TypeScript",
-    "descriptionEn": "Generate TypeScript types from a JSON Schema"
+    "descriptionEn": "Generate TypeScript types from a JSON Schema - Processed 100% in-browser with zero server uploads, privacy guaranteed for backend & frontend developers."
   },
   {
     "path": "json-schema-to-zod",
     "titleFa": "تبدیل JSON Schema به Zod",
-    "descriptionFa": "تبدیل JSON Schema به اسکیمای اعتبارسنجی Zod",
+    "descriptionFa": "تبدیل JSON Schema به اسکیمای اعتبارسنجی Zod - پردازش ۱۰۰٪ محلی در مرورگر بدون ارسال اطلاعات به سرور با امنیت تضمین‌شده برای برنامه‌نویسان.",
     "titleEn": "JSON Schema to Zod",
-    "descriptionEn": "Turn a JSON Schema into a Zod validation schema"
+    "descriptionEn": "Turn a JSON Schema into a Zod validation schema - Processed 100% in-browser with zero server uploads, privacy guaranteed for backend & frontend developers."
   },
   {
     "path": "json-schema-to-protobuf",
     "titleFa": "تبدیل JSON Schema به Protobuf",
-    "descriptionFa": "تولید تعریف Protocol Buffers از JSON Schema",
+    "descriptionFa": "تولید تعریف Protocol Buffers از JSON Schema - پردازش ۱۰۰٪ محلی در مرورگر بدون ارسال اطلاعات به سرور با امنیت تضمین‌شده برای برنامه‌نویسان.",
     "titleEn": "JSON Schema to Protobuf",
-    "descriptionEn": "Generate Protocol Buffers definitions from JSON Schema"
+    "descriptionEn": "Generate Protocol Buffers definitions from JSON Schema - Processed 100% in-browser with zero server uploads, privacy guaranteed for backend & frontend developers."
   },
   {
     "path": "typescript-to-flow",
     "titleFa": "تبدیل تایپ‌اسکریپت به Flow",
-    "descriptionFa": "تبدیل تایپ‌های TypeScript به حاشیه‌نویسی Flow",
+    "descriptionFa": "تبدیل تایپ‌های TypeScript به حاشیه‌نویسی Flow - پردازش ۱۰۰٪ محلی در مرورگر بدون ارسال اطلاعات به سرور با امنیت تضمین‌شده برای برنامه‌نویسان.",
     "titleEn": "TypeScript to Flow",
-    "descriptionEn": "Convert TypeScript types to Flow type annotations"
+    "descriptionEn": "Convert TypeScript types to Flow type annotations - Processed 100% in-browser with zero server uploads, privacy guaranteed for backend & frontend developers."
   },
   {
     "path": "typescript-to-javascript",
     "titleFa": "تبدیل تایپ‌اسکریپت به جاوااسکریپت",
-    "descriptionFa": "کامپایل TypeScript به جاوااسکریپت خالص آنلاین",
+    "descriptionFa": "کامپایل TypeScript به جاوااسکریپت خالص آنلاین - پردازش ۱۰۰٪ محلی در مرورگر بدون ارسال اطلاعات به سرور با امنیت تضمین‌شده برای برنامه‌نویسان.",
     "titleEn": "TypeScript to JavaScript",
-    "descriptionEn": "Compile TypeScript to plain JavaScript online"
+    "descriptionEn": "Compile TypeScript to plain JavaScript online - Processed 100% in-browser with zero server uploads, privacy guaranteed for backend & frontend developers."
   },
   {
     "path": "typescript-to-json-schema",
     "titleFa": "تبدیل تایپ‌اسکریپت به JSON Schema",
-    "descriptionFa": "تولید JSON Schema از اینترفیس‌های TypeScript",
+    "descriptionFa": "تولید JSON Schema از اینترفیس‌های TypeScript - پردازش ۱۰۰٪ محلی در مرورگر بدون ارسال اطلاعات به سرور با امنیت تضمین‌شده برای برنامه‌نویسان.",
     "titleEn": "TypeScript to JSON Schema",
-    "descriptionEn": "Generate JSON Schema from TypeScript interfaces"
+    "descriptionEn": "Generate JSON Schema from TypeScript interfaces - Processed 100% in-browser with zero server uploads, privacy guaranteed for backend & frontend developers."
   },
   {
     "path": "typescript-to-typescript-declaration",
     "titleFa": "تبدیل تایپ‌اسکریپت به فایل Declaration",
-    "descriptionFa": "تولید فایل .d.ts از سورس TypeScript",
+    "descriptionFa": "تولید فایل .d.ts از سورس TypeScript - پردازش ۱۰۰٪ محلی در مرورگر بدون ارسال اطلاعات به سرور با امنیت تضمین‌شده برای برنامه‌نویسان.",
     "titleEn": "TypeScript to Declaration (.d.ts)",
-    "descriptionEn": "Generate .d.ts declaration files from TypeScript source"
+    "descriptionEn": "Generate .d.ts declaration files from TypeScript source - Processed 100% in-browser with zero server uploads, privacy guaranteed for backend & frontend developers."
   },
   {
     "path": "typescript-to-zod",
     "titleFa": "تبدیل تایپ‌اسکریپت به Zod",
-    "descriptionFa": "تولید اسکیمای Zod از تایپ‌های TypeScript",
+    "descriptionFa": "تولید اسکیمای Zod از تایپ‌های TypeScript - پردازش ۱۰۰٪ محلی در مرورگر بدون ارسال اطلاعات به سرور با امنیت تضمین‌شده برای برنامه‌نویسان.",
     "titleEn": "TypeScript to Zod",
-    "descriptionEn": "Generate Zod validation schemas from TypeScript types"
+    "descriptionEn": "Generate Zod validation schemas from TypeScript types - Processed 100% in-browser with zero server uploads, privacy guaranteed for backend & frontend developers."
   },
   {
     "path": "svg-to-jsx",
     "titleFa": "تبدیل SVG به JSX",
-    "descriptionFa": "تبدیل فایل SVG به JSX برای کامپوننت React",
+    "descriptionFa": "تبدیل فایل SVG به JSX برای کامپوننت React - پردازش ۱۰۰٪ محلی در مرورگر بدون ارسال اطلاعات به سرور با امنیت تضمین‌شده برای برنامه‌نویسان.",
     "titleEn": "SVG to JSX",
-    "descriptionEn": "Convert SVG files to JSX for React components"
+    "descriptionEn": "Convert SVG files to JSX for React components - Processed 100% in-browser with zero server uploads, privacy guaranteed for backend & frontend developers."
   },
   {
     "path": "svg-to-react-native",
     "titleFa": "تبدیل SVG به React Native",
-    "descriptionFa": "تبدیل SVG به کامپوننت react-native-svg",
+    "descriptionFa": "تبدیل SVG به کامپوننت react-native-svg - پردازش ۱۰۰٪ محلی در مرورگر بدون ارسال اطلاعات به سرور با امنیت تضمین‌شده برای برنامه‌نویسان.",
     "titleEn": "SVG to React Native",
-    "descriptionEn": "Convert SVGs to React Native SVG components"
+    "descriptionEn": "Convert SVGs to React Native SVG components - Processed 100% in-browser with zero server uploads, privacy guaranteed for backend & frontend developers."
   },
   {
     "path": "cadence-to-go",
     "titleFa": "تبدیل Cadence به Go",
-    "descriptionFa": "تبدیل تعریف workflowهای Cadence به کد Go",
+    "descriptionFa": "تبدیل تعریف workflowهای Cadence به کد Go - پردازش ۱۰۰٪ محلی در مرورگر بدون ارسال اطلاعات به سرور با امنیت تضمین‌شده برای برنامه‌نویسان.",
     "titleEn": "Cadence to Go",
-    "descriptionEn": "Convert Cadence workflow definitions to Go code"
+    "descriptionEn": "Convert Cadence workflow definitions to Go code - Processed 100% in-browser with zero server uploads, privacy guaranteed for backend & frontend developers."
   },
   {
     "path": "markdown-to-html",
     "titleFa": "تبدیل Markdown به HTML",
-    "descriptionFa": "تبدیل Markdown به HTML تمیز و معنایی",
+    "descriptionFa": "تبدیل Markdown به HTML تمیز و معنایی - پردازش ۱۰۰٪ محلی در مرورگر بدون ارسال اطلاعات به سرور با امنیت تضمین‌شده برای برنامه‌نویسان.",
     "titleEn": "Markdown to HTML",
-    "descriptionEn": "Convert Markdown to clean, semantic HTML"
+    "descriptionEn": "Convert Markdown to clean, semantic HTML - Processed 100% in-browser with zero server uploads, privacy guaranteed for backend & frontend developers."
   },
   {
     "path": "toml-to-json",
     "titleFa": "تبدیل TOML به JSON",
-    "descriptionFa": "تبدیل فایل‌های TOML به JSON آنلاین",
+    "descriptionFa": "تبدیل فایل‌های TOML به JSON آنلاین - پردازش ۱۰۰٪ محلی در مرورگر بدون ارسال اطلاعات به سرور با امنیت تضمین‌شده برای برنامه‌نویسان.",
     "titleEn": "TOML to JSON",
-    "descriptionEn": "Convert TOML files to JSON online"
+    "descriptionEn": "Convert TOML files to JSON online - Processed 100% in-browser with zero server uploads, privacy guaranteed for backend & frontend developers."
   },
   {
     "path": "xml-to-json",
     "titleFa": "تبدیل XML به JSON",
-    "descriptionFa": "تبدیل داده XML به فرمت JSON",
+    "descriptionFa": "تبدیل داده XML به فرمت JSON - پردازش ۱۰۰٪ محلی در مرورگر بدون ارسال اطلاعات به سرور با امنیت تضمین‌شده برای برنامه‌نویسان.",
     "titleEn": "XML to JSON",
-    "descriptionEn": "Convert XML data to JSON format"
+    "descriptionEn": "Convert XML data to JSON format - Processed 100% in-browser with zero server uploads, privacy guaranteed for backend & frontend developers."
   },
   {
     "path": "yaml-to-json",
     "titleFa": "تبدیل YAML به JSON",
-    "descriptionFa": "تبدیل فوری YAML به JSON",
+    "descriptionFa": "تبدیل فوری YAML به JSON - پردازش ۱۰۰٪ محلی در مرورگر بدون ارسال اطلاعات به سرور با امنیت تضمین‌شده برای برنامه‌نویسان.",
     "titleEn": "YAML to JSON",
-    "descriptionEn": "Convert YAML to JSON instantly"
+    "descriptionEn": "Convert YAML to JSON instantly - Processed 100% in-browser with zero server uploads, privacy guaranteed for backend & frontend developers."
   },
   {
     "path": "yaml-to-toml",
     "titleFa": "تبدیل YAML به TOML",
-    "descriptionFa": "تبدیل فایل‌های YAML به فرمت TOML",
+    "descriptionFa": "تبدیل فایل‌های YAML به فرمت TOML - پردازش ۱۰۰٪ محلی در مرورگر بدون ارسال اطلاعات به سرور با امنیت تضمین‌شده برای برنامه‌نویسان.",
     "titleEn": "YAML to TOML",
-    "descriptionEn": "Convert YAML files to TOML format"
+    "descriptionEn": "Convert YAML files to TOML format - Processed 100% in-browser with zero server uploads, privacy guaranteed for backend & frontend developers."
   },
   {
     "path": "toml-to-yaml",
     "titleFa": "تبدیل TOML به YAML",
-    "descriptionFa": "تبدیل فایل‌های TOML به فرمت YAML",
+    "descriptionFa": "تبدیل فایل‌های TOML به فرمت YAML - پردازش ۱۰۰٪ محلی در مرورگر بدون ارسال اطلاعات به سرور با امنیت تضمین‌شده برای برنامه‌نویسان.",
     "titleEn": "TOML to YAML",
-    "descriptionEn": "Convert TOML files to YAML format"
+    "descriptionEn": "Convert TOML files to YAML format - Processed 100% in-browser with zero server uploads, privacy guaranteed for backend & frontend developers."
   },
   {
     "path": "base64-decode",
     "titleFa": "دیکد Base64",
-    "descriptionFa": "تبدیل رشته‌های Base64 به متن ساده",
+    "descriptionFa": "تبدیل رشته‌های Base64 به متن ساده - پردازش ۱۰۰٪ محلی در مرورگر بدون ارسال اطلاعات به سرور با امنیت تضمین‌شده برای برنامه‌نویسان.",
     "titleEn": "Base64 Decode",
-    "descriptionEn": "Decode Base64 encoded strings to plain text"
+    "descriptionEn": "Decode Base64 encoded strings to plain text - Processed 100% in-browser with zero server uploads, privacy guaranteed for backend & frontend developers."
   },
   {
     "path": "base64-encode",
     "titleFa": "انکد Base64",
-    "descriptionFa": "رمزگذاری متن یا فایل به فرمت Base64",
+    "descriptionFa": "رمزگذاری متن یا فایل به فرمت Base64 - پردازش ۱۰۰٪ محلی در مرورگر بدون ارسال اطلاعات به سرور با امنیت تضمین‌شده برای برنامه‌نویسان.",
     "titleEn": "Base64 Encode",
-    "descriptionEn": "Encode text or files to Base64 format"
+    "descriptionEn": "Encode text or files to Base64 format - Processed 100% in-browser with zero server uploads, privacy guaranteed for backend & frontend developers."
   },
   {
     "path": "jwt-decoder",
     "titleFa": "دیکدر JWT",
-    "descriptionFa": "دیکد و بررسی توکن‌های JWT",
+    "descriptionFa": "دیکد و بررسی توکن‌های JWT - پردازش ۱۰۰٪ محلی در مرورگر بدون ارسال اطلاعات به سرور با امنیت تضمین‌شده برای برنامه‌نویسان.",
     "titleEn": "Jwt Decoder",
-    "descriptionEn": "Decode and inspect JWT tokens"
+    "descriptionEn": "Decode and inspect JWT tokens - Processed 100% in-browser with zero server uploads, privacy guaranteed for backend & frontend developers."
   },
   {
     "path": "flow-to-javascript",
     "titleFa": "تبدیل Flow به جاوااسکریپت",
-    "descriptionFa": "حذف تایپ‌های Flow و دریافت جاوااسکریپت خالص",
+    "descriptionFa": "حذف تایپ‌های Flow و دریافت جاوااسکریپت خالص - پردازش ۱۰۰٪ محلی در مرورگر بدون ارسال اطلاعات به سرور با امنیت تضمین‌شده برای برنامه‌نویسان.",
     "titleEn": "Flow to JavaScript",
-    "descriptionEn": "Strip Flow type annotations to get plain JavaScript"
+    "descriptionEn": "Strip Flow type annotations to get plain JavaScript - Processed 100% in-browser with zero server uploads, privacy guaranteed for backend & frontend developers."
   },
   {
     "path": "flow-to-typescript",
     "titleFa": "تبدیل Flow به تایپ‌اسکریپت",
-    "descriptionFa": "تبدیل تایپ‌های Flow به TypeScript",
+    "descriptionFa": "تبدیل تایپ‌های Flow به TypeScript - پردازش ۱۰۰٪ محلی در مرورگر بدون ارسال اطلاعات به سرور با امنیت تضمین‌شده برای برنامه‌نویسان.",
     "titleEn": "Flow to TypeScript",
-    "descriptionEn": "Convert Flow type definitions to TypeScript"
+    "descriptionEn": "Convert Flow type definitions to TypeScript - Processed 100% in-browser with zero server uploads, privacy guaranteed for backend & frontend developers."
   },
   {
     "path": "flow-to-typescript-declaration",
     "titleFa": "تبدیل Flow به Declaration تایپ‌اسکریپت",
-    "descriptionFa": "تولید فایل‌های .d.ts از تایپ‌های Flow",
+    "descriptionFa": "تولید فایل‌های .d.ts از تایپ‌های Flow - پردازش ۱۰۰٪ محلی در مرورگر بدون ارسال اطلاعات به سرور با امنیت تضمین‌شده برای برنامه‌نویسان.",
     "titleEn": "Flow to TypeScript Declaration",
-    "descriptionEn": "Generate TypeScript declaration files from Flow types"
+    "descriptionEn": "Generate TypeScript declaration files from Flow types - Processed 100% in-browser with zero server uploads, privacy guaranteed for backend & frontend developers."
   },
   {
     "path": "timestamp",
     "titleFa": "مبدل Timestamp یونیکس",
-    "descriptionFa": "تبدیل timestamp یونیکس به تاریخ شمسی و میلادی",
+    "descriptionFa": "تبدیل timestamp یونیکس به تاریخ شمسی و میلادی - پردازش ۱۰۰٪ محلی در مرورگر بدون ارسال اطلاعات به سرور با امنیت تضمین‌شده برای برنامه‌نویسان.",
     "titleEn": "Unix Timestamp Converter",
-    "descriptionEn": "Convert Unix timestamp to Persian (Shamsi) and Gregorian date"
+    "descriptionEn": "Convert Unix timestamp to Persian (Shamsi) and Gregorian date - Processed 100% in-browser with zero server uploads, privacy guaranteed for backend & frontend develop"
   },
   {
     "path": "date-diff",
     "titleFa": "جعبه ابزار تاریخ و زمان",
-    "descriptionFa": "تبدیل timestamp، محاسبه اختلاف تاریخ و جمع/تفریق تاریخ",
+    "descriptionFa": "تبدیل timestamp، محاسبه اختلاف تاریخ و جمع/تفریق تاریخ - پردازش ۱۰۰٪ محلی در مرورگر بدون ارسال اطلاعات به سرور با امنیت تضمین‌شده برای برنامه‌نویسان.",
     "titleEn": "Date & Time Toolbox",
-    "descriptionEn": "Timestamp converter, date difference calculator and date add/subtract"
+    "descriptionEn": "Timestamp converter, date difference calculator and date add/subtract - Processed 100% in-browser with zero server uploads, privacy guaranteed for backend & frontend"
   },
   {
     "path": "password-generator",
     "titleFa": "تولید پسورد و توکن امن (توسعه‌دهندگان)",
-    "descriptionFa": "تولید رمز تصادفی، سکرت و توکن امن کریپتوگرافیک برای برنامه‌نویسان",
+    "descriptionFa": "تولید رمز تصادفی، سکرت و توکن امن کریپتوگرافیک برای برنامه‌نویسان - پردازش ۱۰۰٪ محلی در مرورگر بدون ارسال اطلاعات به سرور با امنیت تضمین‌شده برای برنامه‌نویسان.",
     "titleEn": "Password Generator",
-    "descriptionEn": "Generate strong, cryptographically secure passwords online"
+    "descriptionEn": "Generate strong, cryptographically secure passwords online - Processed 100% in-browser with zero server uploads, privacy guaranteed for backend & frontend developers"
   },
   {
     "path": "lorem-generator",
     "titleFa": "تولیدکننده لورم ایپسوم",
-    "descriptionFa": "تولید متن ساختگی چندزبانه برای طراحی",
+    "descriptionFa": "تولید متن ساختگی چندزبانه برای طراحی - پردازش ۱۰۰٪ محلی در مرورگر بدون ارسال اطلاعات به سرور با امنیت تضمین‌شده برای برنامه‌نویسان.",
     "titleEn": "Lorem Ipsum Generator",
-    "descriptionEn": "Generate Lorem Ipsum placeholder text for your designs in multiple languages"
+    "descriptionEn": "Generate Lorem Ipsum placeholder text for your designs in multiple languages - Processed 100% in-browser with zero server uploads, privacy guaranteed for backend & f"
   },
   {
     "path": "text-diff",
     "titleFa": "مقایسه‌گر متن",
-    "descriptionFa": "مقایسه خط‌به‌خط دو متن و مشاهده تفاوت‌ها",
+    "descriptionFa": "مقایسه خط‌به‌خط دو متن و مشاهده تفاوت‌ها - پردازش ۱۰۰٪ محلی در مرورگر بدون ارسال اطلاعات به سرور با امنیت تضمین‌شده برای برنامه‌نویسان.",
     "titleEn": "Text Diff Checker",
-    "descriptionEn": "Compare two texts line by line and see the differences instantly"
+    "descriptionEn": "Compare two texts line by line and see the differences instantly - Processed 100% in-browser with zero server uploads, privacy guaranteed for backend & frontend deve"
   },
   {
     "path": "uuid-generator",
@@ -684,5 +684,19 @@
     "descriptionFa": "محتوای JSON را امضا یا JWT با HS256 را با کلید UTF-8 محلی تأیید کنید؛ با تفکیک اعتبار امضا از وضعیت زمانی exp و nbf و مجوز دسترسی.",
     "titleEn": "JWT HS256 Encoder & Verifier",
     "descriptionEn": "Sign a JSON payload or verify an HS256 JWT locally with a UTF-8 HMAC secret, separating signature status from exp and nbf time checks and authorization."
+  },
+  {
+    "path": "image-compressor",
+    "titleFa": "فشرده‌ساز و بهینه‌ساز عکس آنلاین",
+    "descriptionFa": "کاهش حجم و تغییر فرمت تصاویر JPG، PNG، WebP و AVIF با حفظ کیفیت در مرورگر - پردازش ۱۰۰٪ محلی در مرورگر بدون ارسال اطلاعات به سرور با امنیت تضمین‌شده برای برنامه‌نویس",
+    "titleEn": "Image Compressor & Converter",
+    "descriptionEn": "Compress and optimize JPG, PNG, WebP, and AVIF images locally in your browser - Processed 100% in-browser with zero server uploads, privacy guaranteed for backend & "
+  },
+  {
+    "path": "image-converter",
+    "titleFa": "مبدل فرمت تصاویر آنلاین (Image Converter)",
+    "descriptionFa": "تبدیل رایگان و سریع فرمت‌های PNG، JPG، WebP، AVIF، SVG، ICO و BMP در مرورگر - پردازش ۱۰۰٪ محلی در مرورگر بدون ارسال اطلاعات به سرور با امنیت تضمین‌شده برای برنامه‌نو",
+    "titleEn": "Image Format Converter",
+    "descriptionEn": "Convert PNG, JPG, WebP, AVIF, SVG, ICO, and BMP images online for free - Processed 100% in-browser with zero server uploads, privacy guaranteed for backend & fronten"
   }
 ]

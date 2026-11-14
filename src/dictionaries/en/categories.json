@@ -31,5 +31,7 @@
   "workflows": "Workflows",
   "markup": "Markup",
   "config-data": "Configuration & Data",
-  "data-formats": "Data Formats"
+  "data-formats": "Data Formats",
+  "media": "Media & Images",
+  "image": "Images"
 }

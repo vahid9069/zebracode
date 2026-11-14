@@ -160,6 +160,14 @@ export const TOOLS: Tool[] = [
     category: 'calc',
     icon: 'Percent',
   },
+  {
+    slug: 'invoice-generator',
+    title: 'فاکتور ساز آنلاین کسب‌وکار',
+    shortDescription: 'صدور، محاسبه و چاپ فاکتور رسمی و پیش‌فاکتور با لوگو، مالیات بر ارزش افزوده و خروجی PDF',
+    category: 'calc',
+    icon: 'FileSpreadsheet',
+    badge: 'حرفه‌ای',
+  },
 
   // --- ۳. زمان و تاریخ ---
   {
@@ -450,3 +458,44 @@ export const TOOLS: Tool[] = [
     icon: 'Pipette',
   },
 ];
+
+export function getLocalizedTools(dict?: any): Tool[] {
+  if (!dict?.tools) return TOOLS;
+  return TOOLS.map(tool => {
+    const translation = dict.tools[tool.slug];
+    if (!translation) return tool;
+    return {
+      ...tool,
+      title: translation.title || tool.title,
+      shortDescription: translation.shortDescription || tool.shortDescription,
+      badge: translation.badge !== undefined ? translation.badge : tool.badge,
+    };
+  });
+}
+
+export function getLocalizedCategories(dict?: any): Category[] {
+  if (!dict?.categories) return CATEGORIES;
+  return CATEGORIES.map(cat => {
+    const translation = dict.categories[cat.id];
+    if (!translation) return cat;
+    return {
+      ...cat,
+      title: translation.title || cat.title,
+      description: translation.description || cat.description,
+    };
+  });
+}
+
+export function getToolBySlug(slug: string, dict?: any): Tool | undefined {
+  const tool = TOOLS.find(t => t.slug === slug);
+  if (!tool) return undefined;
+  if (!dict?.tools?.[slug]) return tool;
+  const translation = dict.tools[slug];
+  return {
+    ...tool,
+    title: translation.title || tool.title,
+    shortDescription: translation.shortDescription || tool.shortDescription,
+    badge: translation.badge !== undefined ? translation.badge : tool.badge,
+  };
+}
+

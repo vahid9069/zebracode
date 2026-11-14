@@ -8,7 +8,7 @@ import faThree from '../src/dictionaries/fa/developer-phase-three.json';
 import enOne from '../src/dictionaries/en/developer-phase-one.json';
 import enTwo from '../src/dictionaries/en/developer-phase-two.json';
 import enThree from '../src/dictionaries/en/developer-phase-three.json';
-import { getDeveloperToolContent } from '../src/lib/developer-tools/content';
+import { getComprehensiveToolContent } from '../src/lib/developer-tools/universal-content';
 
 type Copy = { title: string; shortDescription: string; description: string };
 const faCopies: Record<string, Copy> = { ...faToolTranslations, ...faOne, ...faTwo, ...faThree };
@@ -18,8 +18,8 @@ const tools = Object.entries(AllToolsList).map(([toolKey, tool]) => {
     const faCopy = faCopies[toolKey];
     const enCopy = enCopies[toolKey];
     const slug = tool.href.split('/').filter(Boolean).pop() || toolKey;
-    const faContent = getDeveloperToolContent(slug, 'fa');
-    const enContent = getDeveloperToolContent(slug, 'en');
+    const faContent = getComprehensiveToolContent(toolKey, slug, 'fa', { tools: faCopies });
+    const enContent = getComprehensiveToolContent(toolKey, slug, 'en', { tools: enCopies });
     return {
         path: tool.href.replace(/^\/+|\/+$/g, ''),
         titleFa: faCopy?.title || tool.title,

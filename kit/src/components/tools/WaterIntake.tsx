@@ -1,21 +1,39 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Droplets, GlassWater, Activity, Sun, Check, RotateCcw, AlertCircle } from 'lucide-react';
+import {
+  Droplets,
+  GlassWater,
+  Activity,
+  Sun,
+  Check,
+  RotateCcw,
+  Sparkles,
+  Heart,
+  Plus,
+  Minus
+} from 'lucide-react';
 
-export function WaterIntake() {
+interface WaterIntakeProps {
+  locale?: string;
+  dict?: any;
+}
+
+export function WaterIntake({ locale = 'fa', dict }: WaterIntakeProps) {
+  const isEn = locale === 'en';
   const [weight, setWeight] = useState<number>(70);
   const [exerciseMinutes, setExerciseMinutes] = useState<number>(30);
   const [gender, setGender] = useState<'male' | 'female'>('male');
   const [climate, setClimate] = useState<'normal' | 'hot'>('normal');
 
-  // ردیاب تعاملی لیوان‌های آب مصرفی
+  // Interactive daily glasses tracker
   const [drankGlasses, setDrankGlasses] = useState<number>(0);
 
-  // فرمول استاندارد پزشکی:
-  // پایه: ۳۵ میلی‌لیتر به ازای هر کیلوگرم وزن بدن
-  // برای هر ۳۰ دقیقه ورزش شدید: حدود ۳۵۰ میلی‌لیتر آب اضافی
-  // اقلیم گرم/تابستان: حدود ۵۰۰ میلی‌لیتر آب اضافی
+  // Standard clinical formula:
+  // Baseline: 35ml per kg body weight
+  // Exercise: +350ml per 30 minutes of training
+  // Hot Climate / Summer: +500ml
+  // Male baseline adjustment: +200ml
   const baseMl = weight * 35;
   const exerciseMl = (exerciseMinutes / 30) * 350;
   const climateMl = climate === 'hot' ? 500 : 0;
@@ -23,185 +41,220 @@ export function WaterIntake() {
 
   const totalMl = Math.round(baseMl + exerciseMl + climateMl + genderMl);
   const totalLiters = (totalMl / 1000).toFixed(1);
-  const totalGlasses = Math.ceil(totalMl / 250); // هر لیوان استاندارد ۲۵۰ میلی‌لیتر
+  const totalGlasses = Math.ceil(totalMl / 250); // standard 250ml cup
 
   const percentDrank = Math.min(100, Math.round((drankGlasses / totalGlasses) * 100));
 
   return (
     <div className="space-y-6">
-      {/* فرم ورودی */}
-      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-sm">
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-5">
-          {/* وزن */}
+      {/* Inputs Card */}
+      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 shadow-sm space-y-5">
+        <div className="flex items-center gap-2 pb-4 border-b border-slate-100 dark:border-slate-800">
+          <Droplets className="w-5 h-5 text-blue-500" />
+          <h3 className="text-sm font-bold text-slate-800 dark:text-slate-100">
+            {isEn ? 'Personal Hydration Biometrics' : 'مشخصات بدنی و شرایط محیطی مصرف آب:'}
+          </h3>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+          {/* Weight */}
           <div>
-            <label className="block text-xs font-bold text-slate-600 dark:text-slate-400 mb-1.5">وزن بدن (کیلوگرم)</label>
+            <label className="block text-xs font-bold text-slate-600 dark:text-slate-400 mb-2">
+              {isEn ? 'Body Weight (kg):' : 'وزن بدن (کیلوگرم):'}
+            </label>
             <input
               type="number"
-              min="30"
-              max="200"
+              min={30}
+              max={250}
               value={weight}
               onChange={(e) => setWeight(Math.max(1, parseInt(e.target.value) || 0))}
-              className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 font-bold text-sm"
+              className="w-full px-4 py-2.5 rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 font-bold font-mono text-sm focus:outline-none"
             />
           </div>
 
-          {/* مدت ورزش روزانه */}
+          {/* Exercise Minutes */}
           <div>
-            <label className="block text-xs font-bold text-slate-600 dark:text-slate-400 mb-1.5">ورزش و فعالیت (دقیقه در روز)</label>
+            <label className="block text-xs font-bold text-slate-600 dark:text-slate-400 mb-2">
+              {isEn ? 'Exercise (Minutes/Day):' : 'ورزش و فعالیت (دقیقه در روز):'}
+            </label>
             <input
               type="number"
-              min="0"
-              max="300"
+              min={0}
+              max={300}
               value={exerciseMinutes}
               onChange={(e) => setExerciseMinutes(Math.max(0, parseInt(e.target.value) || 0))}
-              className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 font-bold text-sm"
+              className="w-full px-4 py-2.5 rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 font-bold font-mono text-sm focus:outline-none"
             />
           </div>
 
-          {/* جنسیت */}
+          {/* Gender */}
           <div>
-            <label className="block text-xs font-bold text-slate-600 dark:text-slate-400 mb-1.5">جنسیت</label>
-            <div className="flex bg-slate-100 dark:bg-slate-800 p-1 rounded-xl">
+            <label className="block text-xs font-bold text-slate-600 dark:text-slate-400 mb-2">
+              {isEn ? 'Gender:' : 'جنسیت:'}
+            </label>
+            <div className="flex bg-slate-100 dark:bg-slate-800 p-1 rounded-2xl">
               <button
+                type="button"
                 onClick={() => setGender('male')}
-                className={`flex-1 py-1.5 rounded-lg text-xs font-bold transition-all ${
-                  gender === 'male' ? 'bg-white dark:bg-slate-900 text-blue-600 shadow-sm' : 'text-slate-500'
+                className={`flex-1 py-2 rounded-xl text-xs font-bold transition-all ${
+                  gender === 'male'
+                    ? 'bg-white dark:bg-slate-900 text-blue-600 dark:text-blue-400 shadow-xs'
+                    : 'text-slate-500'
                 }`}
               >
-                مرد
+                {isEn ? 'Male' : 'آقا'}
               </button>
               <button
+                type="button"
                 onClick={() => setGender('female')}
-                className={`flex-1 py-1.5 rounded-lg text-xs font-bold transition-all ${
-                  gender === 'female' ? 'bg-white dark:bg-slate-900 text-blue-600 shadow-sm' : 'text-slate-500'
+                className={`flex-1 py-2 rounded-xl text-xs font-bold transition-all ${
+                  gender === 'female'
+                    ? 'bg-white dark:bg-slate-900 text-blue-600 dark:text-blue-400 shadow-xs'
+                    : 'text-slate-500'
                 }`}
               >
-                زن
+                {isEn ? 'Female' : 'خانم'}
               </button>
             </div>
           </div>
 
-          {/* آب‌وهوا */}
+          {/* Climate */}
           <div>
-            <label className="block text-xs font-bold text-slate-600 dark:text-slate-400 mb-1.5">فصل و شرایط آب‌وهوا</label>
-            <div className="flex bg-slate-100 dark:bg-slate-800 p-1 rounded-xl">
+            <label className="block text-xs font-bold text-slate-600 dark:text-slate-400 mb-2">
+              {isEn ? 'Climate & Season:' : 'آب‌وهوا و فصل:'}
+            </label>
+            <div className="flex bg-slate-100 dark:bg-slate-800 p-1 rounded-2xl">
               <button
+                type="button"
                 onClick={() => setClimate('normal')}
-                className={`flex-1 py-1.5 rounded-lg text-xs font-bold transition-all ${
-                  climate === 'normal' ? 'bg-white dark:bg-slate-900 text-blue-600 shadow-sm' : 'text-slate-500'
+                className={`flex-1 py-2 rounded-xl text-xs font-bold transition-all ${
+                  climate === 'normal'
+                    ? 'bg-white dark:bg-slate-900 text-blue-600 dark:text-blue-400 shadow-xs'
+                    : 'text-slate-500'
                 }`}
               >
-                معتدل
+                {isEn ? 'Moderate' : 'معتدل'}
               </button>
               <button
+                type="button"
                 onClick={() => setClimate('hot')}
-                className={`flex-1 py-1.5 rounded-lg text-xs font-bold transition-all ${
-                  climate === 'hot' ? 'bg-white dark:bg-slate-900 text-amber-600 shadow-sm' : 'text-slate-500'
+                className={`flex-1 py-2 rounded-xl text-xs font-bold transition-all ${
+                  climate === 'hot'
+                    ? 'bg-white dark:bg-slate-900 text-amber-600 dark:text-amber-400 shadow-xs'
+                    : 'text-slate-500'
                 }`}
               >
-                گرم / تابستان
+                {isEn ? 'Hot / Summer' : 'گرم / تابستان'}
               </button>
             </div>
           </div>
         </div>
       </div>
 
-      {/* کارت نتیجه محاسبات */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="bg-gradient-to-br from-cyan-500 to-blue-600 text-white rounded-2xl p-6 shadow-lg shadow-cyan-500/20 flex flex-col justify-between space-y-6">
-          <div className="flex items-center justify-between">
-            <span className="text-sm font-bold text-cyan-100 flex items-center gap-1.5">
-              <Droplets className="w-5 h-5" />
-              حجم آب پیشنهادی روزانه
-            </span>
-            <span className="text-xs bg-white/20 px-2.5 py-1 rounded-full font-medium">استاندارد جهانی WHO</span>
+      {/* Target Water Result Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        {/* Total Volume */}
+        <div className="p-6 rounded-3xl bg-blue-50/70 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-900/60 text-center shadow-sm space-y-1">
+          <span className="text-xs font-bold text-blue-700 dark:text-blue-300 block">
+            {isEn ? 'Total Daily Water Need' : 'حجم کل آب مورد نیاز بدن'}
+          </span>
+          <div className="text-3xl sm:text-4xl font-black text-blue-600 dark:text-blue-400 font-mono">
+            {isEn ? `${totalLiters} Liters` : `${Number(totalLiters).toLocaleString('fa-IR')} لیتر`}
           </div>
-
-          <div className="flex items-baseline gap-3">
-            <span className="text-5xl font-black font-mono tracking-tight">{totalLiters}</span>
-            <span className="text-xl font-bold">لیتر در روز</span>
-          </div>
-
-          <div className="flex items-center gap-2 text-sm text-cyan-100 bg-black/10 p-3 rounded-xl backdrop-blur-sm">
-            <GlassWater className="w-5 h-5 text-white shrink-0" />
-            <span>
-              معادل با <strong>{totalGlasses} لیوان</strong> استاندارد (۲۵۰ میلی‌لیتری)
-            </span>
-          </div>
+          <span className="text-[11px] text-slate-400 block font-mono">
+            {isEn ? `(${totalMl.toLocaleString()} ml)` : `(${totalMl.toLocaleString('fa-IR')} میلی‌لیتر)`}
+          </span>
         </div>
 
-        {/* ثبت و پیگیری لیوان‌های مصرفی روزانه */}
-        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-sm flex flex-col justify-between space-y-4">
-          <div className="flex items-center justify-between">
-            <h4 className="text-sm font-bold text-slate-800 dark:text-slate-100">ثبت لیوان‌های نوشیده شده امروز</h4>
+        {/* Glasses Count */}
+        <div className="p-6 rounded-3xl bg-emerald-50/70 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-900/60 text-center shadow-sm space-y-1">
+          <span className="text-xs font-bold text-emerald-700 dark:text-emerald-400 block">
+            {isEn ? 'Standard Glasses (250ml)' : 'تعداد لیوان آب استاندارد'}
+          </span>
+          <div className="text-3xl sm:text-4xl font-black text-emerald-600 dark:text-emerald-400 font-mono">
+            {isEn ? `${totalGlasses} Glasses` : `${totalGlasses.toLocaleString('fa-IR')} لیوان`}
+          </div>
+          <span className="text-[11px] text-slate-400 block">
+            {isEn ? '250ml per glass throughout the day' : 'هر لیوان معادل ۲۵۰ سی‌سی'}
+          </span>
+        </div>
+
+        {/* Progress Tracker */}
+        <div className="p-6 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-center shadow-sm space-y-1">
+          <span className="text-xs font-bold text-slate-500 block">
+            {isEn ? 'Daily Progress Log' : 'درصد تحقق هدف امروز شما'}
+          </span>
+          <div className="text-3xl sm:text-4xl font-black text-indigo-600 dark:text-indigo-400 font-mono">
+            {percentDrank}٪
+          </div>
+          <span className="text-[11px] text-slate-400 block">
+            {isEn
+              ? `${drankGlasses} of ${totalGlasses} drank`
+              : `${drankGlasses.toLocaleString('fa-IR')} از ${totalGlasses.toLocaleString('fa-IR')} لیوان نوشیده شد`}
+          </span>
+        </div>
+      </div>
+
+      {/* Interactive Daily Glass Tracker */}
+      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 shadow-sm space-y-5">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div className="flex items-center gap-2">
+            <GlassWater className="w-5 h-5 text-blue-500" />
+            <h4 className="text-xs font-bold text-slate-800 dark:text-slate-200">
+              {isEn ? 'Interactive Water Tracker (Click glasses as you drink):' : 'ردیاب لیوان‌های آب امروز (با هر بار نوشیدن کلیک کنید):'}
+            </h4>
+          </div>
+
+          <div className="flex items-center gap-2">
             <button
-              onClick={() => setDrankGlasses(0)}
-              className="text-xs text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 flex items-center gap-1"
+              type="button"
+              onClick={() => setDrankGlasses((prev) => Math.max(0, prev - 1))}
+              className="p-2 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-100"
+              title={isEn ? 'Decrease' : 'کاهش'}
             >
-              <RotateCcw className="w-3.5 h-3.5" />
-              ریست
+              <Minus className="w-4 h-4" />
+            </button>
+            <button
+              type="button"
+              onClick={() => setDrankGlasses((prev) => Math.min(totalGlasses, prev + 1))}
+              className="p-2 rounded-xl bg-blue-600 text-white hover:bg-blue-700"
+              title={isEn ? 'Add Glass' : 'افزودن لیوان'}
+            >
+              <Plus className="w-4 h-4" />
+            </button>
+            <button
+              type="button"
+              onClick={() => setDrankGlasses(0)}
+              className="p-2 rounded-xl text-slate-400 hover:text-slate-700 dark:hover:text-slate-200"
+              title={isEn ? 'Reset' : 'صفر کردن'}
+            >
+              <RotateCcw className="w-4 h-4" />
             </button>
           </div>
-
-          <div>
-            <div className="flex justify-between items-center text-xs text-slate-500 mb-2">
-              <span>میزان پیشرفت روزانه:</span>
-              <span className="font-mono font-bold text-blue-600 dark:text-blue-400">{percentDrank}٪ ({drankGlasses} از {totalGlasses} لیوان)</span>
-            </div>
-            <div className="w-full bg-slate-100 dark:bg-slate-800 h-3 rounded-full overflow-hidden">
-              <div
-                className="bg-cyan-500 h-full rounded-full transition-all duration-300"
-                style={{ width: `${percentDrank}%` }}
-              />
-            </div>
-          </div>
-
-          {/* دکمه‌های لیوان‌ها */}
-          <div className="flex flex-wrap gap-2 pt-2">
-            {Array.from({ length: totalGlasses }).map((_, idx) => {
-              const isChecked = idx < drankGlasses;
-              return (
-                <button
-                  key={idx}
-                  onClick={() => setDrankGlasses(isChecked && idx === drankGlasses - 1 ? idx : idx + 1)}
-                  className={`w-9 h-9 rounded-xl flex items-center justify-center font-bold text-xs transition-all ${
-                    isChecked
-                      ? 'bg-cyan-500 text-white shadow-sm'
-                      : 'bg-slate-100 dark:bg-slate-800 text-slate-500 hover:bg-slate-200'
-                  }`}
-                  title={`لیوان شماره ${idx + 1}`}
-                >
-                  {isChecked ? <Check className="w-4 h-4" /> : idx + 1}
-                </button>
-              );
-            })}
-          </div>
         </div>
-      </div>
 
-      {/* برنامه پیشنهادی زمان‌بندی هیدراتاسیون */}
-      <div className="bg-slate-50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-800 rounded-2xl p-5">
-        <h4 className="text-xs font-bold text-slate-700 dark:text-slate-300 mb-3 flex items-center gap-2">
-          <AlertCircle className="w-4 h-4 text-cyan-500" />
-          بهترین زمان‌بندی برای نوشیدن آب در طول شبانه‌روز:
-        </h4>
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 text-xs">
-          <div className="p-3 bg-white dark:bg-slate-900 rounded-xl border border-slate-100 dark:border-slate-800">
-            <strong className="block text-slate-800 dark:text-slate-200 mb-1">۱. بلافاصله پس از بیداری</strong>
-            <p className="text-slate-500">۲ لیوان آب ولرم برای فعال‌سازی اندام‌های داخلی و گوارش</p>
-          </div>
-          <div className="p-3 bg-white dark:bg-slate-900 rounded-xl border border-slate-100 dark:border-slate-800">
-            <strong className="block text-slate-800 dark:text-slate-200 mb-1">۲. نیم‌ساعت قبل از وعده‌های غذایی</strong>
-            <p className="text-slate-500">۱ لیوان جهت آماده‌سازی معده و بهبود هضم غذا</p>
-          </div>
-          <div className="p-3 bg-white dark:bg-slate-900 rounded-xl border border-slate-100 dark:border-slate-800">
-            <strong className="block text-slate-800 dark:text-slate-200 mb-1">۳. قبل، حین و بعد از فعالیت</strong>
-            <p className="text-slate-500">جبران آب از دست رفته ناشی از تعریق و حفظ انرژی ماهیچه‌ها</p>
-          </div>
-          <div className="p-3 bg-white dark:bg-slate-900 rounded-xl border border-slate-100 dark:border-slate-800">
-            <strong className="block text-slate-800 dark:text-slate-200 mb-1">۴. یک ساعت قبل از خواب</strong>
-            <p className="text-slate-500">۱ لیوان آب جهت پیشگیری از کم‌آبی و غلظت خون شبانه</p>
-          </div>
+        {/* Glasses Visual Buttons */}
+        <div className="flex flex-wrap gap-2.5 pt-2">
+          {Array.from({ length: totalGlasses }).map((_, idx) => {
+            const isDrank = idx < drankGlasses;
+            return (
+              <button
+                key={idx}
+                type="button"
+                onClick={() => setDrankGlasses(idx + 1 === drankGlasses ? idx : idx + 1)}
+                className={`p-3.5 rounded-2xl border transition-all flex flex-col items-center gap-1.5 active:scale-95 ${
+                  isDrank
+                    ? 'bg-blue-600 text-white border-blue-600 shadow-sm shadow-blue-500/20'
+                    : 'bg-slate-50 dark:bg-slate-800 text-slate-400 border-slate-200 dark:border-slate-700 hover:border-blue-400'
+                }`}
+              >
+                <GlassWater className="w-5 h-5" />
+                <span className="text-[10px] font-mono font-bold">
+                  {isEn ? idx + 1 : (idx + 1).toLocaleString('fa-IR')}
+                </span>
+              </button>
+            );
+          })}
         </div>
       </div>
     </div>

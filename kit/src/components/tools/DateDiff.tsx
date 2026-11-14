@@ -1,38 +1,50 @@
 'use client';
 
-import React, { useState, useId } from 'react';
+import React, { useState, useMemo } from 'react';
 import jalaali from 'jalaali-js';
-import { Calendar, Clock, Hourglass } from 'lucide-react';
+import {
+  Calendar,
+  Clock,
+  Hourglass,
+  ArrowRightLeft,
+  Briefcase,
+  Coffee,
+  Sparkles
+} from 'lucide-react';
 
-const PERSIAN_MONTHS = [
+interface DateDiffProps {
+  locale?: string;
+  dict?: any;
+}
+
+const FA_MONTHS = [
   'فروردین', 'اردیبهشت', 'خرداد',
   'تیر', 'مرداد', 'شهریور',
   'مهر', 'آبان', 'آذر',
   'دی', 'بهمن', 'اسفند',
 ];
 
-export function DateDiff() {
+const EN_MONTHS = [
+  'January', 'February', 'March', 'April', 'May', 'June',
+  'July', 'August', 'September', 'October', 'November', 'December',
+];
+
+export function DateDiff({ locale = 'fa', dict }: DateDiffProps) {
+  const isEn = locale === 'en';
   const now = new Date();
   const todayJ = jalaali.toJalaali(now);
 
-  const startDayId = useId();
-  const startMonthId = useId();
-  const startYearId = useId();
-  const endDayId = useId();
-  const endMonthId = useId();
-  const endYearId = useId();
+  // Start Date
+  const [startYear, setStartYear] = useState<number>(todayJ.jy);
+  const [startMonth, setStartMonth] = useState<number>(1);
+  const [startDay, setStartDay] = useState<number>(1);
 
-  // تاریخ شروع (پیش‌فرض اول سال جاری)
-  const [startYear, setStartYear] = useState(todayJ.jy);
-  const [startMonth, setStartMonth] = useState(1);
-  const [startDay, setStartDay] = useState(1);
+  // End Date
+  const [endYear, setEndYear] = useState<number>(todayJ.jy);
+  const [endMonth, setEndMonth] = useState<number>(todayJ.jm);
+  const [endDay, setEndDay] = useState<number>(todayJ.jd);
 
-  // تاریخ پایان (پیش‌فرض امروز)
-  const [endYear, setEndYear] = useState(todayJ.jy);
-  const [endMonth, setEndMonth] = useState(todayJ.jm);
-  const [endDay, setEndDay] = useState(todayJ.jd);
-
-  const calculateDifference = () => {
+  const calculateDifference = useMemo(() => {
     try {
       const g1 = jalaali.toGregorian(Number(startYear), Number(startMonth), Number(startDay));
       const g2 = jalaali.toGregorian(Number(endYear), Number(endMonth), Number(endDay));
@@ -48,8 +60,9 @@ export function DateDiff() {
       const totalWeeks = Math.floor(totalDays / 7);
       const remainingDaysInWeek = totalDays % 7;
       const totalHours = totalDays * 24;
+      const totalMinutes = totalHours * 60;
 
-      // محاسبه روزهای کاری و تعطیل (پنجشنبه و جمعه در ایران)
+      // Iranian business days (Saturday to Wednesday) vs Weekends (Thursday and Friday)
       let weekends = 0;
       let weekdays = 0;
       const start = new Date(Math.min(d1.getTime(), d2.getTime()));
@@ -66,159 +79,234 @@ export function DateDiff() {
         cur.setDate(cur.getDate() + 1);
       }
 
+      // Exact breakdown into Years, Months, Days
+      let earlierDate = d1 < d2 ? d1 : d2;
+      let laterDate = d1 < d2 ? d2 : d1;
+
+      let yDiff = laterDate.getFullYear() - earlierDate.getFullYear();
+      let mDiff = laterDate.getMonth() - earlierDate.getMonth();
+      let dDiff = laterDate.getDate() - earlierDate.getDate();
+
+      if (dDiff < 0) {
+        mDiff -= 1;
+        const prevMonthDays = new Date(laterDate.getFullYear(), laterDate.getMonth(), 0).getDate();
+        dDiff += prevMonthDays;
+      }
+      if (mDiff < 0) {
+        yDiff -= 1;
+        mDiff += 12;
+      }
+
       return {
         totalDays,
         totalWeeks,
         remainingDaysInWeek,
         totalHours,
+        totalMinutes,
         weekdays,
         weekends,
         isNegative,
+        breakdown: {
+          years: yDiff,
+          months: mDiff,
+          days: dDiff,
+        },
       };
     } catch {
       return null;
     }
-  };
+  }, [startYear, startMonth, startDay, endYear, endMonth, endDay]);
 
-  const diff = calculateDifference();
+  const swapDates = () => {
+    const sY = startYear;
+    const sM = startMonth;
+    const sD = startDay;
+    setStartYear(endYear);
+    setStartMonth(endMonth);
+    setStartDay(endDay);
+    setEndYear(sY);
+    setEndMonth(sM);
+    setEndDay(sD);
+  };
 
   return (
     <div className="space-y-6">
+      {/* Date Pickers Dual Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-        {/* تاریخ شروع */}
-        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 shadow-sm">
-          <h3 className="text-sm font-bold text-slate-800 dark:text-slate-200 mb-3 flex items-center gap-2">
-            <Calendar className="w-4 h-4 text-blue-600" />
-            تاریخ شروع:
+        {/* Start Date */}
+        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 shadow-sm space-y-4">
+          <h3 className="text-sm font-bold text-slate-800 dark:text-slate-100 flex items-center gap-2">
+            <Calendar className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+            <span>{isEn ? 'Start Date (Solar Hijri):' : 'تاریخ شروع (تقویم شمسی):'}</span>
           </h3>
-          <div className="grid grid-cols-3 gap-2">
+
+          <div className="grid grid-cols-3 gap-3">
             <div>
-              <label htmlFor={startDayId} className="block text-xs font-medium text-slate-500 mb-1">روز</label>
+              <label className="block text-xs font-semibold text-slate-500 mb-1">{isEn ? 'Day' : 'روز'}</label>
               <input
-                id={startDayId}
                 type="number"
                 min={1}
                 max={31}
                 value={startDay}
-                onChange={(e) => setStartDay(Number(e.target.value))}
-                className="w-full px-2.5 py-2 border rounded-xl border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800 text-center font-bold text-sm"
+                onChange={(e) => setStartDay(Math.max(1, Math.min(31, Number(e.target.value))))}
+                className="w-full px-3.5 py-2.5 border rounded-2xl border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-center font-bold font-mono focus:outline-none"
               />
             </div>
+
             <div>
-              <label htmlFor={startMonthId} className="block text-xs font-medium text-slate-500 mb-1">ماه</label>
+              <label className="block text-xs font-semibold text-slate-500 mb-1">{isEn ? 'Month' : 'ماه'}</label>
               <select
-                id={startMonthId}
                 value={startMonth}
                 onChange={(e) => setStartMonth(Number(e.target.value))}
-                className="w-full px-2.5 py-2 border rounded-xl border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800 text-center text-xs font-medium"
+                className="w-full px-3.5 py-2.5 border rounded-2xl border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-center text-xs sm:text-sm font-semibold focus:outline-none"
               >
-                {PERSIAN_MONTHS.map((m, idx) => (
-                  <option key={m} value={idx + 1}>{m}</option>
+                {FA_MONTHS.map((m, idx) => (
+                  <option key={m} value={idx + 1}>
+                    {m}
+                  </option>
                 ))}
               </select>
             </div>
+
             <div>
-              <label htmlFor={startYearId} className="block text-xs font-medium text-slate-500 mb-1">سال</label>
+              <label className="block text-xs font-semibold text-slate-500 mb-1">{isEn ? 'Year' : 'سال'}</label>
               <input
-                id={startYearId}
                 type="number"
                 min={1300}
-                max={1500}
+                max={1450}
                 value={startYear}
                 onChange={(e) => setStartYear(Number(e.target.value))}
-                className="w-full px-2.5 py-2 border rounded-xl border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800 text-center font-bold text-sm"
+                className="w-full px-3.5 py-2.5 border rounded-2xl border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-center font-bold font-mono focus:outline-none"
               />
             </div>
           </div>
         </div>
 
-        {/* تاریخ پایان */}
-        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 shadow-sm">
-          <h3 className="text-sm font-bold text-slate-800 dark:text-slate-200 mb-3 flex items-center gap-2">
-            <Hourglass className="w-4 h-4 text-emerald-600" />
-            تاریخ پایان:
-          </h3>
-          <div className="grid grid-cols-3 gap-2">
+        {/* End Date */}
+        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 shadow-sm space-y-4">
+          <div className="flex items-center justify-between">
+            <h3 className="text-sm font-bold text-slate-800 dark:text-slate-100 flex items-center gap-2">
+              <Calendar className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+              <span>{isEn ? 'End Date (Solar Hijri):' : 'تاریخ پایان (تقویم شمسی):'}</span>
+            </h3>
+
+            <button
+              type="button"
+              onClick={swapDates}
+              className="flex items-center gap-1 text-xs text-slate-500 hover:text-blue-600 transition-colors"
+            >
+              <ArrowRightLeft className="w-3.5 h-3.5" />
+              <span>{isEn ? 'Swap Dates' : 'جابجایی تاریخ‌ها'}</span>
+            </button>
+          </div>
+
+          <div className="grid grid-cols-3 gap-3">
             <div>
-              <label htmlFor={endDayId} className="block text-xs font-medium text-slate-500 mb-1">روز</label>
+              <label className="block text-xs font-semibold text-slate-500 mb-1">{isEn ? 'Day' : 'روز'}</label>
               <input
-                id={endDayId}
                 type="number"
                 min={1}
                 max={31}
                 value={endDay}
-                onChange={(e) => setEndDay(Number(e.target.value))}
-                className="w-full px-2.5 py-2 border rounded-xl border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800 text-center font-bold text-sm"
+                onChange={(e) => setEndDay(Math.max(1, Math.min(31, Number(e.target.value))))}
+                className="w-full px-3.5 py-2.5 border rounded-2xl border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-center font-bold font-mono focus:outline-none"
               />
             </div>
+
             <div>
-              <label htmlFor={endMonthId} className="block text-xs font-medium text-slate-500 mb-1">ماه</label>
+              <label className="block text-xs font-semibold text-slate-500 mb-1">{isEn ? 'Month' : 'ماه'}</label>
               <select
-                id={endMonthId}
                 value={endMonth}
                 onChange={(e) => setEndMonth(Number(e.target.value))}
-                className="w-full px-2.5 py-2 border rounded-xl border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800 text-center text-xs font-medium"
+                className="w-full px-3.5 py-2.5 border rounded-2xl border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-center text-xs sm:text-sm font-semibold focus:outline-none"
               >
-                {PERSIAN_MONTHS.map((m, idx) => (
-                  <option key={m} value={idx + 1}>{m}</option>
+                {FA_MONTHS.map((m, idx) => (
+                  <option key={m} value={idx + 1}>
+                    {m}
+                  </option>
                 ))}
               </select>
             </div>
+
             <div>
-              <label htmlFor={endYearId} className="block text-xs font-medium text-slate-500 mb-1">سال</label>
+              <label className="block text-xs font-semibold text-slate-500 mb-1">{isEn ? 'Year' : 'سال'}</label>
               <input
-                id={endYearId}
                 type="number"
                 min={1300}
-                max={1500}
+                max={1450}
                 value={endYear}
                 onChange={(e) => setEndYear(Number(e.target.value))}
-                className="w-full px-2.5 py-2 border rounded-xl border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800 text-center font-bold text-sm"
+                className="w-full px-3.5 py-2.5 border rounded-2xl border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-center font-bold font-mono focus:outline-none"
               />
             </div>
           </div>
         </div>
       </div>
 
-      {/* نتایج اختلاف زمانی */}
-      {diff && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          <div className="p-5 rounded-2xl bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-900/60 text-center">
-            <span className="text-xs text-blue-700 dark:text-blue-300 font-medium">مجموع تعداد روزها</span>
-            <div className="mt-2 text-3xl font-black text-blue-600 dark:text-blue-400">
-              {diff.totalDays.toLocaleString('fa-IR')} <span className="text-xs font-normal">روز</span>
-            </div>
-            <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">فاصله دقیق تقویمی</p>
-          </div>
-
-          <div className="p-5 rounded-2xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-900/60 text-center">
-            <span className="text-xs text-emerald-700 dark:text-emerald-300 font-medium">بر حسب هفته و روز</span>
-            <div className="mt-2 text-2xl font-black text-emerald-600 dark:text-emerald-400">
-              {diff.totalWeeks.toLocaleString('fa-IR')} <span className="text-xs font-normal">هفته</span>
-            </div>
-            <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-              و {diff.remainingDaysInWeek.toLocaleString('fa-IR')} روز باقی‌مانده
-            </p>
-          </div>
-
-          <div className="p-5 rounded-2xl bg-purple-50 dark:bg-purple-950/40 border border-purple-200 dark:border-purple-900/60 text-center">
-            <span className="text-xs text-purple-700 dark:text-purple-300 font-medium">روزهای کاری (شنبه تا چهارشنبه)</span>
-            <div className="mt-2 text-2xl font-black text-purple-600 dark:text-purple-400">
-              {diff.weekdays.toLocaleString('fa-IR')} <span className="text-xs font-normal">روز کاری</span>
-            </div>
-            <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-              و {diff.weekends.toLocaleString('fa-IR')} روز پنج‌شنبه/جمعه
-            </p>
-          </div>
-
-          <div className="p-5 rounded-2xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-900/60 text-center">
-            <span className="text-xs text-amber-700 dark:text-amber-300 font-medium flex items-center justify-center gap-1">
-              <Clock className="w-3.5 h-3.5" /> بر حسب ساعت
+      {/* Results */}
+      {calculateDifference && (
+        <div className="space-y-6">
+          {/* Main Difference Highlight */}
+          <div className="p-8 rounded-3xl bg-gradient-to-br from-indigo-600 to-blue-700 text-white shadow-xl shadow-blue-600/20 text-center space-y-3">
+            <span className="text-xs uppercase tracking-widest text-blue-200 font-bold">
+              {isEn ? 'Total Exact Duration' : 'فاصله دقیق زمانی بین دو تاریخ'}
             </span>
-            <div className="mt-2 text-2xl font-black text-amber-600 dark:text-amber-400">
-              {diff.totalHours.toLocaleString('fa-IR')} <span className="text-xs font-normal">ساعت</span>
+
+            <div className="text-3xl sm:text-5xl font-black font-mono tracking-tight">
+              {isEn ? (
+                `${calculateDifference.totalDays.toLocaleString()} Days`
+              ) : (
+                `${calculateDifference.totalDays.toLocaleString('fa-IR')} روز`
+              )}
             </div>
-            <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">معادل مدت زمان کل</p>
+
+            <p className="text-sm text-blue-100 font-medium">
+              {isEn
+                ? `Equivalent to ${calculateDifference.breakdown.years} years, ${calculateDifference.breakdown.months} months, and ${calculateDifference.breakdown.days} days`
+                : `معادل ${calculateDifference.breakdown.years.toLocaleString('fa-IR')} سال و ${calculateDifference.breakdown.months.toLocaleString('fa-IR')} ماه و ${calculateDifference.breakdown.days.toLocaleString('fa-IR')} روز`}
+            </p>
+          </div>
+
+          {/* Breakdown Cards */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+            <div className="p-5 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-center shadow-sm">
+              <span className="text-xs font-bold text-slate-500">{isEn ? 'Weeks' : 'هفته‌ها'}</span>
+              <div className="mt-2 text-2xl font-black text-blue-600 dark:text-blue-400 font-mono">
+                {isEn ? calculateDifference.totalWeeks : calculateDifference.totalWeeks.toLocaleString('fa-IR')}
+              </div>
+              <span className="text-[11px] text-slate-400 mt-1 block">
+                {isEn
+                  ? `+ ${calculateDifference.remainingDaysInWeek} days`
+                  : `+ ${calculateDifference.remainingDaysInWeek.toLocaleString('fa-IR')} روز`}
+              </span>
+            </div>
+
+            <div className="p-5 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-center shadow-sm">
+              <span className="text-xs font-bold text-slate-500">{isEn ? 'Total Hours' : 'کل ساعت‌ها'}</span>
+              <div className="mt-2 text-2xl font-black text-indigo-600 dark:text-indigo-400 font-mono">
+                {isEn ? calculateDifference.totalHours.toLocaleString() : calculateDifference.totalHours.toLocaleString('fa-IR')}
+              </div>
+            </div>
+
+            <div className="p-5 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-center shadow-sm">
+              <span className="text-xs font-bold text-emerald-600 dark:text-emerald-400 flex items-center justify-center gap-1">
+                <Briefcase className="w-3.5 h-3.5" />
+                {isEn ? 'Working Days (FA)' : 'روزهای کاری (شنبه-چهارشنبه)'}
+              </span>
+              <div className="mt-2 text-2xl font-black text-emerald-600 dark:text-emerald-400 font-mono">
+                {isEn ? calculateDifference.weekdays.toLocaleString() : calculateDifference.weekdays.toLocaleString('fa-IR')}
+              </div>
+            </div>
+
+            <div className="p-5 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-center shadow-sm">
+              <span className="text-xs font-bold text-amber-600 dark:text-amber-400 flex items-center justify-center gap-1">
+                <Coffee className="w-3.5 h-3.5" />
+                {isEn ? 'Weekend Days' : 'روزهای تعطیل پایان هفته'}
+              </span>
+              <div className="mt-2 text-2xl font-black text-amber-600 dark:text-amber-400 font-mono">
+                {isEn ? calculateDifference.weekends.toLocaleString() : calculateDifference.weekends.toLocaleString('fa-IR')}
+              </div>
+            </div>
           </div>
         </div>
       )}

@@ -53,5 +53,7 @@ export function filterHomeTools(
     });
 }
 
-export const getHomeToolHref = (tool: ToolMeta, locale: 'fa' | 'en') =>
-    `${locale === 'en' ? '/en' : ''}${tool.href}`;
+export const getHomeToolHref = (tool: ToolMeta, locale: 'fa' | 'en') => {
+    const clean = tool.href.replace(/^\/+|\/+$/g, '');
+    return locale === 'en' ? `/en/${clean}/` : `/${clean}/`;
+};

@@ -1,0 +1,30 @@
+{
+  "image": {
+    "title": "Image & Graphics",
+    "description": "Compress, resize, crop profile avatars and convert image formats"
+  },
+  "table": {
+    "title": "Table & Data",
+    "description": "Online table builder, HTML table to Excel, CSV viewer and Markdown"
+  },
+  "calc": {
+    "title": "Calculators & Finance",
+    "description": "Loan repayment, gold, savings interest, income tax and percentages"
+  },
+  "datetime": {
+    "title": "Date & Time",
+    "description": "Calendar conversion, exact age calculator, date difference and pregnancy"
+  },
+  "text": {
+    "title": "Text & Writing",
+    "description": "Case converter, duplicate remover, sorting, text cleaner and Pinglish"
+  },
+  "pdf": {
+    "title": "Documents & PDF",
+    "description": "Merge PDF documents and convert images to PDF directly in your browser"
+  },
+  "daily": {
+    "title": "Daily & Lifestyle",
+    "description": "QR generator, WhatsApp link, BMI, calories, random picker and password generator"
+  }
+}

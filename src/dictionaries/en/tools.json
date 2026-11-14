@@ -378,5 +378,35 @@
     "title": "TypeScript to Zod",
     "shortDescription": "Generate Zod validation schemas from TypeScript types",
     "description": "Convert your TypeScript type definitions into Zod schemas instantly. This free online tool translates interfaces, enums, unions, and optional properties into safe, runtime type validators. Perfect for adding validation to Next.js server actions, API routes, or form libraries without writing schemas by hand. Entirely browser-based—no sign-up needed."
+  },
+  "image-compressor": {
+    "title": "Image Compressor & Converter",
+    "shortDescription": "Compress and optimize JPG, PNG, WebP, and AVIF images locally in your browser",
+    "description": "Fast, free, and private online image compressor. Reduce file sizes of JPG, PNG, WebP, and AVIF photos by up to 85% with crystal-clear visual quality. Features multi-image batch processing, interactive split comparison slider, custom dimensions, target KB mode, and 1-click ZIP export—all running 100% locally in your browser."
+  },
+  "image-converter": {
+    "title": "Image Format Converter",
+    "shortDescription": "Convert PNG, JPG, WebP, AVIF, SVG, ICO, and BMP images online for free",
+    "description": "Convert between PNG, JPG, WebP, AVIF, SVG, Favicon ICO, and BMP with high visual quality and speed. Features high-DPI SVG rasterization (1x, 2x Retina, 4x), multi-size Favicon package generation, rotation, flip, grayscale filters, and batch ZIP export—100% locally in your browser."
+  },
+  "uuid-generator": {
+    "title": "UUID & Unique Identifier Generator",
+    "shortDescription": "Generate cryptographically secure UUID v4, time-ordered UUID v7, NanoID, ULID and CUID2",
+    "description": "A comprehensive suite for generating and inspecting unique identifiers. Create standard UUID v4, database-friendly time-ordered UUID v7, NanoID, and ULID in plain text, JSON, or SQL syntax, with live UUID inspection and timestamp extraction—100% in your browser."
+  },
+  "hash-generator": {
+    "title": "Hash Generator & Checksum Verifier",
+    "shortDescription": "Calculate SHA-256, SHA-512, MD5, SHA-1 and CRC32 hashes for text and files online with HMAC and checksum verification",
+    "description": "A comprehensive, 100% browser-based cryptographic hash generator. Compute multi-algorithm hash matrices for strings and large files without uploading, generate HMAC message authentication codes with custom secret keys, and verify download checksum integrity."
+  },
+  "case-converter": {
+    "title": "Case Converter & Naming Conventions",
+    "shortDescription": "Convert text into camelCase, PascalCase, snake_case, kebab-case, CONSTANT_CASE, and Title Case in real time",
+    "description": "A versatile case converter and identifier formatter for developers. Instantly convert strings between camelCase, PascalCase, snake_case, kebab-case, and 10+ other naming standards with live text metrics and click-to-copy."
+  },
+  "slug-generator": {
+    "title": "URL Slug Generator & SEO Link Optimizer",
+    "shortDescription": "Create clean, SEO-friendly URL slugs from text with Persian Pinglish transliteration, stop-word removal, and Google SERP preview",
+    "description": "A powerful, 100% client-side URL slug generator designed for developers, bloggers, and SEO professionals. Convert any text into human-readable, search-engine-optimized slugs with native support for Persian script, Pinglish transliteration, batch processing, and live Google SERP snippet previews."
   }
 }

@@ -13,17 +13,39 @@ const BASE_URL = (envBase.includes('localhost') ? 'https://kit.zebracode.ir' : e
 
 const today = new Date().toISOString().split('T')[0];
 
-const urls = [
-  { loc: `${BASE_URL}/`, priority: '1.0', changefreq: 'daily' },
-  ...TOOLS.map((tool) => ({
-    loc: `${BASE_URL}/${tool.slug}/`,
-    priority: '0.9',
-    changefreq: 'weekly',
-  })),
+const staticRoutes = [
+  { faLoc: `${BASE_URL}/`, enLoc: `${BASE_URL}/en/`, priority: '1.0', changefreq: 'daily' },
 ];
 
+const toolRoutes = TOOLS.map((tool) => ({
+  faLoc: `${BASE_URL}/${tool.slug}/`,
+  enLoc: `${BASE_URL}/en/${tool.slug}/`,
+  priority: '0.9',
+  changefreq: 'weekly',
+}));
+
+const allPairs = [...staticRoutes, ...toolRoutes];
+
+const urls = allPairs.flatMap((pair) => [
+  {
+    loc: pair.faLoc,
+    faLoc: pair.faLoc,
+    enLoc: pair.enLoc,
+    priority: pair.priority,
+    changefreq: pair.changefreq,
+  },
+  {
+    loc: pair.enLoc,
+    faLoc: pair.faLoc,
+    enLoc: pair.enLoc,
+    priority: pair.priority,
+    changefreq: pair.changefreq,
+  },
+]);
+
 const sitemapXml = `<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:xhtml="http://www.w3.org/1999/xhtml">
 ${urls
   .map(
     (u) => `  <url>
@@ -31,6 +53,9 @@ ${urls
     <lastmod>${today}</lastmod>
     <changefreq>${u.changefreq}</changefreq>
     <priority>${u.priority}</priority>
+    <xhtml:link rel="alternate" hreflang="fa-IR" href="${u.faLoc}" />
+    <xhtml:link rel="alternate" hreflang="en-US" href="${u.enLoc}" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="${u.faLoc}" />
   </url>`
   )
   .join('\n')}
@@ -48,4 +73,4 @@ try {
   // out directory might not exist yet
 }
 
-console.log(`✓ kit sitemap.xml generated with ${urls.length} URLs successfully.`);
+console.log(`✓ kit sitemap.xml generated with ${urls.length} URLs (bilingual FA & EN) successfully.`);

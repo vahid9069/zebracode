@@ -19,14 +19,14 @@ export default async function NotFoundPage() {
                 </p>
                 <div className="flex flex-col sm:flex-row gap-3 justify-center">
                     <Link
-                        href="/en"
+                        href="/en/"
                         className="inline-flex items-center justify-center gap-2 rounded-xl bg-action px-5 py-3 font-medium text-action-foreground transition-colors hover:bg-action-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2 focus-visible:ring-offset-canvas"
                     >
                         <Home size={18} />
                         {common.backHome}
                     </Link>
                     <Link
-                        href="/en"
+                        href="/en/"
                         className="inline-flex items-center justify-center gap-2 rounded-xl border border-border-strong bg-surface-raised px-5 py-3 font-medium text-text-muted transition-colors hover:bg-action-soft hover:text-action focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2 focus-visible:ring-offset-canvas"
                     >
                         <Search size={18} />

@@ -79,7 +79,7 @@
 - [تبدیل Flow به Declaration تایپ‌اسکریپت](https://zebracode.ir/flow-to-typescript-declaration/): تولید فایل‌های .d.ts از تایپ‌های Flow
 - [مبدل Timestamp یونیکس](https://zebracode.ir/timestamp/): تبدیل timestamp یونیکس به تاریخ شمسی و میلادی
 - [جعبه ابزار تاریخ و زمان](https://zebracode.ir/date-diff/): تبدیل timestamp، محاسبه اختلاف تاریخ و جمع/تفریق تاریخ
-- [تولیدکننده رمز عبور](https://zebracode.ir/password-generator/): تولید رمزهای قوی و امن به‌صورت آنلاین
+- [تولید پسورد و توکن امن (توسعه‌دهندگان)](https://zebracode.ir/password-generator/): تولید رمز تصادفی، سکرت و توکن امن کریپتوگرافیک برای برنامه‌نویسان
 - [تولیدکننده لورم ایپسوم](https://zebracode.ir/lorem-generator/): تولید متن ساختگی چندزبانه برای طراحی
 - [مقایسه‌گر متن](https://zebracode.ir/text-diff/): مقایسه خط‌به‌خط دو متن و مشاهده تفاوت‌ها
 - [تولید UUID](https://zebracode.ir/uuid-generator/): شناسه UUID تصادفی نسخه ۴ یا زمان‌دار نسخه ۷ را در مرورگر بسازید. تا ۱۰۰۰ شناسه در هر اجرا تولید کنید و نتیجه را کپی یا دانلود کنید.
@@ -105,6 +105,8 @@
 - [بررسی دسترس‌پذیری HTML](https://zebracode.ir/html-accessibility-checker/): متن جایگزین تصویر، برچسب فرم، تیتر و ناحیه شاخص HTML را با تجزیه غیرفعال مرورگر بررسی کنید؛ همراه با محدودیت روشن بررسی‌های ابتکاری.
 - [بهینه‌ساز متنی SVG](https://zebracode.ir/svg-optimizer/): کد SVG را با افزونه‌های محافظه‌کارانه SVGO محلی بهینه کنید؛ توضیحات را حذف و مقادیر را ساده کنید، با حفظ viewBox، شناسه و داده دسترس‌پذیری.
 - [سازنده و تأییدکننده JWT با HS256](https://zebracode.ir/jwt-encoder-verifier/): محتوای JSON را امضا یا JWT با HS256 را با کلید UTF-8 محلی تأیید کنید؛ با تفکیک اعتبار امضا از وضعیت زمانی exp و nbf و مجوز دسترسی.
+- [فشرده‌ساز و بهینه‌ساز عکس آنلاین](https://zebracode.ir/image-compressor/): کاهش حجم و تغییر فرمت تصاویر JPG، PNG، WebP و AVIF با حفظ کیفیت در مرورگر
+- [مبدل فرمت تصاویر آنلاین (Image Converter)](https://zebracode.ir/image-converter/): تبدیل رایگان و سریع فرمت‌های PNG، JPG، WebP، AVIF، SVG، ICO و BMP در مرورگر
 
 ## English (en)
 - [ZebraCode Home](https://zebracode.ir/en/): ZebraCode Free Developer Tools. Free online tools for data conversion and processing. Operations run in your browser.
@@ -207,3 +209,5 @@
 - [HTML Accessibility Checker](https://zebracode.ir/en/html-accessibility-checker/): Review HTML for selected image alt, form label, heading and landmark issues using inert browser parsing, with clear limits beyond automated heuristics.
 - [SVG Text Optimizer](https://zebracode.ir/en/svg-optimizer/): Optimize SVG source locally with conservative SVGO plugins, removing comments and simplifying values while preserving viewBox, IDs and useful accessibility data.
 - [JWT HS256 Encoder & Verifier](https://zebracode.ir/en/jwt-encoder-verifier/): Sign a JSON payload or verify an HS256 JWT locally with a UTF-8 HMAC secret, separating signature status from exp and nbf time checks and authorization.
+- [Image Compressor & Converter](https://zebracode.ir/en/image-compressor/): Compress and optimize JPG, PNG, WebP, and AVIF images locally in your browser
+- [Image Format Converter](https://zebracode.ir/en/image-converter/): Convert PNG, JPG, WebP, AVIF, SVG, ICO, and BMP images online for free

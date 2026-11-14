@@ -20,3 +20,4 @@ export { SvgToolsList } from './svgToolsList';
 export { TypescriptToolsList } from './typescriptToolsList';
 export { GeneratorToolsList } from './GeneratorToolsList';
 export { DeveloperToolsList } from './developerToolsList';
+export { ImageToolsList } from './imageToolsList';
