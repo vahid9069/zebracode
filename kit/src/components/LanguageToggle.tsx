@@ -16,13 +16,14 @@ export function LanguageToggle({ currentLocale }: LanguageToggleProps) {
 
   if (currentLocale === 'en') {
     // Current is English, switch to Persian
-    targetHref = pathname.replace(/^\/en(\/|$)/, '/$1') || '/';
-    if (!targetHref.startsWith('/')) targetHref = '/' + targetHref;
-    if (!targetHref.endsWith('/')) targetHref += '/';
+    const withoutEn = pathname.replace(/^\/en(\/|$)/, '/');
+    const clean = withoutEn.replace(/^\/+|\/+$/g, '');
+    targetHref = clean ? `/${clean}/` : '/';
     targetLabel = 'فارسی';
   } else {
     // Current is Persian, switch to English
-    targetHref = pathname === '/' ? '/en/' : `/en${pathname.endsWith('/') ? pathname : `${pathname}/`}`;
+    const clean = pathname.replace(/^\/+|\/+$/g, '');
+    targetHref = clean ? `/en/${clean}/` : '/en/';
     targetLabel = 'English';
   }
 

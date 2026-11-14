@@ -87,7 +87,7 @@ export function KitToolPageClient({ toolSlug, locale = 'fa', dict }: KitToolPage
           {isEn ? 'The requested utility does not exist or may have been moved.' : 'ابزار درخواستی وجود ندارد یا ممکن است آدرس آن تغییر کرده باشد.'}
         </p>
         <Link
-          href={isEn ? '/en' : '/'}
+          href={isEn ? '/en/' : '/'}
           className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-blue-600 text-white text-xs font-semibold hover:bg-blue-700 transition-colors"
         >
           {isEn ? 'Back to Home' : 'بازگشت به صفحه اصلی'}
@@ -227,7 +227,7 @@ export function KitToolPageClient({ toolSlug, locale = 'fa', dict }: KitToolPage
     <div className="space-y-6">
       {/* برِدکرامب و بازگشت */}
       <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
-        <Link href={isEn ? '/en' : '/'} className="hover:text-blue-600 transition-colors flex items-center gap-1">
+        <Link href={isEn ? '/en/' : '/'} className="hover:text-blue-600 transition-colors flex items-center gap-1">
           {isEn ? <ArrowLeft className="w-3.5 h-3.5" /> : <ArrowRight className="w-3.5 h-3.5" />}
           {dict?.common?.siteName || (isEn ? 'ZebraCode Kit' : 'جعبه‌ابزار عمومی')}
         </Link>
