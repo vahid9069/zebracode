@@ -332,12 +332,12 @@
     background: var(--muted);
 }
 
-/* 2-Column Bento Featured Card */
+/* Stacked Bento Featured Card */
 .zc-featured-bento, .zc-featured {
     position: relative;
     min-width: 0;
-    display: grid;
-    grid-template-columns: minmax(0, 1.15fr) minmax(280px, 1fr);
+    display: flex;
+    flex-direction: column;
     background: var(--surface);
     border: 1px solid var(--line);
     border-radius: 18px;
@@ -354,8 +354,8 @@
 
 .zc-featured-art {
     display: block;
-    height: 100%;
-    min-height: 320px;
+    width: 100%;
+    aspect-ratio: 16 / 9;
     text-decoration: none;
     overflow: hidden;
     background: var(--navy);
@@ -365,27 +365,25 @@
 .zc-featured-img {
     width: 100%;
     height: 100%;
-    min-height: 320px;
     object-fit: cover;
     display: block;
     transition: transform .35s ease;
 }
 
-.zc-featured-bento:hover .zc-featured-img {
+.zc-featured-bento:hover .zc-featured-img, .zc-featured:hover .zc-featured-img {
     transform: scale(1.025);
 }
 
 .zc-featured-artwork {
     width: 100%;
     height: 100%;
-    min-height: 320px;
 }
 
 .zc-featured-content {
     display: flex;
     flex-direction: column;
-    justify-content: center;
-    padding: 32px 34px;
+    justify-content: flex-start;
+    padding: 24px 28px;
     position: relative;
 }
 
@@ -432,8 +430,8 @@
 }
 
 .zc-featured-bento h2, .zc-featured h2 {
-    font-size: clamp(1.25rem, 2vw, 1.65rem);
-    line-height: 1.6;
+    font-size: 20px;
+    line-height: 1.65;
     margin: 4px 0 10px;
     font-weight: 800;
 }
@@ -459,7 +457,7 @@
     transition: transform .2s ease;
 }
 
-.zc-featured-bento:hover .zc-featured-arrow {
+.zc-featured-bento:hover .zc-featured-arrow, .zc-featured:hover .zc-featured-arrow {
     transform: translate(-3px, -3px);
 }
 
@@ -467,10 +465,10 @@
     font-size: 13.5px;
     line-height: 1.85;
     color: var(--muted);
-    margin: 0 0 20px;
+    margin: 0 0 18px;
     display: -webkit-box;
     -webkit-box-orient: vertical;
-    -webkit-line-clamp: 3;
+    -webkit-line-clamp: 2;
     overflow: hidden;
 }
 
@@ -756,6 +754,16 @@
     gap: 24px;
 }
 
+.zc-post-grid.zc-post-grid-2,
+.zc-post-grid:has(> :last-child:nth-child(2)) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.zc-post-grid.zc-post-grid-1,
+.zc-post-grid:has(> :last-child:nth-child(1)) {
+    grid-template-columns: minmax(0, 560px);
+}
+
 .zc-post-card {
     min-width: 0;
     background: var(--surface);
@@ -936,6 +944,86 @@
 
 .zc-button:hover {
     background: var(--brand-hover);
+}
+
+/* Bento Tools CTA Banner */
+.zc-tools-cta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+    padding: 32px 36px;
+    border-radius: 16px;
+    border: 1px solid var(--line);
+    background: linear-gradient(135deg, var(--surface), var(--soft));
+    box-shadow: var(--card-shadow);
+    margin-top: 64px;
+    margin-bottom: 24px;
+}
+
+.zc-tools-cta-icon {
+    width: 64px;
+    height: 64px;
+    display: grid;
+    place-items: center;
+    background: var(--surface);
+    color: var(--brand);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    flex-shrink: 0;
+    box-shadow: 0 4px 12px color-mix(in srgb, var(--brand) 12%, transparent);
+}
+
+.zc-tools-cta-copy {
+    flex: 1;
+    min-width: 0;
+}
+
+.zc-tools-cta-copy .zc-eyebrow {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--brand);
+}
+
+.zc-tools-cta-copy h2 {
+    font-size: 20px;
+    line-height: 1.7;
+    margin: 6px 0 4px;
+    font-weight: 800;
+    color: var(--ink);
+}
+
+.zc-tools-cta-copy p {
+    font-size: 13px;
+    color: var(--muted);
+    line-height: 1.9;
+    margin: 0;
+}
+
+.zc-tools-privacy {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 8px;
+    background: color-mix(in srgb, var(--surface) 70%, transparent);
+    padding: 3px 10px;
+    border-radius: 20px;
+    border: 1px solid color-mix(in srgb, var(--line) 70%, transparent);
+}
+
+.zc-tools-privacy svg {
+    color: var(--brand);
+    flex-shrink: 0;
+}
+
+.zc-tools-cta > .zc-button {
+    flex-shrink: 0;
+    white-space: nowrap;
+    padding: 12px 24px;
+    font-size: 13px;
+    border-radius: 10px;
 }
 
 /* Footer Section */
@@ -1141,9 +1229,25 @@
     .zc-featured-art, .zc-listing-lead-art > a {
         min-height: 240px;
     }
-    .zc-post-grid {
+    .zc-post-grid,
+    .zc-post-grid.zc-post-grid-2,
+    .zc-post-grid.zc-post-grid-1 {
         grid-template-columns: 1fr;
         gap: 18px;
+    }
+    .zc-tools-cta {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 20px;
+        padding: 26px 22px;
+        margin-top: 40px;
+    }
+    .zc-tools-cta-icon {
+        display: none;
+    }
+    .zc-tools-cta > .zc-button {
+        width: 100%;
+        justify-content: center;
     }
     .zc-footer-main {
         grid-template-columns: 1fr;

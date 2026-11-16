@@ -25,7 +25,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <head><script dangerouslySetInnerHTML={{ __html: initializeTheme }} /></head>
         <body>
             <a className="skip-link" href="#main-content">رفتن به محتوای اصلی</a>
-            {!site.indexable && <div className="demo-notice"><strong>پیش‌نمایش وبلاگ</strong> — مقاله‌ها نمونه‌اند؛ هنوز به وردپرس یا API متصل نیست.</div>}
             <SiteHeader />
             <main id="main-content" tabIndex={-1}>{children}</main>
             <SiteFooter />

@@ -164,7 +164,7 @@ export default function ArticleReader({ post, categories, related }: ArticleRead
 
                     {hasContents && (
                         <aside className="article-toc-sidebar" aria-label="فهرست مطالب مقاله">
-                            <div className="article-toc-sticky-box">
+                            <div className="article-toc-sticky-box reading-toc">
                                 <span className="toc-sidebar-heading">فهرست محتوا</span>
                                 <nav aria-label="فهرست مطالب"><TableOfContents post={post} /></nav>
                             </div>

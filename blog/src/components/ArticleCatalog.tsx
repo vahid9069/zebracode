@@ -40,7 +40,7 @@ export default function ArticleCatalog({ initialPosts, categories, initialCatego
 
     const results = useMemo(() => filterPosts(initialPosts, query, category), [initialPosts, query, category]);
     const categoryFor = (slug: string) => categories.find((item) => item.slug === slug);
-    const visiblePosts = (featured && results.length > 2) ? results.filter((post) => post.slug !== featured.slug) : results;
+    const visiblePosts = featured ? results.filter((post) => post.slug !== featured.slug) : results;
 
     const search = (hero = false) => (
         <div className={`zc-search-field ${hero ? 'zc-hero-search' : ''}`}>
@@ -260,7 +260,7 @@ export default function ArticleCatalog({ initialPosts, categories, initialCatego
                 </p>
 
                 {visiblePosts.length ? (
-                    <div className="zc-post-grid">
+                    <div className={`zc-post-grid ${visiblePosts.length === 2 ? 'zc-post-grid-2' : visiblePosts.length === 1 ? 'zc-post-grid-1' : ''}`.trim()}>
                         {visiblePosts.map((post) => (
                             <PostCard key={post.slug} post={post} category={categoryFor(post.category)} />
                         ))}

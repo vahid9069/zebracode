@@ -58,7 +58,7 @@ async function getPosts(): Promise<Post[]> {
     }
 }
 
-function toPost(value: unknown): Post | undefined {
+export function toPost(value: unknown): Post | undefined {
     if (!value || typeof value !== 'object') return undefined;
     const item = value as Record<string, unknown>;
     let slug = typeof item.slug === 'string' ? item.slug.trim() : '';
@@ -77,11 +77,26 @@ function toPost(value: unknown): Post | undefined {
         : 'development';
     const tags = Array.isArray(item.tags) ? item.tags.filter((tag): tag is string => typeof tag === 'string') : [];
     const authorValue = item.author && typeof item.author === 'object' ? item.author as Record<string, unknown> : {};
-    const authorName = typeof authorValue.name === 'string' ? authorValue.name : 'تحریریه زبراکد';
-    const blocks = htmlToBlocks(typeof item.content === 'string' ? item.content : '');
+    const rawAuthorName = typeof authorValue.name === 'string' ? authorValue.name.trim() : '';
+    const isEditorialAuthor = !rawAuthorName || rawAuthorName.toLowerCase() === 'admin';
+    const author = isEditorialAuthor
+        ? {
+            name: 'تحریریه زبراکد',
+            role: 'تیم فنی و تولید محتوا',
+            bio: 'در تحریریه زبراکد، چالش‌های واقعی برنامه‌نویسی و مهندسی نرم‌افزار را با مثال‌های کاربردی و ابزارهای تعاملی بررسی می‌کنیم.',
+            initials: 'ZC',
+        }
+        : {
+            name: rawAuthorName,
+            role: typeof authorValue.role === 'string' && authorValue.role.trim() ? authorValue.role.trim() : 'نویسنده',
+            bio: typeof authorValue.bio === 'string' && authorValue.bio.trim() ? authorValue.bio.trim() : 'یادداشت‌های کاربردی برای ساختن نرم‌افزار بهتر.',
+            initials: typeof authorValue.initials === 'string' && authorValue.initials.trim() ? authorValue.initials.trim() : rawAuthorName.slice(0, 2),
+        };
+
+    const faq = Array.isArray(item.faq) ? item.faq.filter((entry): entry is { question: string; answer: string } => Boolean(entry && typeof entry === 'object' && typeof (entry as Record<string, unknown>).question === 'string' && typeof (entry as Record<string, unknown>).answer === 'string')) : [];
+    const blocks = htmlToBlocks(typeof item.content === 'string' ? item.content : '', faq.length > 0);
     const publishedAt = typeof item.published_at === 'string' ? item.published_at : new Date().toISOString();
     const updatedAt = typeof item.updated_at === 'string' ? item.updated_at : undefined;
-    const faq = Array.isArray(item.faq) ? item.faq.filter((entry): entry is { question: string; answer: string } => Boolean(entry && typeof entry === 'object' && typeof (entry as Record<string, unknown>).question === 'string' && typeof (entry as Record<string, unknown>).answer === 'string')) : [];
     const rawTools = Array.isArray(item.related_tools) ? item.related_tools : [];
     const parsedTools: ToolLink[] = rawTools.map((tool) => {
         if (tool && typeof tool === 'object') {
@@ -186,12 +201,7 @@ function toPost(value: unknown): Post | undefined {
         featured: false,
         cover: categoryValue === 'security' ? 'security' : categoryValue === 'network' ? 'network' : 'code',
         tags,
-        author: {
-            name: authorName,
-            role: typeof authorValue.role === 'string' ? authorValue.role : 'تحریریه زبراکد',
-            bio: typeof authorValue.bio === 'string' ? authorValue.bio : 'یادداشت‌های کاربردی برای ساختن نرم‌افزار بهتر.',
-            initials: authorName.slice(0, 2),
-        },
+        author,
         blocks,
         tools: parsedTools,
         faq,
@@ -204,15 +214,20 @@ function toPost(value: unknown): Post | undefined {
     };
 }
 
-function htmlToBlocks(html: string): Post['blocks'] {
+export function htmlToBlocks(html: string, stripFaq = false): Post['blocks'] {
     const blocks: Post['blocks'] = [];
     if (!html || typeof html !== 'string') {
         return [{ type: 'paragraph', text: 'این مقاله هنوز محتوایی ندارد.' }];
     }
 
+    let processedHtml = html;
+    if (stripFaq) {
+        processedHtml = processedHtml.replace(/<h2[^>]*>(?:(?!<\/h2>)[\s\S])*(?:پرسش[\s\u200c]*های|سوالات)[\s\u200c]*متداول(?:(?!<\/h2>)[\s\S])*<\/h2>[\s\S]*$/i, '');
+    }
+
     const pattern = /<(figure|div|h[2-6]|p|ul|ol|pre|table|blockquote|img)(?:\s[^>]*)?(?:>([\s\S]*?)<\/\1\s*>|\s*\/>)/gi;
     let match: RegExpExecArray | null;
-    while ((match = pattern.exec(html)) !== null) {
+    while ((match = pattern.exec(processedHtml)) !== null) {
         const fullMatch = match[0];
         const tag = match[1].toLowerCase();
         const inner = match[2] ?? '';
@@ -277,7 +292,7 @@ function htmlToBlocks(html: string): Post['blocks'] {
             if (text) blocks.push({ type: 'paragraph', text });
         }
     }
-    return blocks.length ? blocks : [{ type: 'paragraph', text: stripHtml(html) || 'این مقاله هنوز محتوایی ندارد.' }];
+    return blocks.length ? blocks : [{ type: 'paragraph', text: stripHtml(processedHtml) || 'این مقاله هنوز محتوایی ندارد.' }];
 }
 
 function stripHtml(value: string): string {

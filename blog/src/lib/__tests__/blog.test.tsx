@@ -69,6 +69,30 @@ describe('static Persian blog content', () => {
         expect(filterPosts(posts, '', 'security').every(post => post.category === 'security')).toBe(true);
         expect(filterPosts(posts, 'عبارت-ناموجود-برای-تست')).toEqual([]);
     });
+
+    it('maps admin author to editorial branding and strips duplicate trailing FAQ', () => {
+        const rawPost = {
+            slug: 'test-admin-post',
+            title: 'مقاله تستی',
+            content: '<p>محتوای اصلی</p><h2>پرسش‌های متداول</h2><p>سوال ۱</p>',
+            author: { name: 'admin' },
+            faq: [{ question: 'سوال ۱', answer: 'پاسخ ۱' }],
+        };
+        const parsed = repository.toPost(rawPost);
+        expect(parsed).toBeDefined();
+        expect(parsed?.author.name).toBe('تحریریه زبراکد');
+        expect(parsed?.author.role).toBe('تیم فنی و تولید محتوا');
+        expect(parsed?.author.initials).toBe('ZC');
+        expect(parsed?.blocks.some((b) => b.type === 'heading' && b.title.includes('متداول'))).toBe(false);
+    });
+
+    it('renders a balanced 2-column grid when exactly 2 posts are visible', async () => {
+        const posts = (await getPostSummaries()).slice(0, 3);
+        const categories = await getCategories();
+        // With featured=posts[0], visiblePosts has remaining 2 posts
+        const html = renderToStaticMarkup(<ArticleCatalog initialPosts={posts} categories={categories} home featured={posts[0]} />);
+        expect(html).toContain('zc-post-grid-2');
+    });
 });
 
 describe('blog routing and metadata', () => {
