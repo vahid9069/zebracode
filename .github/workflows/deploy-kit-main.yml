@@ -8,6 +8,10 @@ on:
       - '.github/workflows/deploy-kit-main.yml'
   workflow_dispatch:
 
+concurrency:
+  group: ftp-deploy-production
+  cancel-in-progress: false
+
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest

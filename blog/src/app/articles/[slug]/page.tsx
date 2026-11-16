@@ -13,12 +13,31 @@ export const dynamicParams = false;
 
 export async function generateStaticParams() {
     const posts = await getAllPosts();
-    return posts.map((post) => ({ slug: post.slug }));
+    const seen = new Set<string>();
+    const params: { slug: string }[] = [];
+    for (const post of posts) {
+        if (!post.slug) continue;
+        const decoded = decodeURIComponent(post.slug);
+        if (!seen.has(decoded)) {
+            seen.add(decoded);
+            params.push({ slug: decoded });
+        }
+        const encoded = encodeURIComponent(decoded);
+        if (encoded !== decoded && !seen.has(encoded)) {
+            seen.add(encoded);
+            params.push({ slug: encoded });
+        }
+    }
+    return params;
 }
 
 export async function generateMetadata({ params }: ArticlePageProps): Promise<Metadata> {
     const { slug } = await params;
-    const post = await getPostBySlug(slug);
+    let decodedSlug = slug;
+    try {
+        decodedSlug = decodeURIComponent(slug);
+    } catch {}
+    const post = (await getPostBySlug(decodedSlug)) || (await getPostBySlug(slug));
     if (!post) notFound();
     const url = post.seo?.canonicalUrl || absoluteUrl(postPath(post.slug));
     const title = post.seo?.title || post.title;
@@ -84,12 +103,17 @@ function blockText(block: ArticleBlock): string {
         case 'code': return [block.caption, block.code].filter(Boolean).join('\n');
         case 'callout': return `${block.title}\n${block.text}`;
         case 'table': return [block.headers, ...block.rows].map((row) => row.join(' | ')).join('\n');
+        case 'image': return block.caption ? `${block.alt} ${block.caption}` : block.alt;
     }
 }
 
 export default async function ArticlePage({ params }: ArticlePageProps) {
     const { slug } = await params;
-    const post = await getPostBySlug(slug);
+    let decodedSlug = slug;
+    try {
+        decodedSlug = decodeURIComponent(slug);
+    } catch {}
+    const post = (await getPostBySlug(decodedSlug)) || (await getPostBySlug(slug));
     if (!post) notFound();
     const [categories, related] = await Promise.all([getCategories(), getRelatedPosts(post, 3)]);
     const category = categories.find((item) => item.slug === post.category);
@@ -119,6 +143,10 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
                 publisher: { '@type': 'Organization', name: site.name, url: absoluteUrl('/') },
                 ...(category ? { articleSection: category.name } : {}),
                 keywords: post.tags.join('، '),
+                speakable: {
+                    '@type': 'SpeakableSpecification',
+                    cssSelector: ['#article-title', '.article-deck', '.article-callout'],
+                },
                 articleBody: post.blocks.map(blockText).join('\n\n'),
             },
             {

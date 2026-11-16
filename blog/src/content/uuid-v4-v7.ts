@@ -4,7 +4,7 @@ export const uuidV4V7 = definePost({
     slug: 'uuid-v4-v7',
     title: 'UUID نسخه ۴ یا ۷؛ انتخاب شناسه با توجه به ترتیب زمانی',
     excerpt: 'تفاوت تصادفی بودن و زمان‌محور بودن UUID، محدودیت مرتب‌سازی و چند معیار عملی برای انتخاب شناسه در پروژه.',
-    category: 'data', kind: 'comparison', level: 'intermediate',
+    category: 'tech-trends', kind: 'comparison', level: 'intermediate',
     publishedAt: '2026-10-15', featured: false, cover: 'code',
     tags: ['UUID', 'شناسه', 'پایگاه داده', 'نسخه ۷'],
     blocks: [

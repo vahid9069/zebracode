@@ -16,6 +16,7 @@ export function definePost(input: Omit<Post, 'author' | 'readingMinutes'>): Post
             case 'callout': return [block.title, block.text];
             case 'table': return [...block.headers, ...block.rows.flat()];
             case 'code': return block.caption ? [block.caption] : [];
+            case 'image': return block.caption ? [block.alt, block.caption] : [block.alt];
         }
     });
     const words = [...prose, ...input.faq.flatMap(item => [item.question, item.answer])]

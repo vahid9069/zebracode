@@ -15,6 +15,18 @@ if (!defined('ABSPATH')) {
 class Rest_Controller {
     public const NAMESPACE = 'omni-ai/v1';
 
+    /**
+     * Conditional debug logger. Only logs if OMNI_AI_DEBUG is true.
+     *
+     * @param string $message
+     */
+    public static function debug_log(string $message): void {
+        if (defined('OMNI_AI_DEBUG') && OMNI_AI_DEBUG === true) {
+            error_log($message);
+        }
+    }
+
+
     public function register_routes(): void {
         // SSE Stream endpoint
         register_rest_route(self::NAMESPACE, '/stream-ai', [
@@ -166,12 +178,8 @@ class Rest_Controller {
             ],
         ]);
 
-        // Categories endpoint (public for Next.js blog and Gutenberg/Studio)
-        register_rest_route(self::NAMESPACE, '/categories', [
-            'methods'             => \WP_REST_Server::READABLE,
-            'callback'            => [$this, 'handle_get_categories'],
-            'permission_callback' => '__return_true',
-        ]);
+        // Register Headless Blog & SEO public and management routes
+        (new Headless_Controller())->register_routes();
 
         // Import manual AI article from JSON endpoint
         register_rest_route(self::NAMESPACE, '/import-article', [
@@ -180,6 +188,24 @@ class Rest_Controller {
             'permission_callback' => function () {
                 return current_user_can('edit_posts');
             },
+        ]);
+
+        // Content Calendar & Topic Planner endpoints
+        register_rest_route(self::NAMESPACE, '/calendar', [
+            [
+                'methods'             => \WP_REST_Server::READABLE,
+                'callback'            => [$this, 'handle_get_calendar'],
+                'permission_callback' => function () {
+                    return current_user_can('edit_posts');
+                },
+            ],
+            [
+                'methods'             => \WP_REST_Server::CREATABLE,
+                'callback'            => [$this, 'handle_save_calendar'],
+                'permission_callback' => function () {
+                    return current_user_can('edit_posts');
+                },
+            ],
         ]);
 
         // Security Settings & Routes management endpoints
@@ -208,70 +234,62 @@ class Rest_Controller {
             },
         ]);
 
-        // Public Blog Posts for Next.js Frontend
-        register_rest_route(self::NAMESPACE, '/posts', [
-            'methods'             => \WP_REST_Server::READABLE,
-            'callback'            => [$this, 'handle_get_posts'],
-            'permission_callback' => '__return_true',
-            'args'                => [
-                'per_page' => [
-                    'default'           => 100,
-                    'sanitize_callback' => 'absint',
-                ],
-                'page'     => [
-                    'default'           => 1,
-                    'sanitize_callback' => 'absint',
-                ],
-                'category' => [
-                    'default'           => '',
-                    'sanitize_callback' => 'sanitize_text_field',
-                ],
-                'search'   => [
-                    'default'           => '',
-                    'sanitize_callback' => 'sanitize_text_field',
-                ],
-                'slug'     => [
-                    'default'           => '',
-                    'sanitize_callback' => 'sanitize_text_field',
-                ],
-            ],
-        ]);
-
-        register_rest_route(self::NAMESPACE, '/posts/(?P<slug>[a-zA-Z0-9_\x{0600}-\x{06FF}\-]+)', [
-            'methods'             => \WP_REST_Server::READABLE,
-            'callback'            => [$this, 'handle_get_single_post'],
-            'permission_callback' => '__return_true',
-            'args'                => [
-                'slug' => [
-                    'required'          => true,
-                    'sanitize_callback' => 'sanitize_text_field',
-                ],
-            ],
-        ]);
-
-        // SEO Endpoints for Single Post (Get & Update)
-        register_rest_route(self::NAMESPACE, '/posts/(?P<id>\d+)/seo', [
+        // Developer Tools Manager & Sitemap Synchronizer endpoints
+        register_rest_route(self::NAMESPACE, '/tools', [
             [
                 'methods'             => \WP_REST_Server::READABLE,
-                'callback'            => [$this, 'handle_get_post_seo'],
+                'callback'            => [$this, 'handle_get_tools'],
                 'permission_callback' => '__return_true',
             ],
             [
                 'methods'             => \WP_REST_Server::CREATABLE,
-                'callback'            => [$this, 'handle_update_post_seo'],
+                'callback'            => [$this, 'handle_manage_tools'],
                 'permission_callback' => function () {
                     return current_user_can('edit_posts');
                 },
             ],
         ]);
 
-        // AI Snippet Generator Endpoint
-        register_rest_route(self::NAMESPACE, '/seo/generate-snippet', [
+        register_rest_route(self::NAMESPACE, '/tools/sync', [
             'methods'             => \WP_REST_Server::CREATABLE,
-            'callback'            => [$this, 'handle_generate_seo_snippet'],
+            'callback'            => [$this, 'handle_sync_tools'],
             'permission_callback' => function () {
                 return current_user_can('edit_posts');
             },
+        ]);
+
+        // Smart Ad & Sponsorship Manager endpoints
+        register_rest_route(self::NAMESPACE, '/ads', [
+            [
+                'methods'             => \WP_REST_Server::READABLE,
+                'callback'            => [$this, 'handle_get_ads'],
+                'permission_callback' => '__return_true',
+            ],
+            [
+                'methods'             => \WP_REST_Server::CREATABLE,
+                'callback'            => [$this, 'handle_manage_ads'],
+                'permission_callback' => function () {
+                    return current_user_can('edit_posts');
+                },
+            ],
+        ]);
+
+        // CI/CD Blog Deployment & GitHub Actions monitor
+        register_rest_route(self::NAMESPACE, '/deploy', [
+            [
+                'methods'             => \WP_REST_Server::READABLE,
+                'callback'            => [$this, 'handle_get_deploy_status'],
+                'permission_callback' => function () {
+                    return current_user_can('edit_posts');
+                },
+            ],
+            [
+                'methods'             => \WP_REST_Server::CREATABLE,
+                'callback'            => [$this, 'handle_trigger_deploy'],
+                'permission_callback' => function () {
+                    return current_user_can('edit_posts');
+                },
+            ],
         ]);
     }
 
@@ -340,10 +358,10 @@ class Rest_Controller {
         $provider = sanitize_text_field($params['provider'] ?? '');
         $tokens = intval($params['tokens'] ?? 0);
 
-        error_log('OMNI DEBUG - handle_save_log hit. User: ' . get_current_user_id() . ' | Provider: ' . $provider . ' | Model: ' . $model . ' | Prompt: ' . substr($prompt, 0, 50));
+        self::debug_log('OMNI DEBUG - handle_save_log hit. User: ' . get_current_user_id() . ' | Provider: ' . $provider . ' | Model: ' . $model . ' | Prompt: ' . substr($prompt, 0, 50));
 
         if (empty($prompt) || empty($response)) {
-            error_log('OMNI DEBUG - handle_save_log: Missing prompt or response content.');
+            self::debug_log('OMNI DEBUG - handle_save_log: Missing prompt or response content.');
             return new \WP_REST_Response(['message' => 'Missing prompt or response content'], 400);
         }
 
@@ -351,20 +369,18 @@ class Rest_Controller {
         global $wpdb;
         $table_name = $wpdb->prefix . OMNI_AI_LOGS_TABLE;
         $since = date('Y-m-d H:i:s', current_time('timestamp') - 60);
-        if ($wpdb->get_var($wpdb->prepare("SHOW TABLES LIKE %s", $table_name)) === $table_name) {
-            $existing_id = $wpdb->get_var($wpdb->prepare(
-                "SELECT id FROM `{$table_name}` WHERE user_id = %d AND prompt = %s AND created_at >= %s LIMIT 1",
-                get_current_user_id(),
-                $prompt,
-                $since
-            ));
-            if ($existing_id) {
-                return new \WP_REST_Response([
-                    'success'   => true,
-                    'log_id'    => (int) $existing_id,
-                    'duplicate' => true,
-                ], 200);
-            }
+        $existing_id = $wpdb->get_var($wpdb->prepare(
+            "SELECT id FROM `{$table_name}` WHERE user_id = %d AND prompt = %s AND created_at >= %s LIMIT 1",
+            get_current_user_id(),
+            $prompt,
+            $since
+        ));
+        if ($existing_id) {
+            return new \WP_REST_Response([
+                'success'   => true,
+                'log_id'    => (int) $existing_id,
+                'duplicate' => true,
+            ], 200);
         }
 
         $log_id = Log_Repository::insert_log(
@@ -376,7 +392,7 @@ class Rest_Controller {
             $tokens
         );
 
-        error_log('OMNI DEBUG - handle_save_log: Insert result Log ID: ' . var_export($log_id, true));
+        self::debug_log('OMNI DEBUG - handle_save_log: Insert result Log ID: ' . var_export($log_id, true));
 
         return new \WP_REST_Response([
             'success' => (bool) $log_id,
@@ -386,7 +402,7 @@ class Rest_Controller {
 
     public function handle_create_draft(\WP_REST_Request $request): \WP_REST_Response {
         $params = $request->get_json_params() ?: $request->get_params();
-        error_log('OMNI DEBUG - Step 1: Endpoint hit. Params received: ' . wp_json_encode(array_keys($params)));
+        self::debug_log('OMNI DEBUG - Step 1: Endpoint hit. Params received: ' . wp_json_encode(array_keys($params)));
 
         $content = (string) ($params['content'] ?? '');
         $raw_title = sanitize_text_field($params['title'] ?? '');
@@ -400,10 +416,10 @@ class Rest_Controller {
         $settings = Provider_Factory::get_settings();
         $image_provider = sanitize_text_field($params['image_provider'] ?? $settings['default_image_provider'] ?? 'gemini');
 
-        error_log('OMNI DEBUG - Step 2: Content length: ' . strlen($content) . ', User ID: ' . get_current_user_id() . ', Post Type: ' . $post_type . ', Status: ' . $status);
+        self::debug_log('OMNI DEBUG - Step 2: Content length: ' . strlen($content) . ', User ID: ' . get_current_user_id() . ', Post Type: ' . $post_type . ', Status: ' . $status);
 
         if (empty(trim($content))) {
-            error_log('OMNI DEBUG - Execution halted: Content is empty.');
+            self::debug_log('OMNI DEBUG - Execution halted: Content is empty.');
             return new \WP_REST_Response(['success' => false, 'message' => __('Content is empty.', 'omni-ai-suite')], 400);
         }
 
@@ -471,12 +487,12 @@ class Rest_Controller {
         $excerpt = !empty($raw_excerpt) ? $raw_excerpt : $extracted_excerpt;
         $excerpt = sanitize_textarea_field(trim($excerpt, " \t\n\r\0\x0B*#\"'"));
 
-        error_log('OMNI DEBUG - Step 3: Title resolved: "' . $title . '", Slug: "' . $slug . '", Excerpt length: ' . strlen($excerpt));
+        self::debug_log('OMNI DEBUG - Step 3: Title resolved: "' . $title . '", Slug: "' . $slug . '", Excerpt length: ' . strlen($excerpt));
 
         // Lightweight Markdown-to-HTML Parser (Preserving Mermaid code blocks)
-        error_log('OMNI DEBUG - Step 4: Starting parse_markdown_to_html...');
-        $parsed_html = self::parse_markdown_to_html($content);
-        error_log('OMNI DEBUG - Step 4b: Markdown parsed. HTML length: ' . strlen($parsed_html));
+        self::debug_log('OMNI DEBUG - Step 4: Starting parse_markdown_to_html...');
+        $parsed_html = Markdown_Parser::parse($content);
+        self::debug_log('OMNI DEBUG - Step 4b: Markdown parsed. HTML length: ' . strlen($parsed_html));
 
         $post_args = [
             'post_title'   => $title,
@@ -504,16 +520,16 @@ class Rest_Controller {
             }
         }
 
-        error_log('OMNI DEBUG - Step 5: Calling wp_insert_post...');
+        self::debug_log('OMNI DEBUG - Step 5: Calling wp_insert_post...');
         $post_id = wp_insert_post($post_args);
 
         if (is_wp_error($post_id) || !$post_id) {
             $err_msg = is_wp_error($post_id) ? $post_id->get_error_message() : __('Failed to insert post.', 'omni-ai-suite');
-            error_log('OMNI DEBUG - Execution halted: wp_insert_post failed: ' . $err_msg);
+            self::debug_log('OMNI DEBUG - Execution halted: wp_insert_post failed: ' . $err_msg);
             return new \WP_REST_Response(['success' => false, 'message' => $err_msg], 500);
         }
 
-        error_log('OMNI DEBUG - Step 5b: wp_insert_post success. Post ID: ' . $post_id);
+        self::debug_log('OMNI DEBUG - Step 5b: wp_insert_post success. Post ID: ' . $post_id);
 
         // Tag post with AI meta for tracking & failover recovery
         update_post_meta($post_id, '_omni_ai_generated', 1);
@@ -526,19 +542,16 @@ class Rest_Controller {
 
         global $wpdb;
         $table_name = $wpdb->prefix . OMNI_AI_LOGS_TABLE;
-        $recent_exists = false;
         $since_draft = date('Y-m-d H:i:s', current_time('timestamp') - 180);
-        if ($wpdb->get_var($wpdb->prepare("SHOW TABLES LIKE %s", $table_name)) === $table_name) {
-            $recent_exists = (bool) $wpdb->get_var($wpdb->prepare(
-                "SELECT id FROM `{$table_name}` WHERE user_id = %d AND prompt = %s AND created_at >= %s LIMIT 1",
-                get_current_user_id(),
-                $prompt_log,
-                $since_draft
-            ));
-        }
+        $recent_exists = (bool) $wpdb->get_var($wpdb->prepare(
+            "SELECT id FROM `{$table_name}` WHERE user_id = %d AND prompt = %s AND created_at >= %s LIMIT 1",
+            get_current_user_id(),
+            $prompt_log,
+            $since_draft
+        ));
 
         if (!$recent_exists) {
-            error_log('OMNI DEBUG - Step 6: Calling Log_Repository::insert_log with User ID: ' . get_current_user_id() . ', Model: "' . $model_log . '", Provider: "' . $provider_log . '"');
+            self::debug_log('OMNI DEBUG - Step 6: Calling Log_Repository::insert_log with User ID: ' . get_current_user_id() . ', Model: "' . $model_log . '", Provider: "' . $provider_log . '"');
             $log_id = Log_Repository::insert_log(
                 get_current_user_id(),
                 $prompt_log,
@@ -547,14 +560,14 @@ class Rest_Controller {
                 $provider_log,
                 $tokens_log
             );
-            error_log('OMNI DEBUG - Step 6b: Log_Repository::insert_log returned Log ID: ' . var_export($log_id, true));
+            self::debug_log('OMNI DEBUG - Step 6b: Log_Repository::insert_log returned Log ID: ' . var_export($log_id, true));
         } else {
-            error_log('OMNI DEBUG - Step 6: Log already recorded during streaming, skipping duplicate insert.');
+            self::debug_log('OMNI DEBUG - Step 6: Log already recorded during streaming, skipping duplicate insert.');
         }
 
         // Increase timeout for heavy image sideloading
         @set_time_limit(120);
-        error_log('OMNI DEBUG - Step 7: Loading WordPress media files for sideloading...');
+        self::debug_log('OMNI DEBUG - Step 7: Loading WordPress media files for sideloading...');
         require_once ABSPATH . 'wp-admin/includes/media.php';
         require_once ABSPATH . 'wp-admin/includes/file.php';
         require_once ABSPATH . 'wp-admin/includes/image.php';
@@ -564,81 +577,59 @@ class Rest_Controller {
         $image_attached = false;
         $image_notice = '';
 
-        // 1. Process In-Content Images: [IMAGE: prompt]
+        // 1. Process In-Content Images: [IMAGE: prompt] -> Convert to styled Gutenberg callout
         $updated_content = $parsed_html;
-        error_log('OMNI DEBUG - Step 8: Checking for in-content image tags using regex in parsed content (length: ' . strlen($updated_content) . ')...');
+        $extracted_image_prompts = [];
+        self::debug_log('OMNI DEBUG - Step 8: Checking for in-content image tags using regex in parsed content (length: ' . strlen($updated_content) . ')...');
         if (preg_match_all('/\[IMAGE:\s*(.+?)\]/isu', $updated_content, $matches, PREG_SET_ORDER)) {
-            error_log('OMNI DEBUG - Step 8: Found ' . count($matches) . ' in-content image tag(s).');
+            self::debug_log('OMNI DEBUG - Step 8: Found ' . count($matches) . ' in-content image tag(s).');
             foreach ($matches as $idx => $match) {
                 $raw_tag = $match[0];
-                $img_prompt = trim($match[1]) . ',' . $style_suffix;
-                error_log('OMNI DEBUG - Step 8[' . $idx . ']: Found tag: ' . $raw_tag . ' | Prompt: ' . $img_prompt);
+                $img_prompt = trim($match[1]);
+                $extracted_image_prompts[] = $img_prompt;
 
-                $img_result = $this->attach_image_by_provider($post_id, $title, $img_prompt, $image_provider, false);
-                $attachment_id = !empty($img_result['attach_id']) ? $img_result['attach_id'] : null;
+                $placeholder_block = "\n<!-- wp:group {\"style\":{\"border\":{\"width\":\"1px\",\"style\":\"dashed\",\"color\":\"#38bdf8\"},\"spacing\":{\"padding\":{\"top\":\"1.25rem\",\"bottom\":\"1.25rem\",\"left\":\"1.25rem\",\"right\":\"1.25rem\"}}},\"backgroundColor\":\"dark-slate\",\"textColor\":\"slate-100\",\"layout\":{\"type\":\"constrained\"}} -->\n" .
+                    "<div class=\"wp-block-group has-slate-100-color has-dark-slate-background-color has-text-color has-background\" style=\"border-color:#38bdf8;border-style:dashed;border-width:1px;border-radius:10px;padding:1.25rem;margin:24px 0;background-color:#0f172a;color:#e2e8f0;\">\n" .
+                    "<!-- wp:paragraph {\"style\":{\"typography\":{\"fontWeight\":\"700\"}}} -->\n" .
+                    "<p style=\"font-weight:700;color:#38bdf8;margin:0 0 8px 0;font-size:15px;\">🖼️ جایگاه تصویر محتوا #" . ($idx + 1) . " (Image Placeholder)</p>\n" .
+                    "<!-- /wp:paragraph -->\n" .
+                    "<!-- wp:paragraph {\"fontSize\":\"small\"} -->\n" .
+                    "<p class=\"has-small-font-size\" style=\"color:#94a3b8;margin:0 0 10px 0;font-size:12px;line-height:1.6;\">پرامپت پیشنهادی برای ساخت تصویر در هوش مصنوعی:</p>\n" .
+                    "<!-- /wp:paragraph -->\n" .
+                    "<!-- wp:code -->\n" .
+                    "<pre class=\"wp-block-code\" style=\"font-size:12px;background:#1e293b;color:#f1f5f9;border:1px solid #334155;border-radius:6px;padding:10px;direction:ltr;text-align:left;line-height:1.5;\"><code>" . esc_html($img_prompt) . "</code></pre>\n" .
+                    "<!-- /wp:code -->\n" .
+                    "</div>\n<!-- /wp:group -->\n";
 
                 $para_pattern = '/<!-- wp:paragraph -->\s*<p>\s*' . preg_quote($raw_tag, '/') . '\s*<\/p>\s*<!-- \/wp:paragraph -->/isu';
-
-                if (!empty($attachment_id) && !is_wp_error($attachment_id)) {
-                    error_log('OMNI DEBUG - Step 8[' . $idx . ']: Image Sideload SUCCESS! ID: ' . $attachment_id);
-                    $local_url = wp_get_attachment_url($attachment_id);
-                    $gutenberg_block = "<!-- wp:image {\"id\":{$attachment_id},\"sizeSlug\":\"large\"} -->\n<figure class=\"wp-block-image size-large\"><img src=\"" . esc_url($local_url) . "\" alt=\"" . esc_attr($img_prompt) . "\" class=\"wp-image-{$attachment_id}\"/></figure>\n<!-- /wp:image -->";
-
-                    if (preg_match($para_pattern, $updated_content)) {
-                        $updated_content = preg_replace($para_pattern, $gutenberg_block, $updated_content, 1);
-                    } else {
-                        $updated_content = str_replace($raw_tag, $gutenberg_block, $updated_content);
-                    }
+                if (preg_match($para_pattern, $updated_content)) {
+                    $updated_content = preg_replace($para_pattern, $placeholder_block, $updated_content, 1);
                 } else {
-                    error_log('OMNI DEBUG - Step 8[' . $idx . ']: Image Sideload FAILED: ' . ($img_result['error'] ?? 'Unknown error'));
-                    if (preg_match($para_pattern, $updated_content)) {
-                        $updated_content = preg_replace($para_pattern, '', $updated_content, 1);
-                    } else {
-                        $updated_content = str_replace($raw_tag, '', $updated_content);
-                    }
+                    $updated_content = str_replace($raw_tag, $placeholder_block, $updated_content);
                 }
             }
-        } else {
-            error_log('OMNI DEBUG - Step 8: No in-content image tags found in the generated content.');
         }
 
-        // 2. Process Featured Image (if requested)
-        error_log('OMNI DEBUG - Step 9: Featured image requested? ' . ($generate_image ? 'YES' : 'NO'));
+        // 2. Process Featured Image Prompt (Prompt-First Visual Workflow - No External API Calls)
+        $featured_image_prompt = '';
         if ($generate_image) {
             $custom_img_prompt = sanitize_text_field($params['image_prompt_custom'] ?? '');
-            error_log('OMNI DEBUG - Step 9a: Generating Featured Image via attach_featured_image (Provider: ' . $image_provider . ', Style: ' . $image_style . ')');
-            
-            $feat_result = $this->attach_featured_image(
-                $post_id,
-                $title,
-                $image_provider,
-                $image_style,
-                $custom_img_prompt
-            );
-
-            if (!empty($feat_result['success'])) {
-                $feat_attachment_id = $feat_result['attach_id'] ?? 0;
-                error_log('OMNI DEBUG - Step 9b: Featured Image Sideload SUCCESS! ID: ' . $feat_attachment_id);
-                $image_attached = true;
-                $image_notice = ' ' . __('(Featured Image generated & attached successfully)', 'omni-ai-suite');
-            } else {
-                $err = $feat_result['error'] ?? 'Unknown error';
-                error_log('OMNI DEBUG - Step 9b: Featured Image Sideload FAILED: ' . $err);
-                $image_notice = ' ' . sprintf(__('⚠️ Note: Post created, but image generation failed (%s).', 'omni-ai-suite'), $err);
-            }
+            $featured_image_prompt = Media_Sideloader::build_visual_image_prompt($title, $image_style, $custom_img_prompt);
+            update_post_meta($post_id, '_omni_ai_featured_image_prompt', $featured_image_prompt);
+            $image_notice = ' ' . __('(پرامپت تصویر شاخص با موفقیت تولید و ذخیره شد)', 'omni-ai-suite');
         }
 
-        // 3. Update the post with the new content containing local images
-        error_log('OMNI DEBUG - Step 10: Updating post #' . $post_id . ' with new content (length: ' . strlen($updated_content) . ')...');
+        // 3. Update the post with the new content containing local placeholders
+        self::debug_log('OMNI DEBUG - Step 10: Updating post #' . $post_id . ' with new content (length: ' . strlen($updated_content) . ')...');
         $update_result = wp_update_post([
             'ID'           => $post_id,
             'post_content' => $updated_content,
         ], true);
 
         if (is_wp_error($update_result)) {
-            error_log('OMNI DEBUG - Step 10: wp_update_post FAILED: ' . $update_result->get_error_message());
+            self::debug_log('OMNI DEBUG - Step 10: wp_update_post FAILED: ' . $update_result->get_error_message());
         } else {
-            error_log('OMNI DEBUG - Step 10: wp_update_post SUCCESS.');
+            self::debug_log('OMNI DEBUG - Step 10: wp_update_post SUCCESS.');
         }
 
         $edit_url = get_edit_post_link($post_id, 'raw');
@@ -651,285 +642,39 @@ class Rest_Controller {
         ];
         $status_label = $status_labels[$post_args['post_status']] ?? $post_args['post_status'];
 
-        error_log('OMNI DEBUG - Step 11: Dispatching final JSON response for Post #' . $post_id);
+        self::debug_log('OMNI DEBUG - Step 11: Dispatching final JSON response for Post #' . $post_id);
 
         return new \WP_REST_Response([
-            'success'        => true,
-            'post_id'        => $post_id,
-            'title'          => $title,
-            'status'         => $post_args['post_status'],
-            'image_attached' => $image_attached,
-            'edit_url'       => $edit_url ?: admin_url('post.php?action=edit&post=' . $post_id),
-            'message'        => sprintf(__('Post #%d created as [%s] with title "%s"!%s', 'omni-ai-suite'), $post_id, $status_label, $title, $image_notice),
+            'success'               => true,
+            'post_id'               => $post_id,
+            'title'                 => $title,
+            'status'                => $post_args['post_status'],
+            'image_attached'        => false,
+            'featured_image_prompt' => $featured_image_prompt,
+            'image_prompts'         => $extracted_image_prompts,
+            'edit_url'              => $edit_url ?: admin_url('post.php?action=edit&post=' . $post_id),
+            'message'               => sprintf(__('Post #%d created as [%s] with title "%s"!%s', 'omni-ai-suite'), $post_id, $status_label, $title, $image_notice),
         ], 200);
     }
 
-    private function attach_featured_image(int $post_id, string $title, string $provider = 'gemini', string $style = 'isometric_3d', string $custom_prompt = ''): array {
-        $final_prompt = $this->build_visual_image_prompt($title, $style, $custom_prompt);
-        return $this->attach_image_by_provider($post_id, $title, $final_prompt, $provider, true);
+    public function attach_featured_image(int $post_id, string $title, string $provider = 'gemini', string $style = 'isometric_3d', string $custom_prompt = ''): array {
+        return Media_Sideloader::attach_featured_image($post_id, $title, $provider, $style, $custom_prompt);
     }
 
-    /**
-     * Sideloads an image using Google Gemini (Imagen / Flash Image) or OpenAI DALL-E 3.
-     */
-    private function attach_image_by_provider(int $post_id, string $title, string $prompt, string $provider = 'gemini', bool $is_featured = false): array {
-        @set_time_limit(120);
-
-        if (!function_exists('download_url')) {
-            require_once ABSPATH . 'wp-admin/includes/file.php';
-        }
-        if (!function_exists('media_handle_sideload')) {
-            require_once ABSPATH . 'wp-admin/includes/media.php';
-            require_once ABSPATH . 'wp-admin/includes/image.php';
-        }
-
-        $settings = Provider_Factory::get_settings();
-        $tmp_file = null;
-
-        // 1. Google Gemini Native Image Models (Nano Banana / Flash Image / Imagen 3)
-        if ($provider === 'gemini' || str_starts_with($provider, 'gemini')) {
-            $gemini_key_data = Provider_Factory::resolve_api_key('gemini', $settings['gemini_api_key'] ?? '');
-            if (!empty($gemini_key_data['key'])) {
-                $gemini_key = $gemini_key_data['key'];
-                error_log('OMNI DEBUG - Step 9: Calling Google Gemini Image Models with key...');
-
-                // Multimodal image generation models
-                $gemini_image_models = [
-                    'gemini-2.5-flash-image',
-                    'gemini-3.1-flash-image',
-                    'gemini-3-pro-image',
-                ];
-
-                foreach ($gemini_image_models as $g_model) {
-                    $endpoint_url = "https://generativelanguage.googleapis.com/v1beta/models/{$g_model}:generateContent?key=" . urlencode($gemini_key);
-                    $payload = [
-                        'contents' => [
-                            [
-                                'parts' => [
-                                    ['text' => 'Generate an ultra high quality visual illustration, clean composition, no text: ' . $prompt],
-                                ],
-                            ],
-                        ],
-                        'generationConfig' => [
-                            'responseModalities' => ['TEXT', 'IMAGE'],
-                        ],
-                    ];
-
-                    $resp = wp_remote_post($endpoint_url, [
-                        'headers' => ['Content-Type' => 'application/json'],
-                        'body'    => wp_json_encode($payload),
-                        'timeout' => 50,
-                    ]);
-
-                    if (is_wp_error($resp)) {
-                        error_log("OMNI DEBUG - Gemini {$g_model} request error: " . $resp->get_error_message());
-                        continue;
-                    }
-
-                    $http_code = wp_remote_retrieve_response_code($resp);
-                    $resp_body = wp_remote_retrieve_body($resp);
-                    error_log("OMNI DEBUG - Gemini {$g_model} HTTP {$http_code}");
-
-                    if ($http_code === 200) {
-                        $b = json_decode($resp_body, true);
-                        if (!empty($b['candidates'][0]['content']['parts'])) {
-                            foreach ($b['candidates'][0]['content']['parts'] as $part) {
-                                $data_b64 = $part['inlineData']['data'] ?? $part['inline_data']['data'] ?? null;
-                                if (!empty($data_b64)) {
-                                    $raw_data = base64_decode($data_b64);
-                                    if (!empty($raw_data)) {
-                                        $tmp_file = wp_tempnam('omni_gemini_');
-                                        file_put_contents($tmp_file, $raw_data);
-                                        error_log("OMNI DEBUG - Gemini Image successfully generated with {$g_model}! Size: " . strlen($raw_data) . " bytes");
-                                        break 2;
-                                    }
-                                }
-                            }
-                        }
-                    } else {
-                        error_log("OMNI DEBUG - Gemini {$g_model} failed response: " . substr($resp_body, 0, 250));
-                    }
-                }
-
-                // If flash-image didn't return image, try imagen-3.0-generate-002
-                if (empty($tmp_file)) {
-                    $imagen_url = "https://generativelanguage.googleapis.com/v1beta/models/imagen-3.0-generate-002:predict?key=" . urlencode($gemini_key);
-                    $resp2 = wp_remote_post($imagen_url, [
-                        'headers' => ['Content-Type' => 'application/json'],
-                        'body'    => wp_json_encode([
-                            'instances' => [
-                                ['prompt' => $prompt],
-                            ],
-                            'parameters' => [
-                                'sampleCount' => 1,
-                                'aspectRatio' => '16:9',
-                            ],
-                        ]),
-                        'timeout' => 50,
-                    ]);
-
-                    if (!is_wp_error($resp2) && wp_remote_retrieve_response_code($resp2) === 200) {
-                        $b2 = json_decode(wp_remote_retrieve_body($resp2), true);
-                        $bytes = $b2['predictions'][0]['bytesBase64Encoded'] ?? null;
-                        if (!empty($bytes)) {
-                            $raw_data = base64_decode($bytes);
-                            if (!empty($raw_data)) {
-                                $tmp_file = wp_tempnam('omni_gemini_');
-                                file_put_contents($tmp_file, $raw_data);
-                                error_log("OMNI DEBUG - Gemini Image successfully generated with imagen-3.0-generate-002! Size: " . strlen($raw_data) . " bytes");
-                            }
-                        }
-                    }
-                }
-            } else {
-                error_log('OMNI DEBUG - Gemini key is empty in settings!');
-            }
-        }
-
-        // 2. OpenAI DALL-E 3
-        if (empty($tmp_file) && $provider === 'dall-e') {
-            $openai_key_data = Provider_Factory::resolve_api_key('openai', $settings['openai_api_key'] ?? '');
-            if (!empty($openai_key_data['key'])) {
-                $response = wp_remote_post('https://api.openai.com/v1/images/generations', [
-                    'headers' => [
-                        'Content-Type'  => 'application/json',
-                        'Authorization' => 'Bearer ' . $openai_key_data['key'],
-                    ],
-                    'body'    => wp_json_encode([
-                        'model'           => 'dall-e-3',
-                        'prompt'          => $prompt,
-                        'n'               => 1,
-                        'size'            => '1024x1024',
-                        'response_format' => 'url',
-                    ]),
-                    'timeout' => 60,
-                ]);
-                if (!is_wp_error($response) && wp_remote_retrieve_response_code($response) === 200) {
-                    $body = json_decode(wp_remote_retrieve_body($response), true);
-                    if (!empty($body['data'][0]['url'])) {
-                        $tmp_file = download_url($body['data'][0]['url'], 45);
-                    }
-                }
-            }
-        }
-
-        if (is_wp_error($tmp_file) || empty($tmp_file) || !file_exists($tmp_file)) {
-            $err_msg = is_wp_error($tmp_file) ? $tmp_file->get_error_message() : 'Failed to generate image via ' . esc_html($provider);
-            error_log('OMNI DEBUG - Image generation failed: ' . $err_msg);
-            return ['success' => false, 'error' => $err_msg];
-        }
-
-        return $this->sideload_local_image_file($tmp_file, $post_id, $title, $prompt, $is_featured);
+    public function attach_image_by_provider(int $post_id, string $title, string $prompt, string $provider = 'gemini', bool $is_featured = false): array {
+        return Media_Sideloader::attach_image_by_provider($post_id, $title, $prompt, $provider, $is_featured);
     }
 
-    /**
-     * Converts downloaded/generated image to WebP, builds SEO filename and registers in Media Library.
-     */
-    private function sideload_local_image_file(string $tmp_file, int $post_id, string $title, string $prompt, bool $is_featured = false): array {
-        // Convert to WebP format if server supports WebP and WordPress image editor is available
-        $is_webp = false;
-        $supports_webp = function_exists('imagetypes') && (imagetypes() & IMG_WEBP);
-
-        if ($supports_webp && function_exists('wp_get_image_editor')) {
-            $editor = wp_get_image_editor($tmp_file);
-            if (!is_wp_error($editor)) {
-                $editor->set_quality(88);
-                $webp_path = preg_replace('/\.[^.]+$/', '.webp', $tmp_file);
-                if ($webp_path === $tmp_file) {
-                    $webp_path .= '.webp';
-                }
-                $saved = $editor->save($webp_path, 'image/webp');
-                if (!is_wp_error($saved) && file_exists($saved['path'])) {
-                    @unlink($tmp_file);
-                    $tmp_file = $saved['path'];
-                    $is_webp = true;
-                }
-            }
-        }
-
-        // Build clean English filename and attachment slug
-        $english_slug = $this->build_english_slug($title, $post_id);
-        $file_ext = $is_webp ? 'webp' : 'jpg';
-        $filename = "{$english_slug}-" . wp_rand(100, 999) . ".{$file_ext}";
-
-        $file_array = [
-            'name'     => $filename,
-            'tmp_name' => $tmp_file,
-        ];
-
-        // Register image in WordPress Media Library
-        $attach_id = media_handle_sideload($file_array, $post_id, sanitize_text_field($title), [
-            'post_name'      => $english_slug,
-            'post_title'     => ucwords(str_replace('-', ' ', $english_slug)),
-            'post_mime_type' => $is_webp ? 'image/webp' : 'image/jpeg',
-        ]);
-
-        if (is_wp_error($attach_id)) {
-            @unlink($tmp_file);
-            return ['success' => false, 'error' => $attach_id->get_error_message()];
-        }
-
-        // Assign as Post Thumbnail if featured image requested
-        if ($is_featured) {
-            set_post_thumbnail($post_id, $attach_id);
-        }
-
-        return [
-            'success'   => true,
-            'attach_id' => $attach_id,
-            'url'       => wp_get_attachment_url($attach_id),
-            'format'    => $file_ext,
-            'filename'  => $filename,
-            'slug'      => $english_slug,
-        ];
+    public function sideload_local_image_file(string $tmp_file, int $post_id, string $title, string $prompt, bool $is_featured = false): array {
+        return Media_Sideloader::sideload_local_image_file($tmp_file, $post_id, $title, $prompt, $is_featured);
     }
 
-    /**
-     * Builds a structured, high-clarity English visual prompt from article title & style.
-     */
-    private function build_visual_image_prompt(string $title, string $style = 'isometric_3d', string $custom_prompt = ''): string {
-        if (!empty($custom_prompt) && strlen(trim($custom_prompt)) > 5) {
-            return trim($custom_prompt) . ", 8k resolution, professional graphic design, no text, no watermark, no logo";
-        }
-
-        // Extract key English tech words if present in the Persian title (e.g. JSON, Python, React, AI, CSS, API)
-        preg_match_all('/[a-zA-Z0-9#\+\.\-]+/', $title, $matches);
-        $keywords = !empty($matches[0]) ? implode(' ', array_slice($matches[0], 0, 4)) : '';
-
-        if (!empty($keywords)) {
-            $subject = "Modern technology conceptual illustration of {$keywords}";
-        } else {
-            $subject = "Modern software technology and programming concept";
-        }
-
-        $style_map = [
-            'isometric_3d' => 'modern 3D isometric render, clean geometric shapes, soft ambient studio lighting, vibrant gradient colors, 8k resolution, minimalist Octane render aesthetic',
-            'flat_vector'  => 'modern flat vector art, clean sharp lines, beautiful corporate color palette, elegant tech illustration, minimal aesthetic',
-            'photoreal'    => 'award winning photorealistic editorial photograph, shallow depth of field, natural soft lighting, hyper-detailed 8k, Hasselblad medium format photography',
-            'cyber_tech'   => 'futuristic cyberpunk cyber-tech digital art, glowing holographic data interfaces, deep neon cyan and purple accents, high dynamic range',
-            'corporate'    => 'clean corporate business minimalism, elegant tech background, soft lighting, professional creative agency aesthetic',
-        ];
-
-        $style_desc = $style_map[$style] ?? $style_map['isometric_3d'];
-
-        return "{$subject}, {$style_desc}, masterpiece, clean composition, trending on ArtStation, no text, no typography, no watermark, no logos, no blur, high definition";
+    public function build_visual_image_prompt(string $title, string $style = 'isometric_3d', string $custom_prompt = ''): string {
+        return Media_Sideloader::build_visual_image_prompt($title, $style, $custom_prompt);
     }
 
-    /**
-     * Generates a clean English slug & filename for the image.
-     */
-    private function build_english_slug(string $title, int $post_id): string {
-        preg_match_all('/[a-zA-Z0-9]+/', $title, $matches);
-        $english_words = !empty($matches[0]) ? array_map('strtolower', $matches[0]) : [];
-
-        if (!empty($english_words)) {
-            $slug_base = implode('-', array_slice($english_words, 0, 3));
-        } else {
-            $slug_base = 'article-banner';
-        }
-
-        $clean = sanitize_title("{$slug_base}-featured-{$post_id}");
-        return $clean ?: "post-featured-{$post_id}";
+    public function build_english_slug(string $title, int $post_id): string {
+        return Media_Sideloader::build_english_slug($title, $post_id);
     }
 
     public function handle_get_logs(\WP_REST_Request $request): \WP_REST_Response {
@@ -1169,9 +914,7 @@ class Rest_Controller {
                     str_contains($m_slug, 'embedding') ||
                     str_contains($m_slug, 'veo') ||
                     str_contains($m_slug, 'video') ||
-                    str_contains($m_slug, '2.0-flash') ||
-                    str_contains($m_slug, '2.5-flash') ||
-                    preg_match('/^gemini-2\.[05]/', $m_slug) ||
+
                     preg_match('/-\d{3}$/', $m_slug)
                 );
                 if ($is_unwanted) {
@@ -1180,7 +923,7 @@ class Rest_Controller {
                     $needs_update = true;
                 }
             }
-            if ($has_unwanted || count($cached['gemini']['models']) > 15 || !isset($cached['gemini']['models']['gemini-3.8-flash'])) {
+            if ($has_unwanted || count($cached['gemini']['models']) > 40 || !isset($cached['gemini']['models']['gemini-3.8-flash'])) {
                 // Invalidate gemini cache so it re-fetches clean content-only models
                 unset($cached['gemini']);
                 $needs_update = true;
@@ -1293,711 +1036,29 @@ class Rest_Controller {
     }
 
     public function handle_get_categories(): \WP_REST_Response {
-        $wp_categories = get_categories(['hide_empty' => false]);
-        $list = [];
-        if (is_array($wp_categories)) {
-            foreach ($wp_categories as $c) {
-                $list[] = [
-                    'id'          => $c->term_id,
-                    'name'        => html_entity_decode($c->name, ENT_QUOTES, 'UTF-8'),
-                    'slug'        => sanitize_title($c->slug),
-                    'count'       => (int) $c->count,
-                    'description' => sanitize_text_field($c->description),
-                ];
-            }
-        }
-
-        return new \WP_REST_Response([
-            'success'    => true,
-            'categories' => $list,
-        ], 200);
+        return (new Headless_Controller())->handle_get_categories();
     }
 
-    /**
-     * Public endpoint to get published blog posts for the Next.js static/dynamic frontend.
-     *
-     * @param \WP_REST_Request $request
-     * @return \WP_REST_Response
-     */
     public function handle_get_posts(\WP_REST_Request $request): \WP_REST_Response {
-        $per_page = min(100, max(1, absint($request->get_param('per_page') ?: 20)));
-        $paged = max(1, absint($request->get_param('page') ?: 1));
-        $category = sanitize_text_field($request->get_param('category') ?? '');
-        $search = sanitize_text_field($request->get_param('search') ?? '');
-        $slug = sanitize_title($request->get_param('slug') ?? '');
-        $status_param = sanitize_key($request->get_param('status') ?? 'publish');
-        $allowed_statuses = ['publish', 'draft', 'pending', 'any'];
-        $post_status = in_array($status_param, $allowed_statuses, true) ? $status_param : 'publish';
-
-        $args = [
-            'post_type'           => 'post',
-            'post_status'         => $post_status,
-            'posts_per_page'      => $per_page,
-            'paged'               => $paged,
-            'orderby'             => 'date',
-            'order'               => 'DESC',
-            'ignore_sticky_posts' => true,
-        ];
-
-        if (!empty($slug)) {
-            $args['name'] = $slug;
-        }
-        if (!empty($category)) {
-            $args['category_name'] = $category;
-        }
-        if (!empty($search)) {
-            $args['s'] = $search;
-        }
-
-        $query = new \WP_Query($args);
-        $items = [];
-        foreach ($query->posts as $post) {
-            $items[] = $this->format_post_for_blog($post);
-        }
-
-        return new \WP_REST_Response([
-            'success'     => true,
-            'items'       => $items,
-            'total'       => (int) $query->found_posts,
-            'total_pages' => (int) $query->max_num_pages,
-            'page'        => $paged,
-            'per_page'    => $per_page,
-        ], 200);
+        return (new Headless_Controller())->handle_get_posts($request);
     }
 
-    /**
-     * Public endpoint to get a single post by slug for the Next.js article reader.
-     *
-     * @param \WP_REST_Request $request
-     * @return \WP_REST_Response
-     */
     public function handle_get_single_post(\WP_REST_Request $request): \WP_REST_Response {
-        $slug = sanitize_title($request->get_param('slug') ?? '');
-        if (empty($slug)) {
-            return new \WP_REST_Response(['success' => false, 'message' => 'Slug is required'], 400);
-        }
-
-        $query = new \WP_Query([
-            'post_type'      => 'post',
-            'post_status'    => ['publish', 'draft'],
-            'name'           => $slug,
-            'posts_per_page' => 1,
-        ]);
-
-        if (empty($query->posts)) {
-            return new \WP_REST_Response(['success' => false, 'message' => 'Post not found'], 404);
-        }
-
-        return new \WP_REST_Response([
-            'success' => true,
-            'post'    => $this->format_post_for_blog($query->posts[0]),
-        ], 200);
+        return (new Headless_Controller())->handle_get_single_post($request);
     }
 
-    /**
-     * Format a WordPress Post for the Next.js Blog API including Rank Math SEO metadata.
-     *
-     * @param \WP_Post $post
-     * @return array
-     */
     public function format_post_for_blog(\WP_Post $post): array {
-        $post_id = absint($post->ID);
-
-        // Categories
-        $wp_categories = get_the_category($post_id);
-        $primary_category = 'development';
-        $category_list = [];
-        if (!empty($wp_categories) && is_array($wp_categories)) {
-            $primary_category = sanitize_title($wp_categories[0]->slug);
-            foreach ($wp_categories as $cat) {
-                $category_list[] = [
-                    'id'   => $cat->term_id,
-                    'name' => html_entity_decode($cat->name, ENT_QUOTES, 'UTF-8'),
-                    'slug' => sanitize_title($cat->slug),
-                ];
-            }
-        }
-
-        // Tags
-        $wp_tags = wp_get_post_tags($post_id, ['fields' => 'names']);
-        $tags = is_array($wp_tags) ? array_map('sanitize_text_field', $wp_tags) : [];
-
-        // Author
-        $author_id = absint($post->post_author);
-        $author_name = sanitize_text_field(get_the_author_meta('display_name', $author_id)) ?: 'تحریریه زبراکد';
-        $author_bio = sanitize_text_field(get_the_author_meta('description', $author_id)) ?: 'یادداشت‌های کاربردی برای ساختن نرم‌افزار بهتر.';
-
-        // Featured Image
-        $featured_image = null;
-        $thumb_id = get_post_thumbnail_id($post_id);
-        if ($thumb_id) {
-            $img_src = wp_get_attachment_image_src($thumb_id, 'full');
-            if ($img_src) {
-                $featured_image = [
-                    'url'    => esc_url_raw($img_src[0]),
-                    'width'  => (int) $img_src[1],
-                    'height' => (int) $img_src[2],
-                    'alt'    => sanitize_text_field(get_post_meta($thumb_id, '_wp_attachment_image_alt', true) ?: $post->post_title),
-                ];
-            }
-        }
-
-        // FAQ from plugin meta or Rank Math FAQ Schema
-        $faq = get_post_meta($post_id, '_ai_faq_data', true);
-        if (empty($faq) || !is_array($faq)) {
-            $faq = get_post_meta($post_id, '_zebracode_blog_ai_faq', true);
-        }
-        if (empty($faq) || !is_array($faq)) {
-            $rank_math_faq = get_post_meta($post_id, 'rank_math_schema_FAQ', true);
-            if (!empty($rank_math_faq) && is_array($rank_math_faq)) {
-                $faq = [];
-                foreach ($rank_math_faq as $item) {
-                    if (isset($item['title'], $item['content'])) {
-                        $faq[] = [
-                            'question' => wp_strip_all_tags($item['title']),
-                            'answer'   => wp_strip_all_tags($item['content']),
-                        ];
-                    }
-                }
-            }
-        }
-        $formatted_faq = [];
-        if (is_array($faq)) {
-            foreach ($faq as $item) {
-                if (is_array($item) && !empty($item['question']) && !empty($item['answer'])) {
-                    $formatted_faq[] = [
-                        'question' => sanitize_text_field($item['question']),
-                        'answer'   => sanitize_textarea_field($item['answer']),
-                    ];
-                }
-            }
-        }
-
-        // Related tools
-        $tools = get_post_meta($post_id, '_zebracode_blog_ai_related_tools', true);
-        $related_tools = is_array($tools) ? array_map('sanitize_title', $tools) : [];
-
-        // Omni AI SEO extraction with Rank Math / Yoast fallbacks
-        $omni_title = (string) get_post_meta($post_id, '_omni_ai_seo_title', true);
-        $raw_rm_title = !empty($omni_title) ? $omni_title : (string) get_post_meta($post_id, 'rank_math_title', true);
-        if (empty($raw_rm_title)) {
-            $raw_rm_title = (string) get_post_meta($post_id, '_yoast_wpseo_title', true);
-        }
-
-        $omni_desc = (string) get_post_meta($post_id, '_omni_ai_meta_description', true);
-        $raw_rm_desc  = !empty($omni_desc) ? $omni_desc : (string) get_post_meta($post_id, 'rank_math_description', true);
-        if (empty($raw_rm_desc)) {
-            $raw_rm_desc = (string) get_post_meta($post_id, '_yoast_wpseo_metadesc', true);
-        }
-
-        // Resolve Rank Math template variables (%title%, %sep%, %sitename%, etc.) if Rank Math is loaded
-        $rm_title = $raw_rm_title;
-        $rm_desc  = $raw_rm_desc;
-        if (class_exists('\\RankMath\\Helper') && method_exists('\\RankMath\\Helper', 'replace_vars')) {
-            if (!empty($raw_rm_title)) {
-                $rm_title = \RankMath\Helper::replace_vars($raw_rm_title, $post);
-            }
-            if (!empty($raw_rm_desc)) {
-                $rm_desc = \RankMath\Helper::replace_vars($raw_rm_desc, $post);
-            }
-        }
-
-        $post_title = wp_strip_all_tags(get_the_title($post_id));
-        $seo_title = !empty($rm_title) ? sanitize_text_field($rm_title) : $post_title;
-
-        $post_excerpt = wp_strip_all_tags(get_the_excerpt($post_id));
-        $seo_desc = !empty($rm_desc) ? sanitize_textarea_field($rm_desc) : $post_excerpt;
-
-        $focus_keyword = sanitize_text_field((string) get_post_meta($post_id, '_omni_ai_focus_keyword', true));
-        if (empty($focus_keyword)) {
-            $focus_keyword = sanitize_text_field((string) get_post_meta($post_id, 'rank_math_focus_keyword', true));
-        }
-        if (empty($focus_keyword)) {
-            $focus_keyword = sanitize_text_field((string) get_post_meta($post_id, '_yoast_wpseo_focuskw', true));
-        }
-
-        $canonical_url = esc_url_raw((string) get_post_meta($post_id, '_omni_ai_canonical_url', true));
-        if (empty($canonical_url)) {
-            $canonical_url = esc_url_raw((string) get_post_meta($post_id, 'rank_math_canonical_url', true));
-        }
-
-        // Robots
-        $omni_noindex = get_post_meta($post_id, '_omni_ai_noindex', true);
-        $omni_nofollow = get_post_meta($post_id, '_omni_ai_nofollow', true);
-        $robots_meta = get_post_meta($post_id, 'rank_math_robots', true);
-        $robots_list = [];
-        $is_noindex = ($omni_noindex === '1');
-        $is_nofollow = ($omni_nofollow === '1');
-        if (is_array($robots_meta)) {
-            $robots_list = array_map('sanitize_key', $robots_meta);
-            if (in_array('noindex', $robots_list, true)) $is_noindex = true;
-            if (in_array('nofollow', $robots_list, true)) $is_nofollow = true;
-        } elseif (is_string($robots_meta) && !empty($robots_meta)) {
-            $robots_list = array_map('trim', explode(',', $robots_meta));
-            if (in_array('noindex', $robots_list, true)) $is_noindex = true;
-            if (in_array('nofollow', $robots_list, true)) $is_nofollow = true;
-        }
-        if ($is_noindex && !in_array('noindex', $robots_list, true)) {
-            $robots_list[] = 'noindex';
-        }
-        if ($is_nofollow && !in_array('nofollow', $robots_list, true)) {
-            $robots_list[] = 'nofollow';
-        }
-
-        // Ranking Scores
-        $scores = [
-            'seo'   => (int) get_post_meta($post_id, '_omni_ranking_seo_score', true),
-            'aeo'   => (int) get_post_meta($post_id, '_omni_ranking_aeo_score', true),
-            'geo'   => (int) get_post_meta($post_id, '_omni_ranking_geo_score', true),
-            'total' => (int) get_post_meta($post_id, '_omni_ranking_avg_score', true),
-        ];
-
-        // Social / OpenGraph / Twitter
-        $og_title = sanitize_text_field((string) get_post_meta($post_id, '_omni_ai_og_title', true));
-        if (empty($og_title)) $og_title = sanitize_text_field((string) get_post_meta($post_id, 'rank_math_facebook_title', true)) ?: $seo_title;
-
-        $og_desc  = sanitize_textarea_field((string) get_post_meta($post_id, '_omni_ai_og_description', true));
-        if (empty($og_desc)) $og_desc = sanitize_textarea_field((string) get_post_meta($post_id, 'rank_math_facebook_description', true)) ?: $seo_desc;
-
-        $og_image = esc_url_raw((string) get_post_meta($post_id, '_omni_ai_og_image', true));
-        if (empty($og_image)) $og_image = esc_url_raw((string) get_post_meta($post_id, 'rank_math_facebook_image', true));
-        if (empty($og_image) && $featured_image) {
-            $og_image = $featured_image['url'];
-        }
-
-        $twitter_title = sanitize_text_field((string) get_post_meta($post_id, '_omni_ai_twitter_title', true));
-        if (empty($twitter_title)) $twitter_title = sanitize_text_field((string) get_post_meta($post_id, 'rank_math_twitter_title', true)) ?: $og_title;
-
-        $twitter_desc  = sanitize_textarea_field((string) get_post_meta($post_id, '_omni_ai_twitter_description', true));
-        if (empty($twitter_desc)) $twitter_desc = sanitize_textarea_field((string) get_post_meta($post_id, 'rank_math_twitter_description', true)) ?: $og_desc;
-
-        $twitter_image = esc_url_raw((string) get_post_meta($post_id, '_omni_ai_twitter_image', true));
-        if (empty($twitter_image)) $twitter_image = esc_url_raw((string) get_post_meta($post_id, 'rank_math_twitter_image', true)) ?: $og_image;
-
-        // Content (rendered Gutenberg blocks or HTML)
-        $rendered_content = apply_filters('the_content', $post->post_content);
-
-        return [
-            'id'               => $post_id,
-            'slug'             => sanitize_title($post->post_name),
-            'title'            => $post_title,
-            'excerpt'          => $post_excerpt,
-            'content'          => $rendered_content,
-            'category'         => $primary_category,
-            'categories'       => $category_list,
-            'tags'             => $tags,
-            'published_at'     => get_post_time('c', true, $post_id),
-            'updated_at'       => get_post_modified_time('c', true, $post_id),
-            'featured_image'   => $featured_image,
-            'author'           => [
-                'name'     => $author_name,
-                'role'     => 'تحریریه زبراکد',
-                'bio'      => $author_bio,
-                'initials' => mb_substr($author_name, 0, 2),
-            ],
-            'meta_description' => $seo_desc,
-            'faq'              => $formatted_faq,
-            'related_tools'    => $related_tools,
-            'seo'              => [
-                'title'               => $seo_title,
-                'description'         => $seo_desc,
-                'focus_keyword'       => $focus_keyword,
-                'canonical_url'       => $canonical_url ?: get_permalink($post_id),
-                'robots'              => $robots_list,
-                'is_noindex'          => $is_noindex,
-                'is_nofollow'         => $is_nofollow,
-                'og_title'            => $og_title,
-                'og_description'      => $og_desc,
-                'og_image'            => $og_image,
-                'twitter_title'       => $twitter_title,
-                'twitter_description' => $twitter_desc,
-                'twitter_image'       => $twitter_image,
-                'scores'              => $scores,
-            ],
-        ];
+        return (new Headless_Controller())->format_post_for_blog($post);
     }
 
-    /**
-     * Convert basic Markdown (Headings, Bold, Lists, Code, Tables) and Mermaid code blocks into native Gutenberg HTML blocks.
-     */
     public static function parse_markdown_to_html(string $text): string {
-        $text = trim($text);
-        if (empty($text)) return '';
-
-        $text = str_replace(["\r\n", "\r"], "\n", $text);
-
-        // 1. Mermaid Sideloading
-        $mermaid_blocks = [];
-        $text = preg_replace_callback('/```mermaid[\r\n]+([\s\S]*?)```/iu', function ($matches) use (&$mermaid_blocks) {
-            $inner_mermaid = trim($matches[1]);
-            $json_payload = wp_json_encode([
-                'code' => $inner_mermaid,
-                'mermaid' => [
-                    'theme' => 'base',
-                    'themeVariables' => [
-                        'fontFamily'         => 'Vazirmatn, Tahoma, system-ui, sans-serif',
-                        'fontSize'           => '14px',
-                        'primaryColor'       => '#eef2ff',
-                        'primaryTextColor'   => '#1e1b4b',
-                        'primaryBorderColor' => '#6366f1',
-                        'lineColor'          => '#4f46e5',
-                        'secondaryColor'     => '#ecfdf5',
-                        'tertiaryColor'      => '#f8fafc',
-                        'background'         => '#ffffff',
-                        'mainBkg'            => '#f8fafc',
-                        'nodeBorder'         => '#6366f1',
-                        'clusterBkg'         => '#f1f5f9',
-                        'clusterBorder'      => '#cbd5e1',
-                    ],
-                ],
-            ]);
-            $base64 = rtrim(strtr(base64_encode($json_payload), '+/', '-_'), '=');
-            $external_url = "https://mermaid.ink/svg/" . $base64;
-            $local_url = $external_url;
-
-            $response = wp_remote_get($external_url, ['timeout' => 15]);
-            if (!is_wp_error($response) && wp_remote_retrieve_response_code($response) === 200) {
-                $svg_content = wp_remote_retrieve_body($response);
-                $upload_dir = wp_upload_dir();
-                $target_dir = $upload_dir['basedir'] . '/omni-ai-diagrams';
-                if (wp_mkdir_p($target_dir)) {
-                    $filename = 'diagram-' . md5($base64) . '.svg';
-                    if (file_put_contents($target_dir . '/' . $filename, $svg_content)) {
-                        $local_url = $upload_dir['baseurl'] . '/omni-ai-diagrams/' . $filename;
-                    }
-                }
-            }
-            $token = '%%MERMAID_DIV_' . count($mermaid_blocks) . '%%';
-            $mermaid_blocks[$token] = "<!-- wp:image -->\n<figure class=\"wp-block-image\"><img src=\"" . esc_url($local_url) . "\" alt=\"AI Generated Diagram\"/></figure>\n<!-- /wp:image -->";
-            return $token;
-        }, $text);
-
-        // 2. Generic Code Blocks (```python, ```js, etc.) -> Gutenberg Code
-        $text = preg_replace_callback('/```([a-zA-Z0-9_\-\+]*)\n([\s\S]*?)```/u', function ($matches) {
-            $lang = trim($matches[1]);
-            $code = esc_html(trim($matches[2]));
-            $class_attr = $lang ? " class=\"language-" . esc_attr($lang) . "\"" : '';
-            return "<!-- wp:code -->\n<pre class=\"wp-block-code\"><code{$class_attr}>{$code}</code></pre>\n<!-- /wp:code -->";
-        }, $text);
-
-        // 3. Headings -> Gutenberg Headings
-        $text = preg_replace('/^[ \t]*####[ \t]+([^\n]+)$/m', "<!-- wp:heading {\"level\":4} -->\n<h4>$1</h4>\n<!-- /wp:heading -->", $text);
-        $text = preg_replace('/^[ \t]*###[ \t]+([^\n]+)$/m', "<!-- wp:heading {\"level\":3} -->\n<h3>$1</h3>\n<!-- /wp:heading -->", $text);
-        $text = preg_replace('/^[ \t]*##[ \t]+([^\n]+)$/m', "<!-- wp:heading {\"level\":2} -->\n<h2>$1</h2>\n<!-- /wp:heading -->", $text);
-        $text = preg_replace('/^[ \t]*#[ \t]+([^\n]+)$/m', "<!-- wp:heading {\"level\":2} -->\n<h2>$1</h2>\n<!-- /wp:heading -->", $text);
-
-        // 4. Horizontal Separators
-        $text = preg_replace('/^[ \t]*(\-{3,}|\*{3,}|_{3,})[ \t]*$/m', "<!-- wp:separator -->\n<hr class=\"wp-block-separator has-alpha-channel-opacity\"/>\n<!-- /wp:separator -->", $text);
-
-        // 5. Blockquotes (> quote) -> Gutenberg Quote
-        $text = preg_replace_callback('/(?:(?:^[ \t]*>[ \t]*.+?(?:\n|$))+)/m', function ($matches) {
-            $lines = array_map(function ($l) {
-                return trim(preg_replace('/^[ \t]*>[ \t]*/', '', $l));
-            }, explode("\n", trim($matches[0])));
-            $quote_body = nl2br(implode("\n", array_filter($lines)));
-            return "<!-- wp:quote -->\n<blockquote class=\"wp-block-quote\"><p>{$quote_body}</p></blockquote>\n<!-- /wp:quote -->";
-        }, $text);
-
-        // 6. Tables -> Gutenberg Tables (Lenient Pipe Matching)
-        $text = preg_replace_callback('/((?:(?:.*?[|].*?)[\n]+)+)/m', function ($matches) {
-            $lines = array_filter(array_map('trim', explode("\n", trim($matches[0]))));
-            $has_separator = false;
-            foreach ($lines as $line) {
-                if (preg_match('/^[|\s\-:]+$/', $line) && strpos($line, '-') !== false) {
-                    $has_separator = true;
-                    break;
-                }
-            }
-            if (!$has_separator || count($lines) < 2) return $matches[0];
-
-            $html = "<!-- wp:table -->\n<figure class=\"wp-block-table\"><table>\n";
-            $is_head = true;
-            foreach ($lines as $line) {
-                if (preg_match('/^[|\s\-:]+$/', $line) && strpos($line, '-') !== false) {
-                    $is_head = false;
-                    $html .= "<tbody>\n";
-                    continue;
-                }
-                $html .= $is_head ? "<thead><tr>" : "<tr>";
-                $cells = explode('|', trim($line, '|'));
-                foreach ($cells as $cell) {
-                    $cell = preg_replace('/\*\*(.+?)\*\*/us', '<strong>$1</strong>', trim($cell));
-                    $html .= $is_head ? "<th>$cell</th>" : "<td>$cell</td>";
-                }
-                $html .= $is_head ? "</tr></thead>\n" : "</tr>\n";
-            }
-            $html .= "</tbody>\n</table></figure>\n<!-- /wp:table -->";
-            return $html;
-        }, $text);
-
-        // 7. Ordered Lists (1. 2. 3.) -> Gutenberg Ordered List
-        $text = preg_replace_callback('/(?:(?:^[ \t]*\d+[\.\)][ \t]+.+?(?:\n|$))+)/m', function ($matches) {
-            $lines = array_filter(array_map('trim', explode("\n", trim($matches[0]))));
-            $html = "<!-- wp:list {\"ordered\":true} -->\n<ol>\n";
-            foreach ($lines as $line) {
-                $item = preg_replace('/^\d+[\.\)][ \t]+/u', '', $line);
-                $item = preg_replace('/\*\*(.+?)\*\*/us', '<strong>$1</strong>', $item);
-                $html .= "<li>$item</li>\n";
-            }
-            return $html . "</ol>\n<!-- /wp:list -->";
-        }, $text);
-
-        // 8. Unordered Lists (- or *) -> Gutenberg List
-        $text = preg_replace_callback('/(?:(?:^[ \t]*[-*•][ \t]+.+?(?:\n|$))+)/m', function ($matches) {
-            $lines = array_filter(array_map('trim', explode("\n", trim($matches[0]))));
-            $html = "<!-- wp:list -->\n<ul>\n";
-            foreach ($lines as $line) {
-                $item = preg_replace('/^[-*•][ \t]+/u', '', $line);
-                $item = preg_replace('/\*\*(.+?)\*\*/us', '<strong>$1</strong>', $item);
-                $html .= "<li>$item</li>\n";
-            }
-            return $html . "</ul>\n<!-- /wp:list -->";
-        }, $text);
-
-        // 9. Inline Markdown: Links, Code, and Bold
-        $text = preg_replace('/\[([^\]]+)\]\((https?:\/\/[^\s\)]+)\)/u', '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>', $text);
-        $text = preg_replace('/`([^`\n]+)`/u', '<code>$1</code>', $text);
-        $text = preg_replace('/\*\*(.+?)\*\*/us', '<strong>$1</strong>', $text);
-
-        // 10. Paragraphs -> Gutenberg Paragraphs
-        $blocks = explode("\n\n", $text);
-        $parsed_blocks = [];
-        foreach ($blocks as $block) {
-            $block = trim($block);
-            if (empty($block)) continue;
-
-            // If it's already a Gutenberg block, keep it intact
-            if (str_starts_with($block, '<!-- wp:')) {
-                $parsed_blocks[] = $block;
-            } elseif (preg_match('/^\[IMAGE:\s*.+?\]$/isu', $block)) {
-                // Standalone Image Placeholder: keep outside <p> so replacement block is not nested in paragraph
-                $parsed_blocks[] = $block;
-            } else {
-                $block = nl2br($block);
-                $parsed_blocks[] = "<!-- wp:paragraph -->\n<p>$block</p>\n<!-- /wp:paragraph -->";
-            }
-        }
-        $text = implode("\n\n", $parsed_blocks);
-
-        // 11. Restore Mermaid Blocks
-        if (!empty($mermaid_blocks)) {
-            $text = strtr($text, $mermaid_blocks);
-        }
-
-        return $text;
+        return Markdown_Parser::parse($text);
     }
 
-    /**
-     * Convert clean Markdown text into native WordPress Gutenberg block comments & HTML.
-     */
     public static function markdown_to_gutenberg(string $text): string {
-        $text = trim($text);
-        if (empty($text)) {
-            return '';
-        }
-
-        $text = str_replace(["\r\n", "\r"], "\n", $text);
-        $lines = explode("\n", $text);
-        $blocks = [];
-        $cur_list = [];
-        $list_type = 'ul';
-        $cur_table = [];
-        $cur_para = [];
-        $in_code = false;
-        $code_buf = [];
-
-        $flush_para = function () use (&$cur_para, &$blocks) {
-            if (!empty($cur_para)) {
-                $p_text = trim(implode("\n", $cur_para));
-                if (!empty($p_text)) {
-                    $p_html = self::format_inline_markdown($p_text);
-                    $blocks[] = "<!-- wp:paragraph -->\n<p>{$p_html}</p>\n<!-- /wp:paragraph -->";
-                }
-                $cur_para = [];
-            }
-        };
-
-        $flush_list = function () use (&$cur_list, &$list_type, &$blocks) {
-            if (!empty($cur_list)) {
-                $tag = ($list_type === 'ol') ? 'ol' : 'ul';
-                $attrs = ($list_type === 'ol') ? ' {"ordered":true}' : '';
-                $items_html = '';
-                foreach ($cur_list as $li) {
-                    $items_html .= "<li>" . self::format_inline_markdown($li) . "</li>\n";
-                }
-                $blocks[] = "<!-- wp:list{$attrs} -->\n<{$tag}>\n{$items_html}</{$tag}>\n<!-- /wp:list -->";
-                $cur_list = [];
-            }
-        };
-
-        $flush_table = function () use (&$cur_table, &$blocks) {
-            if (!empty($cur_table)) {
-                $html = self::render_markdown_table($cur_table);
-                if (!empty($html)) {
-                    $blocks[] = $html;
-                }
-                $cur_table = [];
-            }
-        };
-
-        foreach ($lines as $line) {
-            $trimmed = trim($line);
-
-            // Code fence handling
-            if (str_starts_with($trimmed, '```')) {
-                if ($in_code) {
-                    $in_code = false;
-                    $code_content = esc_html(implode("\n", $code_buf));
-                    $blocks[] = "<!-- wp:code -->\n<pre class=\"wp-block-code\"><code>{$code_content}</code></pre>\n<!-- /wp:code -->";
-                    $code_buf = [];
-                } else {
-                    $flush_para();
-                    $flush_list();
-                    $flush_table();
-                    $in_code = true;
-                }
-                continue;
-            }
-
-            if ($in_code) {
-                $code_buf[] = $line;
-                continue;
-            }
-
-            // Empty line
-            if ($trimmed === '') {
-                $flush_para();
-                $flush_list();
-                $flush_table();
-                continue;
-            }
-
-            // Horizontal Separator
-            if (preg_match('/^(\-{3,}|\*{3,}|_{3,})$/', $trimmed)) {
-                $flush_para();
-                $flush_list();
-                $flush_table();
-                $blocks[] = "<!-- wp:separator -->\n<hr class=\"wp-block-separator has-alpha-channel-opacity\"/>\n<!-- /wp:separator -->";
-                continue;
-            }
-
-            // Table rows (starts with |)
-            if (str_starts_with($trimmed, '|')) {
-                $flush_para();
-                $flush_list();
-                $cur_table[] = $trimmed;
-                continue;
-            } elseif (!empty($cur_table)) {
-                $flush_table();
-            }
-
-            // Headings (#, ##, ###, etc.)
-            if (preg_match('/^(#{1,6})\s+(.+)$/', $trimmed, $m)) {
-                $flush_para();
-                $flush_list();
-                $flush_table();
-                $level = strlen($m[1]);
-                $heading_text = self::format_inline_markdown(trim($m[2]));
-                $tag_level = ($level === 1) ? 2 : $level;
-                $level_attr = ($tag_level > 2) ? " {\"level\":{$tag_level}}" : '';
-                $blocks[] = "<!-- wp:heading{$level_attr} -->\n<h{$tag_level}>{$heading_text}</h{$tag_level}>\n<!-- /wp:heading -->";
-                continue;
-            }
-
-            // Blockquotes
-            if (str_starts_with($trimmed, '>')) {
-                $flush_para();
-                $flush_list();
-                $flush_table();
-                $quote_text = self::format_inline_markdown(trim(substr($trimmed, 1)));
-                $blocks[] = "<!-- wp:quote -->\n<blockquote class=\"wp-block-quote\"><p>{$quote_text}</p></blockquote>\n<!-- /wp:quote -->";
-                continue;
-            }
-
-            // Lists (bullets or numbered)
-            if (preg_match('/^[-*•]\s+(.+)$/u', $trimmed, $m)) {
-                $flush_para();
-                $flush_table();
-                $list_type = 'ul';
-                $cur_list[] = $m[1];
-                continue;
-            }
-
-            if (preg_match('/^\d+[\.\)]\s+(.+)$/u', $trimmed, $m)) {
-                $flush_para();
-                $flush_table();
-                $list_type = 'ol';
-                $cur_list[] = $m[1];
-                continue;
-            }
-
-            // Regular paragraph line
-            if (!empty($cur_list)) {
-                $flush_list();
-            }
-            $cur_para[] = $trimmed;
-        }
-
-        $flush_para();
-        $flush_list();
-        $flush_table();
-
-        return implode("\n\n", $blocks);
+        return Markdown_Parser::markdown_to_gutenberg($text);
     }
 
-    private static function format_inline_markdown(string $text): string {
-        $text = preg_replace('/\*\*(.+?)\*\*/us', '<strong>$1</strong>', $text);
-        $text = preg_replace('/__(.+?)__/us', '<strong>$1</strong>', $text);
-        $text = preg_replace('/(?<!\*)\*(?!\*)(.+?)(?<!\*)\*(?!\*)/us', '<em>$1</em>', $text);
-        $text = preg_replace('/`([^`]+)`/u', '<code>$1</code>', $text);
-        $text = preg_replace('/\[([^\]]+)\]\(([^)]+)\)/u', '<a href="$2">$1</a>', $text);
-        return $text;
-    }
-
-    private static function render_markdown_table(array $rows): string {
-        if (count($rows) < 2) {
-            return '';
-        }
-
-        $header_line = array_shift($rows);
-        $divider = array_shift($rows);
-
-        $split_row = function ($row_str) {
-            $trimmed = trim($row_str, '| ');
-            $cols = explode('|', $trimmed);
-            return array_map(function ($c) {
-                return self::format_inline_markdown(trim($c));
-            }, $cols);
-        };
-
-        $headers = $split_row($header_line);
-        $thead = "<thead><tr>";
-        foreach ($headers as $h) {
-            $thead .= "<th>" . $h . "</th>";
-        }
-        $thead .= "</tr></thead>";
-
-        $tbody = "<tbody>";
-        foreach ($rows as $r) {
-            if (empty(trim($r))) continue;
-            if (preg_match('/^\|[\s\-:]+\|$/', trim($r))) continue;
-            $cells = $split_row($r);
-            $tbody .= "<tr>";
-            foreach ($cells as $c) {
-                $tbody .= "<td>" . $c . "</td>";
-            }
-            $tbody .= "</tr>";
-        }
-        $tbody .= "</tbody>";
-
-        return "<!-- wp:table -->\n<figure class=\"wp-block-table\"><table>\n{$thead}\n{$tbody}\n</table></figure>\n<!-- /wp:table -->";
-    }
-
-    /**
-     * Detect which major SEO plugin is currently active.
-     *
-     * @return string 'rank_math'|'yoast'|'aioseo'|'general'
-     */
     public function detect_active_seo_plugin(): string {
         if (defined('RANK_MATH_VERSION') || class_exists('RankMath')) {
             return 'rank_math';
@@ -2094,6 +1155,16 @@ class Rest_Controller {
                 }
             }
 
+            // Extract featured_image_prompt
+            if (preg_match('/"featured_image_prompt"\s*:\s*"([^"\r\n]+)"/u', $cleaned, $m)) {
+                $fallback_data['featured_image_prompt'] = $m[1];
+            }
+
+            // Extract diagram_prompt
+            if (preg_match('/"diagram_prompt"\s*:\s*"([^"\r\n]+)"/u', $cleaned, $m)) {
+                $fallback_data['diagram_prompt'] = $m[1];
+            }
+
             // Extract FAQ
             if (preg_match('/"faq"\s*:\s*\[([\s\S]*?)\]/u', $cleaned, $m)) {
                 $faq_raw = '[' . $m[1] . ']';
@@ -2133,7 +1204,21 @@ class Rest_Controller {
         $seo_title = sanitize_text_field(wp_strip_all_tags($data['seo_title'] ?? $data['عنوان_سئو'] ?? $title));
         $seo_desc = sanitize_textarea_field(wp_strip_all_tags($data['seo_desc'] ?? $data['seo_description'] ?? $data['توضیحات_سئو'] ?? $data['meta_desc'] ?? ''));
         $raw_slug = (string) ($data['slug'] ?? $data['نامک'] ?? $data['اسلاگ'] ?? '');
-        $image_prompts = $data['image_prompts'] ?? $data['پرامپت_تصاویر'] ?? $data['images'] ?? [];
+        
+        $featured_image_prompt = sanitize_textarea_field($data['featured_image_prompt'] ?? $data['تصویر_شاخص'] ?? $data['featured_image'] ?? $data['prompt_featured_image'] ?? '');
+        $diagram_prompt = sanitize_textarea_field($data['diagram_prompt'] ?? $data['دیاگرام'] ?? $data['diagram'] ?? $data['infographic_prompt'] ?? '');
+
+        $raw_image_prompts = $data['image_prompts'] ?? $data['پرامپت_تصاویر'] ?? $data['images'] ?? [];
+        $image_prompts = [];
+        if (is_array($raw_image_prompts)) {
+            foreach ($raw_image_prompts as $p) {
+                if (is_string($p) && trim($p) !== '') {
+                    $image_prompts[] = trim($p);
+                } elseif (is_array($p) && !empty($p['prompt'])) {
+                    $image_prompts[] = trim($p['prompt']);
+                }
+            }
+        }
         $faq = $data['faq'] ?? $data['faqs'] ?? $data['سوالات_متداول'] ?? [];
 
         if (empty($title)) {
@@ -2152,20 +1237,39 @@ class Rest_Controller {
 
         // 4. Transform content: if markdown without HTML blocks, convert to rich Gutenberg blocks
         if (!preg_match('/<p\b|<div\b|<h[1-6]\b/i', $content) && preg_match('/(?:^#{1,6}\s|^\s*[-*]\s|\*{2})/m', $content)) {
-            $content = self::parse_markdown_to_html($content);
+            $content = Markdown_Parser::parse($content);
         }
 
-        // 4b. Auto-convert any Mermaid diagrams (whether in <code class="language-mermaid">, <pre>, or ```mermaid) to visual SVG images
-        $content = self::convert_all_mermaid_in_content($content);
+        // 4b. Auto-convert any Mermaid diagrams or [DIAGRAM_PLACEHOLDER] to Gutenberg diagram callouts (No external HTTP calls)
+        if (!empty($diagram_prompt)) {
+            $diagram_block = Markdown_Parser::render_diagram_placeholder_block($diagram_prompt);
+            $content = str_replace('[DIAGRAM_PLACEHOLDER]', $diagram_block, $content);
+        }
+        $content = Markdown_Parser::convert_all_mermaid_in_content($content);
 
-        // 5. Stylize [IMAGE_PLACEHOLDER] for Gutenberg & easy Ctrl+F replacement (100% valid Gutenberg format)
-        $placeholder_block = "\n<!-- wp:paragraph -->\n" .
-            "<p style=\"background-color:#f0f4f8;color:#2c3338;border:2px dashed #72aee6;border-radius:8px;padding:18px 20px;margin:28px 0;text-align:center;font-size:14px;line-height:1.8;\">" .
-            "📷 <strong style=\"color:#135e96;font-size:15px;\">[IMAGE_PLACEHOLDER]</strong><br/>" .
-            "<em>جایگاه قرارگیری تصویر &mdash; این بلوک را حذف نموده و تصویر ساخته‌شده را در اینجا درج نمایید.</em>" .
-            "</p>\n<!-- /wp:paragraph -->\n";
+        // 5. Stylize [IMAGE_PLACEHOLDER_x] and [IMAGE_PLACEHOLDER] with corresponding prompts
+        $img_idx = 0;
+        $content = preg_replace_callback('/\[IMAGE_PLACEHOLDER(?:_(\d+))?\]/i', function ($m) use (&$img_idx, $image_prompts) {
+            $num = !empty($m[1]) ? (int) $m[1] : ($img_idx + 1);
+            $img_idx++;
+            $prompt = $image_prompts[$num - 1] ?? ($image_prompts[$img_idx - 1] ?? '');
+            $prompt_html = !empty($prompt)
+                ? "<pre class=\"wp-block-code\" style=\"font-size:12px;background:#1e293b;color:#f1f5f9;border:1px solid #334155;border-radius:6px;padding:10px;direction:ltr;text-align:left;line-height:1.5;\"><code>" . esc_html($prompt) . "</code></pre>"
+                : "<em>جایگاه قرارگیری تصویر &mdash; این بلوک را حذف نموده و تصویر ساخته‌شده را در اینجا درج نمایید.</em>";
 
-        $content = str_replace('[IMAGE_PLACEHOLDER]', $placeholder_block, $content);
+            return "\n<!-- wp:group {\"style\":{\"border\":{\"width\":\"1px\",\"style\":\"dashed\",\"color\":\"#38bdf8\"},\"spacing\":{\"padding\":{\"top\":\"1.25rem\",\"bottom\":\"1.25rem\",\"left\":\"1.25rem\",\"right\":\"1.25rem\"}}},\"backgroundColor\":\"dark-slate\",\"textColor\":\"slate-100\",\"layout\":{\"type\":\"constrained\"}} -->\n" .
+                "<div class=\"wp-block-group has-slate-100-color has-dark-slate-background-color has-text-color has-background\" style=\"border-color:#38bdf8;border-style:dashed;border-width:1px;border-radius:10px;padding:1.25rem;margin:24px 0;background-color:#0f172a;color:#e2e8f0;\">\n" .
+                "<!-- wp:paragraph {\"style\":{\"typography\":{\"fontWeight\":\"700\"}}} -->\n" .
+                "<p style=\"font-weight:700;color:#38bdf8;margin:0 0 8px 0;font-size:15px;\">📷 جایگاه تصویر محتوا #" . $num . " (Image Placeholder)</p>\n" .
+                "<!-- /wp:paragraph -->\n" .
+                "<!-- wp:paragraph {\"fontSize\":\"small\"} -->\n" .
+                "<p class=\"has-small-font-size\" style=\"color:#94a3b8;margin:0 0 10px 0;font-size:12px;line-height:1.6;\">پرامپت پیشنهادی تصویر برای هوش مصنوعی:</p>\n" .
+                "<!-- /wp:paragraph -->\n" .
+                "<!-- wp:code -->\n" .
+                $prompt_html . "\n" .
+                "<!-- /wp:code -->\n" .
+                "</div>\n<!-- /wp:group -->\n";
+        }, $content);
 
         // 6. Append FAQ Accordion + FAQPage JSON-LD Schema (Option A - Gutenberg Valid Format)
         if (is_array($faq) && !empty($faq)) {
@@ -2259,13 +1363,45 @@ class Rest_Controller {
         update_post_meta($post_id, '_ai_seo_title', $seo_title);
         update_post_meta($post_id, '_ai_seo_desc', $seo_desc);
 
-        // 9. Save Special Meta (Image prompts, FAQ data, Mode tag)
-        if (is_array($image_prompts) && !empty($image_prompts)) {
+        // 9. Save Special Meta (Image prompts, Diagram prompt, Featured image prompt, FAQ data, Mode tag)
+        if (!empty($featured_image_prompt)) {
+            update_post_meta($post_id, '_omni_ai_featured_image_prompt', $featured_image_prompt);
+        }
+        if (!empty($diagram_prompt)) {
+            update_post_meta($post_id, '_omni_ai_diagram_prompt', $diagram_prompt);
+        }
+        if (!empty($image_prompts)) {
+            update_post_meta($post_id, '_omni_ai_image_prompts', array_values($image_prompts));
             update_post_meta($post_id, '_ai_image_prompts', array_values($image_prompts));
         }
         if (is_array($faq) && !empty($faq)) {
             update_post_meta($post_id, '_ai_faq_data', array_values($faq));
         }
+
+        // 9b. Save Related Tools for Headless Blog and Dynamic Tool Synchronizer
+        $raw_related_tools = $data['related_tools'] ?? $data['tools'] ?? $data['ابزارهای_مرتبط'] ?? [];
+        $related_tool_slugs = [];
+        if (is_array($raw_related_tools)) {
+            foreach ($raw_related_tools as $t) {
+                if (is_string($t) && trim($t) !== '') {
+                    $related_tool_slugs[] = sanitize_title(trim($t));
+                } elseif (is_array($t) && !empty($t['slug'])) {
+                    $related_tool_slugs[] = sanitize_title(trim($t['slug']));
+                }
+            }
+        }
+        if (!empty($related_tool_slugs)) {
+            update_post_meta($post_id, '_zebracode_blog_ai_related_tools', array_values(array_unique($related_tool_slugs)));
+        }
+
+        // 9c. Save Per-Post Disable Ads Flag
+        $disable_ads = !empty($data['disable_ads']) || !empty($params['disable_ads']);
+        if ($disable_ads) {
+            update_post_meta($post_id, '_omni_ai_disable_ads', 1);
+        } else {
+            delete_post_meta($post_id, '_omni_ai_disable_ads');
+        }
+
         update_post_meta($post_id, '_omni_ai_generated', 1);
         update_post_meta($post_id, '_omni_article_import_mode', 'manual_json');
 
@@ -2279,105 +1415,62 @@ class Rest_Controller {
             is_array($image_prompts) ? count($image_prompts) : 0
         );
 
+        // 11. If linked to content calendar, automatically mark item as completed
+        $calendar_item_id = sanitize_text_field($params['calendar_item_id'] ?? '');
+        self::mark_calendar_item_completed($calendar_item_id, $post_id, $title);
+
+        // 12. If auto_deploy_staging is enabled, automatically trigger staging build
+        $auto_deploy_result = null;
+        $cicd_settings = self::get_cicd_settings();
+        if (!empty($cicd_settings['auto_deploy_staging']) && !empty($cicd_settings['github_repo']) && !empty($cicd_settings['github_token'])) {
+            $auto_deploy_result = self::trigger_github_workflow('staging', 'Auto-deploy after article #' . $post_id . ' created: ' . mb_substr($title, 0, 30));
+        }
+
         $edit_url = get_edit_post_link($post_id, 'raw');
         $preview_url = get_preview_post_link($post_id);
 
+        $success_msg = __('مقاله با موفقیت ایجاد و ذخیره شد.', 'omni-ai-suite');
+        if ($auto_deploy_result && !empty($auto_deploy_result['success'])) {
+            $success_msg .= ' ' . __('(بیلد استیجینگ وبلاگ در گیت‌هاب اکشنز به صورت خودکار آغاز شد 🚀)', 'omni-ai-suite');
+        }
+
         return new \WP_REST_Response([
-            'success'        => true,
-            'post_id'        => $post_id,
-            'title'          => $title,
-            'slug'           => $english_slug,
-            'seo_title'      => $seo_title,
-            'seo_desc'       => $seo_desc,
-            'image_prompts'  => is_array($image_prompts) ? array_values($image_prompts) : [],
-            'faq_count'      => is_array($faq) ? count($faq) : 0,
-            'detected_seo'   => $detected_seo,
-            'edit_url'       => $edit_url ?: admin_url('post.php?post=' . $post_id . '&action=edit'),
-            'preview_url'    => $preview_url ?: home_url('/?p=' . $post_id . '&preview=true'),
-            'message'        => __('مقاله با موفقیت به صورت پیش‌نویس با تنظیمات سئو، سوالات متداول و پرامپت‌های تصویر ذخیره شد.', 'omni-ai-suite'),
+            'success'               => true,
+            'post_id'               => $post_id,
+            'title'                 => $title,
+            'slug'                  => $english_slug,
+            'seo_title'             => $seo_title,
+            'seo_desc'              => $seo_desc,
+            'featured_image_prompt' => $featured_image_prompt,
+            'diagram_prompt'        => $diagram_prompt,
+            'image_prompts'         => is_array($image_prompts) ? array_values($image_prompts) : [],
+            'faq_count'             => is_array($faq) ? count($faq) : 0,
+            'detected_seo'          => $detected_seo,
+            'edit_url'              => $edit_url ?: admin_url('post.php?post=' . $post_id . '&action=edit'),
+            'preview_url'           => $preview_url ?: home_url('/?p=' . $post_id . '&preview=true'),
+            'auto_deploy'           => $auto_deploy_result,
+            'message'               => $success_msg,
         ], 200);
     }
 
     /**
-     * Render raw Mermaid diagram code to a high-quality SVG image block.
+     * Render raw Mermaid diagram code to styled Gutenberg callout (no external sideloading).
      *
      * @param string $inner_mermaid
      * @return string
      */
     public static function render_mermaid_code_to_image_block(string $inner_mermaid): string {
-        $inner_mermaid = trim(html_entity_decode(strip_tags($inner_mermaid), ENT_QUOTES, 'UTF-8'));
-        if (empty($inner_mermaid)) {
-            return '';
-        }
-
-        $json_payload = wp_json_encode([
-            'code' => $inner_mermaid,
-            'mermaid' => [
-                'theme' => 'base',
-                'themeVariables' => [
-                    'fontFamily'         => 'Vazirmatn, Tahoma, system-ui, sans-serif',
-                    'fontSize'           => '14px',
-                    'primaryColor'       => '#eef2ff',
-                    'primaryTextColor'   => '#1e1b4b',
-                    'primaryBorderColor' => '#6366f1',
-                    'lineColor'          => '#4f46e5',
-                    'secondaryColor'     => '#ecfdf5',
-                    'tertiaryColor'      => '#f8fafc',
-                    'background'         => '#ffffff',
-                    'mainBkg'            => '#f8fafc',
-                    'nodeBorder'         => '#6366f1',
-                    'clusterBkg'         => '#f1f5f9',
-                    'clusterBorder'      => '#cbd5e1',
-                ],
-            ],
-        ], JSON_UNESCAPED_UNICODE);
-
-        $base64 = rtrim(strtr(base64_encode($json_payload), '+/', '-_'), '=');
-        $external_url = "https://mermaid.ink/svg/" . $base64;
-        $local_url = $external_url;
-
-        // Try to download and store SVG locally in WordPress uploads
-        $response = wp_remote_get($external_url, ['timeout' => 12]);
-        if (!is_wp_error($response) && wp_remote_retrieve_response_code($response) === 200) {
-            $svg_content = wp_remote_retrieve_body($response);
-            if (!empty($svg_content) && str_contains($svg_content, '<svg')) {
-                $upload_dir = wp_upload_dir();
-                $target_dir = $upload_dir['basedir'] . '/omni-ai-diagrams';
-                if (wp_mkdir_p($target_dir)) {
-                    $filename = 'diagram-' . md5($base64) . '.svg';
-                    if (file_put_contents($target_dir . '/' . $filename, $svg_content)) {
-                        $local_url = $upload_dir['baseurl'] . '/omni-ai-diagrams/' . $filename;
-                    }
-                }
-            }
-        }
-
-        return "\n<!-- wp:image {\"align\":\"center\"} -->\n<figure class=\"wp-block-image aligncenter\"><img src=\"" . esc_url($local_url) . "\" alt=\"نمودار فرایند\"/></figure>\n<!-- /wp:image -->\n";
+        return Markdown_Parser::render_diagram_placeholder_block($inner_mermaid);
     }
 
     /**
-     * Search and convert all Mermaid occurrences in content to visual SVG image blocks.
+     * Search and convert all Mermaid occurrences in content to Gutenberg diagram placeholder blocks.
      *
      * @param string $content
      * @return string
      */
     public static function convert_all_mermaid_in_content(string $content): string {
-        // 1. Match HTML tags: <code class="...mermaid...">...</code> or <pre class="...mermaid...">...
-        $content = preg_replace_callback('/<(?:pre|code|div)[^>]*class=[\'"][^\'"]*mermaid[^\'"]*[\'"][^>]*>([\s\S]*?)<\/(?:pre|code|div)>/iu', function ($m) {
-            return self::render_mermaid_code_to_image_block($m[1]);
-        }, $content);
-
-        // 2. Match Markdown code blocks: ```mermaid ... ```
-        $content = preg_replace_callback('/```(?:mermaid)?[\r\n]+((?:flowchart|graph|sequenceDiagram|mindmap|classDiagram|timeline)[\s\S]*?)```/iu', function ($m) {
-            return self::render_mermaid_code_to_image_block($m[1]);
-        }, $content);
-
-        // 3. Match generic code blocks containing mermaid flowchart/sequence/mindmap
-        $content = preg_replace_callback('/<code[^>]*>[\s\r\n]*((?:flowchart|graph|sequenceDiagram|mindmap|classDiagram)\s+[\s\S]*?)<\/code>/iu', function ($m) {
-            return self::render_mermaid_code_to_image_block($m[1]);
-        }, $content);
-
-        return $content;
+        return Markdown_Parser::convert_all_mermaid_in_content($content);
     }
 
     /**
@@ -2576,252 +1669,1090 @@ class Rest_Controller {
     }
 
     public function handle_get_post_seo(\WP_REST_Request $request): \WP_REST_Response {
-        $post_id = (int) $request->get_param('id');
-        $post = get_post($post_id);
-        if (!$post) {
-            return new \WP_REST_Response(['success' => false, 'message' => 'Post not found'], 404);
-        }
-
-        $focus_kw = (string) get_post_meta($post_id, '_omni_ai_focus_keyword', true);
-        if (empty($focus_kw)) $focus_kw = (string) get_post_meta($post_id, 'rank_math_focus_keyword', true);
-        if (empty($focus_kw)) $focus_kw = (string) get_post_meta($post_id, '_yoast_wpseo_focuskw', true);
-
-        $seo_title = (string) get_post_meta($post_id, '_omni_ai_seo_title', true);
-        if (empty($seo_title)) $seo_title = (string) get_post_meta($post_id, 'rank_math_title', true);
-        if (empty($seo_title)) $seo_title = (string) get_post_meta($post_id, '_yoast_wpseo_title', true);
-        if (empty($seo_title)) $seo_title = $post->post_title;
-
-        $meta_desc = (string) get_post_meta($post_id, '_omni_ai_meta_description', true);
-        if (empty($meta_desc)) $meta_desc = (string) get_post_meta($post_id, 'rank_math_description', true);
-        if (empty($meta_desc)) $meta_desc = (string) get_post_meta($post_id, '_yoast_wpseo_metadesc', true);
-
-        $canonical = (string) get_post_meta($post_id, '_omni_ai_canonical_url', true);
-        if (empty($canonical)) $canonical = (string) get_post_meta($post_id, 'rank_math_canonical_url', true);
-        if (empty($canonical)) $canonical = get_permalink($post_id);
-
-        $noindex   = get_post_meta($post_id, '_omni_ai_noindex', true) === '1';
-        $nofollow  = get_post_meta($post_id, '_omni_ai_nofollow', true) === '1';
-
-        $og_title = (string) get_post_meta($post_id, '_omni_ai_og_title', true) ?: (string) get_post_meta($post_id, 'rank_math_facebook_title', true) ?: $seo_title;
-        $og_desc  = (string) get_post_meta($post_id, '_omni_ai_og_description', true) ?: (string) get_post_meta($post_id, 'rank_math_facebook_description', true) ?: $meta_desc;
-        $og_image = (string) get_post_meta($post_id, '_omni_ai_og_image', true) ?: (string) get_post_meta($post_id, 'rank_math_facebook_image', true);
-        if (empty($og_image) && has_post_thumbnail($post_id)) {
-            $og_image = (string) get_the_post_thumbnail_url($post_id, 'large');
-        }
-
-        $twitter_title = (string) get_post_meta($post_id, '_omni_ai_twitter_title', true) ?: (string) get_post_meta($post_id, 'rank_math_twitter_title', true) ?: $og_title;
-        $twitter_desc  = (string) get_post_meta($post_id, '_omni_ai_twitter_description', true) ?: (string) get_post_meta($post_id, 'rank_math_twitter_description', true) ?: $og_desc;
-        $twitter_image = (string) get_post_meta($post_id, '_omni_ai_twitter_image', true) ?: (string) get_post_meta($post_id, 'rank_math_twitter_image', true) ?: $og_image;
-
-        $schema_type   = (string) get_post_meta($post_id, '_omni_ai_schema_type', true) ?: 'article';
-        $review_item   = (string) get_post_meta($post_id, '_omni_ai_review_item', true) ?: $post->post_title;
-        $review_rating = (float) (get_post_meta($post_id, '_omni_ai_review_rating', true) ?: 5.0);
-        $howto_data    = get_post_meta($post_id, '_omni_ai_howto_data', true);
-
-        $ranking = [];
-        if (class_exists('\\OmniAI\\Modules\\Ranking_Module')) {
-            $ranking_mod = new \OmniAI\Modules\Ranking_Module();
-            $ranking = $ranking_mod->get_post_ranking($post_id);
-        }
-
-        return new \WP_REST_Response([
-            'success' => true,
-            'data'    => [
-                'id'                  => $post_id,
-                'title'               => $post->post_title,
-                'slug'                => $post->post_name,
-                'focus_keyword'       => $focus_kw,
-                'seo_title'           => $seo_title,
-                'meta_description'    => $meta_desc,
-                'canonical_url'       => $canonical,
-                'is_noindex'          => $noindex,
-                'is_nofollow'         => $nofollow,
-                'og_title'            => $og_title,
-                'og_description'      => $og_desc,
-                'og_image'            => $og_image,
-                'twitter_title'       => $twitter_title,
-                'twitter_description' => $twitter_desc,
-                'twitter_image'       => $twitter_image,
-                'schema_type'         => $schema_type,
-                'review_item'         => $review_item,
-                'review_rating'       => $review_rating,
-                'howto_data'          => $howto_data,
-                'ranking'             => $ranking,
-            ],
-        ], 200);
+        return (new Headless_Controller())->handle_get_post_seo($request);
     }
 
     public function handle_update_post_seo(\WP_REST_Request $request): \WP_REST_Response {
-        $post_id = (int) $request->get_param('id');
-        $post = get_post($post_id);
-        if (!$post) {
-            return new \WP_REST_Response(['success' => false, 'message' => 'Post not found'], 404);
-        }
-
-        $params = $request->get_json_params() ?: $request->get_params();
-
-        if (isset($params['focus_keyword'])) {
-            $kw = sanitize_text_field($params['focus_keyword']);
-            update_post_meta($post_id, '_omni_ai_focus_keyword', $kw);
-            update_post_meta($post_id, 'rank_math_focus_keyword', $kw);
-            update_post_meta($post_id, '_yoast_wpseo_focuskw', $kw);
-        }
-
-        if (isset($params['seo_title'])) {
-            $st = sanitize_text_field($params['seo_title']);
-            update_post_meta($post_id, '_omni_ai_seo_title', $st);
-            update_post_meta($post_id, 'rank_math_title', $st);
-            update_post_meta($post_id, '_yoast_wpseo_title', $st);
-        }
-
-        if (isset($params['meta_description'])) {
-            $md = sanitize_textarea_field($params['meta_description']);
-            update_post_meta($post_id, '_omni_ai_meta_description', $md);
-            update_post_meta($post_id, 'rank_math_description', $md);
-            update_post_meta($post_id, '_yoast_wpseo_metadesc', $md);
-        }
-
-        if (isset($params['canonical_url'])) {
-            $cu = esc_url_raw($params['canonical_url']);
-            update_post_meta($post_id, '_omni_ai_canonical_url', $cu);
-            update_post_meta($post_id, 'rank_math_canonical_url', $cu);
-            update_post_meta($post_id, '_yoast_wpseo_canonical', $cu);
-        }
-
-        if (isset($params['is_noindex']) || isset($params['noindex'])) {
-            $val = (!empty($params['is_noindex']) || !empty($params['noindex'])) ? '1' : '0';
-            update_post_meta($post_id, '_omni_ai_noindex', $val);
-        }
-
-        if (isset($params['is_nofollow']) || isset($params['nofollow'])) {
-            $val = (!empty($params['is_nofollow']) || !empty($params['nofollow'])) ? '1' : '0';
-            update_post_meta($post_id, '_omni_ai_nofollow', $val);
-        }
-
-        // Social / OpenGraph / Twitter metadata
-        if (isset($params['og_title'])) {
-            $val = sanitize_text_field($params['og_title']);
-            update_post_meta($post_id, '_omni_ai_og_title', $val);
-            update_post_meta($post_id, 'rank_math_facebook_title', $val);
-            update_post_meta($post_id, '_yoast_wpseo_opengraph-title', $val);
-        }
-        if (isset($params['og_description'])) {
-            $val = sanitize_textarea_field($params['og_description']);
-            update_post_meta($post_id, '_omni_ai_og_description', $val);
-            update_post_meta($post_id, 'rank_math_facebook_description', $val);
-            update_post_meta($post_id, '_yoast_wpseo_opengraph-description', $val);
-        }
-        if (isset($params['og_image'])) {
-            $val = esc_url_raw($params['og_image']);
-            update_post_meta($post_id, '_omni_ai_og_image', $val);
-            update_post_meta($post_id, 'rank_math_facebook_image', $val);
-            update_post_meta($post_id, '_yoast_wpseo_opengraph-image', $val);
-        }
-        if (isset($params['twitter_title'])) {
-            $val = sanitize_text_field($params['twitter_title']);
-            update_post_meta($post_id, '_omni_ai_twitter_title', $val);
-            update_post_meta($post_id, 'rank_math_twitter_title', $val);
-            update_post_meta($post_id, '_yoast_wpseo_twitter-title', $val);
-        }
-        if (isset($params['twitter_description'])) {
-            $val = sanitize_textarea_field($params['twitter_description']);
-            update_post_meta($post_id, '_omni_ai_twitter_description', $val);
-            update_post_meta($post_id, 'rank_math_twitter_description', $val);
-            update_post_meta($post_id, '_yoast_wpseo_twitter-description', $val);
-        }
-        if (isset($params['twitter_image'])) {
-            $val = esc_url_raw($params['twitter_image']);
-            update_post_meta($post_id, '_omni_ai_twitter_image', $val);
-            update_post_meta($post_id, 'rank_math_twitter_image', $val);
-            update_post_meta($post_id, '_yoast_wpseo_twitter-image', $val);
-        }
-
-        // Schema & Structured Data
-        if (isset($params['schema_type'])) {
-            $st = sanitize_text_field($params['schema_type']);
-            update_post_meta($post_id, '_omni_ai_schema_type', in_array($st, ['article', 'howto', 'review', 'faq', 'none'], true) ? $st : 'article');
-        }
-        if (isset($params['review_item'])) {
-            update_post_meta($post_id, '_omni_ai_review_item', sanitize_text_field($params['review_item']));
-        }
-        if (isset($params['review_rating'])) {
-            update_post_meta($post_id, '_omni_ai_review_rating', max(1.0, min(5.0, (float) $params['review_rating'])));
-        }
-        if (isset($params['howto_data'])) {
-            update_post_meta($post_id, '_omni_ai_howto_data', is_array($params['howto_data']) ? $params['howto_data'] : []);
-        }
-
-        $ranking = [];
-        if (class_exists('\\OmniAI\\Modules\\Ranking_Module')) {
-            $ranking_mod = new \OmniAI\Modules\Ranking_Module();
-            $ranking = $ranking_mod->analyze_and_save_post($post_id);
-        }
-
-        return new \WP_REST_Response([
-            'success' => true,
-            'message' => 'SEO metadata updated successfully.',
-            'data'    => [
-                'id'      => $post_id,
-                'ranking' => $ranking,
-            ],
-        ], 200);
+        return (new Headless_Controller())->handle_update_post_seo($request);
     }
 
     public function handle_generate_seo_snippet(\WP_REST_Request $request): \WP_REST_Response {
-        $params = $request->get_json_params() ?: $request->get_params();
-        $post_id = (int) ($params['post_id'] ?? 0);
-        $focus_kw = sanitize_text_field($params['focus_keyword'] ?? '');
-        $title = sanitize_text_field($params['title'] ?? '');
-        $content = wp_strip_all_tags($params['content'] ?? '');
+        return (new Headless_Controller())->handle_generate_seo_snippet($request);
+    }
 
-        if ($post_id > 0) {
-            $post = get_post($post_id);
-            if ($post) {
-                if (empty($title)) $title = $post->post_title;
-                if (empty($content)) $content = wp_strip_all_tags($post->post_content);
-                if (empty($focus_kw)) {
-                    $focus_kw = (string) get_post_meta($post_id, '_omni_ai_focus_keyword', true);
-                    if (empty($focus_kw)) $focus_kw = (string) get_post_meta($post_id, 'rank_math_focus_keyword', true);
+    /**
+     * Normalize a title or focus keyword for anti-duplication & cannibalization checks.
+     */
+    public static function normalize_dedup_string(string $str): string {
+        $str = mb_strtolower(trim($str), 'UTF-8');
+        // Unify Persian / Arabic letter variants and zero-width spaces
+        $str = str_replace(
+            ['ي', 'ك', 'ة', 'ۀ', '‌', '‏', "\xE2\x80\x8C", "\xE2\x80\x8F"],
+            ['ی', 'ک', 'ه', 'ه', ' ', ' ', ' ', ' '],
+            $str
+        );
+        // Replace common punctuation with a single space
+        $str = preg_replace('/[[:punct:]\x{060C}\x{061B}\x{061F}\x{0640}]+/u', ' ', $str);
+        // Collapse multiple whitespace
+        $str = preg_replace('/\s+/u', ' ', $str);
+        return trim($str);
+    }
+
+    /**
+     * Get existing posts and content calendar topics for AI context and deduplication.
+     */
+    public static function get_existing_posts_and_topics(): array {
+        $existing = [];
+        $seen = [];
+
+        // 1. Fetch latest 100 WordPress posts
+        if (function_exists('get_posts')) {
+            $posts = get_posts([
+                'post_type'      => 'post',
+                'post_status'    => ['publish', 'draft', 'future', 'pending'],
+                'posts_per_page' => 100,
+                'orderby'        => 'date',
+                'order'          => 'DESC',
+            ]);
+            if (is_array($posts)) {
+                foreach ($posts as $p) {
+                    $t = trim($p->post_title ?? '');
+                    if (empty($t)) continue;
+                    $norm = self::normalize_dedup_string($t);
+                    if (isset($seen[$norm])) continue;
+                    $seen[$norm] = true;
+
+                    $kw = get_post_meta($p->ID, '_omni_ai_focus_keyword', true);
+                    if (empty($kw)) {
+                        $kw = get_post_meta($p->ID, '_yoast_wpseo_focuskw', true)
+                           ?: get_post_meta($p->ID, 'rank_math_focus_keyword', true);
+                    }
+
+                    $existing[] = [
+                        'id'      => $p->ID,
+                        'title'   => $t,
+                        'keyword' => !empty($kw) ? sanitize_text_field((string)$kw) : '',
+                        'source'  => 'post',
+                        'status'  => $p->post_status,
+                    ];
                 }
             }
         }
 
-        $excerpt = mb_substr($content, 0, 1500, 'UTF-8');
+        // 2. Fetch current content calendar topics
+        $calendar = get_option('omni_ai_content_calendar', []);
+        if (is_array($calendar)) {
+            foreach ($calendar as $cal_item) {
+                $t = trim($cal_item['title'] ?? '');
+                if (empty($t)) continue;
+                $norm = self::normalize_dedup_string($t);
+                if (isset($seen[$norm])) continue;
+                $seen[$norm] = true;
 
-        $prompt = "با توجه به عنوان و محتوای زیر، یک عنوان سئو جذاب (بین ۴۰ تا ۶۰ کاراکتر) و یک توضیحات متای استاندارد و ترغیب‌کننده برای جذب کلیک در سرچ گوگل (بین ۱۲۰ تا ۱۵۵ کاراکتر) تولید کن.\n"
-            . (!empty($focus_kw) ? "کلمه کلیدی کانونی: {$focus_kw}\n(بسیار مهم: حتماً کلمه کلیدی را در ابتدای عنوان و در توضیحات متا به کار ببر)\n" : "")
-            . "عنوان فعلی: {$title}\n"
-            . "خلاصه محتوا: {$excerpt}\n\n"
-            . "پاسخ را دقیقاً و فقط به فرمت JSON بدون هیچ توضیح اضافی یا کدبلاک ارسال کن:\n"
-            . "{\"seo_title\": \"عنوان سئو\", \"meta_description\": \"توضیحات متای بهینه\", \"focus_keyword\": \"{$focus_kw}\"}";
-
-        $provider_id = sanitize_text_field($params['provider'] ?? '');
-        $provider = !empty($provider_id) ? Provider_Factory::get_provider($provider_id) : Provider_Factory::get_default();
-        if (!$provider) {
-            return new \WP_REST_Response(['success' => false, 'message' => 'No active AI provider configured.'], 400);
+                $existing[] = [
+                    'id'      => $cal_item['id'] ?? null,
+                    'title'   => $t,
+                    'keyword' => sanitize_text_field((string)($cal_item['focus_keyword'] ?? '')),
+                    'source'  => 'calendar',
+                    'status'  => $cal_item['status'] ?? 'planned',
+                ];
+            }
         }
 
-        try {
-            $response = $provider->generate($prompt, ['max_tokens' => 500, 'temperature' => 0.4]);
-            $text = trim($response['text'] ?? '');
-            $text = preg_replace('/^```(?:json)?\s*/i', '', $text);
-            $text = preg_replace('/\s*```$/i', '', $text);
-            $json = json_decode($text, true);
+        return $existing;
+    }
 
-            if (!is_array($json) || empty($json['seo_title'])) {
-                return new \WP_REST_Response(['success' => false, 'message' => 'Invalid AI response.', 'raw' => $text], 500);
+    /**
+     * Get content calendar items. Seeds with 12 high-traffic developer topics if empty.
+     */
+    public function handle_get_calendar(\WP_REST_Request $request): \WP_REST_Response {
+        $calendar = get_option('omni_ai_content_calendar', null);
+        if (empty($calendar) || !is_array($calendar)) {
+            $calendar = self::get_default_calendar_topics();
+            update_option('omni_ai_content_calendar', $calendar);
+        }
+
+        $wp_categories = get_categories(['hide_empty' => false]);
+        $cat_list = [];
+        if (is_array($wp_categories)) {
+            $has_other_cats = count($wp_categories) > 1;
+            foreach ($wp_categories as $c) {
+                $raw_slug = (string) $c->slug;
+                $decoded_slug = urldecode($raw_slug);
+                $clean_name = html_entity_decode($c->name, ENT_QUOTES, 'UTF-8');
+                if ($has_other_cats && in_array(strtolower($raw_slug), ['uncategorized', 'uncategorised', '%d8%af%d8%b3%d8%aa%d9%87%e2%80%8c%d8%a8%d9%86%d8%af%db%8c-%d9%86%d8%b4%d8%af%d9%87'], true)) {
+                    continue;
+                }
+                if ($has_other_cats && in_array($clean_name, ['دسته‌بندی نشده', 'دسته بندی نشده', 'Uncategorized'], true)) {
+                    continue;
+                }
+                $cat_list[] = [
+                    'id'          => (int) $c->term_id,
+                    'slug'        => $decoded_slug,
+                    'name'        => $clean_name,
+                    'count'       => (int) $c->count,
+                    'description' => html_entity_decode((string) $c->description, ENT_QUOTES, 'UTF-8'),
+                ];
             }
+        }
+
+        return new \WP_REST_Response([
+            'success'         => true,
+            'items'           => array_values($calendar),
+            'categories'      => $cat_list,
+            'existing_topics' => self::get_existing_posts_and_topics(),
+        ], 200, [
+            'Access-Control-Allow-Origin' => '*',
+            'Content-Type'                => 'application/json; charset=utf-8',
+        ]);
+    }
+
+    /**
+     * Save / update content calendar items.
+     */
+    public function handle_save_calendar(\WP_REST_Request $request): \WP_REST_Response {
+        $params = $request->get_json_params() ?: $request->get_params();
+        $action = sanitize_text_field($params['action'] ?? 'save');
+        $items = get_option('omni_ai_content_calendar', []);
+        if (!is_array($items)) {
+            $items = [];
+        }
+
+        if ($action === 'reset') {
+            $items = self::get_default_calendar_topics();
+            update_option('omni_ai_content_calendar', $items);
+            return new \WP_REST_Response([
+                'success' => true,
+                'items'   => $items,
+                'message' => __('تقویم با موضوعات استاندارد بازنشانی شد.', 'omni-ai-suite'),
+            ], 200);
+        }
+
+        if ($action === 'delete') {
+            $id = sanitize_text_field($params['id'] ?? '');
+            $items = array_values(array_filter($items, function ($it) use ($id) {
+                return (string) ($it['id'] ?? '') !== (string) $id;
+            }));
+            update_option('omni_ai_content_calendar', $items);
+            return new \WP_REST_Response([
+                'success' => true,
+                'items'   => $items,
+                'message' => __('موضوع با موفقیت حذف شد.', 'omni-ai-suite'),
+            ], 200);
+        }
+
+        if ($action === 'toggle_status') {
+            $id = sanitize_text_field($params['id'] ?? '');
+            foreach ($items as &$it) {
+                if ((string) ($it['id'] ?? '') === (string) $id) {
+                    $it['status'] = ($it['status'] ?? 'planned') === 'completed' ? 'planned' : 'completed';
+                    break;
+                }
+            }
+            unset($it);
+            update_option('omni_ai_content_calendar', $items);
+            return new \WP_REST_Response([
+                'success' => true,
+                'items'   => $items,
+                'message' => __('وضعیت موضوع به‌روزرسانی شد.', 'omni-ai-suite'),
+            ], 200);
+        }
+
+        if ($action === 'add') {
+            $item = is_array($params['item'] ?? null) ? $params['item'] : [];
+            $title = trim($item['title'] ?? '');
+            if (empty($title)) {
+                return new \WP_REST_Response([
+                    'success' => false,
+                    'message' => __('عنوان موضوع الزامی است.', 'omni-ai-suite'),
+                ], 400);
+            }
+
+            $kw = trim($item['focus_keyword'] ?? '');
+            $norm_title = self::normalize_dedup_string($title);
+            $norm_kw = self::normalize_dedup_string($kw);
+
+            // Layer 2: Check for duplicates in existing calendar items
+            foreach ($items as $existing_item) {
+                $exist_norm_t = self::normalize_dedup_string($existing_item['title'] ?? '');
+                if (!empty($norm_title) && $exist_norm_t === $norm_title) {
+                    return new \WP_REST_Response([
+                        'success' => false,
+                        'message' => sprintf(__('موضوعی با عنوان مشابه («%s») قبلاً در تقویم ثبت شده است.', 'omni-ai-suite'), $existing_item['title']),
+                    ], 400);
+                }
+                if (!empty($norm_kw) && !empty($existing_item['focus_keyword'])) {
+                    if (self::normalize_dedup_string($existing_item['focus_keyword']) === $norm_kw) {
+                        return new \WP_REST_Response([
+                            'success' => false,
+                            'message' => sprintf(__('کلمه کلیدی «%s» قبلاً در موضوع «%s» تقویم استفاده شده است.', 'omni-ai-suite'), $kw, $existing_item['title']),
+                        ], 400);
+                    }
+                }
+            }
+
+            // Layer 2: Check for duplicates in WordPress posts
+            global $wpdb;
+            if ($wpdb) {
+                $post_match = $wpdb->get_row($wpdb->prepare(
+                    "SELECT ID, post_title FROM {$wpdb->posts} WHERE post_title = %s AND post_type = 'post' AND post_status IN ('publish', 'draft', 'pending', 'future') LIMIT 1",
+                    $title
+                ));
+                if ($post_match) {
+                    return new \WP_REST_Response([
+                        'success' => false,
+                        'message' => sprintf(__('مقاله‌ای با این عنوان دقیق قبلاً در سایت منتشر یا پیش‌نویس شده است (نوشته #%d).', 'omni-ai-suite'), $post_match->ID),
+                    ], 400);
+                }
+                if (!empty($kw)) {
+                    $meta_match = $wpdb->get_var($wpdb->prepare(
+                        "SELECT post_id FROM {$wpdb->postmeta} WHERE meta_key = '_omni_ai_focus_keyword' AND meta_value = %s LIMIT 1",
+                        $kw
+                    ));
+                    if ($meta_match) {
+                        return new \WP_REST_Response([
+                            'success' => false,
+                            'message' => sprintf(__('کلمه کلیدی «%s» قبلاً در نوشته #%d سایت به کار رفته است.', 'omni-ai-suite'), $kw, $meta_match),
+                        ], 400);
+                    }
+                }
+            }
+
+            $slot_val = sanitize_text_field($item['day_slot'] ?? $item['week'] ?? ('روز ' . (count($items) + 1)));
+            $new_item = [
+                'id'            => 'cal_' . time() . '_' . wp_rand(100, 999),
+                'day_slot'      => $slot_val,
+                'week'          => $slot_val,
+                'title'         => sanitize_text_field($title),
+                'focus_keyword' => sanitize_text_field($kw),
+                'category_slug' => sanitize_text_field($item['category_slug'] ?? 'development'),
+                'pillar'        => sanitize_text_field($item['pillar'] ?? 'Tool-Led'),
+                'notes'         => sanitize_textarea_field($item['notes'] ?? ''),
+                'status'        => sanitize_text_field($item['status'] ?? 'planned'),
+                'post_id'       => !empty($item['post_id']) ? intval($item['post_id']) : null,
+            ];
+
+            $items[] = $new_item;
+            update_option('omni_ai_content_calendar', $items);
 
             return new \WP_REST_Response([
                 'success' => true,
-                'data'    => [
-                    'seo_title'        => sanitize_text_field($json['seo_title']),
-                    'meta_description' => sanitize_textarea_field($json['meta_description'] ?? ''),
-                    'focus_keyword'    => sanitize_text_field($json['focus_keyword'] ?? $focus_kw),
+                'items'   => $items,
+                'message' => __('موضوع جدید با موفقیت اضافه شد.', 'omni-ai-suite'),
+            ], 200);
+        }
+
+        if ($action === 'bulk_import') {
+            $raw_items = is_array($params['items'] ?? null) ? $params['items'] : [];
+            $mode = sanitize_text_field($params['mode'] ?? 'append'); // append or replace
+            $imported = [];
+            $skipped_duplicates_count = 0;
+            $counter = ($mode === 'append') ? count($items) + 1 : 1;
+
+            // Collect existing normalized titles and keywords to guard against duplicates
+            $seen_titles = [];
+            $seen_keywords = [];
+
+            if ($mode === 'append') {
+                foreach ($items as $it) {
+                    $t_norm = self::normalize_dedup_string($it['title'] ?? '');
+                    if (!empty($t_norm)) {
+                        $seen_titles[$t_norm] = true;
+                    }
+                    $k_norm = self::normalize_dedup_string($it['focus_keyword'] ?? '');
+                    if (!empty($k_norm)) {
+                        $seen_keywords[$k_norm] = true;
+                    }
+                }
+            }
+
+            // Also check latest 150 published/draft WP posts
+            global $wpdb;
+            if ($wpdb) {
+                $existing_posts = $wpdb->get_results(
+                    "SELECT ID, post_title FROM {$wpdb->posts} WHERE post_type = 'post' AND post_status IN ('publish', 'draft', 'pending', 'future') ORDER BY ID DESC LIMIT 150",
+                    ARRAY_A
+                );
+                if (is_array($existing_posts)) {
+                    foreach ($existing_posts as $ep) {
+                        $p_norm = self::normalize_dedup_string($ep['post_title'] ?? '');
+                        if (!empty($p_norm)) {
+                            $seen_titles[$p_norm] = true;
+                        }
+                    }
+                }
+                $existing_metas = $wpdb->get_col(
+                    "SELECT meta_value FROM {$wpdb->postmeta} WHERE meta_key = '_omni_ai_focus_keyword' ORDER BY meta_id DESC LIMIT 150"
+                );
+                if (is_array($existing_metas)) {
+                    foreach ($existing_metas as $em) {
+                        $m_norm = self::normalize_dedup_string($em);
+                        if (!empty($m_norm)) {
+                            $seen_keywords[$m_norm] = true;
+                        }
+                    }
+                }
+            }
+
+            foreach ($raw_items as $raw) {
+                if (!is_array($raw) || empty(trim($raw['title'] ?? ''))) {
+                    continue;
+                }
+
+                $title = trim($raw['title'] ?? '');
+                $kw = trim($raw['focus_keyword'] ?? '');
+                $norm_t = self::normalize_dedup_string($title);
+                $norm_k = self::normalize_dedup_string($kw);
+
+                // Anti-duplication & Cannibalization check:
+                if (isset($seen_titles[$norm_t]) || (!empty($norm_k) && isset($seen_keywords[$norm_k]))) {
+                    $skipped_duplicates_count++;
+                    continue;
+                }
+
+                $seen_titles[$norm_t] = true;
+                if (!empty($norm_k)) {
+                    $seen_keywords[$norm_k] = true;
+                }
+
+                $slot_val = !empty($raw['day_slot'])
+                    ? sanitize_text_field($raw['day_slot'])
+                    : (!empty($raw['week']) ? sanitize_text_field($raw['week']) : ('روز ' . $counter++));
+
+                $imported[] = [
+                    'id'            => 'cal_' . time() . '_' . wp_rand(100, 99999),
+                    'day_slot'      => $slot_val,
+                    'week'          => $slot_val,
+                    'title'         => sanitize_text_field($title),
+                    'focus_keyword' => sanitize_text_field($kw),
+                    'category_slug' => sanitize_text_field($raw['category_slug'] ?? 'development'),
+                    'pillar'        => sanitize_text_field($raw['pillar'] ?? 'Tool-Led'),
+                    'notes'         => sanitize_textarea_field($raw['notes'] ?? ''),
+                    'status'        => sanitize_text_field($raw['status'] ?? 'planned'),
+                    'post_id'       => !empty($raw['post_id']) ? intval($raw['post_id']) : null,
+                ];
+            }
+
+            $added_count = count($imported);
+
+            if ($mode === 'replace') {
+                $items = $imported;
+            } else {
+                $items = array_merge($items, $imported);
+            }
+            update_option('omni_ai_content_calendar', $items);
+
+            $msg = '';
+            if ($added_count > 0 && $skipped_duplicates_count > 0) {
+                $msg = sprintf(__('%d موضوع جدید به تقویم افزوده شد (%d موضوع تکراری جهت جلوگیری از Cannibalization حذف گردید).', 'omni-ai-suite'), $added_count, $skipped_duplicates_count);
+            } elseif ($added_count > 0) {
+                $msg = sprintf(__('%d موضوع با موفقیت به تقویم اضافه شد.', 'omni-ai-suite'), $added_count);
+            } else {
+                $msg = sprintf(__('هیچ موضوع جدیدی اضافه نشد؛ هر %d موضوع ارسالی به دلیل تکراری بودن در سایت یا تقویم حذف شدند.', 'omni-ai-suite'), $skipped_duplicates_count);
+            }
+
+            return new \WP_REST_Response([
+                'success'                  => $added_count > 0,
+                'items'                    => $items,
+                'added_count'              => $added_count,
+                'skipped_duplicates_count' => $skipped_duplicates_count,
+                'message'                  => $msg,
+            ], 200);
+        }
+
+        // Default 'save' action: save array of items directly
+        if (isset($params['items']) && is_array($params['items'])) {
+            $clean_items = [];
+            foreach ($params['items'] as $it) {
+                if (!is_array($it) || empty(trim($it['title'] ?? ''))) {
+                    continue;
+                }
+                $slot_val = sanitize_text_field($it['day_slot'] ?? $it['week'] ?? '');
+                $clean_items[] = [
+                    'id'            => sanitize_text_field($it['id'] ?? ('cal_' . time() . '_' . wp_rand(100, 999))),
+                    'day_slot'      => $slot_val,
+                    'week'          => $slot_val,
+                    'title'         => sanitize_text_field($it['title'] ?? ''),
+                    'focus_keyword' => sanitize_text_field($it['focus_keyword'] ?? ''),
+                    'category_slug' => sanitize_text_field($it['category_slug'] ?? 'development'),
+                    'pillar'        => sanitize_text_field($it['pillar'] ?? 'Tool-Led'),
+                    'notes'         => sanitize_textarea_field($it['notes'] ?? ''),
+                    'status'        => sanitize_text_field($it['status'] ?? 'planned'),
+                    'post_id'       => !empty($it['post_id']) ? intval($it['post_id']) : null,
+                ];
+            }
+            update_option('omni_ai_content_calendar', $clean_items);
+            return new \WP_REST_Response([
+                'success' => true,
+                'items'   => $clean_items,
+                'message' => __('تغییرات تقویم ذخیره شد.', 'omni-ai-suite'),
+            ], 200);
+        }
+
+        return new \WP_REST_Response(['success' => true, 'items' => $items], 200);
+    }
+
+    /**
+     * Public endpoint to get synced tools and configured sitemaps.
+     */
+    public function handle_get_tools(\WP_REST_Request $request): \WP_REST_Response {
+        $tools = \OmniAI\Modules\Tool_Synchronizer::get_synced_tools();
+        $sitemaps = \OmniAI\Modules\Tool_Synchronizer::get_sitemap_urls();
+
+        return new \WP_REST_Response([
+            'success'      => true,
+            'tools'        => $tools,
+            'sitemap_urls' => $sitemaps,
+            'count'        => count($tools),
+        ], 200, [
+            'Access-Control-Allow-Origin' => '*',
+            'Content-Type'                => 'application/json; charset=utf-8',
+        ]);
+    }
+
+    /**
+     * Crawl sitemaps and synchronize developer tools.
+     */
+    public function handle_sync_tools(\WP_REST_Request $request): \WP_REST_Response {
+        $params = $request->get_json_params() ?: $request->get_params();
+        $raw_urls = $params['sitemap_urls'] ?? [];
+
+        if (is_string($raw_urls)) {
+            $raw_urls = preg_split('/[\r\n,]+/', $raw_urls);
+        }
+        if (!is_array($raw_urls)) {
+            $raw_urls = [];
+        }
+
+        $result = \OmniAI\Modules\Tool_Synchronizer::sync_from_sitemaps($raw_urls);
+
+        return new \WP_REST_Response($result, 200, [
+            'Access-Control-Allow-Origin' => '*',
+            'Content-Type'                => 'application/json; charset=utf-8',
+        ]);
+    }
+
+    /**
+     * Manual add, update, delete or bulk save of tools.
+     */
+    public function handle_manage_tools(\WP_REST_Request $request): \WP_REST_Response {
+        $params = $request->get_json_params() ?: $request->get_params();
+        $action = sanitize_text_field($params['action'] ?? 'save_all');
+
+        if ($action === 'delete') {
+            $slug = sanitize_text_field($params['slug'] ?? '');
+            $res = \OmniAI\Modules\Tool_Synchronizer::delete_tool($slug);
+            return new \WP_REST_Response($res, 200);
+        }
+
+        if ($action === 'add' || $action === 'update') {
+            $tool_data = (array) ($params['tool'] ?? $params);
+            $res = \OmniAI\Modules\Tool_Synchronizer::add_or_update_tool($tool_data);
+            return new \WP_REST_Response($res, 200);
+        }
+
+        // save_all
+        $tools = (array) ($params['tools'] ?? []);
+        $res = \OmniAI\Modules\Tool_Synchronizer::save_all_tools($tools);
+
+        return new \WP_REST_Response($res, 200);
+    }
+
+    /**
+     * Get ad campaigns and settings.
+     * Public for frontend; returns full campaigns list in ?mode=admin for editors.
+     */
+    public function handle_get_ads(\WP_REST_Request $request): \WP_REST_Response {
+        $settings = \OmniAI\Modules\Ads_Manager::get_settings();
+        $mode = $request->get_param('mode');
+
+        if ($mode === 'admin' && current_user_can('edit_posts')) {
+            $campaigns = \OmniAI\Modules\Ads_Manager::get_campaigns();
+            return new \WP_REST_Response([
+                'success'   => true,
+                'settings'  => $settings,
+                'campaigns' => $campaigns,
+                'count'     => count($campaigns),
+            ], 200, [
+                'Access-Control-Allow-Origin' => '*',
+                'Content-Type'                => 'application/json; charset=utf-8',
+            ]);
+        }
+
+        // Public frontend delivery
+        $active_ads = \OmniAI\Modules\Ads_Manager::get_active_ads_for_frontend();
+        $head_script = !empty($settings['head_script_enabled']) ? ($settings['global_head_script'] ?? '') : '';
+
+        return new \WP_REST_Response([
+            'success'             => true,
+            'master_enabled'      => (bool) ($settings['master_enabled'] ?? true),
+            'head_script_enabled' => (bool) ($settings['head_script_enabled'] ?? false),
+            'global_head_script'  => $head_script,
+            'placements_status'   => $settings['placements_status'] ?? [],
+            'ads'                 => $active_ads,
+            'count'               => count($active_ads),
+        ], 200, [
+            'Access-Control-Allow-Origin' => '*',
+            'Content-Type'                => 'application/json; charset=utf-8',
+        ]);
+    }
+
+    /**
+     * Manage ad campaigns and settings.
+     */
+    public function handle_manage_ads(\WP_REST_Request $request): \WP_REST_Response {
+        $params = $request->get_json_params() ?: $request->get_params();
+        $action = sanitize_text_field($params['action'] ?? 'save_campaign');
+
+        if ($action === 'delete_campaign') {
+            $id = sanitize_text_field($params['id'] ?? '');
+            $res = \OmniAI\Modules\Ads_Manager::delete_campaign($id);
+            return new \WP_REST_Response($res, 200);
+        }
+
+        if ($action === 'toggle_campaign') {
+            $id = sanitize_text_field($params['id'] ?? '');
+            $active = isset($params['active']) ? (bool) $params['active'] : null;
+            $res = \OmniAI\Modules\Ads_Manager::toggle_campaign($id, $active);
+            return new \WP_REST_Response($res, 200);
+        }
+
+        if ($action === 'reorder_campaigns') {
+            $ids = (array) ($params['ordered_ids'] ?? []);
+            $res = \OmniAI\Modules\Ads_Manager::reorder_campaigns($ids);
+            return new \WP_REST_Response($res, 200);
+        }
+
+        if ($action === 'save_global_settings') {
+            $settings_data = (array) ($params['settings'] ?? $params);
+            $res = \OmniAI\Modules\Ads_Manager::save_settings($settings_data);
+            return new \WP_REST_Response($res, 200);
+        }
+
+        // save_campaign
+        $campaign_data = (array) ($params['campaign'] ?? $params);
+        $res = \OmniAI\Modules\Ads_Manager::save_campaign($campaign_data);
+
+        return new \WP_REST_Response($res, 200);
+    }
+
+    /**
+     * Mark calendar item as completed when an article is published/imported.
+     */
+    public static function mark_calendar_item_completed(string $calendar_item_id, int $post_id, string $title): bool {
+        $items = get_option('omni_ai_content_calendar', []);
+        if (!is_array($items) || empty($items)) {
+            return false;
+        }
+
+        $matched = false;
+        foreach ($items as &$it) {
+            $id_match = !empty($calendar_item_id) && (string) ($it['id'] ?? '') === (string) $calendar_item_id;
+            $title_match = empty($calendar_item_id) && !empty($title) && mb_stripos($title, $it['title'] ?? '') !== false;
+
+            if ($id_match || $title_match) {
+                $it['status'] = 'completed';
+                $it['post_id'] = $post_id;
+                $matched = true;
+                break;
+            }
+        }
+        unset($it);
+
+        if ($matched) {
+            update_option('omni_ai_content_calendar', $items);
+        }
+        return $matched;
+    }
+
+    /**
+     * Seed 12 high-traffic developer topics across core categories, dynamically mapped to existing WordPress categories.
+     */
+    public static function get_default_calendar_topics(): array {
+        // Fetch live categories to map seed category slugs dynamically
+        $wp_categories = get_categories(['hide_empty' => false]);
+        $slug_pool = [];
+        if (is_array($wp_categories)) {
+            $has_other_cats = count($wp_categories) > 1;
+            foreach ($wp_categories as $c) {
+                $raw_slug = (string) $c->slug;
+                $decoded_slug = urldecode($raw_slug);
+                $clean_name = html_entity_decode($c->name, ENT_QUOTES, 'UTF-8');
+                if ($has_other_cats && in_array(strtolower($raw_slug), ['uncategorized', 'uncategorised', '%d8%af%d8%b3%d8%aa%d9%87%e2%80%8c%d8%a8%d9%86%d8%af%db%8c-%d9%86%d8%b4%d8%af%d9%87'], true)) {
+                    continue;
+                }
+                if ($has_other_cats && in_array($clean_name, ['دسته‌بندی نشده', 'دسته بندی نشده', 'Uncategorized'], true)) {
+                    continue;
+                }
+                $slug_pool[] = [
+                    'slug' => $decoded_slug,
+                    'name' => $clean_name,
+                ];
+            }
+        }
+
+        $resolve_cat = function(string $preferred_slug, array $keywords = []) use ($slug_pool): string {
+            if (empty($slug_pool)) {
+                return $preferred_slug;
+            }
+            foreach ($slug_pool as $cat) {
+                if ($cat['slug'] === $preferred_slug) {
+                    return $cat['slug'];
+                }
+            }
+            foreach ($keywords as $kw) {
+                foreach ($slug_pool as $cat) {
+                    if (stripos($cat['slug'], $kw) !== false || stripos($cat['name'], $kw) !== false) {
+                        return $cat['slug'];
+                    }
+                }
+            }
+            return $slug_pool[0]['slug'] ?? $preferred_slug;
+        };
+
+        $cat_tools       = $resolve_cat('tools', ['tool', 'ابزار']);
+        $cat_security    = $resolve_cat('security', ['sec', 'امنیت']);
+        $cat_tech_trends = $resolve_cat('tech-trends', ['tech', 'trend', 'فناوری', 'ترند', 'تازه']);
+        $cat_development = $resolve_cat('development', ['dev', 'توسعه', 'برنامه']);
+        $cat_data        = $resolve_cat('data', ['data', 'داده', 'دیتابیس', 'ساختار']);
+        $cat_network     = $resolve_cat('network', ['net', 'api', 'شبکه', 'وب']);
+
+        return [
+            [
+                'id'            => 'cal_seed_1',
+                'day_slot'      => 'روز ۱ - نوبت ۱ (صبح)',
+                'week'          => 'روز ۱ - نوبت ۱ (صبح)',
+                'title'         => '۱۰ ابزار ضروری و آنلاین برای توسعه‌دهندگان وب در سال ۲۰۲۶',
+                'focus_keyword' => 'ابزارهای آنلاین توسعه دهنده',
+                'category_slug' => $cat_tools,
+                'pillar'        => 'Tool-Led',
+                'notes'         => 'معرفی ابزارهای کاربردی تبدیل فرمت، JSON فرمتر، تست RegEx و ویرایش سریع کد در مرورگر',
+                'status'        => 'planned',
+                'post_id'       => null,
+            ],
+            [
+                'id'            => 'cal_seed_2',
+                'day_slot'      => 'روز ۱ - نوبت ۲ (عصر)',
+                'week'          => 'روز ۱ - نوبت ۲ (عصر)',
+                'title'         => 'چک‌لیست جامع امنیت وب‌سایت‌های مدرن و راه‌های مقابله با آسیب‌پذیری‌های متداول',
+                'focus_keyword' => 'امنیت کاربردی وب',
+                'category_slug' => $cat_security,
+                'pillar'        => 'Problem-Solving',
+                'notes'         => 'بررسی XSS، CSRF، SQL Injection و نحوه تنظیم هدرهای امنیتی Content Security Policy',
+                'status'        => 'planned',
+                'post_id'       => null,
+            ],
+            [
+                'id'            => 'cal_seed_3',
+                'day_slot'      => 'روز ۲ - نوبت ۱ (صبح)',
+                'week'          => 'روز ۲ - نوبت ۱ (صبح)',
+                'title'         => 'ترندها و قابلیت‌های کلیدی اکوسیستم وب و توسعه نرم‌افزار در سال ۲۰۲۶',
+                'focus_keyword' => 'ترندهای توسعه وب ۲۰۲۶',
+                'category_slug' => $cat_tech_trends,
+                'pillar'        => 'Trend',
+                'notes'         => 'بررسی وب‌اسمبلی، استانداردهای جدید مرورگرها، پردازش‌های هوش مصنوعی سمت کلاینت و تحول فرانت‌اند',
+                'status'        => 'planned',
+                'post_id'       => null,
+            ],
+            [
+                'id'            => 'cal_seed_4',
+                'day_slot'      => 'روز ۲ - نوبت ۲ (عصر)',
+                'week'          => 'روز ۲ - نوبت ۲ (عصر)',
+                'title'         => 'مقایسه معماری App Router و Pages Router در Next.js: کدام یک برای سئو بهتر است؟',
+                'focus_keyword' => 'معماری Next.js',
+                'category_slug' => $cat_development,
+                'pillar'        => 'Comparison',
+                'notes'         => 'بررسی Server Components، رندرینگ استاتیک و داینامیک، و بهینه‌سازی سرعت LCP در Next.js',
+                'status'        => 'planned',
+                'post_id'       => null,
+            ],
+            [
+                'id'            => 'cal_seed_5',
+                'day_slot'      => 'روز ۳ - نوبت ۱ (صبح)',
+                'week'          => 'روز ۳ - نوبت ۱ (صبح)',
+                'title'         => 'راهنمای بهینه‌سازی دیتابیس MySQL و PostgreSQL برای وب‌سایت‌های پربازدید',
+                'focus_keyword' => 'بهینه سازی دیتابیس',
+                'category_slug' => $cat_data,
+                'pillar'        => 'Problem-Solving',
+                'notes'         => 'تکنیک‌های ایندکس‌گذاری صحیح، تحلیل Slow Queries و استفاده از استراتژی‌های کشینگ با Redis',
+                'status'        => 'planned',
+                'post_id'       => null,
+            ],
+            [
+                'id'            => 'cal_seed_6',
+                'day_slot'      => 'روز ۳ - نوبت ۲ (عصر)',
+                'week'          => 'روز ۳ - نوبت ۲ (عصر)',
+                'title'         => 'پروتکل HTTP/3 و QUIC چیست و چگونه سرعت سایت را متحول می‌کند؟',
+                'focus_keyword' => 'پروتکل HTTP3',
+                'category_slug' => $cat_network,
+                'pillar'        => 'Trend',
+                'notes'         => 'تفاوت با HTTP/2، نحوه اتصال بر بستر UDP، کاهش تاخیر هندشیک TLS و پیاده‌سازی روی کلودفلر',
+                'status'        => 'planned',
+                'post_id'       => null,
+            ],
+            [
+                'id'            => 'cal_seed_7',
+                'day_slot'      => 'روز ۴ - نوبت ۱ (صبح)',
+                'week'          => 'روز ۴ - نوبت ۱ (صبح)',
+                'title'         => 'راهنمای کار با ابزارهای تبدیل فرمت و بهینه‌سازی تصاویر WebP و AVIF',
+                'focus_keyword' => 'تبدیل تصاویر WebP',
+                'category_slug' => $cat_tools,
+                'pillar'        => 'Tool-Led',
+                'notes'         => 'آموزش کاهش حجم تصاویر بدون افت کیفیت برای بهبود شاخص Core Web Vitals',
+                'status'        => 'planned',
+                'post_id'       => null,
+            ],
+            [
+                'id'            => 'cal_seed_8',
+                'day_slot'      => 'روز ۴ - نوبت ۲ (عصر)',
+                'week'          => 'روز ۴ - نوبت ۲ (عصر)',
+                'title'         => 'پیاده‌سازی احراز هویت دوعاملی (2FA) و Passkeys در اپلیکیشن‌های وب',
+                'focus_keyword' => 'احراز هویت دو مرحله ای',
+                'category_slug' => $cat_security,
+                'pillar'        => 'Problem-Solving',
+                'notes'         => 'آشنایی با استاندارد WebAuthn و جایگزینی رمزهای عبور سنتی با کلیدهای عبور بیومتریک',
+                'status'        => 'planned',
+                'post_id'       => null,
+            ],
+            [
+                'id'            => 'cal_seed_9',
+                'day_slot'      => 'روز ۵ - نوبت ۱ (صبح)',
+                'week'          => 'روز ۵ - نوبت ۱ (صبح)',
+                'title'         => 'هوش مصنوعی مولد و ایجنت‌های کدنویسی خودمختار: نقشه راه برنامه‌نویسان ۲۰۲۶',
+                'focus_keyword' => 'ایجنت هوش مصنوعی برنامه نویسی',
+                'category_slug' => $cat_tech_trends,
+                'pillar'        => 'Trend',
+                'notes'         => 'بررسی تاثیر ایجنت‌های کدنویسی، تغییر نقش برنامه‌نویسان و استانداردهای جدید AEO/GEO',
+                'status'        => 'planned',
+                'post_id'       => null,
+            ],
+            [
+                'id'            => 'cal_seed_10',
+                'day_slot'      => 'روز ۵ - نوبت ۲ (عصر)',
+                'week'          => 'روز ۵ - نوبت ۲ (عصر)',
+                'title'         => 'بهترین روش‌های مدیریت State در React و مقایسه Zustand با Redux Toolkit',
+                'focus_keyword' => 'مدیریت استیت در React',
+                'category_slug' => $cat_development,
+                'pillar'        => 'Comparison',
+                'notes'         => 'مقایسه پرفورمنس، حجم باندل، سادگی سینتکس و قابلیت تست‌پذیری در پروژه‌های مقیاس‌پذیر',
+                'status'        => 'planned',
+                'post_id'       => null,
+            ],
+            [
+                'id'            => 'cal_seed_11',
+                'day_slot'      => 'روز ۶ - نوبت ۱ (صبح)',
+                'week'          => 'روز ۶ - نوبت ۱ (صبح)',
+                'title'         => 'معماری ذخیره‌سازی داده‌های ساختارنیافته با دیتابیس‌های برداری (Vector DBs)',
+                'focus_keyword' => 'دیتابیس های برداری',
+                'category_slug' => $cat_data,
+                'pillar'        => 'Trend',
+                'notes'         => 'استفاده از Pinecone و pgvector برای سیستم‌های RAG و جستجوی معنایی هوش مصنوعی',
+                'status'        => 'planned',
+                'post_id'       => null,
+            ],
+            [
+                'id'            => 'cal_seed_12',
+                'day_slot'      => 'روز ۶ - نوبت ۲ (عصر)',
+                'week'          => 'روز ۶ - نوبت ۲ (عصر)',
+                'title'         => 'راهنمای جامع راه‌اندازی Nginx به عنوان Reverse Proxy و لودبالانسر',
+                'focus_keyword' => 'کانفیگ Nginx Reverse Proxy',
+                'category_slug' => $cat_network,
+                'pillar'        => 'Problem-Solving',
+                'notes'         => 'تنظیم SSL رایگان با Let\'s Encrypt، کشینگ فایل‌های استاتیک و توزیع بار روی سرورها',
+                'status'        => 'planned',
+                'post_id'       => null,
+            ],
+        ];
+    }
+
+    /**
+     * Get saved CI/CD deployment settings with sensible defaults.
+     *
+     * @return array
+     */
+    public static function get_cicd_settings(): array {
+        $defaults = [
+            'github_repo'          => '',
+            'github_token'         => '',
+            'staging_workflow'     => 'deploy-blog-develop.yml',
+            'staging_branch'       => 'develop',
+            'production_workflow'  => 'deploy-blog-main.yml',
+            'production_branch'    => 'main',
+            'auto_deploy_staging'  => false,
+            'last_triggered'       => null,
+        ];
+        $saved = get_option('omni_ai_cicd_settings', []);
+        return wp_parse_args(is_array($saved) ? $saved : [], $defaults);
+    }
+
+    /**
+     * Mask personal access token for safe UI display.
+     *
+     * @param string $token
+     * @return string
+     */
+    public static function mask_token(string $token): string {
+        $token = trim($token);
+        $len = strlen($token);
+        if ($len <= 8) {
+            return str_repeat('•', 8);
+        }
+        return substr($token, 0, 4) . str_repeat('•', 8) . substr($token, -4);
+    }
+
+    /**
+     * GET /omni-ai/v1/deploy
+     * Returns saved CI/CD configuration (with masked token) and the latest 5 workflow runs from GitHub Actions.
+     */
+    public function handle_get_deploy_status(\WP_REST_Request $request): \WP_REST_Response {
+        $settings = self::get_cicd_settings();
+        $repo = trim((string) ($settings['github_repo'] ?? ''));
+        $token = trim((string) ($settings['github_token'] ?? ''));
+
+        $runs = [];
+        $github_error = null;
+
+        if (!empty($repo) && !empty($token)) {
+            $clean_repo = trim($repo, '/');
+            $url = "https://api.github.com/repos/{$clean_repo}/actions/runs?per_page=6";
+            $res = wp_remote_get($url, [
+                'headers' => [
+                    'Authorization'        => 'Bearer ' . $token,
+                    'Accept'               => 'application/vnd.github+json',
+                    'User-Agent'           => 'WordPress-Omni-AI-Suite',
+                    'X-GitHub-Api-Version' => '2022-11-28',
+                ],
+                'timeout' => 15,
+            ]);
+
+            if (is_wp_error($res)) {
+                $github_error = $res->get_error_message();
+            } else {
+                $code = wp_remote_retrieve_response_code($res);
+                $body = json_decode(wp_remote_retrieve_body($res), true);
+                if ($code === 200 && isset($body['workflow_runs']) && is_array($body['workflow_runs'])) {
+                    foreach ($body['workflow_runs'] as $run) {
+                        $runs[] = [
+                            'id'            => $run['id'] ?? 0,
+                            'name'          => $run['name'] ?? '',
+                            'display_title' => $run['display_title'] ?? '',
+                            'head_branch'   => $run['head_branch'] ?? '',
+                            'head_sha'      => substr($run['head_sha'] ?? '', 0, 7),
+                            'status'        => $run['status'] ?? '', // queued, in_progress, completed, waiting
+                            'conclusion'    => $run['conclusion'] ?? null, // success, failure, cancelled, timed_out
+                            'html_url'      => $run['html_url'] ?? '',
+                            'run_number'    => $run['run_number'] ?? 0,
+                            'event'         => $run['event'] ?? '',
+                            'created_at'    => $run['created_at'] ?? '',
+                            'updated_at'    => $run['updated_at'] ?? '',
+                            'actor'         => [
+                                'login'      => $run['actor']['login'] ?? '',
+                                'avatar_url' => $run['actor']['avatar_url'] ?? '',
+                            ],
+                        ];
+                    }
+                } else {
+                    $github_error = $body['message'] ?? sprintf(__('خطا در دریافت وضعیت گیت‌هاب (کد %d)', 'omni-ai-suite'), $code);
+                }
+            }
+        }
+
+        return new \WP_REST_Response([
+            'success'      => true,
+            'settings'     => [
+                'github_repo'          => $settings['github_repo'],
+                'has_token'            => !empty($token),
+                'masked_token'         => !empty($token) ? self::mask_token($token) : '',
+                'staging_workflow'     => $settings['staging_workflow'],
+                'staging_branch'       => $settings['staging_branch'],
+                'production_workflow'  => $settings['production_workflow'],
+                'production_branch'    => $settings['production_branch'],
+                'auto_deploy_staging'  => !empty($settings['auto_deploy_staging']),
+                'last_triggered'       => $settings['last_triggered'] ?? null,
+            ],
+            'runs'         => $runs,
+            'github_error' => $github_error,
+        ], 200);
+    }
+
+    /**
+     * POST /omni-ai/v1/deploy
+     * Saves CI/CD settings or triggers a build on GitHub Actions.
+     */
+    public function handle_trigger_deploy(\WP_REST_Request $request): \WP_REST_Response {
+        $params = $request->get_json_params() ?: $request->get_params();
+        $action = sanitize_text_field($params['action'] ?? 'trigger');
+
+        if ($action === 'save_settings') {
+            $existing = self::get_cicd_settings();
+            $new_repo = sanitize_text_field($params['github_repo'] ?? '');
+            $new_token_input = trim((string) ($params['github_token'] ?? ''));
+
+            $token_to_save = $existing['github_token'];
+            if (!empty($new_token_input) && !str_contains($new_token_input, '•')) {
+                $token_to_save = sanitize_text_field($new_token_input);
+            }
+
+            $updated = [
+                'github_repo'          => $new_repo,
+                'github_token'         => $token_to_save,
+                'staging_workflow'     => sanitize_text_field($params['staging_workflow'] ?? 'deploy-blog-develop.yml'),
+                'staging_branch'       => sanitize_text_field($params['staging_branch'] ?? 'develop'),
+                'production_workflow'  => sanitize_text_field($params['production_workflow'] ?? 'deploy-blog-main.yml'),
+                'production_branch'    => sanitize_text_field($params['production_branch'] ?? 'main'),
+                'auto_deploy_staging'  => !empty($params['auto_deploy_staging']),
+                'last_triggered'       => $existing['last_triggered'] ?? null,
+            ];
+
+            update_option('omni_ai_cicd_settings', $updated);
+
+            return new \WP_REST_Response([
+                'success'  => true,
+                'message'  => __('تنظیمات گیت‌هاب CI/CD با موفقیت ذخیره شد.', 'omni-ai-suite'),
+                'settings' => [
+                    'github_repo'          => $updated['github_repo'],
+                    'has_token'            => !empty($updated['github_token']),
+                    'masked_token'         => !empty($updated['github_token']) ? self::mask_token($updated['github_token']) : '',
+                    'staging_workflow'     => $updated['staging_workflow'],
+                    'staging_branch'       => $updated['staging_branch'],
+                    'production_workflow'  => $updated['production_workflow'],
+                    'production_branch'    => $updated['production_branch'],
+                    'auto_deploy_staging'  => $updated['auto_deploy_staging'],
+                    'last_triggered'       => $updated['last_triggered'],
                 ],
             ], 200);
-        } catch (\Throwable $e) {
-            return new \WP_REST_Response(['success' => false, 'message' => 'AI generation error: ' . $e->getMessage()], 500);
         }
+
+        // Action is 'trigger'
+        $target = sanitize_text_field($params['target'] ?? 'staging');
+        $reason = sanitize_text_field($params['reason'] ?? '');
+
+        $result = self::trigger_github_workflow($target, $reason);
+
+        return new \WP_REST_Response($result, $result['success'] ? 200 : 400);
+    }
+
+    /**
+     * Trigger a GitHub Actions workflow via workflow_dispatch API with repository_dispatch fallback.
+     *
+     * @param string $target 'staging' or 'production'
+     * @param string $reason Optional trigger description
+     * @return array
+     */
+    public static function trigger_github_workflow(string $target, string $reason = ''): array {
+        $settings = self::get_cicd_settings();
+        $repo = trim((string) ($settings['github_repo'] ?? ''));
+        $token = trim((string) ($settings['github_token'] ?? ''));
+
+        if (empty($repo) || empty($token)) {
+            return [
+                'success' => false,
+                'message' => __('لطفاً نام ریپازیتوری (owner/repo) و توکن دسترسی گیت‌هاب (PAT) را در بخش تنظیمات CI/CD وارد و ذخیره کنید.', 'omni-ai-suite'),
+            ];
+        }
+
+        $clean_repo = trim($repo, '/');
+        $is_production = ($target === 'production');
+        $workflow_file = $is_production
+            ? ($settings['production_workflow'] ?: 'deploy-blog-main.yml')
+            : ($settings['staging_workflow'] ?: 'deploy-blog-develop.yml');
+        $ref_branch = $is_production
+            ? ($settings['production_branch'] ?: 'main')
+            : ($settings['staging_branch'] ?: 'develop');
+
+        $headers = [
+            'Authorization'        => 'Bearer ' . $token,
+            'Accept'               => 'application/vnd.github+json',
+            'User-Agent'           => 'WordPress-Omni-AI-Suite',
+            'X-GitHub-Api-Version' => '2022-11-28',
+            'Content-Type'         => 'application/json',
+        ];
+
+        $target_label = $is_production ? 'پروداکشن (اصلی)' : 'استیجینگ (تست)';
+
+        // 1. Trigger workflow_dispatch
+        $dispatch_url = "https://api.github.com/repos/{$clean_repo}/actions/workflows/{$workflow_file}/dispatches";
+        $trigger_reason = !empty($reason) ? $reason : ('Manual trigger from Omni AI Suite by ' . wp_get_current_user()->display_name);
+
+        $payload = [
+            'ref'    => $ref_branch,
+            'inputs' => [
+                'reason' => $trigger_reason,
+            ],
+        ];
+
+        $res = wp_remote_post($dispatch_url, [
+            'headers' => $headers,
+            'body'    => wp_json_encode($payload),
+            'timeout' => 15,
+        ]);
+
+        $code = !is_wp_error($res) ? wp_remote_retrieve_response_code($res) : 0;
+
+        if ($code === 204) {
+            $last_triggered = [
+                'target'    => $target,
+                'branch'    => $ref_branch,
+                'workflow'  => $workflow_file,
+                'timestamp' => current_time('mysql'),
+                'user'      => wp_get_current_user()->display_name,
+                'reason'    => $trigger_reason,
+            ];
+            $settings['last_triggered'] = $last_triggered;
+            update_option('omni_ai_cicd_settings', $settings);
+
+            return [
+                'success'        => true,
+                'message'        => sprintf(__('بیلد %s با موفقیت روی شاخه %s در گیت‌هاب اجرا شد و در صف استقرار قرار گرفت.', 'omni-ai-suite'), $target_label, $ref_branch),
+                'last_triggered' => $last_triggered,
+            ];
+        }
+
+        // 2. Fallback: repository_dispatch
+        $repo_dispatch_url = "https://api.github.com/repos/{$clean_repo}/dispatches";
+        $repo_payload = [
+            'event_type'     => $is_production ? 'deploy-blog-production' : 'deploy-blog-staging',
+            'client_payload' => [
+                'reason' => $trigger_reason,
+                'branch' => $ref_branch,
+            ],
+        ];
+
+        $fallback_res = wp_remote_post($repo_dispatch_url, [
+            'headers' => $headers,
+            'body'    => wp_json_encode($repo_payload),
+            'timeout' => 15,
+        ]);
+
+        $fallback_code = !is_wp_error($fallback_res) ? wp_remote_retrieve_response_code($fallback_res) : 0;
+
+        if ($fallback_code === 204) {
+            $last_triggered = [
+                'target'    => $target,
+                'branch'    => $ref_branch,
+                'workflow'  => 'repository_dispatch (' . ($is_production ? 'deploy-blog-production' : 'deploy-blog-staging') . ')',
+                'timestamp' => current_time('mysql'),
+                'user'      => wp_get_current_user()->display_name,
+                'reason'    => $trigger_reason,
+            ];
+            $settings['last_triggered'] = $last_triggered;
+            update_option('omni_ai_cicd_settings', $settings);
+
+            return [
+                'success'        => true,
+                'message'        => sprintf(__('درخواست بیلد %s از طریق repository_dispatch با موفقیت به گیت‌هاب ارسال شد.', 'omni-ai-suite'), $target_label),
+                'last_triggered' => $last_triggered,
+            ];
+        }
+
+        $raw_error = !is_wp_error($res) ? wp_remote_retrieve_body($res) : $res->get_error_message();
+        $err_json = json_decode($raw_error, true);
+        $err_msg = $err_json['message'] ?? $raw_error;
+
+        return [
+            'success' => false,
+            'code'    => $code,
+            'message' => sprintf(__('خطا در ارسال درخواست به گیت‌هاب (کد %d): %s', 'omni-ai-suite'), $code, $err_msg),
+        ];
     }
 }

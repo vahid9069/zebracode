@@ -4,48 +4,95 @@
 
 :root {
     color-scheme: light;
-    --canvas: #f8fafc;
+    --canvas: #fafafa;
     --surface: #ffffff;
-    --ink: #0f172a;
-    --muted: #536176;
+    --surface-elevated: #ffffff;
+    --ink: #090d16;
+    --muted: #64748b;
     --brand: #2563eb;
-    --line: #dfe5ee;
-    --soft: #eff6ff;
-    --navy: #101d36;
+    --brand-hover: #1d4ed8;
+    --brand-soft: rgba(37, 99, 235, 0.08);
+    --line: #e2e8f0;
+    --line-subtle: #f1f5f9;
+    --soft: #f8fafc;
+    --navy: #0f172a;
+    --card-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.04), 0 1px 2px -1px rgba(0, 0, 0, 0.04);
+    --card-hover-shadow: 0 12px 28px -4px rgba(15, 23, 42, 0.08), 0 4px 10px -2px rgba(15, 23, 42, 0.03);
 }
 
 :root[data-theme="dark"] {
     color-scheme: dark;
-    --canvas: #0b101b;
-    --surface: #121b2b;
-    --ink: #e6edf8;
-    --muted: #a7b5cb;
-    --brand: #82adff;
-    --line: #2b3a51;
-    --soft: #152844;
-    --navy: #101d36;
+    --canvas: #060911;
+    --surface: #0c1220;
+    --surface-elevated: #111a2d;
+    --ink: #f8fafc;
+    --muted: #94a3b8;
+    --brand: #38bdf8;
+    --brand-hover: #7dd3fc;
+    --brand-soft: rgba(56, 189, 248, 0.1);
+    --line: #1e293b;
+    --line-subtle: #141f33;
+    --soft: #0f172a;
+    --navy: #060911;
+    --card-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.3);
+    --card-hover-shadow: 0 14px 32px -4px rgba(0, 0, 0, 0.55), 0 0 20px -2px rgba(56, 189, 248, 0.12);
 }
 
 * { box-sizing: border-box; }
-html { scroll-behavior: smooth; scroll-padding-top: 24px; }
-body { margin: 0; background: var(--canvas); color: var(--ink); font-family: var(--font-persian), Tahoma, sans-serif; font-size: 16px; line-height: 1.9; }
+html {
+    scroll-behavior: smooth;
+    scroll-padding-top: 32px;
+}
+body {
+    margin: 0;
+    background-color: var(--canvas);
+    background-image: radial-gradient(circle at 50% -80px, rgba(37, 99, 235, 0.06) 0%, transparent 580px);
+    background-repeat: no-repeat;
+    color: var(--ink);
+    font-family: var(--font-persian), -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Tahoma, sans-serif;
+    font-size: 16px;
+    line-height: 1.85;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+[data-theme="dark"] body {
+    background-image: radial-gradient(circle at 50% -80px, rgba(56, 189, 248, 0.08) 0%, transparent 640px);
+}
+
 button, input, select, textarea { font: inherit; }
 button, summary, a { -webkit-tap-highlight-color: transparent; }
 a { text-underline-offset: 4px; }
 button { cursor: pointer; }
 button:disabled { cursor: not-allowed; }
-::selection { background: #bed5ff; color: #0f172a; }
-:focus-visible { outline: 3px solid var(--brand); outline-offset: 4px; }
-.skip-link { position: fixed; top: 12px; inset-inline-start: 12px; z-index: 100; transform: translateY(-160%); background: var(--ink); color: var(--surface); border-radius: 6px; padding: 8px 16px; }
+::selection { background: #bfdbfe; color: #0f172a; }
+[data-theme="dark"] ::selection { background: #0284c7; color: #ffffff; }
+:focus-visible { outline: 2px solid var(--brand); outline-offset: 3px; }
+
+.skip-link {
+    position: fixed;
+    top: 12px;
+    inset-inline-start: 12px;
+    z-index: 100;
+    transform: translateY(-160%);
+    background: var(--ink);
+    color: var(--surface);
+    border-radius: 8px;
+    padding: 8px 16px;
+    font-size: 13px;
+    font-weight: 600;
+}
 .skip-link:focus { transform: none; }
-.demo-notice { background: var(--soft); border-bottom: 1px solid var(--line); color: var(--muted); text-align: center; font-size: 11px; padding: 8px 16px; }
-.demo-notice strong { color: var(--ink); font-weight: 600; }
-.zc-brand small { font-family: var(--font-persian), Tahoma, sans-serif; }
-.zc-button:hover { filter: brightness(.94); }
-[data-theme="dark"] .zc-button, [data-theme="dark"] .zc-search-submit { color: #0b101b; }
-[data-theme="dark"] .zc-brand-mark { background: #2563eb; }
+
 .status-page { max-width: 660px; margin: 80px auto; text-align: center; padding: 32px 24px; }
 .status-page h1 { font-size: clamp(26px, 5vw, 42px); font-weight: 800; margin-block: 12px; }
 .status-page p { color: var(--muted); margin-bottom: 28px; }
 .status-page code { color: var(--brand); font-size: 36px; }
-@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } *, *::before, *::after { transition-duration: .01ms !important; animation-duration: .01ms !important; } }
+
+@media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    *, *::before, *::after {
+        transition-duration: .01ms !important;
+        animation-duration: .01ms !important;
+    }
+}

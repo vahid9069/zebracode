@@ -162,10 +162,26 @@ class Admin {
         $wp_categories = get_categories(['hide_empty' => false]);
         $cat_list = [];
         if (is_array($wp_categories)) {
+            $has_other_cats = count($wp_categories) > 1;
             foreach ($wp_categories as $c) {
+                $raw_slug = (string) $c->slug;
+                $decoded_slug = urldecode($raw_slug);
+                $clean_name = html_entity_decode($c->name, ENT_QUOTES, 'UTF-8');
+
+                // If other categories are present, filter out default uncategorized
+                if ($has_other_cats && in_array(strtolower($raw_slug), ['uncategorized', 'uncategorised', '%d8%af%d8%b3%d8%aa%d9%87%e2%80%8c%d8%a8%d9%86%d8%af%db%8c-%d9%86%d8%b4%d8%af%d9%87'], true)) {
+                    continue;
+                }
+                if ($has_other_cats && in_array($clean_name, ['دسته‌بندی نشده', 'دسته بندی نشده', 'Uncategorized'], true)) {
+                    continue;
+                }
+
                 $cat_list[] = [
-                    'id'   => $c->term_id,
-                    'name' => html_entity_decode($c->name, ENT_QUOTES, 'UTF-8'),
+                    'id'          => (int) $c->term_id,
+                    'slug'        => $decoded_slug,
+                    'name'        => $clean_name,
+                    'count'       => (int) $c->count,
+                    'description' => html_entity_decode((string) $c->description, ENT_QUOTES, 'UTF-8'),
                 ];
             }
         }

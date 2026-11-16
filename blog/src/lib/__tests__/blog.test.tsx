@@ -12,11 +12,11 @@ import { generateStaticParams as categoryParams } from '@/app/category/[slug]/pa
 import sitemap from '@/app/sitemap';
 
 describe('static Persian blog content', () => {
-    it('provides eight complete articles across five populated categories', async () => {
+    it('provides eight complete articles across six populated categories', async () => {
         const posts = await getAllPosts();
         const categories = await getCategories();
         expect(posts).toHaveLength(8);
-        expect(categories).toHaveLength(5);
+        expect(categories).toHaveLength(6);
         expect(new Set(posts.map(post => post.slug)).size).toBe(posts.length);
         expect(posts.some(post => post.featured)).toBe(true);
         for (const category of categories) expect(posts.some(post => post.category === category.slug)).toBe(true);
@@ -74,8 +74,8 @@ describe('static Persian blog content', () => {
 describe('blog routing and metadata', () => {
     it('generates every article/category with no API requests', async () => {
         expect(await generateStaticParams()).toHaveLength(8);
-        expect(await categoryParams()).toHaveLength(5);
-        expect(await sitemap()).toHaveLength(14);
+        expect(await categoryParams()).toHaveLength(6);
+        expect(await sitemap()).toHaveLength(15);
         expect(postPath('json-debugging')).toBe('/articles/json-debugging/');
         expect(categoryPath('data')).toBe('/category/data/');
         expect(new URL(absoluteUrl(postPath('json-debugging'))).pathname).toBe('/blog/articles/json-debugging/');

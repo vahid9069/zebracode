@@ -1,8 +1,10 @@
 import type { NextConfig } from 'next';
 import path from 'node:path';
 
+const isProd = process.env.NODE_ENV === 'production';
+
 const config: NextConfig = {
-    output: 'export',
+    ...(isProd ? { output: 'export' } : {}),
     basePath: '/blog',
     trailingSlash: true,
     images: { unoptimized: true },

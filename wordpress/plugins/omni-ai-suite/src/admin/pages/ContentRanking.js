@@ -403,379 +403,259 @@ export default function ContentRanking({ onNavigate }) {
         </div>
       )}
 
-      {/* ناوبری ساب‌تب‌های مدرن برای نظم‌بخشی و جلوگیری از شلوغی رابط کاربری */}
-      <div
-        style={{
-          display: 'flex',
-          flexWrap: 'wrap',
-          gap: '8px',
-          background: '#ffffff',
-          padding: '12px 16px',
-          borderRadius: '8px',
-          border: '1px solid #e2e8f0',
-          marginBottom: '20px',
-          boxShadow: '0 1px 3px rgba(0,0,0,0.03)',
-        }}
-      >
-        <button
-          type="button"
-          onClick={() => setActiveSubTab('ranking')}
-          style={{
-            background: activeSubTab === 'ranking' ? '#2563eb' : '#f8fafc',
-            color: activeSubTab === 'ranking' ? '#ffffff' : '#475569',
-            border: activeSubTab === 'ranking' ? '1px solid #1d4ed8' : '1px solid #cbd5e1',
-            borderRadius: '6px',
-            padding: '8px 16px',
-            fontWeight: 700,
-            fontSize: '13px',
-            cursor: 'pointer',
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: '8px',
-            boxShadow: activeSubTab === 'ranking' ? '0 2px 4px rgba(37, 99, 235, 0.2)' : 'none',
-            transition: 'all 0.15s ease',
-          }}
-        >
-          <span className="dashicons dashicons-chart-bar" style={{ fontSize: '18px', width: '18px', height: '18px' }}></span>
-          رتبه‌بندی مقالات (SEO / AEO / GEO / خوانایی)
-        </button>
-
-        <button
-          type="button"
-          onClick={() => setActiveSubTab('llms')}
-          style={{
-            background: activeSubTab === 'llms' ? '#2563eb' : '#f8fafc',
-            color: activeSubTab === 'llms' ? '#ffffff' : '#475569',
-            border: activeSubTab === 'llms' ? '1px solid #1d4ed8' : '1px solid #cbd5e1',
-            borderRadius: '6px',
-            padding: '8px 16px',
-            fontWeight: 700,
-            fontSize: '13px',
-            cursor: 'pointer',
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: '8px',
-            boxShadow: activeSubTab === 'llms' ? '0 2px 4px rgba(37, 99, 235, 0.2)' : 'none',
-            transition: 'all 0.15s ease',
-          }}
-        >
-          <span className="dashicons dashicons-admin-site-alt3" style={{ fontSize: '18px', width: '18px', height: '18px' }}></span>
-          استاندارد جهانی (llms.txt)
-          <span
-            style={{
-              background: '#10b981',
-              color: '#ffffff',
-              fontSize: '10px',
-              padding: '2px 7px',
-              borderRadius: '10px',
-              fontWeight: 800,
-            }}
+      {/* Sleek Minimal Segmented Sub-Navigation Bar */}
+      <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '20px' }}>
+        <div className="omni-segmented-control">
+          <button
+            type="button"
+            className={`omni-segmented-btn ${activeSubTab === 'ranking' ? 'active' : ''}`}
+            onClick={() => setActiveSubTab('ranking')}
           >
-            AEO
-          </span>
-        </button>
+            <span className="dashicons dashicons-chart-bar" style={{ fontSize: '15px', width: '15px', height: '15px' }} />
+            <span>رتبه‌بندی مقالات (SEO / AEO / GEO)</span>
+          </button>
 
-        <button
-          type="button"
-          onClick={() => setActiveSubTab('schemas')}
-          style={{
-            background: activeSubTab === 'schemas' ? '#2563eb' : '#f8fafc',
-            color: activeSubTab === 'schemas' ? '#ffffff' : '#475569',
-            border: activeSubTab === 'schemas' ? '1px solid #1d4ed8' : '1px solid #cbd5e1',
-            borderRadius: '6px',
-            padding: '8px 16px',
-            fontWeight: 700,
-            fontSize: '13px',
-            cursor: 'pointer',
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: '8px',
-            boxShadow: activeSubTab === 'schemas' ? '0 2px 4px rgba(37, 99, 235, 0.2)' : 'none',
-            transition: 'all 0.15s ease',
-          }}
-        >
-          <span className="dashicons dashicons-rest-api" style={{ fontSize: '18px', width: '18px', height: '18px' }}></span>
-          اسکیماهای هوشمند JSON-LD
-        </button>
-
-        <button
-          type="button"
-          onClick={() => setActiveSubTab('ai_bots')}
-          style={{
-            background: activeSubTab === 'ai_bots' ? '#2563eb' : '#f8fafc',
-            color: activeSubTab === 'ai_bots' ? '#ffffff' : '#475569',
-            border: activeSubTab === 'ai_bots' ? '1px solid #1d4ed8' : '1px solid #cbd5e1',
-            borderRadius: '6px',
-            padding: '8px 16px',
-            fontWeight: 700,
-            fontSize: '13px',
-            cursor: 'pointer',
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: '8px',
-            boxShadow: activeSubTab === 'ai_bots' ? '0 2px 4px rgba(37, 99, 235, 0.2)' : 'none',
-            transition: 'all 0.15s ease',
-          }}
-        >
-          <span className="dashicons dashicons-shield" style={{ fontSize: '18px', width: '18px', height: '18px' }}></span>
-          مدیریت ربات‌های هوش مصنوعی (robots.txt)
-          <span
-            style={{
-              background: '#8b5cf6',
-              color: '#ffffff',
-              fontSize: '10px',
-              padding: '2px 7px',
-              borderRadius: '10px',
-              fontWeight: 800,
-            }}
+          <button
+            type="button"
+            className={`omni-segmented-btn ${activeSubTab === 'llms' ? 'active' : ''}`}
+            onClick={() => setActiveSubTab('llms')}
           >
-            کنترل AI
-          </span>
-        </button>
+            <span className="dashicons dashicons-admin-site-alt3" style={{ fontSize: '15px', width: '15px', height: '15px' }} />
+            <span>استاندارد جهانی (llms.txt)</span>
+          </button>
 
-        <button
-          type="button"
-          onClick={() => setActiveSubTab('mcp')}
-          style={{
-            background: activeSubTab === 'mcp' ? '#2563eb' : '#f8fafc',
-            color: activeSubTab === 'mcp' ? '#ffffff' : '#475569',
-            border: activeSubTab === 'mcp' ? '1px solid #1d4ed8' : '1px solid #cbd5e1',
-            borderRadius: '6px',
-            padding: '8px 16px',
-            fontWeight: 700,
-            fontSize: '13px',
-            cursor: 'pointer',
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: '8px',
-            boxShadow: activeSubTab === 'mcp' ? '0 2px 4px rgba(37, 99, 235, 0.2)' : 'none',
-            transition: 'all 0.15s ease',
-          }}
-        >
-          <span className="dashicons dashicons-plugins-checked" style={{ fontSize: '18px', width: '18px', height: '18px' }}></span>
-          سرور پروتکل MCP (اتصال ایجنت‌ها)
-          <span
-            style={{
-              background: '#059669',
-              color: '#ffffff',
-              fontSize: '10px',
-              padding: '2px 7px',
-              borderRadius: '10px',
-              fontWeight: 800,
-            }}
+          <button
+            type="button"
+            className={`omni-segmented-btn ${activeSubTab === 'schemas' ? 'active' : ''}`}
+            onClick={() => setActiveSubTab('schemas')}
           >
-            پیشرفته
-          </span>
-        </button>
+            <span className="dashicons dashicons-rest-api" style={{ fontSize: '15px', width: '15px', height: '15px' }} />
+            <span>اسکیماهای هوشمند JSON-LD</span>
+          </button>
+
+          <button
+            type="button"
+            className={`omni-segmented-btn ${activeSubTab === 'ai_bots' ? 'active' : ''}`}
+            onClick={() => setActiveSubTab('ai_bots')}
+          >
+            <span className="dashicons dashicons-shield" style={{ fontSize: '15px', width: '15px', height: '15px' }} />
+            <span>ربات‌های هوش مصنوعی (robots.txt)</span>
+          </button>
+
+          <button
+            type="button"
+            className={`omni-segmented-btn ${activeSubTab === 'mcp' ? 'active' : ''}`}
+            onClick={() => setActiveSubTab('mcp')}
+          >
+            <span className="dashicons dashicons-plugins-checked" style={{ fontSize: '15px', width: '15px', height: '15px' }} />
+            <span>سرور پروتکل MCP</span>
+          </button>
+        </div>
       </div>
 
       {/* ۱. تب جدول رتبه‌بندی */}
       {activeSubTab === 'ranking' && (
         <>
-          {/* ۱. کارت‌های آمار کلی سایت */}
-      <div
-        style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(210px, 1fr))',
-          gap: '14px',
-          marginBottom: '20px',
-        }}
-      >
-        <Card style={{ borderRight: '4px solid #2563eb' }}>
-          <CardBody style={{ padding: '16px' }}>
-            <span style={{ fontSize: '12px', color: '#64748b', fontWeight: 600 }}>میانگین سئو و هوش مصنوعی سایت</span>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '8px' }}>
-              <span style={{ fontSize: '28px', fontWeight: 800, color: getScoreColor(summary.site_avg) }}>
-                {summary.site_avg}%
-              </span>
-              <span
-                style={{
-                  background: getScoreBg(summary.site_avg),
-                  color: getScoreColor(summary.site_avg),
-                  padding: '4px 8px',
-                  borderRadius: '6px',
-                  fontSize: '12px',
-                  fontWeight: 700,
-                }}
-              >
-                {summary.total_all} مقاله کل
-              </span>
-            </div>
-          </CardBody>
-        </Card>
+          {/* ۱. کارت‌های آمار کلی سایت - Minimal White Elevation */}
+          <div
+            style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(210px, 1fr))',
+              gap: '14px',
+              marginBottom: '18px',
+            }}
+          >
+            <Card style={{ border: '1px solid #e2e8f0', borderRadius: '10px' }}>
+              <CardBody style={{ padding: '14px 18px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '8px' }}>
+                  <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#0284c7' }} />
+                  <span style={{ fontSize: '12px', color: '#64748b', fontWeight: 600 }}>میانگین سئو و هوش مصنوعی</span>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between' }}>
+                  <span style={{ fontSize: '24px', fontWeight: 700, color: getScoreColor(summary.site_avg) }}>
+                    {summary.site_avg}%
+                  </span>
+                  <span style={{ fontSize: '11.5px', color: '#64748b' }}>
+                    از {summary.total_all} مقاله کل
+                  </span>
+                </div>
+              </CardBody>
+            </Card>
 
-        <Card style={{ borderRight: '4px solid #dc2626' }}>
-          <CardBody style={{ padding: '16px' }}>
-            <span style={{ fontSize: '12px', color: '#dc2626', fontWeight: 600 }}>نیازمند بهینه‌سازی فوری (زیر ۵۰٪)</span>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '8px' }}>
-              <span style={{ fontSize: '28px', fontWeight: 800, color: '#dc2626' }}>
-                {summary.critical_count}
-              </span>
-              <Button
-                isSmall
-                isDestructive
-                variant="secondary"
-                onClick={() => {
-                  setScoreFilter('under_50');
-                  setOrder('asc');
-                }}
-              >
-                مشاهده ضعیف‌ترین‌ها
-              </Button>
-            </div>
-          </CardBody>
-        </Card>
-
-        <Card style={{ borderRight: '4px solid #d97706' }}>
-          <CardBody style={{ padding: '16px' }}>
-            <span style={{ fontSize: '12px', color: '#d97706', fontWeight: 600 }}>رتبه متوسط (۵۰٪ تا ۷۹٪)</span>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '8px' }}>
-              <span style={{ fontSize: '28px', fontWeight: 800, color: '#d97706' }}>
-                {summary.warning_count}
-              </span>
-              <Button
-                isSmall
-                variant="secondary"
-                onClick={() => {
-                  setScoreFilter('50_to_79');
-                }}
-              >
-                مشاهده لیست
-              </Button>
-            </div>
-          </CardBody>
-        </Card>
-
-        <Card style={{ borderRight: '4px solid #16a34a' }}>
-          <CardBody style={{ padding: '16px' }}>
-            <span style={{ fontSize: '12px', color: '#16a34a', fontWeight: 600 }}>مقالات عالی و بهینه (بالای ۸۰٪)</span>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '8px' }}>
-              <span style={{ fontSize: '28px', fontWeight: 800, color: '#16a34a' }}>
-                {summary.good_count}
-              </span>
-              <Button
-                isSmall
-                variant="secondary"
-                onClick={() => {
-                  setScoreFilter('over_80');
-                  setOrder('desc');
-                }}
-              >
-                مشاهده برترین‌ها
-              </Button>
-            </div>
-          </CardBody>
-        </Card>
-      </div>
-
-      {/* ۲. پنل فیلترها و مرتب‌سازی دقیق */}
-      <Card style={{ marginBottom: '20px' }}>
-        <CardHeader style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '10px' }}>
-          <div>
-            <strong>فیلتر و رتبه‌بندی هوشمند نوشته‌ها</strong>
-            <p style={{ margin: '4px 0 0', fontSize: '12px', color: '#64748b' }}>
-              نوشته‌ها را بر اساس درصد نمره از کم به زیاد یا زیاد به کم فیلتر کرده و با یک کلیک ارتقا دهید.
-            </p>
-          </div>
-          <div>
-            <Button
-              variant="secondary"
-              onClick={handleBatchAnalyze}
-              disabled={batchAnalyzing}
-              icon="update"
-              style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}
-            >
-              {batchAnalyzing ? 'در حال تحلیل مقالات...' : 'تحلیل دسته‌جمعی تمام مقالات'}
-            </Button>
-          </div>
-        </CardHeader>
-
-        <CardBody style={{ padding: '16px' }}>
-          <form onSubmit={handleSearchSubmit}>
-            <div
-              style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-                gap: '12px',
-                alignItems: 'end',
-              }}
-            >
-              {/* فیلتر درصد */}
-              <div>
-                <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, marginBottom: '4px' }}>
-                  فیلتر بر اساس بازه درصد:
-                </label>
-                <SelectControl
-                  value={scoreFilter}
-                  options={[
-                    { label: 'همه نوشته‌ها (بدون فیلتر درصد)', value: 'all' },
-                    { label: '🔴 کمتر از ۵۰٪ (نیازمند اصلاح فوری)', value: 'under_50' },
-                    { label: '🟡 بین ۵۰٪ تا ۷۹٪ (متوسط)', value: '50_to_79' },
-                    { label: '🟢 ۸۰٪ به بالا (عالی و آماده رتبه)', value: 'over_80' },
-                    { label: '⚙️ محدوده سفارشی...', value: 'custom' },
-                  ]}
-                  onChange={(val) => setScoreFilter(val)}
-                />
-              </div>
-
-              {/* شاخص رتبه‌بندی */}
-              <div>
-                <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, marginBottom: '4px' }}>
-                  شاخص ارزیابی:
-                </label>
-                <SelectControl
-                  value={metric}
-                  options={[
-                    { label: 'میانگین کل (SEO + AEO + GEO + خوانایی)', value: 'avg' },
-                    { label: 'فقط سئو ارگانیک (SEO)', value: 'seo' },
-                    { label: 'فقط موتور پاسخگو (AEO)', value: 'aeo' },
-                    { label: 'فقط موتورهای هوش مصنوعی (GEO)', value: 'geo' },
-                    { label: 'فقط خوانایی و روانی متن (READ)', value: 'readability' },
-                  ]}
-                  onChange={(val) => setMetric(val)}
-                />
-              </div>
-
-              {/* جهت مرتب‌سازی (صعودی یا نزولی) */}
-              <div>
-                <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, marginBottom: '4px' }}>
-                  ترتیب چیدمان:
-                </label>
-                <SelectControl
-                  value={order}
-                  options={[
-                    { label: '🔻 از کمترین به بیشترین (صعودی - ضعیف‌ترین‌ها اول)', value: 'asc' },
-                    { label: '🔺 از بیشترین به کمترین (نزولی - قوی‌ترین‌ها اول)', value: 'desc' },
-                  ]}
-                  onChange={(val) => setOrder(val)}
-                />
-              </div>
-
-              {/* جستجو در عنوان */}
-              <div>
-                <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, marginBottom: '4px' }}>
-                  جستجو در عنوان:
-                </label>
-                <div style={{ display: 'flex', gap: '6px' }}>
-                  <input
-                    type="text"
-                    value={search}
-                    onChange={(e) => setSearch(e.target.value)}
-                    placeholder="عنوان مقاله..."
-                    style={{
-                      width: '100%',
-                      padding: '6px 10px',
-                      borderRadius: '4px',
-                      border: '1px solid #8c8f94',
-                      fontSize: '13px',
+            <Card style={{ border: '1px solid #e2e8f0', borderRadius: '10px' }}>
+              <CardBody style={{ padding: '14px 18px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '8px' }}>
+                  <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#ef4444' }} />
+                  <span style={{ fontSize: '12px', color: '#ef4444', fontWeight: 600 }}>نیازمند اصلاح (زیر ۵۰٪)</span>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between' }}>
+                  <span style={{ fontSize: '24px', fontWeight: 700, color: '#ef4444' }}>
+                    {summary.critical_count}
+                  </span>
+                  <Button
+                    isSmall
+                    variant="link"
+                    isDestructive
+                    style={{ fontSize: '11.5px', padding: 0 }}
+                    onClick={() => {
+                      setScoreFilter('under_50');
+                      setOrder('asc');
                     }}
-                  />
-                  <Button variant="primary" type="submit">
-                    جستجو
+                  >
+                    مشاهده ضعیف‌ترین‌ها
                   </Button>
                 </div>
-              </div>
-            </div>
+              </CardBody>
+            </Card>
+
+            <Card style={{ border: '1px solid #e2e8f0', borderRadius: '10px' }}>
+              <CardBody style={{ padding: '14px 18px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '8px' }}>
+                  <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#f59e0b' }} />
+                  <span style={{ fontSize: '12px', color: '#d97706', fontWeight: 600 }}>متوسط (۵۰٪ تا ۷۹٪)</span>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between' }}>
+                  <span style={{ fontSize: '24px', fontWeight: 700, color: '#d97706' }}>
+                    {summary.warning_count}
+                  </span>
+                  <Button
+                    isSmall
+                    variant="link"
+                    style={{ fontSize: '11.5px', padding: 0, color: '#d97706' }}
+                    onClick={() => {
+                      setScoreFilter('50_to_79');
+                    }}
+                  >
+                    مشاهده لیست
+                  </Button>
+                </div>
+              </CardBody>
+            </Card>
+
+            <Card style={{ border: '1px solid #e2e8f0', borderRadius: '10px' }}>
+              <CardBody style={{ padding: '14px 18px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '8px' }}>
+                  <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#10b981' }} />
+                  <span style={{ fontSize: '12px', color: '#16a34a', fontWeight: 600 }}>بهینه و عالی (بالای ۸۰٪)</span>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between' }}>
+                  <span style={{ fontSize: '24px', fontWeight: 700, color: '#16a34a' }}>
+                    {summary.good_count}
+                  </span>
+                  <Button
+                    isSmall
+                    variant="link"
+                    style={{ fontSize: '11.5px', padding: 0, color: '#16a34a' }}
+                    onClick={() => {
+                      setScoreFilter('over_80');
+                      setOrder('desc');
+                    }}
+                  >
+                    مشاهده برترین‌ها
+                  </Button>
+                </div>
+              </CardBody>
+            </Card>
+          </div>
+
+          {/* ۲. نوار ابزار فشرده فیلتر و جستجو (Compact Filter Toolbar) */}
+          <Card style={{ marginBottom: '18px', border: '1px solid #e2e8f0', borderRadius: '10px' }}>
+            <CardBody style={{ padding: '12px 16px' }}>
+              <form onSubmit={handleSearchSubmit}>
+                <div
+                  style={{
+                    display: 'flex',
+                    flexWrap: 'wrap',
+                    gap: '10px',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                  }}
+                >
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', alignItems: 'center', flex: 1 }}>
+                    {/* فیلتر بازه درصد */}
+                    <div style={{ minWidth: '150px' }}>
+                      <SelectControl
+                        value={scoreFilter}
+                        options={[
+                          { label: 'همه نمرات', value: 'all' },
+                          { label: 'کمتر از ۵۰٪ (نیازمند اصلاح)', value: 'under_50' },
+                          { label: '۵۰٪ تا ۷۹٪ (متوسط)', value: '50_to_79' },
+                          { label: '۸۰٪ به بالا (عالی)', value: 'over_80' },
+                          { label: 'محدوده سفارشی...', value: 'custom' },
+                        ]}
+                        onChange={(val) => setScoreFilter(val)}
+                      />
+                    </div>
+
+                    {/* شاخص ارزیابی */}
+                    <div style={{ minWidth: '160px' }}>
+                      <SelectControl
+                        value={metric}
+                        options={[
+                          { label: 'میانگین کل (SEO+AEO+GEO)', value: 'avg' },
+                          { label: 'فقط سئو ارگانیک (SEO)', value: 'seo' },
+                          { label: 'فقط موتور پاسخگو (AEO)', value: 'aeo' },
+                          { label: 'فقط موتورهای هوش مصنوعی (GEO)', value: 'geo' },
+                          { label: 'فقط خوانایی متن (READ)', value: 'readability' },
+                        ]}
+                        onChange={(val) => setMetric(val)}
+                      />
+                    </div>
+
+                    {/* ترتیب مرتب‌سازی */}
+                    <div style={{ minWidth: '130px' }}>
+                      <SelectControl
+                        value={order}
+                        options={[
+                          { label: '🔻 ضعیف‌ترین‌ها اول', value: 'asc' },
+                          { label: '🔺 قوی‌ترین‌ها اول', value: 'desc' },
+                        ]}
+                        onChange={(val) => setOrder(val)}
+                      />
+                    </div>
+
+                    {/* جستجو در عنوان */}
+                    <div style={{ display: 'flex', gap: '6px', alignItems: 'center', minWidth: '200px' }}>
+                      <input
+                        type="text"
+                        value={search}
+                        onChange={(e) => setSearch(e.target.value)}
+                        placeholder="جستجوی مقاله..."
+                        style={{
+                          height: '36px',
+                          padding: '0 10px',
+                          borderRadius: '6px',
+                          border: '1px solid #cbd5e1',
+                          fontSize: '12.5px',
+                          width: '100%',
+                        }}
+                      />
+                      <Button variant="secondary" type="submit" style={{ height: '36px', fontSize: '12px' }}>
+                        جستجو
+                      </Button>
+                    </div>
+                  </div>
+
+                  {/* دکمه تحلیل دسته‌جمعی */}
+                  <div>
+                    <Button
+                      variant="primary"
+                      onClick={handleBatchAnalyze}
+                      disabled={batchAnalyzing}
+                      icon="update"
+                      style={{
+                        height: '36px',
+                        fontSize: '12px',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '6px',
+                        background: '#0284c7',
+                      }}
+                    >
+                      {batchAnalyzing ? 'در حال تحلیل...' : 'تحلیل دسته‌جمعی'}
+                    </Button>
+                  </div>
+                </div>
 
             {/* ورودی محدوده سفارشی */}
             {scoreFilter === 'custom' && (

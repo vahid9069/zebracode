@@ -10,19 +10,21 @@ import {
   Building2,
   User,
   Calendar,
-  DollarSign,
-  Percent,
   Check,
-  Copy,
   Upload,
   RefreshCw,
   Save,
-  FolderOpen,
   Eye,
   FileEdit,
   Sparkles,
   ShieldCheck,
-  Layers
+  Layers,
+  Image as ImageIcon,
+  DollarSign,
+  CreditCard,
+  Sliders,
+  Award,
+  Stamp
 } from 'lucide-react';
 
 interface InvoiceGeneratorProps {
@@ -30,26 +32,36 @@ interface InvoiceGeneratorProps {
   dict?: any;
 }
 
-interface InvoiceItem {
+export type InvoiceBusinessType = 'official' | 'commercial' | 'services' | 'proforma' | 'receipt';
+export type InvoiceLayoutTheme = 'classic' | 'modern' | 'minimal';
+export type InvoiceColor = 'blue' | 'emerald' | 'slate' | 'indigo' | 'amber';
+
+export interface InvoiceItem {
   id: string;
   description: string;
   quantity: number;
   unit: string;
   unitPrice: number;
-  discount: number; // amount
-  taxPercent: number; // e.g. 10%
+  discount: number;
+  taxPercent: number;
 }
 
-interface InvoiceData {
-  invoiceType: 'official' | 'simple' | 'proforma';
+export interface InvoiceData {
+  businessType: InvoiceBusinessType;
+  layoutTheme: InvoiceLayoutTheme;
+  themeColor: InvoiceColor;
   invoiceNumber: string;
   issueDate: string;
   dueDate: string;
-  currency: 'تومان' | 'ریال' | 'USD' | 'EUR';
-  themeColor: 'blue' | 'emerald' | 'slate' | 'indigo';
+  validityDays?: string; // For proforma
+  paymentMethod?: string; // For receipt
+  trackingCode?: string; // For receipt
+  currency: string;
 
   // Seller Info
   sellerLogo: string;
+  sellerLogoWidth: number; // in pixels (e.g. 100)
+  sellerStamp: string; // digital stamp & signature image
   sellerName: string;
   sellerEconomicCode: string;
   sellerNationalId: string;
@@ -72,13 +84,13 @@ interface InvoiceData {
   // Items
   items: InvoiceItem[];
 
-  // Terms & Footer
+  // Extras
   shippingCost: number;
   notes: string;
   terms: string;
 }
 
-// Persian Number to Words Helper
+// --- Numbers to Words Helpers ---
 const FA_ONES = ['', 'یک', 'دو', 'سه', 'چهار', 'پنج', 'شش', 'هفت', 'هشت', 'نه'];
 const FA_TEENS = ['ده', 'یازده', 'دوازده', 'سیزده', 'چهارده', 'پانزده', 'شانزده', 'هفده', 'هجده', 'نوزده'];
 const FA_TENS = ['', '', 'بیست', 'سی', 'چهل', 'پنجاه', 'شصت', 'هفتاد', 'هشتاد', 'نود'];
@@ -126,8 +138,53 @@ function numberToPersianWords(num: number): string {
   return resultWords.join(' و ');
 }
 
+const EN_ONES = ['', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine'];
+const EN_TEENS = ['Ten', 'Eleven', 'Twelve', 'Thirteen', 'Fourteen', 'Fifteen', 'Sixteen', 'Seventeen', 'Eighteen', 'Nineteen'];
+const EN_TENS = ['', '', 'Twenty', 'Thirty', 'Forty', 'Fifty', 'Sixty', 'Seventy', 'Eighty', 'Ninety'];
+const EN_THOUSANDS = ['', 'Thousand', 'Million', 'Billion', 'Trillion'];
+
+function convertThreeDigitsEN(num: number): string {
+  let str = '';
+  const h = Math.floor(num / 100);
+  const rem = num % 100;
+  if (h > 0) str += EN_ONES[h] + ' Hundred ';
+  if (rem >= 10 && rem <= 19) {
+    str += EN_TEENS[rem - 10] + ' ';
+  } else {
+    const t = Math.floor(rem / 10);
+    const o = rem % 10;
+    if (t > 0) str += EN_TENS[t] + ' ';
+    if (o > 0) str += EN_ONES[o] + ' ';
+  }
+  return str.trim();
+}
+
+function numberToEnglishWords(num: number): string {
+  if (!num || num === 0) return 'Zero';
+  const clean = Math.floor(Math.abs(num)).toString();
+  const chunks: number[] = [];
+  let s = clean;
+  while (s.length > 0) {
+    chunks.push(parseInt(s.slice(-3), 10));
+    s = s.slice(0, -3);
+  }
+
+  const resultWords: string[] = [];
+  for (let i = chunks.length - 1; i >= 0; i--) {
+    const chunkVal = chunks[i];
+    if (chunkVal > 0) {
+      const words = convertThreeDigitsEN(chunkVal);
+      const unit = EN_THOUSANDS[i];
+      resultWords.push(unit ? `${words} ${unit}` : words);
+    }
+  }
+
+  return resultWords.join(' ');
+}
+
 export function InvoiceGenerator({ locale = 'fa' }: InvoiceGeneratorProps) {
   const isEn = locale === 'en';
+  const STORAGE_KEY = `zebracode_invoice_draft_${locale}`;
 
   const getTodayJalali = () => {
     try {
@@ -136,161 +193,179 @@ export function InvoiceGenerator({ locale = 'fa' }: InvoiceGeneratorProps) {
         month: '2-digit',
         day: '2-digit',
       }).format(new Date());
-      // Convert Persian numbers to English
       return parts.replace(/[۰-۹]/g, (d) => '۰۱۲۳۴۵۶۷۸۹'.indexOf(d).toString());
     } catch {
       return '1404/01/01';
     }
   };
 
-  const initialFaData: InvoiceData = {
-    invoiceType: 'official',
-    invoiceNumber: `INV-${Math.floor(1000 + Math.random() * 9000)}`,
-    issueDate: getTodayJalali(),
-    dueDate: '',
-    currency: 'تومان',
-    themeColor: 'blue',
+  const getInitialData = (): InvoiceData => {
+    if (isEn) {
+      return {
+        businessType: 'official',
+        layoutTheme: 'modern',
+        themeColor: 'blue',
+        invoiceNumber: `INV-${Math.floor(1000 + Math.random() * 9000)}`,
+        issueDate: new Date().toISOString().slice(0, 10),
+        dueDate: new Date(Date.now() + 14 * 86400000).toISOString().slice(0, 10),
+        validityDays: '15 Days',
+        paymentMethod: 'Wire Transfer / Credit Card',
+        trackingCode: 'TRX-984210',
+        currency: 'USD',
 
-    sellerLogo: '',
-    sellerName: 'شرکت نوآوران داده‌ورز زبرا (سهامی خاص)',
-    sellerEconomicCode: '411456789123',
-    sellerNationalId: '14008954123',
-    sellerRegistrationNumber: '568912',
-    sellerPhone: '021-88776655',
-    sellerPostalCode: '1998765432',
-    sellerAddress: 'تهران، خیابان ولیعصر، نرسیده به میدان ونک، برج نگین، طبقه ۵، واحد ۱۲',
-    sellerBankName: 'بانک ملت',
-    sellerIban: 'IR050120000000001234567890',
-    sellerCardNumber: '6104-3378-1234-5678',
+        sellerLogo: '',
+        sellerLogoWidth: 100,
+        sellerStamp: '',
+        sellerName: 'ZebraCode Software Technologies Inc.',
+        sellerEconomicCode: 'US-98765432',
+        sellerNationalId: 'EIN-12-3456789',
+        sellerRegistrationNumber: 'REG-88990',
+        sellerPhone: '+1 (555) 345-6789',
+        sellerPostalCode: '94105',
+        sellerAddress: '500 Howard Street, Suite 400, San Francisco, CA 94105',
+        sellerBankName: 'Silicon Valley Bank',
+        sellerIban: 'US89SVBK00001234567890',
+        sellerCardNumber: '**** **** **** 4892',
 
-    buyerName: 'شرکت فناوری اطلاعات آفرینش',
-    buyerEconomicCode: '411987654321',
-    buyerNationalId: '10103456789',
-    buyerPhone: '021-22334455',
-    buyerPostalCode: '1415678901',
-    buyerAddress: 'تهران، بلوار سعادت‌آباد، خیابان یکم، پلاک ۲۴',
+        buyerName: 'Acme Global Enterprise Corp.',
+        buyerEconomicCode: 'EU-11223344',
+        buyerNationalId: 'VAT-GB99887766',
+        buyerPhone: '+1 (555) 789-0123',
+        buyerPostalCode: '10001',
+        buyerAddress: '350 5th Avenue, New York, NY 10001',
 
-    items: [
-      {
-        id: '1',
-        description: 'طراحی سیستم طراحی اختصاصی و رابط کاربری وب‌اپلیکیشن (UI/UX)',
-        quantity: 1,
-        unit: 'پروژه',
-        unitPrice: 28000000,
-        discount: 2000000,
-        taxPercent: 10,
-      },
-      {
-        id: '2',
-        description: 'توسعه فرانت‌اند با فریم‌ورک Next.js 15 و اتصال به وب‌سرویس‌های REST',
-        quantity: 1,
-        unit: 'پروژه',
-        unitPrice: 45000000,
-        discount: 0,
-        taxPercent: 10,
-      },
-      {
-        id: '3',
-        description: 'پشتیبانی فنی و مانیتورینگ عملکرد ۲۴/۷ سرور (ماهه اول)',
-        quantity: 1,
-        unit: 'ماه',
-        unitPrice: 6500000,
-        discount: 500000,
-        taxPercent: 10,
-      },
-    ],
+        items: [
+          {
+            id: '1',
+            description: 'Custom UI/UX Design System & Mobile Prototype in Figma',
+            quantity: 1,
+            unit: 'Project',
+            unitPrice: 1800,
+            discount: 100,
+            taxPercent: 10,
+          },
+          {
+            id: '2',
+            description: 'Full-Stack Next.js 15 Web Application Engineering & REST API Integration',
+            quantity: 1,
+            unit: 'Project',
+            unitPrice: 3500,
+            discount: 0,
+            taxPercent: 10,
+          },
+          {
+            id: '3',
+            description: 'Cloud Infrastructure & High-Availability Server Setup',
+            quantity: 1,
+            unit: 'Service',
+            unitPrice: 650,
+            discount: 50,
+            taxPercent: 10,
+          },
+        ],
 
-    shippingCost: 0,
-    notes: 'تحویل نهایی مستندات فنی و سورس‌کد پس از تسویه فاکتور انجام خواهد شد.',
-    terms: '۱. مهلت پرداخت فاکتور حداکثر تا ۷ روز کاری پس از تاریخ صدور می‌باشد.\n۲. کلیه خدمات شامل ۳ ماه گارانتی رفع باگ اختصاصی رایگان می‌باشند.',
+        shippingCost: 0,
+        notes: 'Full repository access and production deployment credentials will be provided upon settlement.',
+        terms: '1. Payment is due within 14 days of invoice date.\n2. Work includes 90 days of dedicated maintenance and defect resolution.',
+      };
+    }
+
+    return {
+      businessType: 'official',
+      layoutTheme: 'classic',
+      themeColor: 'blue',
+      invoiceNumber: `INV-${Math.floor(1000 + Math.random() * 9000)}`,
+      issueDate: getTodayJalali(),
+      dueDate: '',
+      validityDays: '۷ روز کاری',
+      paymentMethod: 'انتقال شبا / پایا',
+      trackingCode: 'TRX-549102',
+      currency: 'تومان',
+
+      sellerLogo: '',
+      sellerLogoWidth: 100,
+      sellerStamp: '',
+      sellerName: 'شرکت نوآوران داده‌ورز زبرا (سهامی خاص)',
+      sellerEconomicCode: '411456789123',
+      sellerNationalId: '14008954123',
+      sellerRegistrationNumber: '568912',
+      sellerPhone: '021-88776655',
+      sellerPostalCode: '1998765432',
+      sellerAddress: 'تهران، خیابان ولیعصر، نرسیده به میدان ونک، برج نگین، طبقه ۵، واحد ۱۲',
+      sellerBankName: 'بانک ملت',
+      sellerIban: 'IR050120000000001234567890',
+      sellerCardNumber: '6104-3378-1234-5678',
+
+      buyerName: 'شرکت فناوری اطلاعات و ارتباطات آفرینش',
+      buyerEconomicCode: '411987654321',
+      buyerNationalId: '10103456789',
+      buyerPhone: '021-22334455',
+      buyerPostalCode: '1415678901',
+      buyerAddress: 'تهران، بلوار سعادت‌آباد، خیابان یکم، پلاک ۲۴',
+
+      items: [
+        {
+          id: '1',
+          description: 'طراحی سیستم طراحی اختصاصی و رابط کاربری وب‌اپلیکیشن (UI/UX در فیگما)',
+          quantity: 1,
+          unit: 'پروژه',
+          unitPrice: 28000000,
+          discount: 2000000,
+          taxPercent: 10,
+        },
+        {
+          id: '2',
+          description: 'توسعه فرانت‌اند با فریم‌ورک Next.js 15 و اتصال به وب‌سرویس‌های REST',
+          quantity: 1,
+          unit: 'پروژه',
+          unitPrice: 45000000,
+          discount: 0,
+          taxPercent: 10,
+        },
+        {
+          id: '3',
+          description: 'پشتیبانی فنی و مانیتورینگ عملکرد ۲۴/۷ سرور (ماهه اول)',
+          quantity: 1,
+          unit: 'ماه',
+          unitPrice: 6500000,
+          discount: 500000,
+          taxPercent: 10,
+        },
+      ],
+
+      shippingCost: 0,
+      notes: 'تحویل نهایی مستندات فنی و سورس‌کد پس از تسویه فاکتور انجام خواهد شد.',
+      terms: '۱. مهلت پرداخت فاکتور حداکثر تا ۷ روز کاری پس از تاریخ صدور می‌باشد.\n۲. کلیه خدمات شامل ۳ ماه گارانتی رفع باگ اختصاصی رایگان می‌باشند.',
+    };
   };
 
-  const initialEnData: InvoiceData = {
-    invoiceType: 'official',
-    invoiceNumber: `INV-${Math.floor(1000 + Math.random() * 9000)}`,
-    issueDate: new Date().toISOString().slice(0, 10),
-    dueDate: '',
-    currency: 'USD',
-    themeColor: 'blue',
-
-    sellerLogo: '',
-    sellerName: 'ZebraCode Software Solutions Inc.',
-    sellerEconomicCode: 'US-98765432',
-    sellerNationalId: 'EIN-12-3456789',
-    sellerRegistrationNumber: 'REG-88990',
-    sellerPhone: '+1 (555) 345-6789',
-    sellerPostalCode: '94105',
-    sellerAddress: '500 Howard Street, Suite 400, San Francisco, CA 94105',
-    sellerBankName: 'Silicon Valley Bank',
-    sellerIban: 'US89SVBK00001234567890',
-    sellerCardNumber: '**** **** **** 4892',
-
-    buyerName: 'Acme Digital Global Corp.',
-    buyerEconomicCode: 'EU-11223344',
-    buyerNationalId: 'VAT-GB99887766',
-    buyerPhone: '+1 (555) 789-0123',
-    buyerPostalCode: '10001',
-    buyerAddress: '350 5th Avenue, New York, NY 10001',
-
-    items: [
-      {
-        id: '1',
-        description: 'Custom UI/UX Design System & Mobile App Prototype in Figma',
-        quantity: 1,
-        unit: 'Project',
-        unitPrice: 1800,
-        discount: 100,
-        taxPercent: 10,
-      },
-      {
-        id: '2',
-        description: 'Next.js 15 Full-Stack Web Application Engineering & API Integration',
-        quantity: 1,
-        unit: 'Project',
-        unitPrice: 3500,
-        discount: 0,
-        taxPercent: 10,
-      },
-      {
-        id: '3',
-        description: 'Monthly Cloud Infrastructure Maintenance & Performance Monitoring',
-        quantity: 1,
-        unit: 'Month',
-        unitPrice: 450,
-        discount: 50,
-        taxPercent: 10,
-      },
-    ],
-
-    shippingCost: 0,
-    notes: 'Technical documentation and full repository access will be granted upon settlement.',
-    terms: '1. Payment is due within 15 days of invoice date.\n2. Work includes 90 days of dedicated maintenance and defect resolution.',
-  };
-
-  const [invoice, setInvoice] = useState<InvoiceData>(isEn ? initialEnData : initialFaData);
+  const [invoice, setInvoice] = useState<InvoiceData>(getInitialData);
   const [activeTab, setActiveTab] = useState<'edit' | 'preview'>('edit');
   const [savedSuccess, setSavedSuccess] = useState(false);
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const logoInputRef = useRef<HTMLInputElement>(null);
+  const stampInputRef = useRef<HTMLInputElement>(null);
 
-  // Load draft from localStorage on mount
+  // Load draft safely with language isolation
   useEffect(() => {
     try {
-      const saved = localStorage.getItem('zebracode_invoice_draft');
+      const saved = localStorage.getItem(STORAGE_KEY);
       if (saved) {
         const parsed = JSON.parse(saved);
-        if (parsed && parsed.items) {
+        if (parsed && parsed.items && parsed.items.length > 0) {
           setInvoice(parsed);
+          return;
         }
       }
+      setInvoice(getInitialData());
     } catch {
-      // Ignore
+      setInvoice(getInitialData());
     }
-  }, []);
+  }, [locale]);
 
-  // Save to localStorage
+  // Save to locale-specific localStorage
   const handleSaveDraft = () => {
     try {
-      localStorage.setItem('zebracode_invoice_draft', JSON.stringify(invoice));
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(invoice));
       setSavedSuccess(true);
       setTimeout(() => setSavedSuccess(false), 2000);
     } catch {
@@ -301,18 +376,23 @@ export function InvoiceGenerator({ locale = 'fa' }: InvoiceGeneratorProps) {
   // Reset to initial
   const handleReset = () => {
     if (confirm(isEn ? 'Reset invoice and create new?' : 'آیا مایلید تمام فیلدها بازنشانی شده و فاکتور جدید ایجاد شود؟')) {
-      setInvoice(isEn ? initialEnData : initialFaData);
-      localStorage.removeItem('zebracode_invoice_draft');
+      const fresh = getInitialData();
+      setInvoice(fresh);
+      try {
+        localStorage.removeItem(STORAGE_KEY);
+      } catch {
+        // Ignore
+      }
     }
   };
 
-  // Logo Upload
+  // Logo Upload with Image Preview
   const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    if (file.size > 2 * 1024 * 1024) {
-      alert(isEn ? 'Logo image size must be under 2MB.' : 'حجم لوگو نباید بیشتر از ۲ مگابایت باشد.');
+    if (file.size > 3 * 1024 * 1024) {
+      alert(isEn ? 'Logo file must be under 3MB.' : 'حجم لوگو نباید بیشتر از ۳ مگابایت باشد.');
       return;
     }
 
@@ -323,7 +403,55 @@ export function InvoiceGenerator({ locale = 'fa' }: InvoiceGeneratorProps) {
     reader.readAsDataURL(file);
   };
 
-  // Item modifications
+  // Stamp / Signature Upload
+  const handleStampUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.size > 3 * 1024 * 1024) {
+      alert(isEn ? 'Stamp/Signature file must be under 3MB.' : 'حجم تصویر مهر یا امضا نباید بیشتر از ۳ مگابایت باشد.');
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      setInvoice((prev) => ({ ...prev, sellerStamp: event.target?.result as string }));
+    };
+    reader.readAsDataURL(file);
+  };
+
+  // Preset Template Switcher
+  const applyBusinessTypePreset = (type: InvoiceBusinessType) => {
+    setInvoice((prev) => {
+      let tax = 10;
+      let theme: InvoiceLayoutTheme = 'modern';
+      if (type === 'official') {
+        tax = 10;
+        theme = 'classic';
+      } else if (type === 'services') {
+        tax = 0;
+        theme = 'modern';
+      } else if (type === 'commercial') {
+        tax = 10;
+        theme = 'modern';
+      } else if (type === 'receipt') {
+        tax = 0;
+        theme = 'minimal';
+      } else if (type === 'proforma') {
+        tax = 10;
+        theme = 'classic';
+      }
+
+      return {
+        ...prev,
+        businessType: type,
+        layoutTheme: theme,
+        items: prev.items.map((it) => ({ ...it, taxPercent: tax })),
+      };
+    });
+  };
+
+  // Item management
   const handleAddItem = () => {
     const newItem: InvoiceItem = {
       id: Date.now().toString(),
@@ -332,7 +460,7 @@ export function InvoiceGenerator({ locale = 'fa' }: InvoiceGeneratorProps) {
       unit: isEn ? 'Item' : 'عدد',
       unitPrice: 0,
       discount: 0,
-      taxPercent: invoice.invoiceType === 'official' ? 10 : 0,
+      taxPercent: invoice.businessType === 'services' || invoice.businessType === 'receipt' ? 0 : 10,
     };
     setInvoice((prev) => ({ ...prev, items: [...prev.items, newItem] }));
   };
@@ -356,7 +484,6 @@ export function InvoiceGenerator({ locale = 'fa' }: InvoiceGeneratorProps) {
   );
 
   const totalDiscount = invoice.items.reduce((acc, item) => acc + (item.discount || 0), 0);
-
   const subtotalAfterDiscount = subtotalBeforeDiscount - totalDiscount;
 
   const totalTax = invoice.items.reduce((acc, item) => {
@@ -387,59 +514,86 @@ export function InvoiceGenerator({ locale = 'fa' }: InvoiceGeneratorProps) {
     document.body.removeChild(a);
   };
 
-  // Theme Colors
-  const themeClasses = {
+  // Theme styling map
+  const colorStyles = {
     blue: {
       primary: 'bg-blue-600',
       text: 'text-blue-600',
       border: 'border-blue-600',
       light: 'bg-blue-50 dark:bg-blue-950/40',
-      headerBg: 'bg-blue-600 text-white',
+      badge: 'bg-blue-600 text-white',
+      accentBorder: 'border-blue-500',
     },
     emerald: {
       primary: 'bg-emerald-600',
       text: 'text-emerald-600',
       border: 'border-emerald-600',
       light: 'bg-emerald-50 dark:bg-emerald-950/40',
-      headerBg: 'bg-emerald-600 text-white',
+      badge: 'bg-emerald-600 text-white',
+      accentBorder: 'border-emerald-500',
     },
     slate: {
       primary: 'bg-slate-800',
       text: 'text-slate-800',
       border: 'border-slate-800',
       light: 'bg-slate-100 dark:bg-slate-800',
-      headerBg: 'bg-slate-800 text-white',
+      badge: 'bg-slate-800 text-white',
+      accentBorder: 'border-slate-700',
     },
     indigo: {
       primary: 'bg-indigo-600',
       text: 'text-indigo-600',
       border: 'border-indigo-600',
       light: 'bg-indigo-50 dark:bg-indigo-950/40',
-      headerBg: 'bg-indigo-600 text-white',
+      badge: 'bg-indigo-600 text-white',
+      accentBorder: 'border-indigo-500',
+    },
+    amber: {
+      primary: 'bg-amber-600',
+      text: 'text-amber-600',
+      border: 'border-amber-600',
+      light: 'bg-amber-50 dark:bg-amber-950/40',
+      badge: 'bg-amber-600 text-white',
+      accentBorder: 'border-amber-500',
     },
   }[invoice.themeColor];
 
-  const formatNumber = (num: number) => {
-    return (num || 0).toLocaleString();
+  const formatNumber = (num: number) => (num || 0).toLocaleString();
+
+  // Document Title by businessType
+  const getDocumentTitle = () => {
+    switch (invoice.businessType) {
+      case 'official':
+        return isEn ? 'TAX INVOICE' : 'صورت‌حساب فروش کالا و خدمات (فاکتور رسمی)';
+      case 'commercial':
+        return isEn ? 'COMMERCIAL INVOICE' : 'فاکتور فروش کالا و خدمات';
+      case 'services':
+        return isEn ? 'SERVICE INVOICE' : 'صورت‌حساب ارائه خدمات و فریلنسری';
+      case 'proforma':
+        return isEn ? 'PROFORMA INVOICE' : 'پیش‌فاکتور (Proforma)';
+      case 'receipt':
+        return isEn ? 'PAYMENT RECEIPT' : 'رسید پرداخت و تسویه حساب';
+      default:
+        return isEn ? 'INVOICE' : 'فاکتور فروش';
+    }
   };
 
   return (
     <div className="space-y-6" dir={isEn ? 'ltr' : 'rtl'}>
-      {/* Print Stylesheet overrides */}
+      {/* Print isolation stylesheet */}
       <style jsx global>{`
         @media print {
-          body * {
-            visibility: hidden;
+          body {
+            background: white !important;
+            color: black !important;
           }
-          #printable-invoice,
-          #printable-invoice * {
-            visibility: visible;
+          header, footer, nav, .print\\:hidden, #feedback-pill, #theme-toggle {
+            display: none !important;
           }
           #printable-invoice {
-            position: absolute;
-            left: 0;
-            top: 0;
+            display: block !important;
             width: 100% !important;
+            max-width: 100% !important;
             margin: 0 !important;
             padding: 0 !important;
             box-shadow: none !important;
@@ -454,47 +608,45 @@ export function InvoiceGenerator({ locale = 'fa' }: InvoiceGeneratorProps) {
         }
       `}</style>
 
-      {/* Control & Action Toolbar (Hidden in Print) */}
+      {/* Main Action Bar */}
       <div className="flex flex-wrap items-center justify-between gap-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 shadow-sm print:hidden">
         {/* Tab Selector: Edit vs Preview */}
         <div className="flex items-center gap-1.5 p-1 bg-slate-100 dark:bg-slate-800 rounded-xl text-xs font-bold">
           <button
             onClick={() => setActiveTab('edit')}
-            className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg transition ${
+            className={`flex items-center gap-1.5 px-4 py-2 rounded-lg transition ${
               activeTab === 'edit'
                 ? 'bg-white dark:bg-slate-900 text-blue-600 shadow-sm'
                 : 'text-slate-600 dark:text-slate-400 hover:text-slate-900'
             }`}
           >
             <FileEdit className="w-3.5 h-3.5" />
-            <span>{isEn ? 'Edit Invoice' : 'ویرایش مشخصات'}</span>
+            <span>{isEn ? 'Edit Invoice' : 'ویرایش مشخصات فاکتور'}</span>
           </button>
 
           <button
             onClick={() => setActiveTab('preview')}
-            className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg transition ${
+            className={`flex items-center gap-1.5 px-4 py-2 rounded-lg transition ${
               activeTab === 'preview'
                 ? 'bg-white dark:bg-slate-900 text-blue-600 shadow-sm'
                 : 'text-slate-600 dark:text-slate-400 hover:text-slate-900'
             }`}
           >
             <Eye className="w-3.5 h-3.5" />
-            <span>{isEn ? 'Live A4 Preview' : 'پیش‌نمایش چاپ A4'}</span>
+            <span>{isEn ? 'Printable A4 Preview' : 'پیش‌نمایش چاپ A4'}</span>
           </button>
         </div>
 
         {/* Action Buttons */}
         <div className="flex flex-wrap items-center gap-2">
-          {/* Print / Save PDF */}
           <button
             onClick={handlePrint}
             className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs shadow-md shadow-blue-500/20 active:scale-95 transition cursor-pointer"
           >
             <Printer className="w-4 h-4" />
-            <span>{isEn ? 'Print / Export PDF' : 'چاپ و دانلود مستقیم PDF'}</span>
+            <span>{isEn ? 'Print / Export PDF' : 'چاپ مستقیم و ذخیره PDF'}</span>
           </button>
 
-          {/* Save Draft */}
           <button
             onClick={handleSaveDraft}
             className="flex items-center gap-1.5 px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 text-xs font-semibold transition"
@@ -503,20 +655,18 @@ export function InvoiceGenerator({ locale = 'fa' }: InvoiceGeneratorProps) {
             <span>{savedSuccess ? (isEn ? 'Saved!' : 'ذخیره شد') : (isEn ? 'Save Draft' : 'ذخیره پیش‌نویس')}</span>
           </button>
 
-          {/* Download JSON */}
           <button
             onClick={handleDownloadJson}
             className="p-2 rounded-xl border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-500 transition"
-            title={isEn ? 'Backup to JSON' : 'دانلود فایل پشتیبان JSON'}
+            title={isEn ? 'Backup to JSON' : 'دانلود پشتیبان JSON'}
           >
             <Download className="w-4 h-4" />
           </button>
 
-          {/* Reset */}
           <button
             onClick={handleReset}
             className="p-2 rounded-xl text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/40 transition"
-            title={isEn ? 'Reset and New Invoice' : 'ایجاد فاکتور جدید و پاک‌سازی'}
+            title={isEn ? 'Reset and New Invoice' : 'ایجاد فاکتور جدید'}
           >
             <RefreshCw className="w-4 h-4" />
           </button>
@@ -526,64 +676,227 @@ export function InvoiceGenerator({ locale = 'fa' }: InvoiceGeneratorProps) {
       {/* --- TAB 1: EDIT FORM --- */}
       {activeTab === 'edit' && (
         <div className="space-y-6 print:hidden">
-          {/* Top Configuration Card: Type, Color & Currency */}
-          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 shadow-sm space-y-4">
-            <h3 className="text-xs font-bold text-slate-700 dark:text-slate-300">
-              {isEn ? 'General Invoice Settings' : 'تنظیمات کلی فاکتور'}
-            </h3>
+          {/* Invoice Type Selection Pills (For Multiple Business Types) */}
+          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 shadow-sm space-y-3">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-bold text-slate-800 dark:text-slate-200 flex items-center gap-2">
+                <Sliders className="w-4 h-4 text-blue-500" />
+                <span>{isEn ? 'Select Invoice Type (Business Model):' : 'انتخاب نوع فاکتور (متناسب با کسب‌وکار شما):'}</span>
+              </span>
+              <span className="text-[11px] text-slate-400">
+                {isEn ? 'Customized fields and rules' : 'تنظیم خودکار ستون‌ها و استانداردهای مالی'}
+              </span>
+            </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs">
-              {/* Type */}
-              <div>
-                <label className="text-[11px] font-semibold text-slate-500 block mb-1.5">
-                  {isEn ? 'Invoice Standard:' : 'نوع سند:'}
-                </label>
-                <select
-                  value={invoice.invoiceType}
-                  onChange={(e) => setInvoice({ ...invoice, invoiceType: e.target.value as any })}
-                  className="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 font-semibold focus:outline-none"
+            <div className="grid grid-cols-2 sm:grid-cols-5 gap-2.5 text-xs">
+              {[
+                { id: 'official', fa: 'فاکتور رسمی مالیاتی', en: 'Official Tax Invoice', descFa: 'ماده ۱۶۹ مکرر با ارزش افزوده', descEn: 'Compliant with VAT & Tax codes' },
+                { id: 'commercial', fa: 'فاکتور فروش کالا', en: 'Retail & Commercial', descFa: 'فروشگاه‌ها، اصناف و انبارداری', descEn: 'Stores, e-commerce & inventory' },
+                { id: 'services', fa: 'فاکتور خدمات و فریلنسری', en: 'Freelance & Services', descFa: 'برنامه‌نویسان، پروژه‌ای و مشاوره‌ای', descEn: 'Engineers, consulting & hourly' },
+                { id: 'proforma', fa: 'پیش‌فاکتور (Proforma)', en: 'Proforma Invoice', descFa: 'اعلام قیمت رسمی و مهلت اعتبار', descEn: 'Quotation with validity period' },
+                { id: 'receipt', fa: 'رسید و فیش پرداخت', en: 'Payment Receipt', descFa: 'ثبت تسویه و کد رهگیری بانکی', descEn: 'Voucher with settlement tracking' },
+              ].map((btn) => (
+                <button
+                  key={btn.id}
+                  onClick={() => applyBusinessTypePreset(btn.id as InvoiceBusinessType)}
+                  className={`p-3 rounded-xl border text-start transition-all ${
+                    invoice.businessType === btn.id
+                      ? 'border-blue-600 bg-blue-50/70 dark:bg-blue-950/50 text-blue-900 dark:text-blue-100 ring-2 ring-blue-500/20 shadow-sm'
+                      : 'border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 bg-slate-50/40 dark:bg-slate-800/40 text-slate-600 dark:text-slate-300'
+                  }`}
                 >
-                  <option value="official">{isEn ? 'Official Tax Invoice (VAT)' : 'فاکتور رسمی (ماده ۱۶۹ مکرر / مالیاتی)'}</option>
-                  <option value="simple">{isEn ? 'Standard Invoice' : 'فاکتور فروش عادی / فروشگاهی'}</option>
-                  <option value="proforma">{isEn ? 'Proforma Invoice' : 'پیش‌فاکتور (Proforma)'}</option>
-                </select>
+                  <strong className="block text-xs font-bold">{isEn ? btn.en : btn.fa}</strong>
+                  <span className="block text-[10px] text-slate-400 mt-1 line-clamp-1">
+                    {isEn ? btn.descEn : btn.descFa}
+                  </span>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Business Logo & Theme Customization Bar */}
+          <div className="grid grid-cols-1 md:grid-cols-12 gap-5">
+            {/* Logo Upload Box (7 Cols) */}
+            <div className="md:col-span-7 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 shadow-sm space-y-4">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-bold text-slate-800 dark:text-slate-200 flex items-center gap-1.5">
+                  <ImageIcon className="w-4 h-4 text-emerald-500" />
+                  <span>{isEn ? 'Business Logo & Digital Stamp:' : 'لوگوی اختصاصی و مهر شرکت:'}</span>
+                </span>
+                <span className="text-[11px] text-slate-400">
+                  {isEn ? 'PNG, JPG, SVG (Max 3MB)' : 'فرمت‌های تصویری تا سقف ۳ مگابایت'}
+                </span>
               </div>
 
-              {/* Currency */}
-              <div>
-                <label className="text-[11px] font-semibold text-slate-500 block mb-1.5">
-                  {isEn ? 'Currency:' : 'واحد پولی فاکتور:'}
-                </label>
-                <select
-                  value={invoice.currency}
-                  onChange={(e) => setInvoice({ ...invoice, currency: e.target.value as any })}
-                  className="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 font-semibold focus:outline-none"
-                >
-                  <option value="تومان">تومان (Toman)</option>
-                  <option value="ریال">ریال (Rial)</option>
-                  <option value="USD">دلار آمریکا (USD $)</option>
-                  <option value="EUR">یورو (EUR €)</option>
-                </select>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {/* Logo Box */}
+                <div className="p-3.5 rounded-xl border border-dashed border-slate-300 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/30 flex flex-col items-center justify-center text-center space-y-2">
+                  {invoice.sellerLogo ? (
+                    <div className="space-y-2 w-full flex flex-col items-center">
+                      <div className="bg-white p-2 rounded-lg border border-slate-200 shadow-2xs max-h-20 flex items-center justify-center">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          src={invoice.sellerLogo}
+                          alt="Company Logo"
+                          style={{ maxWidth: `${invoice.sellerLogoWidth}px`, maxHeight: '60px' }}
+                          className="object-contain"
+                        />
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <label className="text-[11px] text-blue-600 font-semibold cursor-pointer hover:underline">
+                          <span>{isEn ? 'Change Logo' : 'تغییر لوگو'}</span>
+                          <input type="file" accept="image/*" ref={logoInputRef} onChange={handleLogoUpload} className="hidden" />
+                        </label>
+                        <span className="text-slate-300">|</span>
+                        <button
+                          onClick={() => setInvoice({ ...invoice, sellerLogo: '' })}
+                          className="text-[11px] text-red-500 hover:underline"
+                        >
+                          {isEn ? 'Remove' : 'حذف'}
+                        </button>
+                      </div>
+
+                      {/* Width slider */}
+                      <div className="w-full pt-1 flex items-center gap-2 text-[10px] text-slate-500">
+                        <span>{isEn ? 'Size:' : 'سایز:'}</span>
+                        <input
+                          type="range"
+                          min={50}
+                          max={220}
+                          value={invoice.sellerLogoWidth}
+                          onChange={(e) => setInvoice({ ...invoice, sellerLogoWidth: Number(e.target.value) })}
+                          className="w-full accent-blue-600"
+                        />
+                        <span className="font-mono">{invoice.sellerLogoWidth}px</span>
+                      </div>
+                    </div>
+                  ) : (
+                    <>
+                      <div className="w-10 h-10 rounded-full bg-blue-50 dark:bg-blue-950/60 text-blue-600 flex items-center justify-center">
+                        <Upload className="w-4 h-4" />
+                      </div>
+                      <div>
+                        <label className="text-xs font-bold text-blue-600 hover:underline cursor-pointer">
+                          <span>{isEn ? 'Upload Company Logo' : 'بارگذاری لوگوی اختصاصی'}</span>
+                          <input type="file" accept="image/*" ref={logoInputRef} onChange={handleLogoUpload} className="hidden" />
+                        </label>
+                        <p className="text-[10px] text-slate-400 mt-0.5">
+                          {isEn ? 'Appears on the top header' : 'در بالای سربرگ فاکتور نمایش می‌یابد'}
+                        </p>
+                      </div>
+                    </>
+                  )}
+                </div>
+
+                {/* Stamp & Signature Box */}
+                <div className="p-3.5 rounded-xl border border-dashed border-slate-300 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/30 flex flex-col items-center justify-center text-center space-y-2">
+                  {invoice.sellerStamp ? (
+                    <div className="space-y-2 w-full flex flex-col items-center">
+                      <div className="bg-white p-2 rounded-lg border border-slate-200 shadow-2xs max-h-20 flex items-center justify-center">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          src={invoice.sellerStamp}
+                          alt="Official Stamp"
+                          className="max-h-16 object-contain"
+                        />
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <label className="text-[11px] text-blue-600 font-semibold cursor-pointer hover:underline">
+                          <span>{isEn ? 'Change Stamp' : 'تغییر مهر'}</span>
+                          <input type="file" accept="image/*" ref={stampInputRef} onChange={handleStampUpload} className="hidden" />
+                        </label>
+                        <span className="text-slate-300">|</span>
+                        <button
+                          onClick={() => setInvoice({ ...invoice, sellerStamp: '' })}
+                          className="text-[11px] text-red-500 hover:underline"
+                        >
+                          {isEn ? 'Remove' : 'حذف'}
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <>
+                      <div className="w-10 h-10 rounded-full bg-amber-50 dark:bg-amber-950/60 text-amber-600 flex items-center justify-center">
+                        <Stamp className="w-4 h-4" />
+                      </div>
+                      <div>
+                        <label className="text-xs font-bold text-amber-600 hover:underline cursor-pointer">
+                          <span>{isEn ? 'Upload Stamp / Signature' : 'آپلود مهر و امضای دیجیتال'}</span>
+                          <input type="file" accept="image/*" ref={stampInputRef} onChange={handleStampUpload} className="hidden" />
+                        </label>
+                        <p className="text-[10px] text-slate-400 mt-0.5">
+                          {isEn ? 'Placed in seller signature section' : 'در بخش مهر و امضای فاکتور درج می‌شود'}
+                        </p>
+                      </div>
+                    </>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* Styling, Theme & Currency (5 Cols) */}
+            <div className="md:col-span-5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 shadow-sm space-y-4">
+              <span className="text-xs font-bold text-slate-800 dark:text-slate-200 block">
+                {isEn ? 'Design Theme & Currency:' : 'قالب چیدمان و واحد پول:'}
+              </span>
+
+              <div className="grid grid-cols-2 gap-3 text-xs">
+                {/* Layout Theme */}
+                <div>
+                  <label className="text-[11px] text-slate-500 block mb-1">
+                    {isEn ? 'Layout Template:' : 'طرح چیدمان:'}
+                  </label>
+                  <select
+                    value={invoice.layoutTheme}
+                    onChange={(e) => setInvoice({ ...invoice, layoutTheme: e.target.value as InvoiceLayoutTheme })}
+                    className="w-full p-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 font-semibold focus:outline-none"
+                  >
+                    <option value="classic">{isEn ? 'Classic Official' : 'رسمی و اداری (کلاسیک)'}</option>
+                    <option value="modern">{isEn ? 'Modern Clean' : 'مدرن و شرکتی'}</option>
+                    <option value="minimal">{isEn ? 'Minimal (Paper-saver)' : 'ساده و فشرده'}</option>
+                  </select>
+                </div>
+
+                {/* Currency */}
+                <div>
+                  <label className="text-[11px] text-slate-500 block mb-1">
+                    {isEn ? 'Currency:' : 'واحد پولی:'}
+                  </label>
+                  <select
+                    value={invoice.currency}
+                    onChange={(e) => setInvoice({ ...invoice, currency: e.target.value })}
+                    className="w-full p-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 font-semibold focus:outline-none"
+                  >
+                    <option value="تومان">تومان (Toman)</option>
+                    <option value="ریال">ریال (Rial)</option>
+                    <option value="USD">دلار آمریکا ($ USD)</option>
+                    <option value="EUR">یورو (€ EUR)</option>
+                    <option value="GBP">پوند (£ GBP)</option>
+                    <option value="درهم">درهم امارات (AED)</option>
+                  </select>
+                </div>
               </div>
 
-              {/* Theme Color */}
+              {/* Color Accents */}
               <div>
-                <label className="text-[11px] font-semibold text-slate-500 block mb-1.5">
+                <label className="text-[11px] text-slate-500 block mb-1.5">
                   {isEn ? 'Color Accent:' : 'رنگ سازمانی فاکتور:'}
                 </label>
-                <div className="flex items-center gap-2 pt-1">
+                <div className="flex items-center gap-2">
                   {[
-                    { id: 'blue', color: 'bg-blue-600' },
-                    { id: 'emerald', color: 'bg-emerald-600' },
-                    { id: 'slate', color: 'bg-slate-800' },
-                    { id: 'indigo', color: 'bg-indigo-600' },
+                    { id: 'blue', color: 'bg-blue-600', name: 'آبی' },
+                    { id: 'emerald', color: 'bg-emerald-600', name: 'سبز' },
+                    { id: 'slate', color: 'bg-slate-800', name: 'ذغالی' },
+                    { id: 'indigo', color: 'bg-indigo-600', name: 'بنفش' },
+                    { id: 'amber', color: 'bg-amber-600', name: 'طلایی' },
                   ].map((t) => (
                     <button
                       key={t.id}
-                      onClick={() => setInvoice({ ...invoice, themeColor: t.id as any })}
-                      className={`w-7 h-7 rounded-full ${t.color} flex items-center justify-center transition ${
-                        invoice.themeColor === t.id ? 'ring-2 ring-offset-2 ring-blue-500 scale-110' : 'opacity-80'
+                      onClick={() => setInvoice({ ...invoice, themeColor: t.id as InvoiceColor })}
+                      className={`w-7 h-7 rounded-full ${t.color} flex items-center justify-center transition-all ${
+                        invoice.themeColor === t.id ? 'ring-2 ring-offset-2 ring-blue-500 scale-110 shadow-sm' : 'opacity-70 hover:opacity-100'
                       }`}
+                      title={t.name}
                     >
                       {invoice.themeColor === t.id && <Check className="w-3.5 h-3.5 text-white" />}
                     </button>
@@ -597,44 +910,15 @@ export function InvoiceGenerator({ locale = 'fa' }: InvoiceGeneratorProps) {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* SELLER CARD */}
             <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 shadow-sm space-y-4">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2 text-xs font-bold text-slate-800 dark:text-slate-100">
-                  <Building2 className="w-4 h-4 text-blue-500" />
-                  <span>{isEn ? 'Seller Details (Vendor):' : 'مشخصات فروشنده (کسب‌وکار شما):'}</span>
-                </div>
-
-                {/* Logo Upload button */}
-                <label className="flex items-center gap-1 text-[11px] font-semibold text-blue-600 cursor-pointer hover:underline">
-                  <Upload className="w-3.5 h-3.5" />
-                  <span>{invoice.sellerLogo ? (isEn ? 'Change Logo' : 'تغییر لوگو') : (isEn ? 'Upload Logo' : 'آپلود لوگوی کسب‌وکار')}</span>
-                  <input
-                    type="file"
-                    accept="image/*"
-                    ref={fileInputRef}
-                    onChange={handleLogoUpload}
-                    className="hidden"
-                  />
-                </label>
+              <div className="flex items-center gap-2 text-xs font-bold text-slate-800 dark:text-slate-100 pb-2 border-b border-slate-100 dark:border-slate-800">
+                <Building2 className="w-4 h-4 text-blue-500" />
+                <span>{isEn ? 'Seller Details (Vendor / Your Business):' : 'مشخصات فروشنده (کسب‌وکار شما):'}</span>
               </div>
-
-              {invoice.sellerLogo && (
-                <div className="flex items-center gap-3 p-2 bg-slate-50 dark:bg-slate-800 rounded-xl">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={invoice.sellerLogo} alt="Logo" className="w-12 h-12 object-contain rounded" />
-                  <span className="text-xs text-slate-500">{isEn ? 'Custom logo active' : 'لوگوی شما بارگذاری شد'}</span>
-                  <button
-                    onClick={() => setInvoice({ ...invoice, sellerLogo: '' })}
-                    className="text-xs text-red-500 hover:underline ms-auto"
-                  >
-                    {isEn ? 'Remove' : 'حذف لوگو'}
-                  </button>
-                </div>
-              )}
 
               <div className="space-y-3 text-xs">
                 <div>
                   <label className="text-[11px] text-slate-500 block mb-1">
-                    {isEn ? 'Company / Business Name:' : 'نام شخص حقیقی یا حقوقی (فروشنده):'}
+                    {isEn ? 'Business / Company / Individual Name:' : 'نام فروشگاه، شرکت یا شخص حقیقی:'}
                   </label>
                   <input
                     type="text"
@@ -672,7 +956,7 @@ export function InvoiceGenerator({ locale = 'fa' }: InvoiceGeneratorProps) {
                 <div className="grid grid-cols-2 gap-3">
                   <div>
                     <label className="text-[11px] text-slate-500 block mb-1">
-                      {isEn ? 'Phone Number:' : 'شماره تلفن تماس:'}
+                      {isEn ? 'Phone Number:' : 'شماره تماس:'}
                     </label>
                     <input
                       type="text"
@@ -696,7 +980,7 @@ export function InvoiceGenerator({ locale = 'fa' }: InvoiceGeneratorProps) {
 
                 <div>
                   <label className="text-[11px] text-slate-500 block mb-1">
-                    {isEn ? 'Full Address:' : 'نشانی کامل فروشنده:'}
+                    {isEn ? 'Full Address:' : 'نشانی کامل:'}
                   </label>
                   <input
                     type="text"
@@ -706,7 +990,7 @@ export function InvoiceGenerator({ locale = 'fa' }: InvoiceGeneratorProps) {
                   />
                 </div>
 
-                {/* Bank account */}
+                {/* Bank account details */}
                 <div className="p-3 bg-slate-50 dark:bg-slate-800/60 rounded-xl space-y-2 border border-slate-100 dark:border-slate-800">
                   <span className="text-[11px] font-bold text-slate-600 dark:text-slate-300 block">
                     {isEn ? 'Bank Settlement Details:' : 'اطلاعات بانکی جهت واریز وجه:'}
@@ -740,9 +1024,9 @@ export function InvoiceGenerator({ locale = 'fa' }: InvoiceGeneratorProps) {
 
             {/* BUYER CARD & INVOICE META */}
             <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 shadow-sm space-y-4">
-              <div className="flex items-center gap-2 text-xs font-bold text-slate-800 dark:text-slate-100">
+              <div className="flex items-center gap-2 text-xs font-bold text-slate-800 dark:text-slate-100 pb-2 border-b border-slate-100 dark:border-slate-800">
                 <User className="w-4 h-4 text-emerald-500" />
-                <span>{isEn ? 'Buyer Details (Customer):' : 'مشخصات خریدار (مشتری):'}</span>
+                <span>{isEn ? 'Buyer Details (Customer / Client):' : 'مشخصات خریدار (مشتری):'}</span>
               </div>
 
               <div className="space-y-3 text-xs">
@@ -786,7 +1070,7 @@ export function InvoiceGenerator({ locale = 'fa' }: InvoiceGeneratorProps) {
                 <div className="grid grid-cols-2 gap-3">
                   <div>
                     <label className="text-[11px] text-slate-500 block mb-1">
-                      {isEn ? 'Phone:' : 'شماره تماس:'}
+                      {isEn ? 'Phone:' : 'شماره تماس خریدار:'}
                     </label>
                     <input
                       type="text"
@@ -820,10 +1104,10 @@ export function InvoiceGenerator({ locale = 'fa' }: InvoiceGeneratorProps) {
                   />
                 </div>
 
-                {/* Invoice Meta */}
+                {/* Invoice Meta Grid */}
                 <div className="p-3 bg-slate-50 dark:bg-slate-800/60 rounded-xl space-y-2 border border-slate-100 dark:border-slate-800">
                   <span className="text-[11px] font-bold text-slate-600 dark:text-slate-300 block">
-                    {isEn ? 'Invoice Number & Dates:' : 'شماره و تاریخ فاکتور:'}
+                    {isEn ? 'Invoice Number & Dates:' : 'مشخصات سند و تاریخ‌ها:'}
                   </span>
                   <div className="grid grid-cols-2 gap-2">
                     <div>
@@ -845,6 +1129,43 @@ export function InvoiceGenerator({ locale = 'fa' }: InvoiceGeneratorProps) {
                       />
                     </div>
                   </div>
+
+                  {invoice.businessType === 'proforma' && (
+                    <div>
+                      <span className="text-[10px] text-slate-400 block mb-0.5">{isEn ? 'Quotation Validity:' : 'مهلت اعتبار پیش‌فاکتور:'}</span>
+                      <input
+                        type="text"
+                        value={invoice.validityDays}
+                        onChange={(e) => setInvoice({ ...invoice, validityDays: e.target.value })}
+                        placeholder={isEn ? 'e.g. 7 Days' : 'مثال: ۷ روز کاری'}
+                        className="w-full p-1.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-xs"
+                      />
+                    </div>
+                  )}
+
+                  {invoice.businessType === 'receipt' && (
+                    <div className="grid grid-cols-2 gap-2 pt-1">
+                      <div>
+                        <span className="text-[10px] text-slate-400 block mb-0.5">{isEn ? 'Payment Method:' : 'روش تسویه:'}</span>
+                        <input
+                          type="text"
+                          value={invoice.paymentMethod}
+                          onChange={(e) => setInvoice({ ...invoice, paymentMethod: e.target.value })}
+                          placeholder={isEn ? 'Cash / POS / Wire' : 'کارتخوان / پایا / چک'}
+                          className="w-full p-1.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-xs"
+                        />
+                      </div>
+                      <div>
+                        <span className="text-[10px] text-slate-400 block mb-0.5">{isEn ? 'Tracking / Ref #:' : 'شماره پیگیری:'}</span>
+                        <input
+                          type="text"
+                          value={invoice.trackingCode}
+                          onChange={(e) => setInvoice({ ...invoice, trackingCode: e.target.value })}
+                          className="w-full p-1.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 font-mono text-xs"
+                        />
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
@@ -853,12 +1174,12 @@ export function InvoiceGenerator({ locale = 'fa' }: InvoiceGeneratorProps) {
           {/* Line Items Table */}
           <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 shadow-sm space-y-4">
             <div className="flex items-center justify-between">
-              <h3 className="text-xs font-bold text-slate-700 dark:text-slate-300">
+              <h3 className="text-xs font-bold text-slate-800 dark:text-slate-200">
                 {isEn ? 'Invoice Line Items (Products & Services):' : 'اقلام فاکتور (کالاها و خدمات):'}
               </h3>
               <button
                 onClick={handleAddItem}
-                className="flex items-center gap-1 px-3 py-1.5 rounded-xl bg-blue-50 dark:bg-blue-950/60 text-blue-600 font-bold text-xs hover:bg-blue-100 transition"
+                className="flex items-center gap-1 px-3 py-1.5 rounded-xl bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 font-bold text-xs hover:bg-blue-100 transition"
               >
                 <Plus className="w-3.5 h-3.5" />
                 <span>{isEn ? 'Add Item' : 'افزودن سطر جدید'}</span>
@@ -875,7 +1196,7 @@ export function InvoiceGenerator({ locale = 'fa' }: InvoiceGeneratorProps) {
                     <th className="p-2 w-24 text-center">{isEn ? 'Unit' : 'واحد'}</th>
                     <th className="p-2 w-36 text-start">{isEn ? 'Unit Price' : 'قیمت واحد'}</th>
                     <th className="p-2 w-28 text-start">{isEn ? 'Discount' : 'تخفیف'}</th>
-                    {invoice.invoiceType === 'official' && (
+                    {invoice.businessType !== 'services' && invoice.businessType !== 'receipt' && (
                       <th className="p-2 w-20 text-center">{isEn ? 'Tax %' : 'ارزش‌افزوده %'}</th>
                     )}
                     <th className="p-2 w-36 text-end">{isEn ? 'Total' : 'مبلغ کل'}</th>
@@ -897,7 +1218,7 @@ export function InvoiceGenerator({ locale = 'fa' }: InvoiceGeneratorProps) {
                             type="text"
                             value={item.description}
                             onChange={(e) => handleUpdateItem(item.id, 'description', e.target.value)}
-                            placeholder={isEn ? 'Service or Product name...' : 'نام کالا یا خدمات را بنویسید...'}
+                            placeholder={isEn ? 'Item or service name...' : 'شرح خدمت یا نام کالا...'}
                             className="w-full p-2 rounded-lg bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs focus:outline-none"
                           />
                         </td>
@@ -935,7 +1256,7 @@ export function InvoiceGenerator({ locale = 'fa' }: InvoiceGeneratorProps) {
                             className="w-full p-2 rounded-lg bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 font-mono text-xs focus:outline-none"
                           />
                         </td>
-                        {invoice.invoiceType === 'official' && (
+                        {invoice.businessType !== 'services' && invoice.businessType !== 'receipt' && (
                           <td className="p-1">
                             <input
                               type="number"
@@ -965,42 +1286,52 @@ export function InvoiceGenerator({ locale = 'fa' }: InvoiceGeneratorProps) {
             </div>
           </div>
 
-          {/* Notes & Terms Card */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+          {/* Shipping, Notes & Terms */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
             <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 shadow-sm space-y-2">
               <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block">
-                {isEn ? 'Terms & Warranty Conditions:' : 'شرایط، گارانتی و نحوه تسویه:'}
+                {isEn ? 'Shipping / Delivery Cost:' : 'هزینه ارسال و بسته‌بندی:'}
               </label>
-              <textarea
-                value={invoice.terms}
-                onChange={(e) => setInvoice({ ...invoice, terms: e.target.value })}
-                rows={4}
-                className="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs focus:outline-none resize-none"
+              <input
+                type="number"
+                value={invoice.shippingCost}
+                onChange={(e) => setInvoice({ ...invoice, shippingCost: Number(e.target.value) })}
+                className="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs font-mono font-bold focus:outline-none"
               />
             </div>
 
             <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 shadow-sm space-y-2">
               <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block">
-                {isEn ? 'Notes & Additional Remarks:' : 'توضیحات تکمیلی فاکتور:'}
+                {isEn ? 'Terms & Payment Conditions:' : 'شرایط پرداخت و تسویه:'}
+              </label>
+              <textarea
+                value={invoice.terms}
+                onChange={(e) => setInvoice({ ...invoice, terms: e.target.value })}
+                rows={3}
+                className="w-full p-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs focus:outline-none resize-none"
+              />
+            </div>
+
+            <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 shadow-sm space-y-2">
+              <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block">
+                {isEn ? 'Notes & Remarks:' : 'توضیحات و یادداشت تکمیلی:'}
               </label>
               <textarea
                 value={invoice.notes}
                 onChange={(e) => setInvoice({ ...invoice, notes: e.target.value })}
-                rows={4}
-                className="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs focus:outline-none resize-none"
+                rows={3}
+                className="w-full p-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs focus:outline-none resize-none"
               />
             </div>
           </div>
         </div>
       )}
 
-      {/* --- TAB 2: LIVE PRINTABLE PREVIEW (A4 DOCUMENT) --- */}
-      <div
-        className={`${activeTab === 'edit' ? 'hidden print:block' : 'block'} flex justify-center`}
-      >
+      {/* --- TAB 2: LIVE A4 PRINTABLE DOCUMENT --- */}
+      <div className={`${activeTab === 'edit' ? 'hidden print:block' : 'block'} flex justify-center`}>
         <div
           id="printable-invoice"
-          className="w-full max-w-[820px] bg-white text-slate-900 border border-slate-200 rounded-2xl shadow-xl p-8 sm:p-12 space-y-6"
+          className="w-full max-w-[840px] bg-white text-slate-900 border border-slate-200 rounded-2xl shadow-xl p-8 sm:p-12 space-y-6"
           style={{ minHeight: '1100px' }}
         >
           {/* Top Document Header */}
@@ -1011,12 +1342,13 @@ export function InvoiceGenerator({ locale = 'fa' }: InvoiceGeneratorProps) {
                 // eslint-disable-next-line @next/next/no-img-element
                 <img
                   src={invoice.sellerLogo}
-                  alt="Seller Logo"
-                  className="w-16 h-16 object-contain rounded"
+                  alt="Company Logo"
+                  style={{ maxWidth: `${invoice.sellerLogoWidth}px`, maxHeight: '80px' }}
+                  className="object-contain"
                 />
               ) : (
                 <div
-                  className={`w-14 h-14 rounded-2xl ${themeClasses.primary} text-white flex items-center justify-center font-black text-xl`}
+                  className={`w-14 h-14 rounded-2xl ${colorStyles.primary} text-white flex items-center justify-center font-black text-xl shadow-sm`}
                 >
                   {invoice.sellerName.slice(0, 1) || 'Z'}
                 </div>
@@ -1035,17 +1367,20 @@ export function InvoiceGenerator({ locale = 'fa' }: InvoiceGeneratorProps) {
               </div>
             </div>
 
-            {/* Document Title & Meta */}
+            {/* Document Title & Meta Box */}
             <div className="text-end shrink-0">
               <div
-                className={`inline-block px-4 py-1.5 rounded-lg ${themeClasses.primary} text-white font-black text-sm uppercase tracking-wide mb-2`}
+                className={`inline-block px-4 py-1.5 rounded-lg ${colorStyles.badge} font-black text-xs sm:text-sm uppercase tracking-wide mb-2`}
               >
-                {invoice.invoiceType === 'official'
-                  ? (isEn ? 'TAX INVOICE' : 'صورت‌حساب فروش کالا و خدمات')
-                  : invoice.invoiceType === 'proforma'
-                  ? (isEn ? 'PROFORMA INVOICE' : 'پیش‌فاکتور رسمی')
-                  : (isEn ? 'COMMERCIAL INVOICE' : 'فاکتور فروش')}
+                {getDocumentTitle()}
               </div>
+
+              {invoice.businessType === 'receipt' && (
+                <div className="inline-block ms-2 px-2.5 py-0.5 rounded bg-emerald-100 text-emerald-800 text-[11px] font-bold border border-emerald-300">
+                  {isEn ? 'PAID' : 'تسویه شد'}
+                </div>
+              )}
+
               <div className="space-y-1 text-xs">
                 <div>
                   <span className="text-slate-400 me-1">{isEn ? 'Invoice No:' : 'شماره:'}</span>
@@ -1061,16 +1396,28 @@ export function InvoiceGenerator({ locale = 'fa' }: InvoiceGeneratorProps) {
                     <span className="font-mono text-slate-800">{invoice.dueDate}</span>
                   </div>
                 )}
+                {invoice.validityDays && invoice.businessType === 'proforma' && (
+                  <div>
+                    <span className="text-slate-400 me-1">{isEn ? 'Validity:' : 'مهلت اعتبار:'}</span>
+                    <span className="font-bold text-slate-700">{invoice.validityDays}</span>
+                  </div>
+                )}
+                {invoice.trackingCode && invoice.businessType === 'receipt' && (
+                  <div>
+                    <span className="text-slate-400 me-1">{isEn ? 'Ref #:' : 'کد رهگیری:'}</span>
+                    <span className="font-mono font-bold text-emerald-700">{invoice.trackingCode}</span>
+                  </div>
+                )}
               </div>
             </div>
           </div>
 
-          {/* Seller / Buyer Legal Boxes */}
+          {/* Seller / Buyer Boxes */}
           <div className="grid grid-cols-2 gap-4 text-xs">
-            {/* Seller Info Box */}
+            {/* Seller Box */}
             <div className="p-3.5 rounded-xl border border-slate-200 bg-slate-50/50 space-y-1.5">
-              <span className={`text-[11px] font-bold ${themeClasses.text} block mb-1`}>
-                {isEn ? 'VENDOR / SELLER' : 'مشخصات فروشنده:'}
+              <span className={`text-[11px] font-bold ${colorStyles.text} block mb-1`}>
+                {isEn ? 'SELLER / VENDOR' : 'مشخصات فروشنده:'}
               </span>
               <p className="font-bold text-slate-900">{invoice.sellerName}</p>
               <div className="grid grid-cols-2 gap-1 text-[11px] text-slate-600">
@@ -1086,10 +1433,10 @@ export function InvoiceGenerator({ locale = 'fa' }: InvoiceGeneratorProps) {
               </p>
             </div>
 
-            {/* Buyer Info Box */}
+            {/* Buyer Box */}
             <div className="p-3.5 rounded-xl border border-slate-200 bg-slate-50/50 space-y-1.5">
-              <span className={`text-[11px] font-bold ${themeClasses.text} block mb-1`}>
-                {isEn ? 'CUSTOMER / BUYER' : 'مشخصات خریدار:'}
+              <span className={`text-[11px] font-bold ${colorStyles.text} block mb-1`}>
+                {isEn ? 'BUYER / CLIENT' : 'مشخصات خریدار:'}
               </span>
               <p className="font-bold text-slate-900">{invoice.buyerName}</p>
               <div className="grid grid-cols-2 gap-1 text-[11px] text-slate-600">
@@ -1106,10 +1453,10 @@ export function InvoiceGenerator({ locale = 'fa' }: InvoiceGeneratorProps) {
             </div>
           </div>
 
-          {/* Table of Items */}
+          {/* Items Table */}
           <div className="overflow-hidden rounded-xl border border-slate-200">
             <table className="w-full text-xs text-slate-800 border-collapse">
-              <thead className={`${themeClasses.headerBg} text-[11px]`}>
+              <thead className={`${colorStyles.badge} text-[11px]`}>
                 <tr>
                   <th className="p-2.5 text-center w-10">#</th>
                   <th className="p-2.5 text-start">{isEn ? 'Description' : 'شرح کالا یا خدمات'}</th>
@@ -1117,8 +1464,8 @@ export function InvoiceGenerator({ locale = 'fa' }: InvoiceGeneratorProps) {
                   <th className="p-2.5 text-center w-20">{isEn ? 'Unit' : 'واحد'}</th>
                   <th className="p-2.5 text-end w-32">{isEn ? `Price (${invoice.currency})` : `مبلغ واحد (${invoice.currency})`}</th>
                   <th className="p-2.5 text-end w-24">{isEn ? 'Discount' : 'تخفیف'}</th>
-                  {invoice.invoiceType === 'official' && (
-                    <th className="p-2.5 text-center w-20">{isEn ? 'VAT (10%)' : 'مالیات'}</th>
+                  {invoice.businessType !== 'services' && invoice.businessType !== 'receipt' && (
+                    <th className="p-2.5 text-center w-20">{isEn ? 'VAT %' : 'ارزش‌افزوده'}</th>
                   )}
                   <th className="p-2.5 text-end w-36">{isEn ? `Total (${invoice.currency})` : `مبلغ کل (${invoice.currency})`}</th>
                 </tr>
@@ -1140,9 +1487,9 @@ export function InvoiceGenerator({ locale = 'fa' }: InvoiceGeneratorProps) {
                       <td className="p-2.5 text-end font-mono text-slate-500">
                         {item.discount > 0 ? formatNumber(item.discount) : '-'}
                       </td>
-                      {invoice.invoiceType === 'official' && (
+                      {invoice.businessType !== 'services' && invoice.businessType !== 'receipt' && (
                         <td className="p-2.5 text-center font-mono text-slate-500">
-                          {rowTax > 0 ? formatNumber(rowTax) : '-'}
+                          {rowTax > 0 ? `${item.taxPercent}%` : '-'}
                         </td>
                       )}
                       <td className="p-2.5 text-end font-mono font-bold text-slate-900">
@@ -1155,23 +1502,27 @@ export function InvoiceGenerator({ locale = 'fa' }: InvoiceGeneratorProps) {
             </table>
           </div>
 
-          {/* Summary Calculation Box */}
+          {/* Calculations Breakdown */}
           <div className="grid grid-cols-12 gap-6 pt-2">
             {/* Amount in words & Bank Account (7 Cols) */}
             <div className="col-span-7 space-y-4 text-xs">
               {/* Words */}
-              <div className="p-3 rounded-xl bg-slate-50 border border-slate-200 space-y-1">
+              <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 space-y-1">
                 <span className="text-[11px] text-slate-400 block">
-                  {isEn ? 'Amount in Words:' : 'مبلغ کل به حروف:'}
+                  {isEn ? 'Total Amount in Words:' : 'مبلغ کل به حروف:'}
                 </span>
                 <p className="font-bold text-slate-800 leading-relaxed">
-                  {numberToPersianWords(grandTotal)} {invoice.currency} تمام
+                  {isEn ? (
+                    `${numberToEnglishWords(grandTotal)} ${invoice.currency} Only`
+                  ) : (
+                    `${numberToPersianWords(grandTotal)} ${invoice.currency} تمام`
+                  )}
                 </p>
               </div>
 
               {/* Bank Account */}
               {(invoice.sellerIban || invoice.sellerCardNumber) && (
-                <div className="p-3 rounded-xl bg-slate-50 border border-slate-200 space-y-1 text-[11px] text-slate-600">
+                <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 space-y-1 text-[11px] text-slate-600">
                   <span className="font-bold text-slate-800 block">
                     {isEn ? 'Bank Account Details for Payment:' : 'شماره حساب جهت واریز وجه:'}
                   </span>
@@ -1182,7 +1533,7 @@ export function InvoiceGenerator({ locale = 'fa' }: InvoiceGeneratorProps) {
               )}
             </div>
 
-            {/* Calculations Breakdown (5 Cols) */}
+            {/* Calculations Table (5 Cols) */}
             <div className="col-span-5 space-y-1.5 text-xs text-slate-700">
               <div className="flex justify-between py-1 border-b border-slate-100">
                 <span className="text-slate-500">{isEn ? 'Subtotal:' : 'جمع اقلام:'}</span>
@@ -1196,18 +1547,25 @@ export function InvoiceGenerator({ locale = 'fa' }: InvoiceGeneratorProps) {
                 </div>
               )}
 
-              {invoice.invoiceType === 'official' && (
+              {invoice.businessType !== 'services' && invoice.businessType !== 'receipt' && totalTax > 0 && (
                 <div className="flex justify-between py-1 border-b border-slate-100">
                   <span className="text-slate-500">{isEn ? 'VAT Tax:' : 'مالیات بر ارزش افزوده:'}</span>
                   <span className="font-mono font-bold">+ {formatNumber(totalTax)} {invoice.currency}</span>
                 </div>
               )}
 
-              <div className={`flex justify-between items-center p-2.5 rounded-xl ${themeClasses.light} border ${themeClasses.border} mt-2`}>
+              {invoice.shippingCost > 0 && (
+                <div className="flex justify-between py-1 border-b border-slate-100">
+                  <span className="text-slate-500">{isEn ? 'Shipping Fee:' : 'هزینه ارسال:'}</span>
+                  <span className="font-mono font-bold">+ {formatNumber(invoice.shippingCost)} {invoice.currency}</span>
+                </div>
+              )}
+
+              <div className={`flex justify-between items-center p-3 rounded-xl ${colorStyles.light} border ${colorStyles.border} mt-2`}>
                 <span className="font-black text-sm text-slate-900">
                   {isEn ? 'Grand Total:' : 'مبلغ نهایی فاکتور:'}
                 </span>
-                <span className={`font-mono font-black text-base ${themeClasses.text}`}>
+                <span className={`font-mono font-black text-base ${colorStyles.text}`}>
                   {formatNumber(grandTotal)} {invoice.currency}
                 </span>
               </div>
@@ -1223,15 +1581,27 @@ export function InvoiceGenerator({ locale = 'fa' }: InvoiceGeneratorProps) {
               </div>
             )}
 
-            {/* Signatures */}
-            <div className="grid grid-cols-2 gap-8 pt-8 text-center text-xs text-slate-600">
-              <div className="space-y-12">
-                <span className="font-bold">{isEn ? 'Authorized Seller Signature & Stamp' : 'مهر و امضای فروشنده'}</span>
-                <div className="border-b border-dashed border-slate-300 w-44 mx-auto" />
+            {invoice.notes && (
+              <div className="text-[11px] text-slate-500 whitespace-pre-line leading-relaxed">
+                <strong className="text-slate-700 block mb-0.5">{isEn ? 'Additional Remarks:' : 'یادداشت‌های پیوست:'}</strong>
+                {invoice.notes}
               </div>
-              <div className="space-y-12">
+            )}
+
+            {/* Stamp & Signatures */}
+            <div className="grid grid-cols-2 gap-8 pt-6 text-center text-xs text-slate-600">
+              <div className="space-y-4 flex flex-col items-center justify-between min-h-[90px]">
+                <span className="font-bold">{isEn ? 'Authorized Seller Signature & Stamp' : 'مهر و امضای فروشنده'}</span>
+                {invoice.sellerStamp ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={invoice.sellerStamp} alt="Stamp" className="max-h-20 object-contain mx-auto" />
+                ) : (
+                  <div className="border-b border-dashed border-slate-300 w-44 mt-12" />
+                )}
+              </div>
+              <div className="space-y-4 flex flex-col items-center justify-between min-h-[90px]">
                 <span className="font-bold">{isEn ? 'Customer Acceptance Signature' : 'مهر و امضای تحویل‌گیرنده (خریدار)'}</span>
-                <div className="border-b border-dashed border-slate-300 w-44 mx-auto" />
+                <div className="border-b border-dashed border-slate-300 w-44 mt-12" />
               </div>
             </div>
           </div>

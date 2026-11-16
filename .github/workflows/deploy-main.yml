@@ -5,7 +5,13 @@ on:
     branches: [ main ]
     paths-ignore:
       - 'kit/**'
+      - 'blog/**'
+      - 'wordpress/**'
   workflow_dispatch:
+
+concurrency:
+  group: ftp-deploy-production
+  cancel-in-progress: false
 
 jobs:
   build-and-deploy:

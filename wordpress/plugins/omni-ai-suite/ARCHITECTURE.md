@@ -1,224 +1,214 @@
 # 🏛️ مستند جامع معماری و ساختار افزونه Omni AI Suite
-> **نسخه افزونه:** 1.0.0  
-> **محیط هدف:** WordPress 6.x + PHP 8.1+  
-> **فناوری رابط کاربری:** React بومی وردپرس (`@wordpress/element` و `@wordpress/components`)  
-> **نوع معماری:** ماژولار، کلاینت‌محور با پردازش سمت سرور، بدون افزونگی دیتابیس (Zero CPT Bloat)
+> **نسخه افزونه:** 1.0.0 (Architecture v2.0 - Modular & Prompt-First)  
+> **محیط هدف:** WordPress 6.x + PHP 8.1+ / PHP 8.3  
+> **فناوری رابط کاربری:** React بومی وردپرس (`@wordpress/element` و `@wordpress/components`) با استایل مدرن Dark Slate  
+> **نوع معماری:** ماژولار مبتنی بر PSR-4، هدلس، بدون افزونگی دیتابیس (Zero DB Bloat) و جریان بصری مبتنی بر پرامپت (Prompt-First Visual Workflow)
 
 ---
 
-## ۱. نمای کلی و فلسفه طراحی (Philosophy & Architecture)
+## ۱. نمای کلی و فلسفه طراحی (Philosophy & Core Principles)
 
-افزونه **Omni AI Suite** یک پلتفرم جامع و فوق‌سریع هوش مصنوعی برای مدیریت و تولید محتوا، زمان‌بندی، تولید انبوه، تولید تصویر شاخص و چت‌بات در وردپرس است. این افزونه بر اساس ۵ اصل کلیدی توسعه یافته است:
+افزونه **Omni AI Suite** یک پلتفرم جامع، فوق‌سریع و ماژولار هوش مصنوعی برای مدیریت و تولید محتوا، سئو و رتبه‌بندی نسل جدید (SEO / AEO / GEO)، خوانایی، سرور MCP، استانداردهای مدل‌های زبانی (`llms.txt`) و چت‌بات در وردپرس است. این افزونه بر مبنای ۶ اصل کلیدی توسعه یافته است:
 
-1. **طراحی بومی بدون سربار (Native & Lightweight):**  
-   رابط کاربری ادمین به صورت یک SPA مدرن با کتابخانه‌های پیش‌فرض هسته وردپرس (`@wordpress/element` و `@wordpress/components`) ساخته شده است. این رویکرد حجم باندل را زیر ۱۰۰ کیلوبایت نگه می‌دارد و نیاز به بارگذاری React یا کتابخانه‌های سنگین خارجی را به صفر می‌رساند.
-2. **پشتیبانی از چندین ارائه‌دهنده (Multi-Provider BYOK & Failover):**  
-   پشتیبانی همزمان از **Google Gemini**، **OpenAI** و **Anthropic Claude** با امکان تعیین ارائه‌دهنده اصلی و ارائه‌دهنده پشتیبان (Automatic Failover) در صورت قطعی یا خطای سهمیه.
-3. **عدم افزونگی دیتابیس (Zero CPT Bloat):**  
-   لاگ‌ها و آمار تولید محتوا در جدول اختصاصی دیتابیس (`wp_omni_ai_logs`) ذخیره می‌شوند و جدول `wp_posts` را با هزاران پست موقت یا متادیتا آلوده نمی‌کنند.
-4. **استریم زنده واقعی (Server-Sent Events - SSE):**  
-   انتقال کاراکتر به کاراکتر پاسخ هوش مصنوعی به مرورگر کاربر از طریق پروتکل SSE و مدیریت بافر cURL در PHP بدون تایم‌اوت Nginx/Apache.
-5. **معماری کاملاً ماژولار (Zero Asset Pollution):**  
-   هر ماژول (گوتنبرگ، المنتور، ووکامرس، چت‌بات) فقط در صورت فعال بودن بارگذاری می‌شود و در صفحات نامرتبط هیچ فایل CSS یا JS اضافی لود نخواهد شد.
+1. **معماری ماژولار و تفکیک وظایف (PSR-4 Autoloading):**  
+   کلاس‌های حجیم پیشین به کنترلرها و ماژول‌های تک‌مسئولیتی تفکیک شده‌اند (`Headless_Controller`, `Markdown_Parser`, `Mcp_Server`, `Llms_Txt_Manager`, `Schema_Injector`) که همگی به صورت خودکار توسط `Autoloader` بارگذاری می‌شوند.
+2. **جریان بصری مبتنی بر پرامپت (Prompt-First Visual Workflow):**  
+   حذف وابستگی‌ها و تایم‌اوت‌های ناشی از دانلود تصاویر خارجی و رندر آنلاین دیاگرام‌ها (`mermaid.ink` و Pollinations). به جای دانلودهای ناپایدار و سنگین، سیستم پرامپت‌های مهندسی‌شده و فوق‌دقیق را در ۵ پالت سبکی به کاربر ارائه می‌دهد و درون بدنه مقاله، بلوک‌های شکیل و استاندارد گوتنبرگ (Gutenberg Callouts) به عنوان جایگاه قرارگیری تصویر و دیاگرام درج می‌کند.
+3. **سرور رسمی پروتکل زمینه مدل (Model Context Protocol - MCP):**  
+   مجهز به سرور رسمی MCP منطبق با استاندارد JSON-RPC 2.0 و Server-Sent Events (SSE) برای اتصال مستقیم دستیارهای هوش مصنوعی (Grok, Claude Desktop, Cursor, Antigravity) به وردپرس با ابزارهای کامل جستجو، ارزیابی رتبه، خواندن و ایجاد مقاله.
+4. **استانداردهای مدرن هوش مصنوعی (`llms.txt` و `robots.txt`):**  
+   تولید خودکار فیدهای متنی ساختاریافته `/llms.txt` و `/llms-full.txt` برای آموزش و ایندکس توسط مدل‌های زبانی، به همراه مدیریت دسترسی ربات‌های هوش مصنوعی در `robots.txt`.
+5. **عملکرد و پایداری بالا (High Performance & Caching):**  
+   کش‌کردن آمارهای کلی رتبه‌بندی سایت با ترنزینت وردپرس (`omni_ai_ranking_summary_stats`) با انقضای ۱ ساعته و پاک‌سازی هوشمند هنگام تغییر مقالات، لاگ‌گیری شرطی با ثابت `OMNI_AI_DEBUG` و حذف کوئری‌های تکراری `SHOW TABLES`.
+6. **امنیت اندپوینت‌های عمومی هدلس:**  
+   اجبار وضعیت انتشار (`publish`) در اندپوینت‌های عمومی `/posts` و مسدودسازی دسترسی به پیش‌نویس‌ها برای کاربران احراز هویت‌نشده.
 
 ---
 
-## ۲. نمودار جریان داده و معماری (System Flow Diagram)
+## ۲. دیاگرام جریان معماری و داده‌ها (Data Flow Architecture)
 
 ```mermaid
 flowchart TD
-    subgraph Client["مرورگر کاربر (Admin SPA)"]
-        UI["Content Studio / Bulk / Settings"]
-        State["React State (wp.element)"]
-        StreamReader["Fetch Streams (SSE Reader)"]
+    subgraph UI_Layer["رابط کاربری ادمین (Admin React SPA)"]
+        Studio["استودیو محتوا (Content Studio)"]
+        PresetSelect["انتخابگر سبک بصری ۵گانه"]
+        PromptBoxes["جعبه‌های کپی پرامپت (Terminal Copy Boxes)"]
+        RankingDashboard["داشبورد رتبه‌بندی محتوا (SEO/AEO/GEO)"]
     end
 
-    subgraph WP_Core["هسته وردپرس (PHP Engine)"]
-        Admin["Admin Controller & Enqueue"]
-        REST["REST API Controller (/omni-ai/v1)"]
-        StreamHandler["Stream Handler (SSE Protocol)"]
-        Formatter["Content Formatter (Markdown -> Gutenberg)"]
-        Media["Media Sideload & WebP Converter"]
-        DB[(Custom Table: wp_omni_ai_logs)]
+    subgraph REST_Layer["لایه ارتباطی (OmniAI/Api)"]
+        RestController["Rest_Controller (هماهنگ‌کننده مرکزی)"]
+        HeadlessController["Headless_Controller (/posts, /categories, /seo)"]
+        MarkdownParser["Markdown_Parser (تبدیل به بلوک‌های گوتنبرگ و Calloutها)"]
     end
 
-    subgraph AI_Providers["سرویس‌های هوش مصنوعی (External APIs)"]
-        Gemini["Google Gemini (v1beta / v1)"]
-        OpenAI["OpenAI (Chat & DALL-E)"]
-        Claude["Anthropic Claude"]
-        Pollinations["Pollinations AI (Image Engine)"]
+    subgraph Modules_Layer["ماژول‌های تخصصی (OmniAI/Modules)"]
+        RankingModule["Ranking_Module (تحلیل سئو، AEO و خوانایی)"]
+        McpServer["Mcp_Server (سرور رسمی MCP JSON-RPC 2.0)"]
+        LlmsManager["Llms_Txt_Manager (فیدهای llms.txt و کنترل robots.txt)"]
+        SchemaInjector["Schema_Injector (تزریق متاتگ‌ها و JSON-LD)"]
     end
 
-    UI -->|کاربر پرامپت را اجرا می‌کند| State
-    State -->|درخواست استریم POST /stream-ai| StreamHandler
-    StreamHandler -->|ارتباط cURL| Gemini
-    StreamHandler -.->|پشتیبان خودکار در صورت خطا| OpenAI
-    Gemini -->|ارسال چانک‌های SSE| StreamHandler
-    StreamHandler -->|انتقال زنده چانک‌ها| StreamReader
-    StreamReader --> UI
+    subgraph Storage_Layer["پایگاه داده و ترنزینت وردپرس"]
+        TransientCache["Transient Cache (آمار کلی رتبه‌بندی)"]
+        PostsTable[("جدول اصلی wp_posts")]
+        LogsTable[("جدول اختصاصی wp_omni_ai_logs")]
+    end
+
+    Studio -->|انتخاب پالت و موضوع| PresetSelect
+    PresetSelect -->|تولید پرامپت مقاله و تصویر| PromptBoxes
+    Studio -->|ارسال JSON مقاله به /import-article| RestController
+    RestController --> MarkdownParser
+    MarkdownParser -->|ایجاد ساختار بلوک‌های گوتنبرگ و جایگاه‌ها| PostsTable
+    RestController -->|بازگرداندن پرامپت‌های شاخص، دیاگرام و محتوا| PromptBoxes
     
-    UI -->|کلیک ذخیره پیش‌نویس /create-draft| REST
-    REST --> Formatter
-    Formatter -->|تولید بلوک‌های بومی گوتنبرگ| WP_Core
-    REST --> Media
-    Media -->|دریافت و فشرده‌سازی WebP| Pollinations
-    REST -->|ثبت لاگ و مصرف توکن| DB
+    RankingModule -->|محاسبه و دریافت آمار| TransientCache
+    RankingDashboard -->|استعلام رتبه‌بندی| RankingModule
+
+    ExternalAI["دستیارهای هوش مصنوعی (Grok / Claude / Cursor)"] -->|اتصال MCP| McpServer
+    McpServer --> PostsTable
+    McpServer --> LlmsManager
+
+    Crawlers["کراولرهای وب و مدل‌های AI"] -->|درخواست /llms.txt| LlmsManager
+    WebBrowsers["کاربران و موتورهای جستجو"] -->|مشاهده فرانت‌اند سایت| SchemaInjector
 ```
 
 ---
 
-## ۳. ساختار درختی فایل‌ها و پوشه‌ها (File Map)
+## ۳. ساختار فایل‌ها و پوشه‌های افزونه (File Map)
 
 ```text
 omni-ai-suite/
 │
-├── omni-ai-suite.php                   # نقطه ورود اصلی افزونه و تعریف ثابت‌ها
-├── uninstall.php                       # اسکریپت حذف تمیز پلاگین و پاک‌سازی دیتابیس
-├── package.json                        # متادیتا و اسکریپت‌های توسعه
-├── tailwind.config.js                  # پیکربندی استایل اسکوپ‌شده ادمین
-├── README.md                           # راهنمای سریع افزونه
-├── ARCHITECTURE.md                     # مستندات جامع معماری و ساختار مهندسی افزونه
+├── omni-ai-suite.php                   # فایل اصلی افزونه و راه‌انداز هسته
+├── uninstall.php                       # اسکریپت پاک‌سازی تمیز در زمان حذف افزونه
+├── package.json                        # پیکربندی اسکریپت‌های کامپایل فرانت‌اند (wp-scripts)
+├── ARCHITECTURE.md                     # سند معماری و مشخصات فنی افزونه
+├── README.md                           # راهنمای سریع و امکانات
 │
-├── assets/                             # فایل‌های فرانت‌اند و دارایی‌های استاتیک
+├── assets/                             # خروجی باندل‌های نهایی و استاتیک
 │   ├── css/
-│   │   ├── admin.css                   # استایل‌های بهینه‌شده اسکوپ‌شده برای بخش ادمین
-│   │   └── chatbot.css                 # استایل ویجت چت‌بات شناور سایت
+│   │   ├── admin.css                   # استایل مینیفای‌شده ادمین با پالت Dark Slate
+│   │   └── chatbot.css                 # استایل فرانت‌اند چت‌بات شناور
 │   └── js/
-│       ├── admin.js                    # باندل کامل React SPA دوزبانه (FA/EN)
-│       ├── admin.asset.php             # وابستگی‌های اسکریپت ادمین (wp-element, wp-components)
-│       ├── chatbot.js                  # اسکریپت فرانت‌اند ویجت چت‌بات
-│       ├── elementor.js                # پنل هوش مصنوعی ادغام‌شده با ویرایشگر المنتور
-│       ├── gutenberg.js                # سایدبار و نوار ابزار اختصاصی گوتنبرگ
-│       ├── gutenberg.asset.php          # وابستگی‌های اسکریپت گوتنبرگ
-│       └── woocommerce.js              # دکمه‌های تولید خودکار توضیحات محصول ووکامرس
+│       ├── admin.js                    # باندل کامپایل‌شده React SPA ادمین (Content Studio, Ranking)
+│       ├── admin.asset.php             # وابستگی‌های اسکریپت ادمین وردپرس
+│       ├── gutenberg.js                # افزونه سایدبار گوتنبرگ
+│       └── gutenberg.asset.php         # وابستگی‌های گوتنبرگ
 │
-├── includes/                           # هسته کدها و کلاس‌های PHP
-│   ├── class-plugin.php                # کلاس اصلی راه‌انداز افزونه و ثبت هوک‌ها
-│   ├── class-autoloader.php            # لودر خودکار کلاس‌ها مطابق استاندارد PSR-4
-│   ├── class-activator.php             # عملیات فعال‌سازی (ساخت جدول اختصاصی لاگ‌ها)
-│   ├── class-deactivator.php           # عملیات غیرفعال‌سازی و پاک‌سازی کرون‌جاب‌ها
-│   │
-│   ├── admin/                          # بخش مدیریت وردپرس
-│   │   └── class-admin.php             # ساخت منوها، زیرمنوها و بارگذاری دارایی‌ها با wp_localize_script
-│   │
-│   ├── api/                            # لایه ارتباطی REST API
-│   │   ├── class-rest-controller.php   # کنترلر اصلی کلیه اندپوینت‌های REST، پارسر مارک‌داون و ذخیره پست
-│   │   └── class-stream-handler.php    # کنترلر اختصاصی استریم زنده SSE با cURL و فیل‌اور
-│   │
-│   ├── database/                       # لایه پایگاه داده اختصاصی
-│   │   └── class-log-repository.php    # عملیات CRUD جدول لاگ‌ها، دریافت تاریخچه و تجمیع توکن‌ها
-│   │
-│   ├── modules/                        # لایه ماژولار و افزونه‌های کمکی
-│   │   ├── interface-module.php        # اینترفیس استاندارد ماژول‌ها
-│   │   ├── class-module-manager.php    # کنترل و فعال/غیرفعال‌سازی پویای ماژول‌ها
-│   │   ├── class-content-module.php    # ماژول استودیو محتوا
-│   │   ├── class-bulk-module.php       # ماژول تولید انبوه با Action Scheduler
-│   │   ├── class-gutenberg-module.php  # ماژول ادغام با ویرایشگر گوتنبرگ
-│   │   ├── class-elementor-module.php  # ماژول ادغام با المنتور
-│   │   ├── class-woocommerce-module.php# ماژول تولید محتوای هوشمند ووکامرس
-│   │   └── class-chatbot-module.php    # ماژول چت‌بات پشتیبانی هوشمند سایت
-│   │
-│   └── providers/                      # لایه ارائه‌دهندگان هوش مصنوعی (AI Engines)
-│       ├── interface-ai-provider.php   # اینترفیس رسمی کلیه پرووایدرهای AI
-│       ├── class-provider-factory.php  # فکتوری حل کلیدها، اولویت‌بندی و دریافت پرووایدر فعال
-│       ├── class-gemini-provider.php   # درایور Google Gemini (v1beta/v1، استریم SSE، کش و فیلتر مدل‌ها)
-│       ├── class-openai-provider.php   # درایور OpenAI (GPT-4o, o3, DALL-E 3)
-│       └── class-claude-provider.php   # درایور Anthropic Claude (Claude 3.5 Sonnet & Haiku)
+├── src/                                # کدهای منبع فرانت‌اند (React / Modern ES6)
+│   ├── admin/
+│   │   ├── components/                 # کامپوننت‌های مشترک (Header, ErrorBoundary)
+│   │   ├── pages/                      # صفحات اصلی پنل (ContentStudio, ContentRanking, ...)
+│   │   ├── styles/admin.css            # سورس استایل با کلاس‌های نئونی، تب‌های مدرن و ترمینال
+│   │   └── index.js                    # نقطه ورود اصلی SPA ادمین
+│   └── gutenberg/                      # سورس افزونه ویرایشگر گوتنبرگ
 │
-└── languages/                          # فایل‌های ترجمه و محلی‌سازی
-    └── omni-ai-suite-fa_IR.po          # فایل منبع ترجمه زبان فارسی
+└── includes/                           # کدهای سمت سرور PHP (سازگار با PHP 8.1+)
+    ├── class-plugin.php                # کلاس اصلی پلاگین و بوت‌استرپ
+    ├── class-autoloader.php            # لودر خودکار PSR-4 کلاس‌های نیم‌اسپیس OmniAI
+    ├── class-activator.php             # ساخت جداول دیتابیس در زمان فعال‌سازی
+    ├── class-deactivator.php           # غیرفعال‌سازی و پاک‌سازی صف‌ها
+    │
+    ├── admin/
+    │   └── class-admin.php             # مدیریت منوهای وردپرس و اینکیو اسکریپت‌ها
+    │
+    ├── api/                            # لایه اختصاصی REST API و پردازشگرها
+    │   ├── class-rest-controller.php   # کنترلر مرکزی مسیرهای REST و پردازش پیش‌نویس/ایمپورت
+    │   ├── class-headless-controller.php# کنترلر مستقل مسیرهای هدلس بلاگ و متادیتای سئو
+    │   ├── class-markdown-parser.php   # تبدیل مارک‌داون به بلوک‌های گوتنبرگ و Callout دیاگرام
+    │   ├── class-media-sideloader.php  # توابع کمکی ساخت پرامپت سبک‌ها و اسلاگ انگلیسی
+    │   └── class-stream-handler.php    # کنترلر استریم زنده Server-Sent Events (SSE)
+    │
+    ├── database/
+    │   └── class-log-repository.php    # مدیریت ثبت لاگ‌ها در دیتابیس با کش و دیباگ هوشمند
+    │
+    ├── modules/                        # ماژول‌های معماری و رتبه‌بندی
+    │   ├── interface-module.php        # اینترفیس استاندارد ماژول‌ها
+    │   ├── class-module-manager.php    # مدیر رجیستری و بوت ماژول‌ها
+    │   ├── class-ranking-module.php    # ماژول ارزیابی هوشمند رتبه (SEO, AEO, GEO, Readability)
+    │   ├── class-mcp-server.php        # سرور رسمی Model Context Protocol (JSON-RPC 2.0)
+    │   ├── class-llms-txt-manager.php  # مدیریت خروجی llms.txt و دایرکتیوهای robots.txt
+    │   ├── class-schema-injector.php   # تزریق متاتگ‌های سئو و اسکیماهای ساختاریافته JSON-LD
+    │   ├── class-breadcrumbs.php       # ساختار مسیر راهنما و اسکیما BreadcrumbList
+    │   ├── class-content-module.php    # ماژول استودیو محتوا
+    │   ├── class-bulk-module.php       # ماژول صف و تولید دسته‌ای
+    │   ├── class-gutenberg-module.php  # ادغام با گوتنبرگ
+    │   ├── class-elementor-module.php  # ادغام با المنتور
+    │   ├── class-woocommerce-module.php# ادغام با ووکامرس
+    │   └── class-chatbot-module.php    # ویجت چت‌بات عمومی
+    │
+    └── providers/                      # درایورهای ارتباط با موتورهای هوش مصنوعی
+        ├── interface-ai-provider.php   # اینترفیس پرووایدرها
+        ├── class-provider-factory.php  # فکتوری حل کلیدها و Failover
+        ├── class-gemini-provider.php   # درایور Google Gemini (سری ۳ و کش مدل‌ها)
+        ├── class-openai-provider.php   # درایور OpenAI
+        └── class-claude-provider.php   # درایور Anthropic Claude
 ```
 
 ---
 
-## ۴. شرح اجزای کلیدی سیستم (Core Components)
+## ۴. استراتژی جریان بصری مبتنی بر پرامپت (Prompt-First Visual Workflow)
 
-### ۱. لایه پرووایدرها و کارخانه مدل‌ها (`OmniAI\Providers`)
-- **`AI_Provider_Interface`:** تمام سرویس‌ها متدهای `generate()`, `stream()`, `fetch_live_models()`, `get_supported_models()`, `is_configured()` را پیاده‌سازی می‌کنند.
-- **`Provider_Factory`:** وظیفه دارد کلیدهای API را ابتدا از تنظیمات افزونه و در صورت خالی بودن از رابط اتصال‌دهنده‌های وردپرس (`options-connectors.php`) استعلام کند. همچنین مدیریت ارائه‌دهنده اصلی و پشتیبان را بر عهده دارد.
-- **`Gemini_Provider`:**
-  - پشتیبانی از مدل‌های رسمی نسل ۳ گوگل: `gemini-3.8-flash` (اصلی)، `gemini-3.6-flash`، `gemini-3.5-flash`، `gemini-3.1-pro-preview` و سری پایدار `1.5`.
-  - استعلام زنده مدل‌ها (`fetch_live_models`) به همراه فیلتر دقیق مدل‌های تصویری (`imagen`, `image`)، مدل‌های صوتی و مدل‌های منسوخ (`gemini-2.0`, `gemini-2.5`).
-  - سقف توکن خروجی تا **۸،۱۹۲ توکن** برای جلوگیری از نیمه‌کاره ماندن متن.
+در ویرایش جدید، تمام عملیات دانلود تصویر سمت سرور و رندر بلادرنگ Mermaid حذف شده و جای خود را به گردش کار استاندارد صنعتی داده است:
 
-### ۲. موتور استریم زنده (`Stream_Handler`)
-- درخواست ورودی را اعتبارسنجی کرده و هدرهای `Content-Type: text/event-stream` و `X-Accel-Buffering: no` را ارسال می‌کند.
-- بافر خروجی PHP را پاک‌سازی کرده و از طریق `CURLOPT_WRITEFUNCTION` چانک‌های متن را در لحظه دریافت و در قالب پکت‌های SSE به صورت `data: {"text": "...", "done": false}` مخابره می‌کند.
-- در صورت بروز خطای اتصال، به صورت نامحسوس روی ارائه‌دهنده پشتیبان (Failover) سوییچ می‌کند.
+### ۱. پالت‌های ۵گانه سبک تصویر شاخص (Visual Style Presets):
+کاربر در گام نخست تولید مقاله، یکی از پالت‌های بصری استاندارد را انتخاب می‌کند:
+1. `dark_slate_neon`: تم تیره اداری دولوپری (`#0f172a`) با عناصر نئونی فیروزه‌ای (`#38bdf8`)، رندر ۳ بعدی آکتان و نورپردازی استودیویی.
+2. `isometric_3d`: ماکت‌های ایزومتریک ۳ بعدی سرورها و بلوک‌های کد با متریال‌های مات و های‌کوالیتی.
+3. `minimal_flat`: تصویرسازی فلت وکتور مینیمال متناسب با استانداردهای وبلاگ‌های Stripe و GitHub.
+4. `blueprint`: بلوپرینت فنی مهندسی با شبکه‌بندی دقیق روی پس‌زمینه سرمه‌ای تیره و خطوط درخشان لیزری.
+5. `glassmorphism`: کارت‌های شیشه‌ای تیره مات با گرادیان‌های نئونی و آیکون‌های معلق کد با بلور ملایم.
 
-### ۳. پردازش و ذخیره پیش‌نویس (`handle_create_draft` & `Content_Formatter`)
-- **استخراج متادیتا (Metadata Auto-Parser):**
-  - **عنوان:** استخراج خودکار از خط `**عنوان مقاله:**` یا `# ...`
-  - **اسلاگ انگلیسی:** استخراج از خط `**اسلاگ انگلیسی:**` و تبدیل به Kebab-case استاندارد (`post_name`)
-  - **چکیده:** استخراج متاتوضیحات از خط `**چکیده مقاله:**` و ذخیره در `post_excerpt`
-  - **دسته‌بندی:** انتساب مستقیم به دسته انتخابی کاربر (`post_category`)
-- **تبدیل مارک‌داون به بلوک‌های بومی گوتنبرگ (`markdown_to_gutenberg`):**
-  - متن خروجی را بررسی کرده و تگ‌های مارک‌داون را به ساختار استاندارد کامنت‌های گوتنبرگ (`<!-- wp:heading -->`, `<!-- wp:table -->`, `<!-- wp:list -->`, `<!-- wp:paragraph -->`, `<!-- wp:separator -->`) تبدیل می‌کند تا مقاله در ادیتور وردپرس بدون هیچ علامت خام `**` یا پایپ `|` نمایش داده شود.
+### ۲. بلوک‌های فراخوان گوتنبرگ برای دیاگرام و تصاویر:
+هنگام پردازش مقاله، تگ‌های `[DIAGRAM_PLACEHOLDER]` یا کدهای دیاگرام به یک بلوک کانتینر اختصاصی گوتنبرگ با پس‌زمینه تیره (`#0f172a`)، حاشیه خط‌چین فیروزه‌ای (`#38bdf8`) و متن راهنمای پرامپت تبدیل می‌شوند. همچنین تگ‌های `[IMAGE_PLACEHOLDER_x]` به بلوک‌های شکیل تصویر با پرامپت پیشنهادی تبدیل می‌گردند تا نویسنده در هنگام ویرایش گوتنبرگ به سادگی تصویر دلخواه را جایگزین نماید.
 
-### ۴. موتور تولید و بهینه‌سازی تصویر شاخص (`attach_featured_image`)
-- تولید پرامپت اختصاصی و انگلیسی به صورت خودکار از روی عنوان و موضوع مقاله در ۵ سبک بصری:
-  - سه بعدی مدرن ایزومتریک (`isometric_3d`)
-  - وکتور فلت مدرن (`flat_vector`)
-  - عکس استودیویی باکیفیت (`photoreal`)
-  - دیجیتال آرت سایبر و فناوری (`cyber_tech`)
-  - مینیمال شرکتی (`corporate`)
-- دانلود تصویر با `download_url()` و بهینه‌سازی و تبدیل خودکار به فرمت کم‌حجم و مدرن **WebP** توسط ویرایشگر تصویر وردپرس (`wp_get_image_editor`).
-- ثبت در رسانه‌های وردپرس و الصاق مستقیم به عنوان تصویر شاخص نوشته (`set_post_thumbnail`).
-
-### ۵. مدیریت قالب‌های پرامپت (Prompt Templates Manager)
-- امکان افزودن، ذخیره، ویرایش و حذف قالب‌های پرامپت اختصاصی کاربر از طریق اندپوینت‌های `/wp-json/omni-ai/v1/prompts`.
-- مجهز به پرامپت‌های مستر سئو و آموزشی به صورت پیش‌فرض در رابط کاربری استودیو.
+### ۳. پنل جعبه‌های ترمینال کپی (Terminal Copy Boxes):
+پس از ثبت مقاله، ۳ جعبه مجزا با استایل ترمینال تیره و دکمه‌های کپی سریع ۱ کلیکی برای نویسنده نمایش داده می‌شوند:
+- 🌟 **پرامپت تصویر شاخص (Featured Image Prompt):** پرامپت با نسبت ابعاد ۱۶:۹ بدون متن و واترمارک.
+- 📊 **پرامپت دیاگرام / اینفوگرافیک (Diagram Prompt):** پرامپت آماده برای تصویرسازهای هوش مصنوعی (Ideogram, DALL-E).
+- 🖼️ **پرامپت‌های تصاویر درون متن (In-Content Prompts):** به تفکیک برای هر جایگاه داخل مقاله.
 
 ---
 
-## ۵. پایگاه داده و جدول اختصاصی (Database Schema)
+## ۵. سرور پروتکل زمینه مدل (MCP Server Specification)
 
-هنگام فعال‌سازی افزونه (`class-activator.php`)، جدول زیر در پایگاه داده وردپرس ایجاد می‌شود:
+سرور رسمی پروتکل MCP افزونه تحت مسیر `/wp-json/omni-ai/v1/mcp` با پشتیبانی از JSON-RPC 2.0 و Server-Sent Events پیاده‌سازی شده است:
 
-```sql
-CREATE TABLE `wp_omni_ai_logs` (
-  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
-  `user_id` bigint(20) unsigned NOT NULL DEFAULT 0,
-  `prompt` text NOT NULL,
-  `response` longtext NOT NULL,
-  `model` varchar(100) NOT NULL DEFAULT '',
-  `provider` varchar(50) NOT NULL DEFAULT '',
-  `tokens_used` int(11) NOT NULL DEFAULT 0,
-  `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id`),
-  KEY `user_id` (`user_id`),
-  KEY `provider` (`provider`),
-  KEY `created_at` (`created_at`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-```
+| نام ابزار MCP | عملکرد ابزار | پارامترها |
+| :--- | :--- | :--- |
+| `search_posts` | جستجو در مقالات منتشرشده سایت با کلیدواژه و سقف تعداد | `query`, `limit` |
+| `get_post` | دریافت متن کامل، تاریخ و موضوعات مقاله بر اساس شناسه | `id` |
+| `get_site_summary` | دریافت ساختار کلی سایت، موضوعات و خلاصه محتوا بر مبنای `llms.txt` | بدون ورودی |
+| `get_content_ranking`| ارزیابی آنی آمادگی مقاله برای موتورهای هوش مصنوعی (SEO / AEO / GEO) | `id` |
+| `create_post` | ایجاد یا انتشار مقاله با کنترل تکراری نبودن، اسلاگ انگلیسی و اعتبارسنجی | `title`, `content`, `slug`, `category_names`, ... |
+| `set_featured_image` | تنظیم مستقیم تصویر شاخص از رشته Base64 به همراه متادیتای Alt و Title | `post_id`, `image_base64`, `image_alt`, ... |
+| `sync_categories` | تثبیت و همگام‌سازی ۶ دسته مجاز و پاک‌سازی دسته‌های نامعتبر | بدون ورودی |
 
 ---
 
-## ۶. مشخصات اندپوینت‌های REST API
+## ۶. بهینه‌سازی‌ها و تدابیر پایداری سیستم (Stability & Performance)
 
-کلیه اندپوینت‌ها تحت نیم‌اسپیس `omni-ai/v1` در دسترس هستند و اعتبارسنجی آن‌ها از طریق `X-WP-Nonce` انجام می‌پذیرد:
+- **کنترل لاگ‌های دیباگ:** لاگ‌های پرحجم توسعه با متد کمکی `self::debug_log()` و شرط `defined('OMNI_AI_DEBUG') && OMNI_AI_DEBUG === true` احاطه شده‌اند تا در محیط پروداکشن هیچ بار اضافه‌ای به دیسک وارد نشود.
+- **کش آماری ترنزینت:** کش خلاصه رتبه‌بندی سایت (`omni_ai_ranking_summary_stats`) با طول عمر ۱ ساعت، کوئری‌های محاسباتی سنگین جدول پست‌ها را در مراجعات مکرر به شدت کاهش می‌دهد و با انتشار یا به‌روزرسانی مقالات به صورت هوشمند اینولیدیت می‌شود.
+- **حذف کوئری‌های افزوده دیتابیس:** حذف کوئری‌های بررسی ساختار جدول (`SHOW TABLES`) از مسیرهای پرتکرار ثبت لاگ و درج پیش‌نویس.
 
-| مسیر (Route) | متد | سطح دسترسی | شرح عملکرد |
+---
+
+## ۷. مشخصات اندپوینت‌های کلیدی REST API
+
+نیم‌اسپیس رسمی: `omni-ai/v1`
+
+| مسیر (Route) | متدها | سطح دسترسی | شرح عملکرد |
 | :--- | :---: | :---: | :--- |
-| `/stream-ai` | `POST` | `edit_posts` | استریم زنده محتوا از طریق پروتکل SSE |
-| `/ask` | `POST` | `edit_posts` | تولید متنی سنکرون و مستقیم |
-| `/create-draft` | `POST` | `edit_posts` | ایجاد پیش‌نویس وردپرس با تصویر شاخص WebP و بلوک‌های گوتنبرگ |
-| `/save-log` | `POST` | `edit_posts` | ثبت تاریخچه تولید محتوا در جدول اختصاصی دیتابیس |
-| `/models` | `GET` | `edit_posts` | دریافت لیست مدل‌های تمیز و فعال تولید محتوا |
-| `/models/refresh` | `POST` | `manage_options` | پاک‌سازی کش و استعلام زنده مدل‌ها از سرورهای گوگل/OpenAI |
-| `/prompts` | `GET / POST` | `edit_posts` | دریافت و ذخیره قالب‌های پرامپت اختصاصی کاربر |
-| `/categories` | `GET` | `edit_posts` | دریافت لیست دسته‌بندی‌های فعال سایت وردپرسی |
-| `/settings` | `GET / POST` | `manage_options` | دریافت و ذخیره کلیدهای API و اولویت‌بندی پرووایدرها |
-| `/modules` | `GET / POST` | `manage_options` | فعال یا غیرفعال‌سازی ماژول‌های ۵گانه |
-| `/logs` | `GET / DELETE`| `edit_posts` | مشاهده تاریخچه تولیدات و آمار مصرف توکن‌ها |
-
----
-
-## ۷. تب‌های پنل مدیریت (Admin SPA Screens)
-
-1. **پیشخوان (Dashboard):** کارت‌های آماری کل تولیدات، تخمین توکن‌های مصرفی، وضعیت اتصال سرویس فعال، میانبرهای سریع و جدول ۱۰ تولید اخیر.
-2. **استودیو تولید محتوا (Content Studio):** نوار قالب‌های آماده، پنجره مدیریت پرامپت‌ها، دراپ‌داون مدل‌های متنی، اسلایدر خلاقیت، پنجره زنده خروجی، پنل تنظیمات پیش‌نویس وردپرس (عنوان، اسلاگ، چکیده، دسته‌بندی و تصویر شاخص WebP).
-3. **تولید انبوه پست (Bulk Generator):** درج خط به خط عناوین و ثبت صف پردازش در پس‌زمینه بدون تایم‌اوت مرورگر.
-4. **تاریخچه و لاگ‌ها (History & Logs):** جدول اختصاصی جستجوپذیر لاگ‌های گذشته با امکان فیلتر بر اساس تاریخ و پرووایدر.
-5. **مدیریت ماژول‌ها (Modules):** مدیریت سوییچ‌های گوتنبرگ، المنتور، ووکامرس و چت‌بات.
-6. **تنظیمات (BYOK Settings):** ثبت کلیدهای اختصاصی کاربر، سوییچ بین Gemini / OpenAI / Claude، اولویت‌بندی پشتیبان (Failover) و دکمه بروزرسانی زنده مدل‌ها.
+| `/posts` | `GET` | عمومی | دریافت مقالات منتشرشده برای فرانت‌اند Next.js با اجبار وضعیت `publish` |
+| `/posts/(?P<slug>[a-zA-Z0-9\-_]+)` | `GET` | عمومی | دریافت جزئیات یک نوشته بر اساس نامک انگلیسی همراه با فیلدهای متای سئو |
+| `/categories` | `GET` | عمومی | دریافت لیست دسته‌بندی‌های ۶گانه ثابت و رسمی وبلاگ |
+| `/import-article` | `POST` | `edit_posts` | ایمپورت هوشمند JSON خروجی چت‌بات، تبدیل دیاگرام‌ها و بازگرداندن پرامپت‌ها |
+| `/create-draft` | `POST` | `edit_posts` | ساخت پیش‌نویس با گردش کار Prompt-First و درج بلوک‌های تصویر |
+| `/stream-ai` | `POST` | `edit_posts` | استریم زنده متنی پاسخ هوش مصنوعی از طریق پروتکل SSE |
+| `/mcp` | `GET / POST` | عمومی | اندپوینت رسمی سرور MCP JSON-RPC 2.0 و جریان رویدادهای زنده (SSE) |
+| `/mcp-logs` | `GET` | عمومی | مشاهده آخرین لاگ‌های ترافیک کلاینت‌های متصل به سرور MCP |
+| `/llms.txt` | `GET` | عمومی | فید متنی ساختاریافته خلاصه وب‌سایت برای مدل‌های هوش مصنوعی |
+| `/llms-full.txt`| `GET` | عمومی | فید کامل متنی مقالات اخیر برای آموزش و مرور هوش مصنوعی |
+| `/robots.txt` | `GET` | عمومی | خروجی قوانین مدیریت دسترسی کراولرهای هوش مصنوعی |

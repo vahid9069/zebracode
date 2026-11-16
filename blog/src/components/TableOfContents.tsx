@@ -59,13 +59,15 @@ export default function TableOfContents({ post }: TableOfContentsProps) {
         <ol className="reading-toc-list">
             {headings.map((heading) => {
                 const isActive = activeId === heading.id;
+                const isH3 = heading.level === 3;
                 return (
-                    <li key={heading.id} className={isActive ? 'toc-item-active' : ''}>
+                    <li key={heading.id} className={`${isActive ? 'toc-item-active' : ''} ${isH3 ? 'toc-item-sub' : ''}`.trim()}>
                         <a
                             href={`#${heading.id}`}
-                            className={isActive ? 'active' : ''}
+                            className={`${isActive ? 'active' : ''} ${isH3 ? 'toc-sub-link' : ''}`.trim()}
                             onClick={(e) => scrollToSection(e, heading.id)}
                             aria-current={isActive ? 'location' : undefined}
+                            style={isH3 ? { paddingRight: '1rem', opacity: 0.9, fontSize: '0.88rem' } : undefined}
                         >
                             <span className="toc-dot" aria-hidden="true" />
                             <span>{heading.title}</span>

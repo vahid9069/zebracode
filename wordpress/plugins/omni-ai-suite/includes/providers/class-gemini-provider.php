@@ -31,13 +31,7 @@ class Gemini_Provider implements AI_Provider_Interface {
 
     public function get_supported_models(): array {
         return [
-            'gemini-2.5-flash'          => 'Gemini 2.5 Flash (پایدار، بسیار سریع و ۱ میلیون توکن - پیشنهادی)',
-            'gemini-2.5-pro'            => 'Gemini 2.5 Pro (استدلال تخصصی و مقاله‌نویسی جامع)',
-            'gemini-2.5-flash-lite'     => 'Gemini 2.5 Flash-Lite (فوق سریع و سبک)',
-            'gemini-flash-latest'       => 'Gemini Flash Latest (جدیدترین نسخه فلش)',
-            'gemini-pro-latest'         => 'Gemini Pro Latest (جدیدترین نسخه پرو)',
-            'gemini-flash-lite-latest'  => 'Gemini Flash-Lite Latest (جدیدترین نسخه فلش لایت)',
-            'gemini-3.8-flash'          => 'Gemini 3.8 Flash (نسل ۳.۸ پرسرعت)',
+            'gemini-3.8-flash'          => 'Gemini 3.8 Flash (نسل ۳.۸ پرسرعت - پیش‌فرض)',
             'gemini-3.7-flash'          => 'Gemini 3.7 Flash (نسل ۳.۷ فلش)',
             'gemini-3.6-flash'          => 'Gemini 3.6 Flash (نسل ۳.۶ فلش)',
             'gemini-3.5-flash'          => 'Gemini 3.5 Flash (نسل ۳.۵ فلش)',
@@ -45,6 +39,12 @@ class Gemini_Provider implements AI_Provider_Interface {
             'gemini-3-flash-preview'    => 'Gemini 3 Flash Preview (پیش‌نمایش نسل ۳)',
             'gemini-3.1-pro-preview'    => 'Gemini 3.1 Pro Preview (استدلال پیشرفته)',
             'gemini-3.1-flash-lite'     => 'Gemini 3.1 Flash Lite (پیش‌نمایش سبک ۳.۱)',
+            'gemini-2.5-flash'          => 'Gemini 2.5 Flash (پایدار و پشتیبان)',
+            'gemini-2.5-pro'            => 'Gemini 2.5 Pro (استدلال تخصصی و مقاله‌نویسی جامع)',
+            'gemini-2.5-flash-lite'     => 'Gemini 2.5 Flash-Lite (فوق سریع و سبک)',
+            'gemini-flash-latest'       => 'Gemini Flash Latest (جدیدترین نسخه فلش)',
+            'gemini-pro-latest'         => 'Gemini Pro Latest (جدیدترین نسخه پرو)',
+            'gemini-flash-lite-latest'  => 'Gemini Flash-Lite Latest (جدیدترین نسخه فلش لایت)',
             'gemini-4-argon'            => 'Gemini 4 Argon (نسل ۴ پیشرفته)',
             'gemma-4-31b-it'            => 'Gemma 4 31B IT (مدل متنی باز گما)',
             'gemma-4-26b-a4b-it'        => 'Gemma 4 26B A4B IT (مدل سبک گما)',
@@ -137,8 +137,11 @@ class Gemini_Provider implements AI_Provider_Interface {
         }
 
         // Ensure primary models are guaranteed available in the list
+        if (!isset($models['gemini-3.8-flash'])) {
+            $models = array_merge(['gemini-3.8-flash' => 'Gemini 3.8 Flash (نسل ۳.۸ پرسرعت - پیش‌فرض)'], $models);
+        }
         if (!isset($models['gemini-2.5-flash'])) {
-            $models = array_merge(['gemini-2.5-flash' => 'Gemini 2.5 Flash (پایدار، بسیار سریع و ۱ میلیون توکن - پیشنهادی)'], $models);
+            $models['gemini-2.5-flash'] = 'Gemini 2.5 Flash (پایدار و پشتیبان)';
         }
 
         return !empty($models) ? $models : $this->get_supported_models();

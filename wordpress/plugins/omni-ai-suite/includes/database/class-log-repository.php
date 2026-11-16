@@ -10,6 +10,17 @@ if (!defined('ABSPATH')) {
  * with automatic fallback option store to guarantee stats/logs are never lost.
  */
 class Log_Repository {
+    /**
+     * Conditional debug logger.
+     *
+     * @param string $message
+     */
+    public static function debug_log(string $message): void {
+        if (defined('OMNI_AI_DEBUG') && OMNI_AI_DEBUG === true) {
+            error_log($message);
+        }
+    }
+
     private static function table_name(): string {
         global $wpdb;
         return $wpdb->prefix . OMNI_AI_LOGS_TABLE;
@@ -159,7 +170,7 @@ class Log_Repository {
         $now = current_time('mysql');
         $today = current_time('Y-m-d');
 
-        error_log("OMNI DEBUG - Log_Repository::insert_log: Attempting insert into {$table_name}. User ID: {$user_id}, Model: {$model}, Provider: {$provider}");
+        self::debug_log("OMNI DEBUG - Log_Repository::insert_log: Attempting insert into {$table_name}. User ID: {$user_id}, Model: {$model}, Provider: {$provider}");
 
         // Always record into backup option so dashboard & logs never show 0
         self::record_backup_log($user_id, $prompt, $response, $model, $provider, $tokens, $now, $today);
@@ -194,7 +205,7 @@ class Log_Repository {
 
         if (!$result) {
             error_log('Omni AI Suite: Failed to insert generation log: ' . $wpdb->last_error);
-            error_log('OMNI DEBUG - Log_Repository::insert_log primary insert failed: ' . $wpdb->last_error);
+            self::debug_log('OMNI DEBUG - Log_Repository::insert_log primary insert failed: ' . $wpdb->last_error);
 
             // Attempt table creation failsafe in case the table was dropped or missing
             self::create_table();
@@ -223,12 +234,12 @@ class Log_Repository {
 
             if (!$result) {
                 error_log('Omni AI Suite: Secondary log insert failed: ' . $wpdb->last_error);
-                error_log('OMNI DEBUG - Log_Repository::insert_log secondary insert failed: ' . $wpdb->last_error);
+                self::debug_log('OMNI DEBUG - Log_Repository::insert_log secondary insert failed: ' . $wpdb->last_error);
                 return false;
             }
         }
 
-        error_log('OMNI DEBUG - Log_Repository::insert_log SUCCESS. Insert ID: ' . $wpdb->insert_id);
+        self::debug_log('OMNI DEBUG - Log_Repository::insert_log SUCCESS. Insert ID: ' . $wpdb->insert_id);
         return (int) $wpdb->insert_id;
     }
 

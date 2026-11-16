@@ -1,10 +1,10 @@
 import Link from 'next/link';
-import { Fragment } from 'react';
 import CodeBlock from '@/components/CodeBlock';
 import PostArtwork from '@/components/PostArtwork';
 import ArticleReadingBar from '@/components/ArticleReadingBar';
 import TableOfContents from '@/components/TableOfContents';
 import BackToTop from '@/components/BackToTop';
+import { AdBanner } from '@/components/AdBanner';
 import { categoryPath, formatDate, formatNumber, getToolUrl, postPath } from '@/lib/site';
 import type { ArticleBlock, Category, Post, PostSummary } from '@/lib/types';
 
@@ -19,7 +19,18 @@ function ArticleContentBlock({ block }: { block: ArticleBlock }) {
         case 'paragraph':
             return <p>{block.text}</p>;
         case 'heading':
-            return <h2 id={block.id}>{block.title}</h2>;
+            return block.level === 3 ? (
+                <h3 id={block.id}>{block.title}</h3>
+            ) : (
+                <h2 id={block.id}>{block.title}</h2>
+            );
+        case 'image':
+            return (
+                <figure className="article-figure">
+                    <img src={block.url} alt={block.alt || ''} loading="lazy" />
+                    {block.caption && <figcaption>{block.caption}</figcaption>}
+                </figure>
+            );
         case 'list':
             return <ul>{block.items.map((item, index) => <li key={index}>{item}</li>)}</ul>;
         case 'code':
@@ -45,29 +56,9 @@ function ArticleContentBlock({ block }: { block: ArticleBlock }) {
     }
 }
 
-function getAdInsertIndex(blocks: ArticleBlock[]) {
-    const headingIndexes = blocks.reduce<number[]>((indexes, block, index) => {
-        if (block.type === 'heading') indexes.push(index);
-        return indexes;
-    }, []);
-
-    // Put the reserved slot after the first complete section, never before the
-    // article has established its subject with an opening paragraph.
-    return headingIndexes.find((index) => index >= 2) ?? Math.max(1, Math.ceil(blocks.length / 2));
-}
-
-function AdvertisementSlot() {
-    return (
-        <div className="article-ad-slot" role="complementary" aria-label="جایگاه تبلیغاتی">
-            <span>جایگاه تبلیغاتی</span>
-        </div>
-    );
-}
-
 export default function ArticleReader({ post, categories, related }: ArticleReaderProps) {
     const category = categories.find((item) => item.slug === post.category);
     const hasContents = post.blocks.some((block) => block.type === 'heading') || post.faq.length > 0 || post.references.length > 0;
-    const adInsertIndex = getAdInsertIndex(post.blocks);
 
     return (
         <div className="article-page" dir="rtl">
@@ -113,50 +104,72 @@ export default function ArticleReader({ post, categories, related }: ArticleRead
                 <ArticleReadingBar title={post.title} />
 
                 <div className="reading-shell">
-                    {hasContents && (
-                        <details className="reading-toc" open>
-                            <summary>در این مقاله می‌خوانید</summary>
-                            <nav aria-label="فهرست مقاله"><TableOfContents post={post} /></nav>
-                        </details>
-                    )}
-                    <div className="article-prose">
-                        {post.blocks.map((block, index) => (
-                            <Fragment key={block.type === 'heading' ? block.id : index}>
-                                {index === adInsertIndex && <AdvertisementSlot />}
-                                <ArticleContentBlock block={block} />
-                            </Fragment>
-                        ))}
-                        {post.blocks.length > 0 && adInsertIndex >= post.blocks.length && <AdvertisementSlot />}
-                        {post.blocks.length === 0 && <AdvertisementSlot />}
-
-                        {post.faq.length > 0 && (
-                            <section className="article-faq" aria-labelledby="reading-faq">
-                                <h2 id="reading-faq">پرسش‌های متداول</h2>
-                                {post.faq.map((item, index) => (
-                                    <details key={index}>
-                                        <summary>{item.question}</summary>
-                                        <p>{item.answer}</p>
-                                    </details>
-                                ))}
-                            </section>
+                    <div className="article-main-content">
+                        {hasContents && (
+                            <details className="reading-toc reading-toc-mobile" open>
+                                <summary>در این مقاله می‌خوانید</summary>
+                                <nav aria-label="فهرست مقاله"><TableOfContents post={post} /></nav>
+                            </details>
                         )}
+                        <div className="article-prose">
+                            <AdBanner placement="before_content" post={post} categorySlug={post.category} />
 
-                        {post.references.length > 0 && (
-                            <section className="article-references" aria-labelledby="reading-references">
-                                <h2 id="reading-references">منابع و مطالعه بیشتر</h2>
-                                <ul>{post.references.map((reference, index) => (
-                                    <li key={index}><a href={reference.url} rel="noreferrer">{reference.label}<span aria-hidden="true"> ↗</span></a></li>
-                                ))}</ul>
-                            </section>
-                        )}
+                            {post.blocks.map((block, index) => {
+                                const isMiddle = index === Math.floor(post.blocks.length / 2) && post.blocks.length > 3;
+                                const isAfterParagraph2 = index === 2;
+                                return (
+                                    <div key={block.type === 'heading' ? block.id : index}>
+                                        <ArticleContentBlock block={block} />
+                                        {isAfterParagraph2 && (
+                                            <AdBanner placement="after_paragraph" paragraphIndex={2} post={post} categorySlug={post.category} />
+                                        )}
+                                        {isMiddle && (
+                                            <AdBanner placement="middle_content" post={post} categorySlug={post.category} />
+                                        )}
+                                    </div>
+                                );
+                            })}
+
+                            <AdBanner placement="after_content" post={post} categorySlug={post.category} />
+
+                            {post.faq.length > 0 && (
+                                <section className="article-faq" aria-labelledby="reading-faq">
+                                    <h2 id="reading-faq">پرسش‌های متداول</h2>
+                                    {post.faq.map((item, index) => (
+                                        <details key={index}>
+                                            <summary>{item.question}</summary>
+                                            <p>{item.answer}</p>
+                                        </details>
+                                    ))}
+                                </section>
+                            )}
+
+                            {post.references.length > 0 && (
+                                <section className="article-references" aria-labelledby="reading-references">
+                                    <h2 id="reading-references">منابع و مطالعه بیشتر</h2>
+                                    <ul>{post.references.map((reference, index) => (
+                                        <li key={index}><a href={reference.url} rel="noreferrer">{reference.label}<span aria-hidden="true"> ↗</span></a></li>
+                                    ))}</ul>
+                                </section>
+                            )}
+                        </div>
+
+                        {post.tags.length > 0 && <div className="article-tags" aria-label="موضوع‌های مقاله">{post.tags.map((tag) => <span key={tag}>{tag}</span>)}</div>}
+
+                        <section className="article-author" aria-label="درباره نویسنده">
+                            <span className="article-avatar" aria-hidden="true">{post.author.initials}</span>
+                            <div><span className="article-eyebrow">درباره نویسنده</span><h2>{post.author.name}</h2><p className="article-author-role">{post.author.role}</p><p>{post.author.bio}</p></div>
+                        </section>
                     </div>
 
-                    {post.tags.length > 0 && <div className="article-tags" aria-label="موضوع‌های مقاله">{post.tags.map((tag) => <span key={tag}>{tag}</span>)}</div>}
-
-                    <section className="article-author" aria-label="درباره نویسنده">
-                        <span className="article-avatar" aria-hidden="true">{post.author.initials}</span>
-                        <div><span className="article-eyebrow">درباره نویسنده</span><h2>{post.author.name}</h2><p className="article-author-role">{post.author.role}</p><p>{post.author.bio}</p></div>
-                    </section>
+                    {hasContents && (
+                        <aside className="article-toc-sidebar" aria-label="فهرست مطالب مقاله">
+                            <div className="article-toc-sticky-box">
+                                <span className="toc-sidebar-heading">فهرست محتوا</span>
+                                <nav aria-label="فهرست مطالب"><TableOfContents post={post} /></nav>
+                            </div>
+                        </aside>
+                    )}
                 </div>
             </article>
 
@@ -167,7 +180,24 @@ export default function ArticleReader({ post, categories, related }: ArticleRead
                         <h2 id="reading-tools-title">ابزارهای مرتبط</h2>
                         <p>مثال‌ها و ایده‌های این مقاله را با ابزارهای زبراکد امتحان کنید.</p>
                     </div>
-                    <ul>{post.tools.map((tool) => <li key={tool.slug}><a href={getToolUrl(tool.slug)}><strong>{tool.title}<span aria-hidden="true"> ↗</span></strong><span>{tool.description}</span></a></li>)}</ul>
+                    <ul>
+                        {post.tools.map((tool) => {
+                            const targetHref = tool.url || getToolUrl(tool.slug);
+                            const isExternal = Boolean(tool.url);
+                            return (
+                                <li key={tool.slug}>
+                                    <a
+                                        href={targetHref}
+                                        target={isExternal ? '_blank' : undefined}
+                                        rel={isExternal ? 'noopener noreferrer' : undefined}
+                                    >
+                                        <strong>{tool.title}<span aria-hidden="true"> ↗</span></strong>
+                                        <span>{tool.description}</span>
+                                    </a>
+                                </li>
+                            );
+                        })}
+                    </ul>
                 </section>
             )}
 

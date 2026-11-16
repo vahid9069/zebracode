@@ -4,7 +4,7 @@ export const invisibleWhitespace = definePost({
     slug: 'invisible-whitespace',
     title: 'فاصله‌های نامرئی؛ وقتی دو متن یکسان به نظر می‌رسند',
     excerpt: 'تشخیص فاصله معمولی، فاصله نشکن، نیم‌فاصله و پایان خط؛ همراه با روشی برای اصلاح هدفمند متن بدون آسیب به فارسی.',
-    category: 'productivity', kind: 'guide', level: 'beginner',
+    category: 'tools', kind: 'guide', level: 'beginner',
     publishedAt: '2026-10-11', featured: false, cover: 'text',
     tags: ['یونیکد', 'نیم‌فاصله', 'متن', 'پایان خط'],
     blocks: [

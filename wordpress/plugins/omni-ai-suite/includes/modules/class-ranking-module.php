@@ -179,6 +179,16 @@ class Ranking_Module implements Module_Interface {
         return $canonical_ids['tech-trends'] ?? (int) reset($canonical_ids);
     }
 
+    private static ?Ranking_Module $instance = null;
+
+    public function __construct() {
+        self::$instance = $this;
+    }
+
+    public static function get_instance(): ?self {
+        return self::$instance;
+    }
+
     public function get_id(): string {
         return 'content_ranking';
     }
@@ -535,6 +545,7 @@ class Ranking_Module implements Module_Interface {
         }
 
         $this->analyze_and_save_post($post_id);
+        $this->invalidate_summary_stats();
     }
 
     public function get_post_ranking(int $post_id): array {
@@ -578,6 +589,8 @@ class Ranking_Module implements Module_Interface {
         update_post_meta($post_id, '_omni_ranking_aeo_score', $aeo['score']);
         update_post_meta($post_id, '_omni_ranking_geo_score', $geo['score']);
         update_post_meta($post_id, '_omni_ranking_readability_score', $readability['score']);
+
+        $this->invalidate_summary_stats();
 
         return $result;
     }
@@ -2397,6 +2410,7 @@ class Ranking_Module implements Module_Interface {
 
         // تحلیل مجدد و ذخیره امتیازهای جدید
         $new_ratings = $this->analyze_and_save_post($post_id);
+        $this->invalidate_summary_stats();
         $cell_html   = $this->render_ranking_cell_html($post_id, $new_ratings);
         $dash_html   = $this->render_full_dashboard_html($post_id, $new_ratings);
 
@@ -2732,163 +2746,26 @@ class Ranking_Module implements Module_Interface {
      * تزریق کدهای تأیید وب‌مستر تولز (گوگل، بینگ، پینترست، یاندکس، بایدو)
      */
     public function output_webmaster_verification_tags(): void {
-        $options = get_option('omni_ai_ranking_settings', []);
-
-        // کدهای مختلف به شکل کلید => نام متاتگ
-        $verifications = [
-            'google_verify'    => 'google-site-verification',
-            'bing_verify'      => 'msvalidate.01',
-            'pinterest_verify' => 'p:domain_verify',
-            'yandex_verify'    => 'yandex-verification',
-            'baidu_verify'     => 'baidu-site-verification',
-        ];
-
-        foreach ($verifications as $opt_key => $meta_name) {
-            if (!empty($options[$opt_key])) {
-                $val = trim((string) $options[$opt_key]);
-                // اگر کاربر کل تگ meta را پیست کرده بود، فقط مقدار content را بردار
-                if (preg_match('/content=[\'"]([^\'"]+)[\'"]/i', $val, $matches)) {
-                    $val = $matches[1];
-                }
-                echo '<meta name="' . esc_attr($meta_name) . '" content="' . esc_attr($val) . '" />' . "\n";
-            }
-        }
+        (new Schema_Injector())->output_webmaster_verification_tags();
     }
 
     /**
      * افزودن خودکار بردکرامب (مسیر راهنما) به ابتدای محتوای نوشته در صورت فعال بودن
      */
     public function filter_content_breadcrumbs(string $content): string {
-        if (!is_singular('post')) {
-            return $content;
-        }
-
-        $options = get_option('omni_ai_ranking_settings', []);
-        if (!empty($options['auto_insert_breadcrumbs']) && class_exists('\\OmniAI\\Modules\\Breadcrumbs')) {
-            $breadcrumbs_html = Breadcrumbs::render_html();
-            return $breadcrumbs_html . "\n" . $content;
-        }
-
-        return $content;
+        return (new Schema_Injector())->filter_content_breadcrumbs($content);
     }
 
     public function output_frontend_seo_tags(): void {
-        if (!is_singular()) {
-            return;
-        }
-        $post_id = get_the_ID();
-        if (!$post_id) {
-            return;
-        }
-
-        $is_other_seo = defined('WPSEO_VERSION') || defined('RANK_MATH_VERSION') || defined('AIOSEO_VERSION') || defined('SEOPRESS_VERSION');
-        if ($is_other_seo) {
-            return;
-        }
-
-        $meta_desc = (string) get_post_meta($post_id, '_omni_ai_meta_description', true);
-        if (!empty($meta_desc)) {
-            echo '<meta name="description" content="' . esc_attr($meta_desc) . '" />' . "\n";
-        }
-
-        $noindex  = get_post_meta($post_id, '_omni_ai_noindex', true);
-        $nofollow = get_post_meta($post_id, '_omni_ai_nofollow', true);
-        $robots = [];
-        $robots[] = ($noindex === '1') ? 'noindex' : 'index';
-        $robots[] = ($nofollow === '1') ? 'nofollow' : 'follow';
-        echo '<meta name="robots" content="' . esc_attr(implode(', ', $robots)) . ', max-snippet:-1, max-image-preview:large, max-video-preview:-1" />' . "\n";
-
-        $canonical = (string) get_post_meta($post_id, '_omni_ai_canonical_url', true);
-        if (!empty($canonical)) {
-            echo '<link rel="canonical" href="' . esc_url($canonical) . '" />' . "\n";
-        } else {
-            echo '<link rel="canonical" href="' . esc_url(get_permalink($post_id)) . '" />' . "\n";
-        }
-
-        // Open Graph & Social Meta Tags
-        $post = get_post($post_id);
-        $seo_title = (string) get_post_meta($post_id, '_omni_ai_seo_title', true) ?: ($post ? $post->post_title : '');
-        $og_title  = (string) get_post_meta($post_id, '_omni_ai_og_title', true) ?: (string) get_post_meta($post_id, 'rank_math_facebook_title', true) ?: $seo_title;
-        $og_desc   = (string) get_post_meta($post_id, '_omni_ai_og_description', true) ?: (string) get_post_meta($post_id, 'rank_math_facebook_description', true) ?: $meta_desc;
-        
-        $og_image  = (string) get_post_meta($post_id, '_omni_ai_og_image', true) ?: (string) get_post_meta($post_id, 'rank_math_facebook_image', true);
-        if (empty($og_image) && has_post_thumbnail($post_id)) {
-            $og_image = (string) get_the_post_thumbnail_url($post_id, 'large');
-        }
-
-        $twitter_title = (string) get_post_meta($post_id, '_omni_ai_twitter_title', true) ?: (string) get_post_meta($post_id, 'rank_math_twitter_title', true) ?: $og_title;
-        $twitter_desc  = (string) get_post_meta($post_id, '_omni_ai_twitter_description', true) ?: (string) get_post_meta($post_id, 'rank_math_twitter_description', true) ?: $og_desc;
-        $twitter_image = (string) get_post_meta($post_id, '_omni_ai_twitter_image', true) ?: (string) get_post_meta($post_id, 'rank_math_twitter_image', true) ?: $og_image;
-
-        $permalink = get_permalink($post_id);
-        $site_name = get_bloginfo('name');
-        $locale    = get_locale() ?: 'fa_IR';
-
-        echo '<meta property="og:locale" content="' . esc_attr($locale) . '" />' . "\n";
-        echo '<meta property="og:type" content="' . (is_singular('post') ? 'article' : 'website') . '" />' . "\n";
-        echo '<meta property="og:title" content="' . esc_attr($og_title) . '" />' . "\n";
-        if (!empty($og_desc)) {
-            echo '<meta property="og:description" content="' . esc_attr($og_desc) . '" />' . "\n";
-        }
-        echo '<meta property="og:url" content="' . esc_url($permalink) . '" />' . "\n";
-        echo '<meta property="og:site_name" content="' . esc_attr($site_name) . '" />' . "\n";
-
-        if (!empty($og_image)) {
-            echo '<meta property="og:image" content="' . esc_url($og_image) . '" />' . "\n";
-            echo '<meta property="og:image:width" content="1200" />' . "\n";
-            echo '<meta property="og:image:height" content="630" />' . "\n";
-        }
-
-        if (is_singular('post') && $post) {
-            echo '<meta property="article:published_time" content="' . esc_attr(get_post_time('c', true, $post_id)) . '" />' . "\n";
-            echo '<meta property="article:modified_time" content="' . esc_attr(get_post_modified_time('c', true, $post_id)) . '" />' . "\n";
-            $cats = wp_get_post_categories($post_id, ['fields' => 'names']);
-            if (!empty($cats) && is_array($cats)) {
-                echo '<meta property="article:section" content="' . esc_attr($cats[0]) . '" />' . "\n";
-            }
-        }
-
-        // Twitter Cards
-        echo '<meta name="twitter:card" content="summary_large_image" />' . "\n";
-        echo '<meta name="twitter:title" content="' . esc_attr($twitter_title) . '" />' . "\n";
-        if (!empty($twitter_desc)) {
-            echo '<meta name="twitter:description" content="' . esc_attr($twitter_desc) . '" />' . "\n";
-        }
-        if (!empty($twitter_image)) {
-            echo '<meta name="twitter:image" content="' . esc_url($twitter_image) . '" />' . "\n";
-        }
+        (new Schema_Injector())->output_frontend_seo_tags();
     }
 
     public function filter_document_title(string $title): string {
-        if (is_singular()) {
-            $post_id = get_the_ID();
-            if ($post_id) {
-                $is_other_seo = defined('WPSEO_VERSION') || defined('RANK_MATH_VERSION') || defined('AIOSEO_VERSION');
-                if (!$is_other_seo) {
-                    $custom_title = (string) get_post_meta($post_id, '_omni_ai_seo_title', true);
-                    if (!empty($custom_title)) {
-                        return esc_html($custom_title);
-                    }
-                }
-            }
-        }
-        return $title;
+        return (new Schema_Injector())->filter_document_title($title);
     }
 
     public function filter_document_title_parts(array $parts): array {
-        if (is_singular()) {
-            $post_id = get_the_ID();
-            if ($post_id) {
-                $is_other_seo = defined('WPSEO_VERSION') || defined('RANK_MATH_VERSION') || defined('AIOSEO_VERSION');
-                if (!$is_other_seo) {
-                    $custom_title = (string) get_post_meta($post_id, '_omni_ai_seo_title', true);
-                    if (!empty($custom_title)) {
-                        $parts['title'] = esc_html($custom_title);
-                    }
-                }
-            }
-        }
-        return $parts;
+        return (new Schema_Injector())->filter_document_title_parts($parts);
     }
 
     /* -------------------------------------------------------------
@@ -3097,6 +2974,69 @@ class Ranking_Module implements Module_Interface {
         }
     }
 
+    /**
+     * Get or calculate cached global site summary statistics using a 1-hour WordPress transient.
+     *
+     * @return array
+     */
+    public function get_cached_site_summary_stats(): array {
+        $transient_key = 'omni_ai_ranking_summary_stats';
+        $stats = get_transient($transient_key);
+        if (is_array($stats) && isset($stats['site_avg'], $stats['critical_count'], $stats['warning_count'], $stats['good_count'])) {
+            return $stats;
+        }
+
+        $all_posts = get_posts([
+            'post_type'      => 'post',
+            'post_status'    => ['publish', 'draft', 'pending'],
+            'posts_per_page' => -1,
+            'fields'         => 'ids',
+        ]);
+
+        $total_all = count($all_posts);
+        $total_score_sum = 0;
+        $critical_count  = 0;
+        $warning_count   = 0;
+        $good_count      = 0;
+
+        foreach ($all_posts as $post_id) {
+            $avg = (int) get_post_meta($post_id, '_omni_ranking_avg_score', true);
+            if ($avg <= 0) {
+                $ratings = $this->get_post_ranking((int) $post_id);
+                $avg = (int) ($ratings['avg_score'] ?? 0);
+            }
+
+            $total_score_sum += $avg;
+            if ($avg < 50) {
+                $critical_count++;
+            } elseif ($avg < 80) {
+                $warning_count++;
+            } else {
+                $good_count++;
+            }
+        }
+
+        $site_avg = $total_all > 0 ? round($total_score_sum / $total_all) : 0;
+
+        $stats = [
+            'total_all'      => $total_all,
+            'site_avg'       => $site_avg,
+            'critical_count' => $critical_count,
+            'warning_count'  => $warning_count,
+            'good_count'     => $good_count,
+        ];
+
+        set_transient($transient_key, $stats, HOUR_IN_SECONDS);
+        return $stats;
+    }
+
+    /**
+     * Invalidate cached ranking summary stats transient.
+     */
+    public function invalidate_summary_stats(): void {
+        delete_transient('omni_ai_ranking_summary_stats');
+    }
+
     public function handle_rest_get_posts(\WP_REST_Request $request): \WP_REST_Response {
         $search       = sanitize_text_field($request->get_param('search') ?? '');
         $score_filter = sanitize_text_field($request->get_param('score_filter') ?? 'all');
@@ -3203,7 +3143,7 @@ class Ranking_Module implements Module_Interface {
         $paged_items    = array_slice($items, $offset, $per_page);
 
         $total_all = count($all_posts);
-        $site_avg  = $total_all > 0 ? round($total_score_sum / $total_all) : 0;
+        $cached_stats = $this->get_cached_site_summary_stats();
 
         return new \WP_REST_Response([
             'success'      => true,
@@ -3213,11 +3153,11 @@ class Ranking_Module implements Module_Interface {
             'page'         => $page,
             'per_page'     => $per_page,
             'summary'      => [
-                'total_all'       => $total_all,
-                'site_avg'        => $site_avg,
-                'critical_count'  => $critical_count,
-                'warning_count'   => $warning_count,
-                'good_count'      => $good_count,
+                'total_all'       => $cached_stats['total_all'] ?? $total_all,
+                'site_avg'        => $cached_stats['site_avg'],
+                'critical_count'  => $cached_stats['critical_count'],
+                'warning_count'   => $cached_stats['warning_count'],
+                'good_count'      => $cached_stats['good_count'],
             ],
         ], 200);
     }
@@ -3233,6 +3173,7 @@ class Ranking_Module implements Module_Interface {
             $this->analyze_and_save_post($p->ID);
             $analyzed++;
         }
+        $this->invalidate_summary_stats();
 
         return new \WP_REST_Response([
             'success'  => true,
@@ -3408,1279 +3349,61 @@ class Ranking_Module implements Module_Interface {
         ], 200);
     }
 
-    /* --- AI Bots Manager (robots.txt filter & REST API) --- */
+    /* --- AI Bots Manager & LLMs.txt Handlers (Delegated to Llms_Txt_Manager) --- */
 
     public function get_full_robots_content(): string {
-        $settings = get_option('omni_ai_ranking_settings', []);
-        $site_url = !empty($settings['custom_site_url']) ? rtrim($settings['custom_site_url'], '/') : rtrim($this->get_effective_site_url($settings), '/');
-
-        $lines = [
-            'User-agent: *',
-            'Disallow: /wp-admin/',
-            'Allow: /wp-admin/admin-ajax.php',
-            '',
-            'Sitemap: ' . $site_url . '/sitemap_index.xml',
-            'Sitemap: ' . $site_url . '/sitemap.xml',
-            '',
-        ];
-        $base = implode("\n", $lines);
-
-        if (!empty($settings['enable_ai_bots_manager'])) {
-            $preview = $this->generate_ai_robots_preview($settings);
-            return $base . "\n" . $preview . "\n";
-        }
-
-        return $base;
+        return (new Llms_Txt_Manager())->get_full_robots_content();
     }
 
     public function generate_ai_robots_preview(array $settings): string {
-        if (empty($settings['enable_ai_bots_manager'])) {
-            return "# مدیریت ربات‌های هوش مصنوعی غیرفعال است (قوانین سفارشی در robots.txt درج نمی‌شود).";
-        }
-
-        $bots = $settings['ai_bots'] ?? [];
-        $out  = "# =============================================================\n";
-        $out .= "# Omni AI Suite - AI Bots & LLM Web Crawlers Directives\n";
-        $out .= "# Generated automatically based on your AI Bots Manager settings\n";
-        $out .= "# =============================================================\n\n";
-
-        foreach ($bots as $bot => $action) {
-            $out .= "User-agent: {$bot}\n";
-            $out .= ($action === 'allow') ? "Allow: /\n\n" : "Disallow: /\n\n";
-        }
-
-        return trim($out);
+        return (new Llms_Txt_Manager())->generate_ai_robots_preview($settings);
     }
 
     public function filter_robots_txt($output = '', $public = true): string {
-        $output   = (string) $output;
-        $settings = get_option('omni_ai_ranking_settings', []);
-        if (empty($settings['enable_ai_bots_manager'])) {
-            return $output;
-        }
-
-        $preview = $this->generate_ai_robots_preview($settings);
-        return $output . "\n\n" . $preview . "\n";
+        return (new Llms_Txt_Manager())->filter_robots_txt($output, $public);
     }
-
-    /* --- MCP (Model Context Protocol) JSON-RPC 2.0 Server --- */
-
-    public function handle_rest_mcp_logs(\WP_REST_Request $request): \WP_REST_Response {
-        $logs = get_option('omni_mcp_traffic_logs', []);
-        return new \WP_REST_Response([
-            'status' => 'active',
-            'count'  => is_array($logs) ? count($logs) : 0,
-            'logs'   => is_array($logs) ? $logs : [],
-        ], 200, [
-            'Access-Control-Allow-Origin' => '*',
-            'Content-Type'                => 'application/json; charset=utf-8',
-        ]);
-    }
-
-    public function handle_rest_mcp(\WP_REST_Request $request): \WP_REST_Response {
-        // ۱. ثبت ترافیک ورودی سرور جهت عیب‌یابی اتصال کلاینت‌ها (مانند Grok Connectors)
-        $raw_body = $request->get_body();
-        $headers  = function_exists('getallheaders') ? getallheaders() : [];
-        $log_entry = [
-            'time'       => current_time('mysql'),
-            'ip'         => $_SERVER['REMOTE_ADDR'] ?? '',
-            'method'     => $request->get_method(),
-            'uri'        => $_SERVER['REQUEST_URI'] ?? '',
-            'user_agent' => $_SERVER['HTTP_USER_AGENT'] ?? '',
-            'headers'    => $headers,
-            'body'       => mb_substr($raw_body, 0, 1000, 'UTF-8'),
-        ];
-        $logs = get_option('omni_mcp_traffic_logs', []);
-        if (!is_array($logs)) { $logs = []; }
-        array_unshift($logs, $log_entry);
-        if (count($logs) > 40) { $logs = array_slice($logs, 0, 40); }
-        update_option('omni_mcp_traffic_logs', $logs, false);
-
-        $default_cors = [
-            'Access-Control-Allow-Origin'  => '*',
-            'Access-Control-Allow-Methods' => 'GET, POST, OPTIONS, HEAD, DELETE',
-            'Access-Control-Allow-Headers' => 'Content-Type, Authorization, X-Requested-With, Mcp-Session-Id, MCP-Protocol-Version, mcp-session-id, mcp-protocol-version, Accept, Origin',
-            'Access-Control-Expose-Headers'=> 'Mcp-Session-Id, MCP-Protocol-Version, mcp-session-id, mcp-protocol-version, Link',
-            'mcp-session-id'               => 'omni-ai-mcp-session',
-            'mcp-protocol-version'         => '2026-07-28',
-        ];
-
-        $settings = get_option('omni_ai_ranking_settings', []);
-        $enabled  = $settings['enable_mcp_server'] ?? true;
-        if (!$enabled) {
-            return new \WP_REST_Response([
-                'jsonrpc' => '2.0',
-                'error'   => ['code' => -32600, 'message' => 'MCP Server is currently disabled in plugin settings.'],
-            ], 403, $default_cors);
-        }
-
-        $http_method = strtoupper($request->get_method());
-        if ($http_method === 'OPTIONS' || $http_method === 'HEAD') {
-            return new \WP_REST_Response(null, 200, array_merge($default_cors, [
-                'Allow' => 'GET, POST, OPTIONS, HEAD, DELETE',
-            ]));
-        }
-
-        if ($http_method === 'DELETE') {
-            return new \WP_REST_Response([
-                'status'  => 'closed',
-                'message' => 'MCP session closed.',
-            ], 200, $default_cors);
-        }
-
-        if ($http_method === 'GET') {
-            $accept = $request->get_header('accept') ?: '';
-            if (strpos($accept, 'text/event-stream') !== false) {
-                // پشتیبانی کامل و پایدار از Server-Sent Events (SSE)
-                if (function_exists('apache_setenv')) {
-                    @apache_setenv('no-gzip', '1');
-                }
-                @ini_set('zlib.output_compression', '0');
-                @ini_set('implicit_flush', '1');
-                @set_time_limit(180);
-                @ignore_user_abort(true);
-
-                header('Content-Type: text/event-stream; charset=utf-8');
-                header('Cache-Control: no-cache, no-transform, no-store');
-                header('Connection: keep-alive');
-                header('X-Accel-Buffering: no');
-                header('Access-Control-Allow-Origin: *');
-                header('mcp-session-id: omni-ai-mcp-session');
-                header('mcp-protocol-version: 2026-07-28');
-
-                echo "event: endpoint\n";
-                echo "data: " . rest_url('omni-ai/v1/mcp') . "\n\n";
-                if (function_exists('ob_flush')) { @ob_flush(); }
-                flush();
-
-                // نگه‌داشتن ارتباط زنده با ارسال ضربان‌های متناوب تا زمان قطع شدن اتصال توسط کلاینت
-                $start = time();
-                while (time() - $start < 120) {
-                    if (connection_aborted() || connection_status() !== CONNECTION_NORMAL) {
-                        break;
-                    }
-                    sleep(2);
-                    echo ": keepalive\n\n";
-                    if (function_exists('ob_flush')) { @ob_flush(); }
-                    flush();
-                }
-                exit;
-            }
-
-            return new \WP_REST_Response([
-                'jsonrpc'         => '2.0',
-                'name'            => 'omni-ai-wordpress-mcp',
-                'version'         => '1.0.0',
-                'protocolVersion' => '2026-07-28',
-                'status'          => 'active',
-                'description'     => 'Official Model Context Protocol (MCP) Server for ' . get_bloginfo('name'),
-                'capabilities'    => [
-                    'tools'     => ['listChanged' => false],
-                    'resources' => ['subscribe' => false, 'listChanged' => false],
-                    'prompts'   => ['listChanged' => false],
-                    'logging'   => new \stdClass(),
-                ],
-                'serverInfo'      => [
-                    'name'    => 'omni-ai-wordpress-mcp',
-                    'version' => '1.0.0',
-                ],
-                'endpoint'        => rest_url('omni-ai/v1/mcp'),
-            ], 200, $default_cors);
-        }
-
-        // بررسی و پارس دقیق JSON-RPC
-        $body = $request->get_json_params();
-        if (empty($body) && !empty($raw_body)) {
-            $decoded = json_decode($raw_body, true);
-            if (is_array($decoded)) {
-                $body = $decoded;
-            }
-        }
-        if (!is_array($body)) {
-            $body = [];
-        }
-
-        // پشتیبانی از Batch JSON-RPC
-        if (isset($body[0]) && is_array($body[0])) {
-            $batch_responses = [];
-            foreach ($body as $single_req) {
-                if (is_array($single_req)) {
-                    $batch_responses[] = $this->dispatch_single_mcp_message($single_req);
-                }
-            }
-            return new \WP_REST_Response($batch_responses, 200, $default_cors);
-        }
-
-        $res = $this->dispatch_single_mcp_message($body);
-        return new \WP_REST_Response($res, 200, $default_cors);
-    }
-
-    private function dispatch_single_mcp_message(array $body): array {
-        $id     = $body['id'] ?? 1;
-        $method = $body['method'] ?? '';
-        $params = $body['params'] ?? [];
-
-        switch ($method) {
-            case 'ping':
-                return [
-                    'jsonrpc' => '2.0',
-                    'id'      => $id,
-                    'result'  => new \stdClass(),
-                ];
-
-            case 'notifications/initialized':
-            case 'initialized':
-                return [
-                    'jsonrpc' => '2.0',
-                    'result'  => new \stdClass(),
-                ];
-
-            case 'roots/list':
-                return [
-                    'jsonrpc' => '2.0',
-                    'id'      => $id,
-                    'result'  => [
-                        'roots' => [],
-                    ],
-                ];
-
-            case 'logging/setLevel':
-                return [
-                    'jsonrpc' => '2.0',
-                    'id'      => $id,
-                    'result'  => new \stdClass(),
-                ];
-
-            case 'prompts/list':
-                return [
-                    'jsonrpc' => '2.0',
-                    'id'      => $id,
-                    'result'  => [
-                        'prompts' => [],
-                    ],
-                ];
-
-            case 'server/discover':
-                return [
-                    'jsonrpc' => '2.0',
-                    'id'      => $id,
-                    'result'  => [
-                        'resultType'        => 'complete',
-                        'supportedVersions' => [
-                            '2026-07-28',
-                            '2025-11-25',
-                            '2025-06-18',
-                            '2024-11-05',
-                        ],
-                        'protocolVersion'   => '2026-07-28',
-                        'capabilities'      => [
-                            'tools'     => ['listChanged' => false],
-                            'resources' => ['subscribe' => false, 'listChanged' => false],
-                            'prompts'   => ['listChanged' => false],
-                        ],
-                        'serverInfo'        => [
-                            'name'    => 'omni-ai-wordpress-mcp',
-                            'version' => '1.0.0',
-                        ],
-                        '_meta'             => [
-                            'io.modelcontextprotocol/serverInfo' => [
-                                'name'    => 'omni-ai-wordpress-mcp',
-                                'version' => '1.0.0',
-                            ],
-                        ],
-                        'instructions'      => 'Official Omni AI Suite WordPress Model Context Protocol Server for managing articles, content ranking, and automated publishing.',
-                        'ttlMs'             => 3600000,
-                        'cacheScope'        => 'public',
-                    ],
-                ];
-
-            case 'initialize':
-                $client_version = $params['protocolVersion'] ?? '2024-11-05';
-                return [
-                    'jsonrpc' => '2.0',
-                    'id'      => $id,
-                    'result'  => [
-                        'protocolVersion' => $client_version,
-                        'capabilities'    => [
-                            'tools'     => ['listChanged' => false],
-                            'resources' => ['subscribe' => false, 'listChanged' => false],
-                            'prompts'   => ['listChanged' => false],
-                            'logging'   => new \stdClass(),
-                        ],
-                        'serverInfo'      => [
-                            'name'    => 'omni-ai-wordpress-mcp',
-                            'version' => '1.0.0',
-                        ],
-                    ],
-                ];
-
-            case 'tools/list':
-                return [
-                    'jsonrpc' => '2.0',
-                    'id'      => $id,
-                    'result'  => [
-                        'tools' => [
-                            [
-                                'name'        => 'search_posts',
-                                'title'       => 'Search Posts',
-                                'description' => 'Search published WordPress articles by keyword and limit. (جستجو در مقالات سایت)',
-                                'inputSchema' => [
-                                    'type'       => 'object',
-                                    'properties' => [
-                                        'query' => ['type' => 'string', 'description' => 'Search term or keyword'],
-                                        'limit' => ['type' => 'integer', 'description' => 'Maximum number of articles to return (default 5)'],
-                                    ],
-                                    'required'   => [],
-                                ],
-                            ],
-                            [
-                                'name'        => 'get_post',
-                                'title'       => 'Get Post Content',
-                                'description' => 'Fetch full structured text content of a post by ID. (دریافت متن کامل نوشته)',
-                                'inputSchema' => [
-                                    'type'       => 'object',
-                                    'properties' => [
-                                        'id' => ['type' => 'integer', 'description' => 'Post ID'],
-                                    ],
-                                    'required'   => ['id'],
-                                ],
-                            ],
-                            [
-                                'name'        => 'get_site_summary',
-                                'title'       => 'Get Site Summary',
-                                'description' => 'Get site summary, topics, categories, and structure for AI models. (خلاصه سایت و موضوعات)',
-                                'inputSchema' => [
-                                    'type'       => 'object',
-                                    'properties' => new \stdClass(),
-                                    'required'   => [],
-                                ],
-                            ],
-                            [
-                                'name'        => 'get_content_ranking',
-                                'title'       => 'Get Content Ranking',
-                                'description' => 'Evaluate post readiness for AI engines (SEO, AEO, GEO) with improvement tips. (ارزیابی رتبه محتوا)',
-                                'inputSchema' => [
-                                    'type'       => 'object',
-                                    'properties' => [
-                                        'id' => ['type' => 'integer', 'description' => 'Post ID'],
-                                    ],
-                                    'required'   => ['id'],
-                                ],
-                            ],
-                            [
-                                'name'        => 'create_post',
-                                'title'       => 'Create or Publish Post',
-                                'description' => 'Create or publish a new article in WordPress following SEO/AEO publishing rules (English URL slug, complete image metadata with alt text, duplicate prevention, and AI ranking calculation).',
-                                'inputSchema' => [
-                                    'type'       => 'object',
-                                    'properties' => [
-                                        'title'             => ['type' => 'string', 'description' => 'Article title (عنوان مقاله)'],
-                                        'content'           => ['type' => 'string', 'description' => 'Full structured content with H2, H3 headings, paragraphs, and bullet points'],
-                                        'slug'              => ['type' => 'string', 'description' => 'Mandatory rule: English URL slug in kebab-case format (e.g. ai-agents-guide-2026). Must contain ONLY English lowercase letters, numbers, and hyphens.'],
-                                        'status'            => ['type' => 'string', 'enum' => ['draft', 'publish', 'pending'], 'description' => 'Publication status: draft or publish. Default: draft'],
-                                        'excerpt'           => ['type' => 'string', 'description' => 'Meta description / excerpt (120-160 characters for SEO search snippet)'],
-                                        'category_names'    => [
-                                            'type'        => 'array',
-                                            'items'       => [
-                                                'type' => 'string',
-                                                'enum' => [
-                                                    'تازه‌ها و ترندهای فناوری',
-                                                    'توسعه و برنامه‌نویسی',
-                                                    'ابزارها و بهره‌وری',
-                                                    'شبکه، وب و API',
-                                                    'داده و ساختار',
-                                                    'امنیت کاربردی',
-                                                ],
-                                            ],
-                                            'description' => 'Mandatory rule: Select from the 6 fixed canonical categories ONLY. No new categories are allowed: 1) تازه‌ها و ترندهای فناوری, 2) توسعه و برنامه‌نویسی, 3) ابزارها و بهره‌وری, 4) شبکه، وب و API, 5) داده و ساختار, 6) امنیت کاربردی.',
-                                        ],
-                                        'tags'              => ['type' => 'array', 'items' => ['type' => 'string'], 'description' => 'Relevant semantic tags (at least 3 recommended)'],
-                                        'image_base64'      => ['type' => 'string', 'description' => 'Optional Base64 encoded featured image string'],
-                                        'image_filename'    => ['type' => 'string', 'description' => 'Optional featured image filename in English (e.g. ai-trends.jpg)'],
-                                        'image_alt'         => ['type' => 'string', 'description' => 'Mandatory rule: Alternative text (Alt) for the featured image describing its visual content for SEO and accessibility (متن جایگزین تصویر)'],
-                                        'image_title'       => ['type' => 'string', 'description' => 'Media library title for the image'],
-                                        'image_caption'     => ['type' => 'string', 'description' => 'Caption text displayed beneath the image'],
-                                        'image_description' => ['type' => 'string', 'description' => 'Detailed description of the image in media library'],
-                                        'allow_duplicate'   => ['type' => 'boolean', 'description' => 'Set to true to bypass duplicate title and content checks. Default: false'],
-                                    ],
-                                    'required'   => ['title', 'content'],
-                                ],
-                            ],
-                            [
-                                'name'        => 'set_featured_image',
-                                'title'       => 'Set Featured Image',
-                                'description' => 'Upload image from Base64 and assign as featured image to a post with complete metadata (Alt text, title, caption, and description).',
-                                'inputSchema' => [
-                                    'type'       => 'object',
-                                    'properties' => [
-                                        'post_id'           => ['type' => 'integer', 'description' => 'Target Post ID'],
-                                        'image_base64'      => ['type' => 'string', 'description' => 'Base64 image data string'],
-                                        'filename'          => ['type' => 'string', 'description' => 'English filename like ai-header.jpg'],
-                                        'image_alt'         => ['type' => 'string', 'description' => 'Mandatory rule: Image Alt text for SEO and accessibility (متن جایگزین تصویر)'],
-                                        'image_title'       => ['type' => 'string', 'description' => 'Image Title in WordPress media library'],
-                                        'image_caption'     => ['type' => 'string', 'description' => 'Image Caption'],
-                                        'image_description' => ['type' => 'string', 'description' => 'Detailed description in media library'],
-                                    ],
-                                    'required'   => ['post_id', 'image_base64'],
-                                ],
-                            ],
-                            [
-                                'name'        => 'sync_categories',
-                                'title'       => 'Sync & Clean Categories',
-                                'description' => 'تثبیت ۶ دسته‌بندی اصلی و استاندارد وبلاگ، انتقال نوشته‌ها و حذف دسته‌های قدیمی و نامعتبر.',
-                                'inputSchema' => [
-                                    'type'       => 'object',
-                                    'properties' => new \stdClass(),
-                                ],
-                            ],
-                        ],
-                    ],
-                ];
-
-            case 'tools/call':
-                $tool_name = $params['name'] ?? '';
-                $tool_args = $params['arguments'] ?? [];
-                $result_text = $this->execute_mcp_tool($tool_name, $tool_args);
-
-                return [
-                    'jsonrpc' => '2.0',
-                    'id'      => $id,
-                    'result'  => [
-                        'content' => [
-                            [
-                                'type' => 'text',
-                                'text' => $result_text,
-                            ],
-                        ],
-                    ],
-                ];
-
-            case 'resources/list':
-                return [
-                    'jsonrpc' => '2.0',
-                    'id'      => $id,
-                    'result'  => [
-                        'resources' => [
-                            [
-                                'uri'         => 'omni://llms.txt',
-                                'name'        => 'LLMS.txt Site Summary',
-                                'mimeType'    => 'text/markdown',
-                                'description' => 'استاندارد خلاصه سایت برای مدل‌های زبانی',
-                            ],
-                            [
-                                'uri'         => 'omni://llms-full.txt',
-                                'name'        => 'LLMS-Full.txt Full Content',
-                                'mimeType'    => 'text/markdown',
-                                'description' => 'محتوای کامل متنی مقالات اخیر برای هوش مصنوعی',
-                            ],
-                        ],
-                    ],
-                ];
-
-            case 'resources/templates/list':
-                return [
-                    'jsonrpc' => '2.0',
-                    'id'      => $id,
-                    'result'  => [
-                        'resourceTemplates' => [],
-                    ],
-                ];
-
-            case 'resources/read':
-                $uri  = $params['uri'] ?? '';
-                $text = '';
-                if ($uri === 'omni://llms.txt') {
-                    $text = $this->generate_llms_content(false);
-                } elseif ($uri === 'omni://llms-full.txt') {
-                    $text = $this->generate_llms_content(true);
-                } else {
-                    return [
-                        'jsonrpc' => '2.0',
-                        'id'      => $id,
-                        'error'   => ['code' => -32602, 'message' => 'Resource URI not found.'],
-                    ];
-                }
-
-                return [
-                    'jsonrpc' => '2.0',
-                    'id'      => $id,
-                    'result'  => [
-                        'contents' => [
-                            [
-                                'uri'      => $uri,
-                                'mimeType' => 'text/markdown',
-                                'text'     => $text,
-                            ],
-                        ],
-                    ],
-                ];
-
-            default:
-                if (!empty($method) && strpos($method, 'notifications/') === 0) {
-                    return [
-                        'jsonrpc' => '2.0',
-                        'result'  => new \stdClass(),
-                    ];
-                }
-
-                return [
-                    'jsonrpc' => '2.0',
-                    'id'      => $id,
-                    'error'   => ['code' => -32601, 'message' => "Method '{$method}' not supported."],
-                ];
-        }
-    }
-
-    private function execute_mcp_tool(string $name, array $args): string {
-        switch ($name) {
-            case 'search_posts':
-                $query = sanitize_text_field($args['query'] ?? '');
-                $limit = max(1, min(20, (int) ($args['limit'] ?? 5)));
-                $posts = get_posts([
-                    'post_type'      => 'post',
-                    'post_status'    => 'publish',
-                    's'              => $query,
-                    'posts_per_page' => $limit,
-                ]);
-
-                if (empty($posts)) {
-                    return "هیچ نوشته‌ای مرتبط با عبارت «{$query}» یافت نشد.";
-                }
-
-                $res = "نتایج جستجو برای «{$query}» (تعداد: " . count($posts) . "):\n\n";
-                foreach ($posts as $p) {
-                    $res .= "• [شناسه: #{$p->ID}] {$p->post_title}\n";
-                    $res .= "  نشانی: " . get_permalink($p->ID) . "\n";
-                    $clean = wp_strip_all_tags($p->post_content);
-                    $res .= "  خلاصه: " . mb_substr($clean, 0, 140, 'UTF-8') . "...\n\n";
-                }
-                return trim($res);
-
-            case 'get_post':
-                $post_id = (int) ($args['id'] ?? 0);
-                $post = get_post($post_id);
-                if (!$post || $post->post_status !== 'publish') {
-                    return "خطا: نوشته با شناسه #{$post_id} یافت نشد یا منتشر نشده است.";
-                }
-
-                $clean_body = wp_strip_all_tags($post->post_content);
-                $clean_body = preg_replace("/[\r\n]{3,}/", "\n\n", trim($clean_body));
-                $cats = wp_get_post_categories($post_id, ['fields' => 'names']);
-
-                $out = "# {$post->post_title}\n\n";
-                $out .= "- شناسه: #{$post->ID}\n";
-                $out .= "- نشانی: " . get_permalink($post->ID) . "\n";
-                $out .= "- تاریخ انتشار: " . get_the_date('Y-m-d', $post->ID) . "\n";
-                if (!empty($cats)) {
-                    $out .= "- موضوعات: " . implode(', ', $cats) . "\n";
-                }
-                $out .= "\n## متن مقاله:\n\n" . $clean_body;
-                return $out;
-
-            case 'get_site_summary':
-                return $this->generate_llms_content(false);
-
-            case 'get_content_ranking':
-                $post_id = (int) ($args['id'] ?? 0);
-                $post = get_post($post_id);
-                if (!$post) {
-                    return "نوشته یافت نشد.";
-                }
-                $r = $this->get_post_ranking($post_id);
-                $out = "ارزیابی رتبه‌بندی محتوا برای: «{$post->post_title}»\n";
-                $out .= "• میانگین کل آمادگی هوش مصنوعی: " . ($r['avg_score'] ?? 0) . "%\n";
-                $out .= "• سئو ارگانیک: " . ($r['seo']['score'] ?? 0) . "%\n";
-                $out .= "• موتور پاسخگو (AEO): " . ($r['aeo']['score'] ?? 0) . "%\n";
-                $out .= "• مدل‌های هوش مصنوعی (GEO): " . ($r['geo']['score'] ?? 0) . "%\n\n";
-
-                if (!empty($r['aeo']['recommendations'])) {
-                    $out .= "توصیه‌های AEO:\n- " . implode("\n- ", $r['aeo']['recommendations']) . "\n\n";
-                }
-                if (!empty($r['geo']['recommendations'])) {
-                    $out .= "توصیه‌های GEO:\n- " . implode("\n- ", $r['geo']['recommendations']) . "\n";
-                }
-                return trim($out);
-
-            case 'create_post':
-                global $wpdb;
-                $title     = sanitize_text_field($args['title'] ?? '');
-                $content   = $args['content'] ?? '';
-                $status    = in_array($args['status'] ?? 'draft', ['draft', 'publish', 'pending'], true) ? $args['status'] : 'draft';
-                $excerpt   = sanitize_textarea_field($args['excerpt'] ?? '');
-                $allow_dup = !empty($args['allow_duplicate']);
-
-                if (empty($title) || empty($content)) {
-                    return "خطای اعتبارسنجی: عنوان و متن محتوای مقاله الزامی هستند.";
-                }
-
-                // ۱. قانون بررسی تکراری نبودن مقاله (Duplicate Prevention)
-                if (!$allow_dup) {
-                    // الف: بررسی تکراری بودن عنوان دقیق
-                    $existing_title = $wpdb->get_row($wpdb->prepare(
-                        "SELECT ID, post_title, post_status FROM {$wpdb->posts} WHERE post_title = %s AND post_type = 'post' AND post_status IN ('publish', 'draft', 'pending') LIMIT 1",
-                        $title
-                    ));
-                    if ($existing_title) {
-                        $link = get_permalink($existing_title->ID);
-                        return "⚠️ خطای اعتبارسنجی سئو (Duplicate Title Detected):\n" .
-                               "مقاله‌ای با این عنوان دقیقاً از قبل در وردپرس وجود دارد:\n" .
-                               "• شناسه: #{$existing_title->ID}\n" .
-                               "• عنوان: «{$existing_title->post_title}» (وضعیت: {$existing_title->post_status})\n" .
-                               "• پیوند نوشته موجود: {$link}\n\n" .
-                               "قانون سئو: برای جلوگیری از افت رتبه به دلیل محتوای تکراری (Cannibalization / Duplicate Content)، ایجاد مقاله با عنوان تکراری متوقف شد. لطفاً عنوان دیگری انتخاب کنید یا شناسه فعلی را ویرایش نمایید.";
-                    }
-
-                    // ب: بررسی تکراری بودن لید یا پاراگراف ابتدایی مقاله
-                    $clean_lead = mb_substr(trim(wp_strip_all_tags($content)), 0, 140, 'UTF-8');
-                    if (mb_strlen($clean_lead) >= 60) {
-                        $lead_like = '%' . $wpdb->esc_like($clean_lead) . '%';
-                        $existing_body = $wpdb->get_row($wpdb->prepare(
-                            "SELECT ID, post_title FROM {$wpdb->posts} WHERE post_content LIKE %s AND post_type = 'post' AND post_status IN ('publish', 'draft', 'pending') LIMIT 1",
-                            $lead_like
-                        ));
-                        if ($existing_body) {
-                            return "⚠️ خطای اعتبارسنجی سئو (Duplicate Content Detected):\n" .
-                                   "بخش قابل توجهی از محتوای این مقاله عیناً در نوشته «{$existing_body->post_title}» (شناسه #{$existing_body->ID}) وجود دارد. لطفاً محتوای جدید، بازنویسی شده یا توسعه‌یافته ارسال کنید.";
-                        }
-                    }
-                }
-
-                // ۲. قانون نامک انگلیسی استاندارد (Mandatory English URL Slug)
-                $raw_slug   = $args['slug'] ?? '';
-                $clean_slug = '';
-                if (!empty($raw_slug)) {
-                    $clean_slug = preg_replace('/[^a-z0-9\-]/i', '', strtolower($raw_slug));
-                    $clean_slug = trim(preg_replace('/-+/', '-', $clean_slug), '-');
-                }
-                if (empty($clean_slug)) {
-                    // استخراج خودکار کلمات انگلیسی از عنوان در صورت وجود
-                    preg_match_all('/[a-z0-9]+/i', $title, $eng_words);
-                    if (!empty($eng_words[0])) {
-                        $clean_slug = strtolower(implode('-', array_slice($eng_words[0], 0, 6)));
-                    } else {
-                        // تولید نامک انگلیسی خوانا و معتبر بر اساس تاریخ و هش
-                        $clean_slug = 'article-' . gmdate('Ymd') . '-' . substr(md5($title), 0, 6);
-                    }
-                }
-
-                // ۳. قانون حداقل طول استاندارد محتوا و بهینه‌سازی متادیسکریپشن
-                $plain_text = wp_strip_all_tags($content);
-                $word_count = count(preg_split('/\s+/u', trim($plain_text), -1, PREG_SPLIT_NO_EMPTY));
-                if ($word_count < 80) {
-                    return "⚠️ خطای اعتبارسنجی (Thin Content Warning):\n" .
-                           "طول مقاله بسیار کم است ({$word_count} کلمه). طبق استانداردهای کیفی سئو و موتورهای پاسخگو (AEO)، مقالات باید حداقل شامل ۳۰۰ کلمه و تیترهای بخش‌بندی شده (H2) باشند.";
-                }
-
-                if (empty($excerpt)) {
-                    // تولید خودکار چکیده سئو استاندارد در بازه ۱۲۰ تا ۱۵۰ کاراکتر
-                    $excerpt = mb_substr(preg_replace('/\s+/', ' ', trim($plain_text)), 0, 150, 'UTF-8') . '...';
-                }
-
-                // ۴. اختصاص هوشمند دسته‌بندی‌ها (فقط از بین ۶ دسته مجاز و ثابت، بدون امکان ایجاد دسته جدید)
-                $cat_ids = [];
-                if (!empty($args['category_names']) && is_array($args['category_names'])) {
-                    foreach ($args['category_names'] as $cname) {
-                        $cname = sanitize_text_field((string) $cname);
-                        if (!empty($cname)) {
-                            $cat_ids[] = self::resolve_canonical_category($cname);
-                        }
-                    }
-                }
-                if (empty($cat_ids)) {
-                    // در صورت تعیین نشدن، به صورت خودکار به دسته ترندها و تازه‌های فناوری منتسب می‌شود
-                    $cat_ids[] = self::resolve_canonical_category('tech-trends');
-                }
-                $cat_ids = array_values(array_unique(array_filter($cat_ids)));
-
-                $post_data = [
-                    'post_title'   => $title,
-                    'post_name'    => $clean_slug,
-                    'post_content' => wp_kses_post($content),
-                    'post_excerpt' => $excerpt,
-                    'post_status'  => $status,
-                    'post_type'    => 'post',
-                    'post_author'  => get_current_user_id() ?: 1,
-                ];
-                if (!empty($cat_ids)) {
-                    $post_data['post_category'] = $cat_ids;
-                }
-                if (!empty($args['tags']) && is_array($args['tags'])) {
-                    $post_data['tags_input'] = array_map('sanitize_text_field', $args['tags']);
-                }
-
-                $post_id = wp_insert_post($post_data, true);
-                if (is_wp_error($post_id)) {
-                    return "خطا در ایجاد نوشته: " . $post_id->get_error_message();
-                }
-
-                // ذخیره متادیسکریپشن برای افزونه‌های سئو (Yoast و Rank Math)
-                update_post_meta($post_id, '_yoast_wpseo_metadesc', $excerpt);
-                update_post_meta($post_id, 'rank_math_description', $excerpt);
-
-                // ۵. آپلود تصویر شاخص با تکمیل ۱۰۰٪ متادیتا (Alt, Title, Caption, Description)
-                $image_msg = '';
-                if (!empty($args['image_base64'])) {
-                    $img_fn = !empty($args['image_filename']) ? sanitize_file_name($args['image_filename']) : ($clean_slug . '-featured.jpg');
-                    $img_meta = [
-                        'alt'         => !empty($args['image_alt']) ? sanitize_text_field($args['image_alt']) : ('تصویر شاخص مقاله: ' . $title),
-                        'title'       => !empty($args['image_title']) ? sanitize_text_field($args['image_title']) : $title,
-                        'caption'     => !empty($args['image_caption']) ? sanitize_textarea_field($args['image_caption']) : '',
-                        'description' => !empty($args['image_description']) ? sanitize_textarea_field($args['image_description']) : $excerpt,
-                    ];
-                    $img_res = $this->attach_image_to_post($post_id, $args['image_base64'], $img_fn, $img_meta);
-                    if ($img_res['success']) {
-                        $image_msg = "\n• تصویر شاخص: اختصاص یافت (" . $img_res['url'] . ")\n" .
-                                     "  - متن جایگزین سئو (Alt): " . $img_meta['alt'] . "\n" .
-                                     "  - عنوان رسانه: " . $img_meta['title'] . 
-                                     (!empty($img_meta['caption']) ? ("\n  - توضیح زیر تصویر (Caption): " . $img_meta['caption']) : '');
-                    }
-                }
-
-                // ۶. محاسبه و ارزیابی آنی امتیاز هوش مصنوعی و سئو (Omni AI Ranking)
-                $ratings = $this->analyze_and_save_post($post_id);
-                $seo_score = $ratings['seo']['score'] ?? 0;
-                $aeo_score = $ratings['aeo']['score'] ?? 0;
-                $geo_score = $ratings['geo']['score'] ?? 0;
-                $avg_score = $ratings['avg_score'] ?? 0;
-
-                $status_fa = ($status === 'publish') ? 'منتشر شد (Published)' : 'به صورت پیش‌نویس (Draft) ذخیره شد';
-                $edit_url  = admin_url("post.php?post={$post_id}&action=edit");
-                $view_url  = get_permalink($post_id);
-
-                return "✅ نوشته جدید با موفقیت {$status_fa}!\n" .
-                       "• شناسه نوشته: #{$post_id}\n" .
-                       "• عنوان: {$title}\n" .
-                       "• نامک انگلیسی (URL Slug): {$clean_slug}\n" .
-                       "• وضعیت: {$status}\n" .
-                       "• تعداد کلمات: {$word_count} کلمه\n" .
-                       "• متادیسکریپشن: {$excerpt}" .
-                       $image_msg . "\n" .
-                       "• ارزیابی آمادگی هوش مصنوعی (Omni AI Score):\n" .
-                       "  - سئو ارگانیک (SEO): {$seo_score}%\n" .
-                       "  - موتورهای پاسخگو (AEO): {$aeo_score}%\n" .
-                       "  - موتورهای مولد هوش مصنوعی (GEO): {$geo_score}%\n" .
-                       "  - میانگین کل: {$avg_score}%\n" .
-                       "• پیوند ویرایش در وردپرس: {$edit_url}\n" .
-                       "• پیوند مشاهده: {$view_url}";
-
-            case 'set_featured_image':
-                $post_id      = (int) ($args['post_id'] ?? 0);
-                $image_base64 = $args['image_base64'] ?? '';
-                $filename     = sanitize_file_name($args['filename'] ?? ('post-' . $post_id . '-featured.jpg'));
-
-                if (!$post_id || empty($image_base64)) {
-                    return "خطا: شناسه نوشته و داده تصویر (image_base64) الزامی هستند.";
-                }
-
-                $post = get_post($post_id);
-                if (!$post) {
-                    return "خطا: نوشته با شناسه #{$post_id} یافت نشد.";
-                }
-
-                $img_meta = [
-                    'alt'         => !empty($args['image_alt']) ? sanitize_text_field($args['image_alt']) : ('تصویر نوشته: ' . $post->post_title),
-                    'title'       => !empty($args['image_title']) ? sanitize_text_field($args['image_title']) : $post->post_title,
-                    'caption'     => !empty($args['image_caption']) ? sanitize_textarea_field($args['image_caption']) : '',
-                    'description' => !empty($args['image_description']) ? sanitize_textarea_field($args['image_description']) : $post->post_excerpt,
-                ];
-
-                $res = $this->attach_image_to_post($post_id, $image_base64, $filename, $img_meta);
-                if (!$res['success']) {
-                    return "خطا در تنظیم تصویر شاخص: " . $res['message'];
-                }
-
-                return "تصویر شاخص با موفقیت همراه با متادیتای کامل برای نوشته «{$post->post_title}» (شناسه #{$post_id}) تنظیم گردید!\n" .
-                       "• شناسه پیوست رسانه: #{$res['attach_id']}\n" .
-                       "• نشانی تصویر: {$res['url']}\n" .
-                       "• متن جایگزین سئو (Alt): {$img_meta['alt']}\n" .
-                       "• عنوان رسانه: {$img_meta['title']}" .
-                       (!empty($img_meta['caption']) ? ("\n• توضیح زیر تصویر (Caption): {$img_meta['caption']}") : '');
-
-            case 'sync_categories':
-                $sync_result = self::sync_canonical_categories();
-                $all_cats = get_categories(['hide_empty' => false]);
-                $cat_summary = [];
-                foreach ($all_cats as $c) {
-                    $cat_summary[] = "• {$c->name} (slug: {$c->slug}, شناسه: #{$c->term_id}, تعداد نوشته: {$c->count})";
-                }
-                return "✅ دسته‌بندی‌های وردپرس با موفقیت همگام‌سازی و تثبیت شدند:\n\n" .
-                       "📌 دسته‌های فعال و رسمی وبلاگ:\n" . implode("\n", $cat_summary) . "\n\n" .
-                       "📊 آمار عملیات:\n" .
-                       "• تعداد نوشته‌های انتقال‌یافته: " . $sync_result['migrated_posts'] . "\n" .
-                       "• دسته‌های اضافی حذف‌شده: " . (!empty($sync_result['deleted_terms']) ? implode(', ', $sync_result['deleted_terms']) : 'هیچ دسته اضافه‌ای یافت نشد');
-
-            default:
-                return "ابزار «{$name}» شناخته نشد.";
-        }
-    }
-
-    private function attach_image_to_post(int $post_id, string $image_base64, string $filename = 'featured-image.jpg', array $meta = []): array {
-        if (preg_match('/^data:image\/(\w+);base64,/', $image_base64, $matches)) {
-            $image_base64 = substr($image_base64, strpos($image_base64, ',') + 1);
-            if (empty($filename) || $filename === 'featured-image.jpg') {
-                $ext = $matches[1] === 'jpeg' ? 'jpg' : $matches[1];
-                $filename = 'post-' . $post_id . '-featured.' . $ext;
-            }
-        }
-
-        $image_data = base64_decode($image_base64);
-        if (!$image_data) {
-            return ['success' => false, 'message' => 'کد Base64 تصویر نامعتبر است.'];
-        }
-
-        $filename = sanitize_file_name($filename ?: ('post-' . $post_id . '.jpg'));
-        $upload = wp_upload_bits($filename, null, $image_data);
-        if (!empty($upload['error'])) {
-            return ['success' => false, 'message' => 'خطا در ذخیره فایل در هاست: ' . $upload['error']];
-        }
-
-        $file_path = $upload['file'];
-        $file_type = wp_check_filetype($filename, null);
-
-        $img_title   = !empty($meta['title']) ? sanitize_text_field($meta['title']) : preg_replace('/\.[^.]+$/', '', $filename);
-        $img_caption = !empty($meta['caption']) ? sanitize_textarea_field($meta['caption']) : '';
-        $img_desc    = !empty($meta['description']) ? sanitize_textarea_field($meta['description']) : '';
-        $img_alt     = !empty($meta['alt']) ? sanitize_text_field($meta['alt']) : $img_title;
-
-        $attachment = [
-            'post_mime_type' => $file_type['type'] ?: 'image/jpeg',
-            'post_title'     => $img_title,
-            'post_excerpt'   => $img_caption,
-            'post_content'   => $img_desc,
-            'post_status'    => 'inherit',
-        ];
-
-        if (!function_exists('wp_generate_attachment_metadata')) {
-            require_once ABSPATH . 'wp-admin/includes/image.php';
-            require_once ABSPATH . 'wp-admin/includes/file.php';
-            require_once ABSPATH . 'wp-admin/includes/media.php';
-        }
-
-        $attach_id = wp_insert_attachment($attachment, $file_path, $post_id);
-        if (is_wp_error($attach_id) || !$attach_id) {
-            return ['success' => false, 'message' => 'خطا در ثبت تصویر در رسانه‌های وردپرس.'];
-        }
-
-        // ذخیره متن جایگزین تصویر (Alt Text) برای سئو
-        update_post_meta($attach_id, '_wp_attachment_image_alt', $img_alt);
-
-        $attach_data = wp_generate_attachment_metadata($attach_id, $file_path);
-        if (!empty($attach_data)) {
-            wp_update_attachment_metadata($attach_id, $attach_data);
-        }
-
-        set_post_thumbnail($post_id, $attach_id);
-
-        return [
-            'success'   => true,
-            'attach_id' => $attach_id,
-            'url'       => wp_get_attachment_url($attach_id),
-            'alt'       => $img_alt,
-        ];
-    }
-
-    /* --- Rewrite Rules for llms.txt --- */
 
     public function register_llms_rewrite_rules(): void {
-        add_rewrite_rule('^llms\.txt$', 'index.php?omni_llms_feed=summary', 'top');
-        add_rewrite_rule('^llms-full\.txt$', 'index.php?omni_llms_feed=full', 'top');
+        (new Llms_Txt_Manager())->register_llms_rewrite_rules();
     }
 
     public function register_query_vars($vars = []): array {
-        $vars = is_array($vars) ? $vars : [];
-        $vars[] = 'omni_llms_feed';
-        return $vars;
+        return (new Llms_Txt_Manager())->register_query_vars($vars);
     }
 
     public function handle_llms_template_redirect(): void {
-        $feed = get_query_var('omni_llms_feed');
-        if (!empty($feed)) {
-            $is_full = ($feed === 'full');
-            if (!headers_sent()) {
-                header('Content-Type: text/plain; charset=utf-8');
-                header('X-Robots-Tag: all');
-            }
-            echo $this->generate_llms_content($is_full);
-            exit;
-        }
-
-        // بررسی مستقیم URI در صورتی که rewrite rules فلاش نشده باشد یا در ساب‌فولدر قرار داشته باشد
-        $req_uri = $_SERVER['REQUEST_URI'] ?? '';
-        $path    = strtolower(strtok($req_uri, '?'));
-        if (substr($path, -9) === '/llms.txt' || $path === '/llms.txt' || $path === 'llms.txt') {
-            if (!headers_sent()) {
-                header('Content-Type: text/plain; charset=utf-8');
-                header('X-Robots-Tag: all');
-            }
-            echo $this->generate_llms_content(false);
-            exit;
-        } elseif (substr($path, -14) === '/llms-full.txt' || $path === '/llms-full.txt' || $path === 'llms-full.txt') {
-            if (!headers_sent()) {
-                header('Content-Type: text/plain; charset=utf-8');
-                header('X-Robots-Tag: all');
-            }
-            echo $this->generate_llms_content(true);
-            exit;
-        }
+        (new Llms_Txt_Manager())->handle_llms_template_redirect();
     }
 
     public function get_effective_site_url(array $options = []): string {
-        if (empty($options)) {
-            $options = get_option('omni_ai_ranking_settings', []);
-        }
-        $saved = !empty($options['custom_site_url']) ? trim($options['custom_site_url']) : '';
-        if (!empty($saved)) {
-            return untrailingslashit($saved);
-        }
-
-        $admin_path = untrailingslashit(admin_url());
-        if (strpos($admin_path, '/blog-admin') !== false && strpos(site_url(), '/blog-admin') === false) {
-            return untrailingslashit(home_url('/blog-admin'));
-        }
-
-        $site = untrailingslashit(site_url());
-        if (!empty($site)) {
-            return $site;
-        }
-
-        return untrailingslashit(home_url());
+        return (new Llms_Txt_Manager())->get_effective_site_url($options);
     }
 
     public function generate_llms_content(bool $full = false): string {
-        $options   = get_option('omni_ai_ranking_settings', []);
-        $site_name = get_bloginfo('name');
-        $site_desc = !empty($options['llms_site_summary']) ? $options['llms_site_summary'] : get_bloginfo('description');
-        $site_url  = $this->get_effective_site_url($options);
-        $limit     = !empty($options['llms_post_limit']) ? (int) $options['llms_post_limit'] : 50;
-
-        $posts = get_posts([
-            'post_type'      => 'post',
-            'post_status'    => 'publish',
-            'posts_per_page' => $limit,
-            'orderby'        => 'date',
-            'order'          => 'DESC',
-        ]);
-
-        $output = "# {$site_name}\n\n";
-        if (!empty($site_desc)) {
-            $output .= "> {$site_desc}\n\n";
-        }
-        $output .= "آدرس وب‌سایت: {$site_url}\n\n";
-
-        if ($full) {
-            $output .= "## آرشیو کامل متنی مقالات برای مدل‌های هوش مصنوعی (Full Text Content)\n\n";
-            foreach ($posts as $p) {
-                $permalink = get_permalink($p->ID);
-                $clean_text = wp_strip_all_tags($p->post_content);
-                $clean_text = preg_replace("/[\r\n]{3,}/", "\n\n", trim($clean_text));
-
-                $output .= "### " . $p->post_title . "\n";
-                $output .= "- نشانی اینترنتی: " . $permalink . "\n";
-                $output .= "- تاریخ انتشار: " . get_the_date('Y/m/d', $p->ID) . "\n\n";
-                $output .= $clean_text . "\n\n";
-                $output .= "---\n\n";
-            }
-        } else {
-            $output .= "## راهنماها و مقالات کلیدی (Key Articles & Documentation)\n\n";
-            foreach ($posts as $p) {
-                $permalink = get_permalink($p->ID);
-                $ranking   = get_post_meta($p->ID, '_omni_content_ranking', true);
-
-                $excerpt = '';
-                if (!empty($p->post_excerpt)) {
-                    $excerpt = wp_strip_all_tags($p->post_excerpt);
-                } else {
-                    $clean = wp_strip_all_tags($p->post_content);
-                    $excerpt = mb_substr($clean, 0, 160, 'UTF-8');
-                }
-                $excerpt = str_replace(["\r", "\n"], ' ', trim($excerpt));
-
-                $score_badge = '';
-                if (!empty($ranking['avg_score'])) {
-                    $score_badge = " [امتیاز آمادگی هوش مصنوعی: " . $ranking['avg_score'] . "%]";
-                }
-
-                $output .= "- [" . $p->post_title . "](" . $permalink . "): " . $excerpt . $score_badge . "\n";
-            }
-
-            $cats = get_categories(['hide_empty' => true]);
-            if (!empty($cats)) {
-                $output .= "\n## موضوعات و دسته‌بندی‌ها (Topics & Categories)\n\n";
-                foreach ($cats as $cat) {
-                    $output .= "- [" . $cat->name . "](" . get_category_link($cat->term_id) . ")\n";
-                }
-            }
-        }
-
-        return $output;
+        return (new Llms_Txt_Manager())->generate_llms_content($full);
     }
 
-    /* --- Frontend Schema.org JSON-LD Output (AEO / GEO / Breadcrumbs / Rich Snippets) --- */
+    /* --- MCP (Model Context Protocol) Server (Delegated to Mcp_Server) --- */
+
+    public function handle_rest_mcp_logs(\WP_REST_Request $request): \WP_REST_Response {
+        return (new Mcp_Server())->handle_rest_mcp_logs($request);
+    }
+
+    public function handle_rest_mcp(\WP_REST_Request $request): \WP_REST_Response {
+        return (new Mcp_Server())->handle_rest_mcp($request);
+    }
+
+    public function attach_image_to_post(int $post_id, string $image_base64, string $filename = 'featured-image.jpg', array $meta = []): array {
+        return (new Mcp_Server())->attach_image_to_post($post_id, $image_base64, $filename, $meta);
+    }
+
+    /* --- Frontend Schema.org JSON-LD Output (Delegated to Schema_Injector) --- */
 
     public function output_frontend_schemas(): void {
-        $options = get_option('omni_ai_ranking_settings', []);
-        $enable_schemas = $options['enable_schemas'] ?? true;
-        if (!$enable_schemas) {
-            return;
-        }
-
-        $schemas = [];
-
-        // ۱. اسکیمای سازمان یا کسب‌وکار محلی (Organization / LocalBusiness) در صفحه اصلی
-        if ((is_front_page() || is_home()) && ($options['enable_org_schema'] ?? true)) {
-            $org_type = !empty($options['org_type']) ? sanitize_text_field($options['org_type']) : 'Organization';
-            $org_name = !empty($options['org_name']) ? sanitize_text_field($options['org_name']) : get_bloginfo('name');
-            $org_schema = [
-                '@context' => 'https://schema.org',
-                '@type'    => $org_type,
-                'name'     => $org_name,
-                'url'      => home_url('/'),
-            ];
-            if (!empty($options['org_logo'])) {
-                $org_schema['logo'] = esc_url($options['org_logo']);
-            }
-            if (!empty($options['org_phone'])) {
-                $org_schema['telephone'] = sanitize_text_field($options['org_phone']);
-            }
-            if (!empty($options['org_price_range'])) {
-                $org_schema['priceRange'] = sanitize_text_field($options['org_price_range']);
-            }
-            $schemas[] = $org_schema;
-        }
-
-        // ۲. اسکیمای مسیر راهنما (BreadcrumbList)
-        if (!is_front_page() && ($options['enable_breadcrumb_schema'] ?? true) && class_exists('\\OmniAI\\Modules\\Breadcrumbs')) {
-            $bc_schema = Breadcrumbs::get_schema();
-            if (!empty($bc_schema)) {
-                $schemas[] = $bc_schema;
-            }
-        }
-
-        // ۳. اسکیماهای اختصاصی صفحات تکی (مقاله‌ها، برگه‌ها و پست تایپ‌ها)
-        if (is_singular()) {
-            $post_id = get_the_ID();
-            if ($post_id) {
-                $content = get_post_field('post_content', $post_id);
-                $post = get_post($post_id);
-
-                // ۳-۱. اسکیمای Speakable (AEO - جستجوی صوتی)
-                if (($options['enable_speakable'] ?? true) && (strpos($content, 'omni-direct-answer') !== false || strpos($content, 'omni-direct-answer-box') !== false)) {
-                    $schemas[] = [
-                        '@context'   => 'https://schema.org',
-                        '@type'      => 'WebPage',
-                        'speakable'  => [
-                            '@type'       => 'SpeakableSpecification',
-                            'cssSelector' => ['.omni-direct-answer-box', '.omni-direct-answer-box p'],
-                        ],
-                        'url'        => get_permalink($post_id),
-                    ];
-                }
-
-                // ۳-۲. اسکیمای FAQPage ساختاریافته
-                if ($options['enable_faq_schema'] ?? true) {
-                    $faqs = $this->extract_faqs_for_schema($content);
-                    if (!empty($faqs)) {
-                        $main_entities = [];
-                        foreach ($faqs as $faq) {
-                            $main_entities[] = [
-                                '@type'          => 'Question',
-                                'name'           => $faq['q'],
-                                'acceptedAnswer' => [
-                                    '@type' => 'Answer',
-                                    'text'  => $faq['a'],
-                                ],
-                            ];
-                        }
-                        $schemas[] = [
-                            '@context'   => 'https://schema.org',
-                            '@type'      => 'FAQPage',
-                            'mainEntity' => $main_entities,
-                        ];
-                    }
-                }
-
-                // نوع اسکیمای انتخاب شده توسط کاربر در متاباکس
-                $schema_type = (string) get_post_meta($post_id, '_omni_ai_schema_type', true) ?: 'article';
-
-                // ۳-۳. اسکیمای HowTo (آموزش گام‌به‌گام)
-                if ($schema_type === 'howto' && ($options['enable_howto_schema'] ?? true)) {
-                    $howto_raw = get_post_meta($post_id, '_omni_ai_howto_data', true);
-                    $howto_data = is_array($howto_raw) ? $howto_raw : (json_decode((string) $howto_raw, true) ?: []);
-
-                    $howto_steps = [];
-                    if (!empty($howto_data['steps']) && is_array($howto_data['steps'])) {
-                        foreach ($howto_data['steps'] as $idx => $s) {
-                            $howto_steps[] = [
-                                '@type' => 'HowToStep',
-                                'position' => $idx + 1,
-                                'name'  => sanitize_text_field($s['title'] ?? ('مرحله ' . ($idx + 1))),
-                                'text'  => sanitize_textarea_field($s['text'] ?? ''),
-                            ];
-                        }
-                    }
-
-                    $schemas[] = [
-                        '@context'    => 'https://schema.org',
-                        '@type'       => 'HowTo',
-                        'name'        => !empty($howto_data['name']) ? sanitize_text_field($howto_data['name']) : $post->post_title,
-                        'description' => !empty($howto_data['description']) ? sanitize_textarea_field($howto_data['description']) : wp_trim_words($content, 35),
-                        'totalTime'   => !empty($howto_data['total_time']) ? sanitize_text_field($howto_data['total_time']) : 'PT15M',
-                        'step'        => $howto_steps,
-                    ];
-                }
-                // ۳-۴. اسکیمای Review (نقد و بررسی و امتیازدهی ستاره‌ای)
-                elseif ($schema_type === 'review' && ($options['enable_review_schema'] ?? true)) {
-                    $review_item = (string) get_post_meta($post_id, '_omni_ai_review_item', true) ?: $post->post_title;
-                    $review_rating = (float) (get_post_meta($post_id, '_omni_ai_review_rating', true) ?: 5.0);
-                    $author_name = get_the_author_meta('display_name', $post->post_author) ?: get_bloginfo('name');
-
-                    $schemas[] = [
-                        '@context'      => 'https://schema.org',
-                        '@type'         => 'Review',
-                        'itemReviewed'  => [
-                            '@type' => 'Thing',
-                            'name'  => sanitize_text_field($review_item),
-                        ],
-                        'reviewRating'  => [
-                            '@type'       => 'Rating',
-                            'ratingValue' => max(1.0, min(5.0, $review_rating)),
-                            'bestRating'  => 5,
-                            'worstRating' => 1,
-                        ],
-                        'author'        => [
-                            '@type' => 'Person',
-                            'name'  => $author_name,
-                        ],
-                        'reviewBody'    => wp_trim_words($content, 40),
-                    ];
-                }
-                // ۳-۵. اسکیمای استاندارد BlogPosting همراه با نهادها (Entities & Mentions برای GEO)
-                elseif ($schema_type === 'article' && ($options['enable_article_schema'] ?? true) && is_singular('post')) {
-                    if ($post) {
-                        $author_name = get_the_author_meta('display_name', $post->post_author) ?: get_bloginfo('name');
-                        $raw_tags = wp_get_post_tags($post_id, ['fields' => 'names']);
-                        $raw_cats = wp_get_post_categories($post_id, ['fields' => 'names']);
-                        $tags = (!is_wp_error($raw_tags) && is_array($raw_tags)) ? $raw_tags : [];
-                        $cats = (!is_wp_error($raw_cats) && is_array($raw_cats)) ? $raw_cats : [];
-                        $keywords = array_merge($cats, $tags);
-                        $thumb_id = get_post_thumbnail_id($post_id);
-                        $thumb_url = $thumb_id ? wp_get_attachment_url($thumb_id) : '';
-
-                        $about_entities = [];
-                        foreach (array_slice($keywords, 0, 8) as $kw) {
-                            if (is_string($kw) && trim($kw) !== '') {
-                                $about_entities[] = [
-                                    '@type' => 'Thing',
-                                    'name'  => sanitize_text_field($kw),
-                                ];
-                            }
-                        }
-
-                        $article_schema = [
-                            '@context'         => 'https://schema.org',
-                            '@type'            => 'BlogPosting',
-                            'mainEntityOfPage' => [
-                                '@type' => 'WebPage',
-                                '@id'   => get_permalink($post_id),
-                            ],
-                            'headline'         => $post->post_title,
-                            'datePublished'    => get_the_date('c', $post_id),
-                            'dateModified'     => get_the_modified_date('c', $post_id),
-                            'author'           => [
-                                '@type' => 'Person',
-                                'name'  => $author_name,
-                            ],
-                            'publisher'        => [
-                                '@type' => 'Organization',
-                                'name'  => get_bloginfo('name'),
-                                'url'   => home_url('/'),
-                            ],
-                        ];
-
-                        if (!empty($keywords)) {
-                            $article_schema['keywords'] = implode(', ', $keywords);
-                        }
-                        if (!empty($thumb_url)) {
-                            $article_schema['image'] = $thumb_url;
-                        }
-                        if (!empty($about_entities)) {
-                            $article_schema['about'] = $about_entities;
-                        }
-
-                        $schemas[] = $article_schema;
-                    }
-                }
-                // ۳-۶. اسکیمای Product برای ووکامرس و محصولات فروشگاهی
-                elseif (($schema_type === 'product' || is_singular('product') || ($post && $post->post_type === 'product')) && ($options['enable_product_schema'] ?? true)) {
-                    $prod_schema = [
-                        '@context'    => 'https://schema.org',
-                        '@type'       => 'Product',
-                        'name'        => $post ? $post->post_title : '',
-                        'description' => wp_strip_all_tags($meta_desc ?: wp_trim_words($content, 40)),
-                        'url'         => get_permalink($post_id),
-                    ];
-                    $thumb_id = get_post_thumbnail_id($post_id);
-                    if ($thumb_id) {
-                        $prod_schema['image'] = wp_get_attachment_url($thumb_id);
-                    }
-
-                    if (function_exists('wc_get_product')) {
-                        $wc_prod = wc_get_product($post_id);
-                        if ($wc_prod) {
-                            $prod_schema['name'] = $wc_prod->get_name();
-                            $prod_schema['sku']  = $wc_prod->get_sku() ?: ('PROD-' . $post_id);
-                            $currency = function_exists('get_woocommerce_currency') ? get_woocommerce_currency() : 'IRT';
-                            $prod_schema['offers'] = [
-                                '@type'         => 'Offer',
-                                'price'         => $wc_prod->get_price() ?: '0',
-                                'priceCurrency' => $currency,
-                                'availability'  => $wc_prod->is_in_stock() ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
-                                'url'           => get_permalink($post_id),
-                            ];
-                            if ($wc_prod->get_rating_count() > 0) {
-                                $prod_schema['aggregateRating'] = [
-                                    '@type'       => 'AggregateRating',
-                                    'ratingValue' => $wc_prod->get_average_rating(),
-                                    'reviewCount' => $wc_prod->get_rating_count(),
-                                ];
-                            }
-                        }
-                    } else {
-                        $prod_schema['offers'] = [
-                            '@type'         => 'Offer',
-                            'price'         => '0',
-                            'priceCurrency' => 'IRT',
-                            'availability'  => 'https://schema.org/InStock',
-                            'url'           => get_permalink($post_id),
-                        ];
-                    }
-                    $schemas[] = $prod_schema;
-                }
-            }
-        }
-
-        if (!empty($schemas)) {
-            foreach ($schemas as $schema) {
-                echo "\n<!-- Omni AI Suite (Structured Schema) -->\n";
-                echo '<script type="application/ld+json">' . wp_json_encode($schema, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) . "</script>\n";
-            }
-        }
+        (new Schema_Injector())->output_frontend_schemas();
     }
 
-    private function extract_faqs_for_schema(string $content): array {
-        $faqs = [];
-        if (preg_match('/<!-- omni-faq -->([\s\S]*?)<!-- \/omni-faq -->|<div class=[\'"]omni-faq-section[\'"][\s\S]*?<\/div>/iu', $content, $match)) {
-            $block = $match[0];
-            if (preg_match_all('/<h[3-4][^>]*>(.*?)<\/h[3-4]>\s*<p[^>]*>(.*?)<\/p>/iu', $block, $pairs, PREG_SET_ORDER)) {
-                foreach ($pairs as $p) {
-                    $q = trim(wp_strip_all_tags($p[1]));
-                    $a = trim(wp_strip_all_tags($p[2]));
-                    if (!empty($q) && !empty($a)) {
-                        $faqs[] = ['q' => $q, 'a' => $a];
-                    }
-                }
-            }
-        }
-        return $faqs;
+    public function extract_faqs_for_schema(string $content): array {
+        return (new Schema_Injector())->extract_faqs_for_schema($content);
     }
 }
