@@ -169,68 +169,8 @@
 
 /* Home Page */
 .zc-home {
-    padding-bottom: 88px;
-}
-
-/* Hero Section */
-.zc-hero {
-    display: grid;
-    grid-template-columns: minmax(280px, .85fr) minmax(0, 1.15fr);
-    gap: 48px;
-    align-items: center;
-    padding-block: 56px 44px;
-}
-
-.zc-hero-copy {
-    min-width: 0;
-}
-
-.zc-eyebrow {
-    display: inline-flex;
-    align-items: center;
-    gap: 7px;
-    font-size: 12px;
-    font-weight: 700;
-    color: var(--brand);
-    letter-spacing: -.01em;
-}
-
-.zc-eyebrow > span {
-    width: 6px;
-    height: 6px;
-    background: currentColor;
-    border-radius: 50%;
-    flex-shrink: 0;
-    box-shadow: 0 0 8px currentColor;
-}
-
-.zc-hero h1 {
-    font-size: clamp(32px, 3.8vw, 50px);
-    line-height: 1.55;
-    letter-spacing: -1.5px;
-    margin: 14px 0 16px;
-    font-weight: 850;
-    color: var(--ink);
-}
-
-.zc-hero h1 > span {
-    background: linear-gradient(135deg, var(--brand) 0%, #60a5fa 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-}
-
-[data-theme="dark"] .zc-hero h1 > span {
-    background: linear-gradient(135deg, #38bdf8 0%, #818cf8 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-}
-
-.zc-hero-copy > p {
-    font-size: 14.5px;
-    line-height: 2.1;
-    color: var(--muted);
-    max-width: 440px;
-    margin: 0 0 24px;
+    padding-top: 8px;
+    padding-bottom: 72px;
 }
 
 .zc-search-field {
@@ -296,70 +236,42 @@
     color: var(--ink);
 }
 
-.zc-search-field .zc-search-submit {
-    background: var(--brand);
-    color: #fff;
-    width: 34px;
-    height: 34px;
-    border-radius: 8px;
+/* Horizontal Magazine Featured Card (Zoomit / Digikala Mag Style) */
+.zc-featured-section {
+    margin-block: 20px 32px;
+}
+
+.zc-featured {
     display: grid;
-    place-items: center;
-    transition: background-color .15s ease;
-}
-
-.zc-search-submit:hover {
-    background: var(--brand-hover);
-}
-
-.zc-hero-search {
-    padding: 6px 8px 6px 12px;
-    box-shadow: 0 8px 24px -4px rgba(15, 23, 42, 0.05);
-}
-
-.zc-hero-footnote {
-    display: flex;
+    grid-template-columns: 1.15fr 1fr;
+    gap: 28px;
     align-items: center;
-    gap: 10px;
-    margin-top: 14px;
-    font-size: 12px;
-    color: var(--muted);
-}
-
-.zc-hero-footnote i {
-    height: 3px;
-    width: 3px;
-    border-radius: 50%;
-    background: var(--muted);
-}
-
-/* Stacked Bento Featured Card */
-.zc-featured-bento, .zc-featured {
-    position: relative;
-    min-width: 0;
-    display: flex;
-    flex-direction: column;
+    max-height: 340px;
+    padding: 16px;
+    border-radius: 14px;
     background: var(--surface);
     border: 1px solid var(--line);
-    border-radius: 18px;
-    overflow: hidden;
     box-shadow: var(--card-shadow);
-    transition: transform .22s ease, box-shadow .22s ease, border-color .22s ease;
+    overflow: hidden;
+    transition: border-color .2s ease, box-shadow .2s ease;
 }
 
-.zc-featured-bento:hover, .zc-featured:hover {
-    transform: translateY(-3px);
-    box-shadow: var(--card-hover-shadow);
+.zc-featured:hover {
     border-color: color-mix(in srgb, var(--brand) 30%, var(--line));
+    box-shadow: var(--card-hover-shadow);
 }
 
 .zc-featured-art {
     display: block;
     width: 100%;
+    height: 100%;
     aspect-ratio: 16 / 9;
-    text-decoration: none;
+    max-height: 300px;
+    border-radius: 10px;
     overflow: hidden;
     background: var(--navy);
     position: relative;
+    text-decoration: none;
 }
 
 .zc-featured-img {
@@ -370,7 +282,7 @@
     transition: transform .35s ease;
 }
 
-.zc-featured-bento:hover .zc-featured-img, .zc-featured:hover .zc-featured-img {
+.zc-featured:hover .zc-featured-img {
     transform: scale(1.025);
 }
 
@@ -382,42 +294,38 @@
 .zc-featured-content {
     display: flex;
     flex-direction: column;
-    justify-content: flex-start;
-    padding: 24px 28px;
-    position: relative;
+    justify-content: center;
+    padding: 8px 16px 8px 4px;
+    min-width: 0;
 }
 
 .zc-featured-kicker {
     display: flex;
     align-items: center;
     gap: 10px;
-    flex-wrap: wrap;
     margin-bottom: 12px;
+    flex-wrap: wrap;
 }
 
 .zc-kicker-badge {
     display: inline-flex;
     align-items: center;
-    gap: 6px;
+    gap: 5px;
     padding: 3px 9px;
-    border-radius: 9999px;
-    background: var(--brand-soft);
-    color: var(--brand);
-    font-size: 11.5px;
-    font-weight: 700;
-}
-
-.zc-kicker-dot {
-    width: 5px;
-    height: 5px;
-    border-radius: 50%;
+    border-radius: 6px;
     background: var(--brand);
+    color: #fff;
+    font-size: 11px;
+    font-weight: 700;
 }
 
 .zc-kicker-category {
     font-size: 12px;
     font-weight: 600;
-    color: var(--muted);
+    color: var(--brand);
+    background: var(--brand-soft);
+    padding: 3px 8px;
+    border-radius: 5px;
 }
 
 .zc-kicker-reading {
@@ -429,14 +337,14 @@
     margin-inline-start: auto;
 }
 
-.zc-featured-bento h2, .zc-featured h2 {
-    font-size: 20px;
+.zc-featured h2 {
+    font-size: 22px;
     line-height: 1.65;
-    margin: 4px 0 10px;
+    margin: 0 0 10px;
     font-weight: 800;
 }
 
-.zc-featured-bento h2 a, .zc-featured h2 a {
+.zc-featured h2 a {
     color: var(--ink);
     text-decoration: none;
     display: flex;
@@ -446,7 +354,7 @@
     transition: color .15s ease;
 }
 
-.zc-featured-bento:hover h2 a, .zc-featured:hover h2 a {
+.zc-featured:hover h2 a {
     color: var(--brand);
 }
 
@@ -457,15 +365,15 @@
     transition: transform .2s ease;
 }
 
-.zc-featured-bento:hover .zc-featured-arrow, .zc-featured:hover .zc-featured-arrow {
+.zc-featured:hover .zc-featured-arrow {
     transform: translate(-3px, -3px);
 }
 
 .zc-featured-content > p {
-    font-size: 13.5px;
+    font-size: 14px;
     line-height: 1.85;
     color: var(--muted);
-    margin: 0 0 18px;
+    margin: 0 0 16px;
     display: -webkit-box;
     -webkit-box-orient: vertical;
     -webkit-line-clamp: 2;
@@ -477,7 +385,7 @@
     align-items: center;
     justify-content: space-between;
     gap: 10px;
-    padding-top: 14px;
+    padding-top: 12px;
     border-top: 1px solid var(--line);
     font-size: 12px;
     color: var(--muted);
@@ -505,135 +413,6 @@
 .zc-author-name {
     font-weight: 600;
     color: var(--ink);
-}
-
-/* Category Page Lead Article */
-.zc-listing-lead {
-    margin: 36px 0 16px;
-}
-
-.zc-listing-lead-art {
-    overflow: hidden;
-    background: var(--navy);
-}
-
-.zc-listing-lead-art > a {
-    display: block;
-    height: 100%;
-    min-height: 300px;
-}
-
-.zc-listing-lead-img {
-    width: 100%;
-    height: 100%;
-    min-height: 300px;
-    object-fit: cover;
-    display: block;
-}
-
-.zc-listing-lead-content {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    padding: 32px 34px;
-}
-
-.zc-listing-lead-content h2 {
-    font-size: clamp(1.25rem, 2vw, 1.65rem);
-    line-height: 1.6;
-    margin: 4px 0 10px;
-    font-weight: 800;
-}
-
-.zc-listing-lead-content h2 a {
-    color: var(--ink);
-    text-decoration: none;
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-    gap: 12px;
-}
-
-.zc-listing-lead-content h2 a:hover {
-    color: var(--brand);
-}
-
-.zc-listing-lead-content > p {
-    font-size: 13.5px;
-    line-height: 1.85;
-    color: var(--muted);
-    margin: 0 0 20px;
-    display: -webkit-box;
-    -webkit-box-orient: vertical;
-    -webkit-line-clamp: 3;
-    overflow: hidden;
-}
-
-/* Topics Pill Bar */
-.zc-topics {
-    padding-block: 28px;
-    border-block: 1px solid var(--line);
-    margin-block: 16px 36px;
-}
-
-.zc-topics-title {
-    display: flex;
-    gap: 12px;
-    align-items: center;
-    margin-bottom: 14px;
-}
-
-.zc-topics-title h2 {
-    font-size: 15px;
-    font-weight: 700;
-    margin: 0;
-}
-
-.zc-topics-title > span {
-    font-size: 12.5px;
-    color: var(--muted);
-}
-
-.zc-topic-links {
-    display: flex;
-    gap: 8px;
-    flex-wrap: wrap;
-}
-
-.zc-topic-pill {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    padding: 7px 14px;
-    border: 1px solid var(--line);
-    border-radius: 9999px;
-    color: var(--ink);
-    background: var(--surface);
-    font-size: 12.5px;
-    font-weight: 500;
-    text-decoration: none;
-    transition: all .16s ease;
-}
-
-.zc-topic-pill:hover {
-    border-color: var(--brand);
-    color: var(--brand);
-    background: var(--brand-soft);
-}
-
-.zc-topic-symbol {
-    font: 13px Consolas, Monaco, monospace;
-    color: var(--brand);
-    direction: ltr;
-}
-
-.zc-topic-count {
-    margin-inline-start: 4px;
-    font-size: 11px;
-    padding: 1px 6px;
-    border-radius: 10px;
-    background: var(--canvas);
-    color: var(--muted);
 }
 
 /* Articles Catalog Section */
@@ -747,49 +526,42 @@
     margin: 16px 0 20px;
 }
 
-/* Post Cards Grid - Vercel / Linear Aesthetic */
+/* Post Cards Grid - Authentic 3-Column Magazine Layout */
 .zc-post-grid {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 24px;
 }
 
-.zc-post-grid.zc-post-grid-2,
-.zc-post-grid:has(> :last-child:nth-child(2)) {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-}
-
-.zc-post-grid.zc-post-grid-1,
-.zc-post-grid:has(> :last-child:nth-child(1)) {
-    grid-template-columns: minmax(0, 560px);
-}
-
 .zc-post-card {
     min-width: 0;
     background: var(--surface);
     border: 1px solid var(--line);
-    border-radius: 16px;
+    border-radius: 12px;
     overflow: hidden;
     display: flex;
     flex-direction: column;
     box-shadow: var(--card-shadow);
-    transition: transform .22s ease, box-shadow .22s ease, border-color .22s ease;
+    transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease;
 }
 
 .zc-post-card:hover {
-    transform: translateY(-4px);
+    transform: translateY(-3px);
     box-shadow: var(--card-hover-shadow);
-    border-color: color-mix(in srgb, var(--brand) 36%, var(--line));
+    border-color: color-mix(in srgb, var(--brand) 30%, var(--line));
 }
 
 .zc-post-cover {
     display: block;
-    aspect-ratio: 16/10;
+    aspect-ratio: 16 / 9;
+    max-height: 200px;
     width: 100%;
+    padding: 0;
     overflow: hidden;
     background: var(--navy);
     position: relative;
     text-decoration: none;
+    border-bottom: 1px solid var(--line);
 }
 
 .zc-post-img {
@@ -801,7 +573,7 @@
 }
 
 .zc-post-card:hover .zc-post-img {
-    transform: scale(1.035);
+    transform: scale(1.03);
 }
 
 .zc-post-artwork {
@@ -811,7 +583,7 @@
 }
 
 .zc-post-body {
-    padding: 20px 22px;
+    padding: 16px 18px;
     display: flex;
     flex-direction: column;
     flex: 1;
@@ -822,15 +594,15 @@
     align-items: center;
     justify-content: space-between;
     gap: 8px;
-    margin-bottom: 10px;
+    margin-bottom: 8px;
 }
 
 .zc-category-pill {
     color: var(--brand);
     font-weight: 700;
     background: var(--brand-soft);
-    border-radius: 6px;
-    padding: 3px 9px;
+    border-radius: 5px;
+    padding: 3px 8px;
     font-size: 11px;
 }
 
@@ -839,12 +611,12 @@
     align-items: center;
     gap: 4px;
     color: var(--muted);
-    font-size: 11.5px;
+    font-size: 11px;
 }
 
 .zc-post-card h3 {
     font-size: 16px;
-    line-height: 1.6;
+    line-height: 1.7;
     margin: 4px 0 8px;
     font-weight: 750;
 }
@@ -852,10 +624,10 @@
 .zc-post-card h3 a {
     color: var(--ink);
     text-decoration: none;
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-    gap: 8px;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    overflow: hidden;
     transition: color .15s ease;
 }
 
@@ -864,22 +636,14 @@
 }
 
 .zc-card-arrow {
-    flex-shrink: 0;
-    margin-top: 4px;
-    color: var(--muted);
-    transition: transform .2s ease, color .2s ease;
-}
-
-.zc-post-card:hover .zc-card-arrow {
-    color: var(--brand);
-    transform: translate(-2px, -2px);
+    display: none;
 }
 
 .zc-post-body > p {
     font-size: 13px;
     line-height: 1.8;
     color: var(--muted);
-    margin: 0 0 18px;
+    margin: 0 0 16px;
     display: -webkit-box;
     -webkit-box-orient: vertical;
     -webkit-line-clamp: 2;
@@ -889,7 +653,7 @@
 .zc-post-meta {
     margin-top: auto;
     border-top: 1px solid var(--line);
-    padding-top: 14px;
+    padding-top: 12px;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -1113,7 +877,7 @@
     color: var(--muted);
 }
 
-/* Category Page Header */
+/* Compact Editorial Category Header */
 .zc-category-page {
     padding-bottom: 64px;
 }
@@ -1124,12 +888,13 @@
     gap: 8px;
     font-size: 12px;
     color: var(--muted);
-    padding-top: 24px;
+    margin-bottom: 8px;
 }
 
 .zc-breadcrumb a {
     color: var(--muted);
     text-decoration: none;
+    transition: color .15s ease;
 }
 
 .zc-breadcrumb a:hover {
@@ -1139,45 +904,64 @@
 .zc-category-header {
     display: flex;
     align-items: center;
+    justify-content: space-between;
     gap: 24px;
-    padding-block: 36px 12px;
+    padding: 28px 0 20px;
     border-bottom: 1px solid var(--line);
-    margin-bottom: 32px;
+    margin-bottom: 28px;
+}
+
+.zc-category-header-info {
+    min-width: 0;
+}
+
+.zc-category-title-wrap {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 6px 0 4px;
 }
 
 .zc-category-emblem {
-    height: 64px;
-    width: 64px;
+    height: 38px;
+    width: 38px;
     display: grid;
     place-items: center;
     flex-shrink: 0;
-    background: var(--brand-soft);
+    background: var(--soft);
     border: 1px solid var(--line);
-    border-radius: 16px;
-    font: 24px Consolas, Monaco, monospace;
+    border-radius: 8px;
+    font: 16px Consolas, Monaco, monospace;
     color: var(--brand);
     direction: ltr;
 }
 
 .zc-category-header h1 {
-    font-size: clamp(26px, 3vw, 36px);
-    line-height: 1.5;
-    letter-spacing: -.8px;
-    margin: 4px 0 6px;
-    font-weight: 800;
+    font-size: 26px;
+    font-weight: 850;
+    margin: 0;
+    color: var(--ink);
+    letter-spacing: -.6px;
 }
 
-.zc-category-header p {
+.zc-category-header-info p {
+    font-size: 13px;
     color: var(--muted);
-    font-size: 13.5px;
-    line-height: 1.9;
-    margin: 0 0 8px;
-    max-width: 680px;
+    margin: 4px 0 0;
+    line-height: 1.8;
 }
 
-.zc-category-total {
-    font-size: 12px;
+.zc-category-count-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 6px 14px;
+    border-radius: 9999px;
+    background: var(--soft);
+    border: 1px solid var(--line);
     color: var(--muted);
+    font-size: 12.5px;
+    font-weight: 600;
+    white-space: nowrap;
 }
 
 .zc-category-return {
@@ -1186,13 +970,25 @@
 }
 
 /* Responsive Breakpoints */
-@media (max-width: 1080px) {
-    .zc-hero {
+@media (max-width: 960px) {
+    .zc-featured {
         grid-template-columns: 1fr;
-        gap: 36px;
+        max-height: none;
+        padding: 14px;
+        gap: 16px;
+    }
+    .zc-featured-art {
+        max-height: 240px;
+    }
+    .zc-featured-content {
+        padding: 4px;
+    }
+    .zc-featured h2 {
+        font-size: 19px;
     }
     .zc-post-grid {
         grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 20px;
     }
     .zc-catalog-toolbar {
         flex-direction: column;
@@ -1206,7 +1002,7 @@
     }
 }
 
-@media (max-width: 768px) {
+@media (max-width: 680px) {
     .zc-container {
         width: calc(100% - 32px);
     }
@@ -1217,29 +1013,21 @@
     .zc-main-nav {
         display: none;
     }
-    .zc-hero {
-        padding-block: 36px 28px;
+    .zc-category-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 16px;
+        padding-top: 16px;
     }
-    .zc-featured-bento, .zc-featured, .zc-listing-lead {
+    .zc-post-grid {
         grid-template-columns: 1fr;
-    }
-    .zc-featured-content, .zc-listing-lead-content {
-        padding: 24px 22px;
-    }
-    .zc-featured-art, .zc-listing-lead-art > a {
-        min-height: 240px;
-    }
-    .zc-post-grid,
-    .zc-post-grid.zc-post-grid-2,
-    .zc-post-grid.zc-post-grid-1 {
-        grid-template-columns: 1fr;
-        gap: 18px;
+        gap: 16px;
     }
     .zc-tools-cta {
         flex-direction: column;
         align-items: flex-start;
         gap: 20px;
-        padding: 26px 22px;
+        padding: 24px 20px;
         margin-top: 40px;
     }
     .zc-tools-cta-icon {
@@ -1252,10 +1040,5 @@
     .zc-footer-main {
         grid-template-columns: 1fr;
         gap: 28px;
-    }
-    .zc-category-header {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 14px;
     }
 }

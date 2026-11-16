@@ -86,12 +86,15 @@ describe('static Persian blog content', () => {
         expect(parsed?.blocks.some((b) => b.type === 'heading' && b.title.includes('متداول'))).toBe(false);
     });
 
-    it('renders a balanced 2-column grid when exactly 2 posts are visible', async () => {
-        const posts = (await getPostSummaries()).slice(0, 3);
+    it('renders all published articles in the standard post grid without missing posts', async () => {
+        const posts = (await getPostSummaries()).slice(0, 2);
         const categories = await getCategories();
-        // With featured=posts[0], visiblePosts has remaining 2 posts
         const html = renderToStaticMarkup(<ArticleCatalog initialPosts={posts} categories={categories} home featured={posts[0]} />);
-        expect(html).toContain('zc-post-grid-2');
+        expect(html).toContain('zc-post-grid');
+        expect(html).not.toContain('zc-post-grid-2');
+        for (const post of posts) {
+            expect(html).toContain(post.slug);
+        }
     });
 });
 
@@ -153,7 +156,7 @@ describe('server-rendered Persian reading experience', () => {
         expect(html).toContain('role="search"');
         expect(html).toContain('aria-live="polite"');
         expect(html).toContain('aria-pressed="true"');
-        expect(html).toContain('کمتر جست‌وجو کن،');
+        expect(html).toContain('آخرین مقالات');
         for (const post of posts) expect(html).toContain(post.slug);
     });
 

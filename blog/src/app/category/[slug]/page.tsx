@@ -63,25 +63,27 @@ export default async function CategoryPage({ params }: Props) {
     const category = categories.find((item) => item.slug === decodedSlug || item.slug === slug || encodeURIComponent(item.slug) === slug);
     if (!category) notFound();
     const posts = await getPostsByCategory(category.slug);
-    const featured = posts.find((post) => post.featured) || posts[0];
 
     return (
         <div className="zc-container zc-category-page">
-            <nav className="zc-breadcrumb" aria-label="مسیر صفحه">
-                <Link href="/">وبلاگ</Link>
-                <ChevronLeft size={14} aria-hidden="true" />
-                <span aria-current="page">{category.name}</span>
-            </nav>
             <header className="zc-category-header">
-                <span className="zc-category-emblem" aria-hidden="true">{category.symbol}</span>
-                <div>
-                    <span className="zc-eyebrow">موضوعات وبلاگ زبراکد</span>
-                    <h1>{category.name}</h1>
-                    <p>{category.description}</p>
-                    <span className="zc-category-total">{formatNumber(posts.length)} مقاله برای خواندن و به کار گرفتن</span>
+                <div className="zc-category-header-info">
+                    <nav className="zc-breadcrumb" aria-label="مسیر صفحه">
+                        <Link href="/">وبلاگ</Link>
+                        <ChevronLeft size={14} aria-hidden="true" />
+                        <span aria-current="page">{category.name}</span>
+                    </nav>
+                    <div className="zc-category-title-wrap">
+                        <span className="zc-category-emblem" aria-hidden="true">{category.symbol}</span>
+                        <h1>{category.name}</h1>
+                    </div>
+                    {category.description && <p>{category.description}</p>}
                 </div>
+                <span className="zc-category-count-badge">
+                    {formatNumber(posts.length)} مقاله
+                </span>
             </header>
-            <ArticleCatalog initialPosts={posts} categories={[category]} initialCategory={category.slug} featured={featured} />
+            <ArticleCatalog initialPosts={posts} categories={categories} initialCategory={category.slug} />
             <div className="zc-category-return">
                 <Link href="/" className="zc-text-link">
                     دیدن همه موضوعات و مقاله‌ها <ChevronLeft size={16} aria-hidden="true" />

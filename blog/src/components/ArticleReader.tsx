@@ -176,7 +176,6 @@ export default function ArticleReader({ post, categories, related }: ArticleRead
             {post.tools.length > 0 && (
                 <section className="article-tools" aria-labelledby="reading-tools-title">
                     <div className="article-section-heading">
-                        <span className="article-eyebrow">از خواندن به ساختن</span>
                         <h2 id="reading-tools-title">ابزارهای مرتبط</h2>
                         <p>مثال‌ها و ایده‌های این مقاله را با ابزارهای زبراکد امتحان کنید.</p>
                     </div>
@@ -203,7 +202,12 @@ export default function ArticleReader({ post, categories, related }: ArticleRead
 
             {related.length > 0 && (
                 <section className="article-related" aria-labelledby="article-related-title">
-                    <div className="article-related-heading"><div><span className="article-eyebrow">قدم بعدی</span><h2 id="article-related-title">برای ادامه مسیر</h2></div><Link href="/">همه مقاله‌ها <span aria-hidden="true">←</span></Link></div>
+                    <div className="article-related-heading">
+                        <div>
+                            <h2 id="article-related-title">مطالب مرتبط</h2>
+                        </div>
+                        <Link href="/">همه مقاله‌ها <span aria-hidden="true">←</span></Link>
+                    </div>
                     <div className="article-related-grid">{related.map((item) => (
                         <article key={item.slug} className="article-related-card">
                             <div className="article-related-meta"><span>{categories.find((entry) => entry.slug === item.category)?.name ?? 'مقاله'}</span><span>{formatNumber(item.readingMinutes)} دقیقه</span></div>

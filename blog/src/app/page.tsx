@@ -5,7 +5,7 @@ import { getCategories, getPostSummaries } from '@/lib/repository';
 import ArticleCatalog from '@/components/ArticleCatalog';
 
 export const metadata: Metadata = {
-    title: 'کمتر جست‌وجو کن، بهتر بساز',
+    title: 'وبلاگ زبراکد — مقالات و راهنماهای تخصصی مهندسی نرم‌افزار',
     description: site.description,
     alternates: { canonical: absoluteUrl('/') },
     openGraph: { title: 'وبلاگ زبراکد', description: site.description, url: absoluteUrl('/'), locale: 'fa_IR', type: 'website' },
@@ -23,16 +23,15 @@ export default async function HomePage() {
                     <Braces size={36} />
                 </div>
                 <div className="zc-tools-cta-copy">
-                    <span className="zc-eyebrow">از یاد گرفتن به انجام دادن</span>
-                    <h2 id="tools-heading">راه‌حل را خواندی؟ حالا امتحانش کن.</h2>
-                    <p>ابزارهای زبراکد برای تبدیل داده، کار با متن و ساده‌تر کردن کارهای تکراری کنار تو هستند.</p>
+                    <h2 id="tools-heading">ابزارهای آنلاین و بدون سرور زبراکد</h2>
+                    <p>مجموعه‌ای از ابزارهای سبک و سریع برای تبدیل داده، تست و اعتبارسنجی بدون خروج اطلاعات از مرورگر شما.</p>
                     <span className="zc-tools-privacy">
                         <Check size={15} aria-hidden="true" />
-                        پردازش ابزارها در مرورگر شما
+                        پردازش امن در مرورگر شما
                     </span>
                 </div>
                 <a href={site.toolsUrl} className="zc-button">
-                    رفتن به ابزارها <ArrowUpLeft size={18} aria-hidden="true" />
+                    مشاهده ابزارها <ArrowUpLeft size={18} aria-hidden="true" />
                 </a>
             </section>
         </div>
