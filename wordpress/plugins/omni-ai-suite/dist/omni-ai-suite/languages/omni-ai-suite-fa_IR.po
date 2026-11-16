@@ -1,0 +1,145 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Omni AI Suite 1.0.0\n"
+"Report-Msgid-Bugs-To: https://zebracode.ir\n"
+"POT-Creation-Date: 2026-10-24 11:30+0330\n"
+"PO-Revision-Date: 2026-10-24 11:30+0330\n"
+"Last-Translator: Omni AI Team\n"
+"Language-Team: Persian\n"
+"Language: fa_IR\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+
+msgid "Omni AI Suite"
+msgstr "امنی ای‌آی سوئیت"
+
+msgid "Omni AI"
+msgstr "امنی هوش مصنوعی"
+
+msgid "Dashboard"
+msgstr "پیشخوان"
+
+msgid "AI Content Studio"
+msgstr "استودیو تولید محتوا"
+
+msgid "Content Studio"
+msgstr "استودیو محتوا"
+
+msgid "Bulk Post Generator"
+msgstr "تولید انبوه پست"
+
+msgid "Bulk Generator"
+msgstr "تولید انبوه"
+
+msgid "Generation History"
+msgstr "تاریخچه تولید محتوا"
+
+msgid "History & Logs"
+msgstr "تاریخچه و لاگ‌ها"
+
+msgid "Modules Manager"
+msgstr "مدیریت ماژول‌ها"
+
+msgid "Modules"
+msgstr "ماژول‌ها"
+
+msgid "API Keys & Settings"
+msgstr "کلیدهای API و تنظیمات"
+
+msgid "Settings (BYOK)"
+msgstr "تنظیمات (BYOK)"
+
+msgid "Modular, High-Performance WordPress AI Engine"
+msgstr "موتور ماژولار و پرسرعت هوش مصنوعی برای وردپرس"
+
+msgid "Active Provider:"
+msgstr "سرویس‌دهنده فعال:"
+
+msgid "Total Generations"
+msgstr "مجموع تولیدات محتوا"
+
+msgid "Estimated Tokens Used"
+msgstr "تخمین توکن‌های مصرفی"
+
+msgid "Generations Today"
+msgstr "تولیدات امروز"
+
+msgid "Open Content Studio"
+msgstr "باز کردن استودیو محتوا"
+
+msgid "Launch Bulk Generator"
+msgstr "شروع تولید انبوه"
+
+msgid "Manage Modules"
+msgstr "مدیریت ماژول‌ها"
+
+msgid "Recent Generations (Custom Table - No CPT Bloat)"
+msgstr "تولیدات اخیر (جدول اختصاصی - بدون افزونگی دیتابیس)"
+
+msgid "View All History →"
+msgstr "مشاهده تمام تاریخچه ←"
+
+msgid "Quick Templates:"
+msgstr "قالب‌های سریع:"
+
+msgid "Article Outline"
+msgstr "طرح کلی مقاله"
+
+msgid "SEO Meta Description"
+msgstr "توضیحات متا سئو"
+
+msgid "Blog Post Full Draft"
+msgstr "پیش‌نویس کامل پست وبلاگ"
+
+msgid "Product Description"
+msgstr "توضیحات محصول"
+
+msgid "User Prompt"
+msgstr "دستور کاربر (پرامپت)"
+
+msgid "System Instructions (Optional)"
+msgstr "دستورالعمل‌های سیستمی (اختیاری)"
+
+msgid "AI Provider"
+msgstr "سرویس‌دهنده هوش مصنوعی"
+
+msgid "Model"
+msgstr "مدل"
+
+msgid "Creativity (Temperature)"
+msgstr "خلاقیت (Temperature)"
+
+msgid "⚡ Stream Generate (SSE)"
+msgstr "⚡ تولید زنده محتوا (استریم)"
+
+msgid "⏹ Stop Streaming"
+msgstr "⏹ توقف استریم"
+
+msgid "Live Output"
+msgstr "خروجی زنده"
+
+msgid "Copy Text"
+msgstr "کپی متن"
+
+msgid "Copied! ✓"
+msgstr "کپی شد! ✓"
+
+msgid "Clear"
+msgstr "پاک کردن"
+
+msgid "Save As Draft Post"
+msgstr "ذخیره به عنوان پست پیش‌نویس"
+
+msgid "Draft post created successfully! Check your Posts menu."
+msgstr "پست پیش‌نویس با موفقیت ایجاد شد! منوی نوشته‌ها را بررسی کنید."
+
+msgid "Article Titles or Topics (One per line)"
+msgstr "عناوین یا موضوعات مقالات (هر کدام در یک سطر)"
+
+msgid "🚀 Enqueue to Background Queue"
+msgstr "🚀 ارسال به صف پردازش در پس‌زمینه"
+
+msgid "Save Settings"
+msgstr "ذخیره تنظیمات"

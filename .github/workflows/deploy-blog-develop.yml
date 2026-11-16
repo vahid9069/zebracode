@@ -1,0 +1,78 @@
+name: Build and Deploy Blog (Staging)
+
+on:
+  push:
+    branches: [ develop ]
+    paths:
+      - 'blog/**'
+      - '.github/workflows/deploy-blog-develop.yml'
+  workflow_dispatch:
+    inputs:
+      reason:
+        description: 'Reason for manual staging build'
+        required: false
+        default: 'Manual trigger'
+  repository_dispatch:
+    types: [ deploy-blog-staging ]
+
+concurrency:
+  group: ftp-deploy-staging
+  cancel-in-progress: false
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    environment:
+      name: staging
+    env:
+      NODE_ENV: production
+      NEXT_PUBLIC_BLOG_URL: ${{ vars.NEXT_PUBLIC_BLOG_DEV_URL || 'https://test.zebracode.ir/blog' }}
+      NEXT_PUBLIC_TOOLS_URL: ${{ vars.NEXT_PUBLIC_BASE_URL || 'https://test.zebracode.ir' }}
+      NEXT_PUBLIC_BLOG_INDEXABLE: 'false'
+      WORDPRESS_BLOG_API_URL: ${{ vars.WORDPRESS_BLOG_DEV_API_URL || 'https://test.zebracode.ir/blog-admin/wp-json/omni-ai/v1' }}
+
+    steps:
+      - name: 📥 Checkout repository
+        uses: actions/checkout@v4
+
+      - name: 🟢 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'npm'
+          cache-dependency-path: blog/package-lock.json
+
+      - name: 📦 Install blog dependencies
+        run: npm --prefix blog ci || npm --prefix blog install
+
+      - name: 🏗️ Build static export
+        run: npm --prefix blog run build
+
+      - name: 🛡️ Enforce No-Index on Staging Environment
+        run: |
+          echo "1. Overwriting robots.txt with Disallow: /"
+          cat << 'EOF' > ./blog/out/robots.txt
+          User-agent: *
+          Disallow: /
+          EOF
+
+          echo "2. Adding .htaccess with X-Robots-Tag header"
+          cat << 'EOF' > ./blog/out/.htaccess
+          <IfModule mod_headers.c>
+            Header set X-Robots-Tag "noindex, nofollow, noarchive, nosnippet"
+          </IfModule>
+          EOF
+
+          echo "3. Injecting <meta name=\"robots\" content=\"noindex, nofollow\"> into all HTML files"
+          find ./blog/out -name "*.html" -exec sed -i 's/<head>/<head><meta name="robots" content="noindex, nofollow">/g' {} +
+
+      - name: 🚀 Deploy blog to server via FTP
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.4
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USER_DEV }}
+          password: ${{ secrets.FTP_PASS_DEV }}
+          local-dir: ./blog/out/
+          server-dir: ${{ vars.FTP_DIR_BLOG_DEV || '/blog/' }}
+          dangerous-clean-slate: false

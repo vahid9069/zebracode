@@ -1,0 +1,60 @@
+name: Build and Deploy Blog (Production)
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'blog/**'
+      - '.github/workflows/deploy-blog-main.yml'
+  workflow_dispatch:
+    inputs:
+      reason:
+        description: 'Reason for manual production build'
+        required: false
+        default: 'Manual trigger'
+  repository_dispatch:
+    types: [ deploy-blog-production ]
+
+concurrency:
+  group: ftp-deploy-production
+  cancel-in-progress: false
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    environment:
+      name: production
+    env:
+      NODE_ENV: production
+      NEXT_PUBLIC_BLOG_URL: ${{ vars.NEXT_PUBLIC_BLOG_URL || 'https://zebracode.ir/blog' }}
+      NEXT_PUBLIC_TOOLS_URL: ${{ vars.NEXT_PUBLIC_BASE_URL || 'https://zebracode.ir' }}
+      NEXT_PUBLIC_BLOG_INDEXABLE: 'true'
+      WORDPRESS_BLOG_API_URL: ${{ vars.WORDPRESS_BLOG_API_URL || 'https://zebracode.ir/blog-admin/wp-json/omni-ai/v1' }}
+
+    steps:
+      - name: 📥 Checkout repository
+        uses: actions/checkout@v4
+
+      - name: 🟢 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'npm'
+          cache-dependency-path: blog/package-lock.json
+
+      - name: 📦 Install blog dependencies
+        run: npm --prefix blog ci || npm --prefix blog install
+
+      - name: 🏗️ Build static export
+        run: npm --prefix blog run build
+
+      - name: 🚀 Deploy blog to server via FTP
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.4
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USER_MAIN }}
+          password: ${{ secrets.FTP_PASS_MAIN }}
+          local-dir: ./blog/out/
+          server-dir: ${{ vars.FTP_DIR_BLOG_MAIN || '/blog/' }}
+          dangerous-clean-slate: false

@@ -1,0 +1,117 @@
+/**
+ * Omni AI Chatbot Styling
+ * Scoped strictly to .omni-ai-chatbot-container
+ */
+.omni-ai-chatbot-container {
+  max-width: 420px;
+  width: 100%;
+  margin: 20px auto;
+  border: 1px solid #e0e0e0;
+  border-radius: 12px;
+  background: #ffffff;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+  overflow: hidden;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  display: flex;
+  flex-direction: column;
+  height: 480px;
+}
+
+.omni-ai-chatbot-header {
+  background: #2271b1;
+  color: #ffffff;
+  padding: 14px 18px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.omni-ai-chatbot-title {
+  font-weight: 600;
+  font-size: 15px;
+}
+
+.omni-ai-chatbot-status-dot {
+  width: 10px;
+  height: 10px;
+  background-color: #46b450;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.omni-ai-chatbot-messages {
+  flex: 1;
+  padding: 16px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  background: #fcfcfc;
+}
+
+.omni-ai-msg {
+  max-width: 80%;
+  padding: 10px 14px;
+  border-radius: 12px;
+  font-size: 13.5px;
+  line-height: 1.5;
+  word-break: break-word;
+}
+
+.omni-ai-msg-bot {
+  align-self: flex-start;
+  background: #f0f0f1;
+  color: #1d2327;
+  border-bottom-left-radius: 2px;
+}
+
+.omni-ai-msg-user {
+  align-self: flex-end;
+  background: #2271b1;
+  color: #ffffff;
+  border-bottom-right-radius: 2px;
+}
+
+.omni-ai-chatbot-input-row {
+  display: flex;
+  padding: 12px;
+  border-top: 1px solid #e0e0e0;
+  background: #ffffff;
+  gap: 8px;
+}
+
+.omni-ai-chatbot-input {
+  flex: 1;
+  border: 1px solid #c3c4c7;
+  border-radius: 20px;
+  padding: 8px 14px;
+  font-size: 13.5px;
+  outline: none;
+}
+
+.omni-ai-chatbot-input:focus {
+  border-color: #2271b1;
+}
+
+.omni-ai-chatbot-send-btn {
+  background: #2271b1;
+  color: #ffffff;
+  border: none;
+  border-radius: 50%;
+  width: 38px;
+  height: 38px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.omni-ai-chatbot-send-btn:hover {
+  background: #135e96;
+}
+
+.omni-ai-chatbot-send-btn:disabled {
+  background: #c3c4c7;
+  cursor: not-allowed;
+}
