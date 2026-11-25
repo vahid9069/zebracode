@@ -38,7 +38,9 @@ export default function PostCard({ post, category }: { post: PostSummary; catego
                 <p>{post.excerpt}</p>
                 <div className="zc-post-meta">
                     <span className="zc-post-author">
-                        <span className="zc-author-avatar" aria-hidden="true">{post.author.initials}</span>
+                        <span className="zc-author-avatar" aria-hidden="true">
+                            {post.author.avatarUrl ? <img src={post.author.avatarUrl} alt={post.author.name} loading="lazy" /> : post.author.initials}
+                        </span>
                         <span className="zc-author-name">{post.author.name}</span>
                     </span>
                     <time dateTime={post.publishedAt}>{formatDate(post.publishedAt)}</time>

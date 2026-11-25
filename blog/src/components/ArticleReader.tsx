@@ -78,7 +78,9 @@ export default function ArticleReader({ post, categories, related }: ArticleRead
                         <p className="article-deck">{post.excerpt}</p>
                         <div className="article-meta">
                             <div className="article-byline">
-                                <span className="article-avatar" aria-hidden="true">{post.author.initials}</span>
+                                <span className="article-avatar" aria-hidden="true">
+                                    {post.author.avatarUrl ? <img src={post.author.avatarUrl} alt={post.author.name} loading="lazy" /> : post.author.initials}
+                                </span>
                                 <div><strong>{post.author.name}</strong><span>{post.author.role}</span></div>
                             </div>
                             <div className="article-dates">
@@ -157,7 +159,9 @@ export default function ArticleReader({ post, categories, related }: ArticleRead
                         {post.tags.length > 0 && <div className="article-tags" aria-label="موضوع‌های مقاله">{post.tags.map((tag) => <span key={tag}>{tag}</span>)}</div>}
 
                         <section className="article-author" aria-label="درباره نویسنده">
-                            <span className="article-avatar" aria-hidden="true">{post.author.initials}</span>
+                            <span className="article-avatar" aria-hidden="true">
+                                {post.author.avatarUrl ? <img src={post.author.avatarUrl} alt={post.author.name} loading="lazy" /> : post.author.initials}
+                            </span>
                             <div><span className="article-eyebrow">درباره نویسنده</span><h2>{post.author.name}</h2><p className="article-author-role">{post.author.role}</p><p>{post.author.bio}</p></div>
                         </section>
                     </div>

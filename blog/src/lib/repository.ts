@@ -79,18 +79,23 @@ export function toPost(value: unknown): Post | undefined {
     const authorValue = item.author && typeof item.author === 'object' ? item.author as Record<string, unknown> : {};
     const rawAuthorName = typeof authorValue.name === 'string' ? authorValue.name.trim() : '';
     const isEditorialAuthor = !rawAuthorName || rawAuthorName.toLowerCase() === 'admin';
+    const rawAvatarUrl = typeof authorValue.avatar_url === 'string' && /^https?:\/\//i.test(authorValue.avatar_url.trim())
+        ? authorValue.avatar_url.trim()
+        : undefined;
     const author = isEditorialAuthor
         ? {
             name: 'تحریریه زبراکد',
             role: 'تیم فنی و تولید محتوا',
             bio: 'در تحریریه زبراکد، چالش‌های واقعی برنامه‌نویسی و مهندسی نرم‌افزار را با مثال‌های کاربردی و ابزارهای تعاملی بررسی می‌کنیم.',
             initials: 'ZC',
+            ...(rawAvatarUrl ? { avatarUrl: rawAvatarUrl } : {}),
         }
         : {
             name: rawAuthorName,
             role: typeof authorValue.role === 'string' && authorValue.role.trim() ? authorValue.role.trim() : 'نویسنده',
             bio: typeof authorValue.bio === 'string' && authorValue.bio.trim() ? authorValue.bio.trim() : 'یادداشت‌های کاربردی برای ساختن نرم‌افزار بهتر.',
             initials: typeof authorValue.initials === 'string' && authorValue.initials.trim() ? authorValue.initials.trim() : rawAuthorName.slice(0, 2),
+            ...(rawAvatarUrl ? { avatarUrl: rawAvatarUrl } : {}),
         };
 
     const faq = Array.isArray(item.faq) ? item.faq.filter((entry): entry is { question: string; answer: string } => Boolean(entry && typeof entry === 'object' && typeof (entry as Record<string, unknown>).question === 'string' && typeof (entry as Record<string, unknown>).answer === 'string')) : [];

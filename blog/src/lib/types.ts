@@ -19,7 +19,7 @@ export type ArticleBlock =
     | { type: 'image'; url: string; alt: string; caption?: string };
 
 export interface ToolLink { slug: string; title: string; description: string; url?: string; domain?: string }
-export interface Author { name: string; role: string; bio: string; initials: string }
+export interface Author { name: string; role: string; bio: string; initials: string; avatarUrl?: string }
 
 export interface FeaturedImage {
     url: string;

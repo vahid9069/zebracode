@@ -99,7 +99,9 @@ export default function ArticleCatalog({ initialPosts, categories, initialCatego
                             <p>{featured.excerpt}</p>
                             <div className="zc-featured-meta">
                                 <span className="zc-post-author">
-                                    <span className="zc-author-avatar" aria-hidden="true">{featured.author.initials}</span>
+                                    <span className="zc-author-avatar" aria-hidden="true">
+                                        {featured.author.avatarUrl ? <img src={featured.author.avatarUrl} alt={featured.author.name} loading="lazy" /> : featured.author.initials}
+                                    </span>
                                     <span className="zc-author-name">{featured.author.name}</span>
                                 </span>
                                 <time dateTime={featured.publishedAt}>{formatDate(featured.publishedAt)}</time>
