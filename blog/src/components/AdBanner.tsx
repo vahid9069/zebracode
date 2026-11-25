@@ -200,7 +200,7 @@ export function AdBanner({
                                 href={targetHref}
                                 target={targetAttr}
                                 rel="sponsored noopener noreferrer"
-                                className="inline-flex items-center justify-center shrink-0 px-4 py-2 text-xs sm:text-sm font-semibold rounded-lg bg-sky-600 hover:bg-sky-700 text-white shadow-sm transition-all focus:outline-none focus:ring-2 focus:ring-sky-500/50 whitespace-nowrap"
+                                className="omni-ad-cta inline-flex items-center justify-center shrink-0 px-4 py-2 text-xs sm:text-sm font-semibold rounded-lg bg-sky-600 hover:bg-sky-700 !text-white !no-underline shadow-sm transition-all focus:outline-none focus:ring-2 focus:ring-sky-500/50 whitespace-nowrap"
                             >
                                 {selectedAd.cta_text || 'مشاهده و اطلاعات بیشتر ←'}
                             </a>
