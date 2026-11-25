@@ -118,6 +118,95 @@ function OmniAiGutenbergSidebar() {
   const seoTitle = meta._omni_ai_seo_title || '';
   const metaDescription = meta._omni_ai_meta_description || '';
 
+  // دریافت لیست همه بلوک‌ها و تصویر شاخص برای تب مدیریت تصاویر
+  const allBlocks = useSelect((selectData) => {
+    return selectData('core/block-editor').getBlocks() || [];
+  }, []);
+
+  const featuredMediaId = useSelect((selectData) => {
+    return selectData('core/editor').getEditedPostAttribute('featured_media') || 0;
+  }, []);
+
+  const featuredMedia = useSelect((selectData) => {
+    if (!featuredMediaId) return null;
+    return selectData('core').getMedia(featuredMediaId);
+  }, [featuredMediaId]);
+
+  const featuredPrompt = meta._omni_ai_featured_image_prompt || window.omniAiGutenberg?.featuredImagePrompt || '';
+  const diagramPrompt = meta._omni_ai_diagram_prompt || window.omniAiGutenberg?.diagramPrompt || '';
+
+  const placeholderBlocks = (allBlocks || [])
+    .filter((b) => b.name === 'core/html' && (b.attributes?.content || '').includes('omni-'))
+    .map((b) => {
+      const content = b.attributes?.content || '';
+      const isDiagram = content.includes('omni-diagram');
+      const codeMatch = content.match(/<code>([\s\S]*?)<\/code>/i);
+      const promptText = codeMatch
+        ? codeMatch[1]
+            .replace(/&lt;/g, '<')
+            .replace(/&gt;/g, '>')
+            .replace(/&quot;/g, '"')
+            .replace(/&#039;/g, "'")
+            .replace(/&amp;/g, '&')
+            .trim()
+        : '';
+      return {
+        clientId: b.clientId,
+        isDiagram,
+        prompt: promptText,
+      };
+    });
+
+  const openFeaturedMediaModal = () => {
+    if (typeof wp === 'undefined' || !wp.media) {
+      window.open(window.omniAiGutenberg?.adminUploadUrl || '/wp-admin/upload.php', '_blank');
+      return;
+    }
+    const frame = wp.media({
+      title: 'انتخاب یا آپلود تصویر شاخص',
+      button: { text: 'تنظیم به عنوان تصویر شاخص' },
+      multiple: false,
+      library: { type: 'image' },
+    });
+    frame.on('select', () => {
+      const attachment = frame.state().get('selection').first().toJSON();
+      if (attachment && attachment.id) {
+        dispatch('core/editor').editPost({ featured_media: attachment.id });
+        setNotice({ type: 'success', message: 'تصویر شاخص با موفقیت تنظیم شد.' });
+      }
+    });
+    frame.open();
+  };
+
+  const openMediaModalForBlock = (clientId) => {
+    if (typeof wp === 'undefined' || !wp.media) {
+      window.open(window.omniAiGutenberg?.adminUploadUrl || '/wp-admin/upload.php', '_blank');
+      return;
+    }
+    const frame = wp.media({
+      title: 'انتخاب یا آپلود تصویر جهت جایگزینی در مقاله',
+      button: { text: 'درج و جایگزینی در محتوا' },
+      multiple: false,
+      library: { type: 'image' },
+    });
+    frame.on('select', () => {
+      const attachment = frame.state().get('selection').first().toJSON();
+      if (!attachment || !attachment.url) return;
+
+      const imageBlock = createBlock('core/image', {
+        id: attachment.id,
+        url: attachment.url,
+        alt: attachment.alt || attachment.title || '',
+        caption: attachment.caption || '',
+      });
+
+      dispatch('core/block-editor').replaceBlock(clientId, imageBlock);
+      dispatch('core/block-editor').selectBlock(imageBlock.clientId);
+      setNotice({ type: 'success', message: 'تصویر در محتوا با موفقیت جایگزین شد.' });
+    });
+    frame.open();
+  };
+
   // متن تمیز استخراج شده از بلوک جاری
   const extractedBlockText = selectedBlock ? extractBlockText(selectedBlock) : '';
 
@@ -675,51 +764,72 @@ function OmniAiGutenbergSidebar() {
             onClick={() => setActiveTab('readability')}
             style={{
               flex: 1,
-              padding: '8px 4px',
+              padding: '8px 2px',
               border: 'none',
               background: 'none',
               borderBottom: activeTab === 'readability' ? '2px solid #2563eb' : 'none',
               color: activeTab === 'readability' ? '#2563eb' : '#64748b',
               fontWeight: activeTab === 'readability' ? '700' : '500',
               cursor: 'pointer',
-              fontSize: '12px',
+              fontSize: '11px',
+              whiteSpace: 'nowrap',
             }}
           >
-            خوانایی متن
+            خوانایی
           </button>
           <button
             type="button"
             onClick={() => setActiveTab('seo')}
             style={{
               flex: 1,
-              padding: '8px 4px',
+              padding: '8px 2px',
               border: 'none',
               background: 'none',
               borderBottom: activeTab === 'seo' ? '2px solid #2563eb' : 'none',
               color: activeTab === 'seo' ? '#2563eb' : '#64748b',
               fontWeight: activeTab === 'seo' ? '700' : '500',
               cursor: 'pointer',
-              fontSize: '12px',
+              fontSize: '11px',
+              whiteSpace: 'nowrap',
             }}
           >
-            سئو و رتبه
+            سئو
+          </button>
+          <button
+            type="button"
+            onClick={() => setActiveTab('media')}
+            style={{
+              flex: 1.2,
+              padding: '8px 2px',
+              border: 'none',
+              background: 'none',
+              borderBottom: activeTab === 'media' ? '2px solid #2563eb' : 'none',
+              color: activeTab === 'media' ? '#2563eb' : '#64748b',
+              fontWeight: activeTab === 'media' ? '700' : '500',
+              cursor: 'pointer',
+              fontSize: '11px',
+              whiteSpace: 'nowrap',
+            }}
+          >
+            تصاویر {placeholderBlocks.length > 0 ? `(${placeholderBlocks.length})` : ''}
           </button>
           <button
             type="button"
             onClick={() => setActiveTab('assistant')}
             style={{
               flex: 1,
-              padding: '8px 4px',
+              padding: '8px 2px',
               border: 'none',
               background: 'none',
               borderBottom: activeTab === 'assistant' ? '2px solid #2563eb' : 'none',
               color: activeTab === 'assistant' ? '#2563eb' : '#64748b',
               fontWeight: activeTab === 'assistant' ? '700' : '500',
               cursor: 'pointer',
-              fontSize: '12px',
+              fontSize: '11px',
+              whiteSpace: 'nowrap',
             }}
           >
-            دستیار بلوک
+            دستیار
           </button>
         </div>
 
@@ -1177,6 +1287,119 @@ function OmniAiGutenbergSidebar() {
             </Button>
           </div>
         )}
+
+        {/* تب تصاویر و رسانه */}
+        {activeTab === 'media' && (
+          <div>
+            <div style={{ background: '#eff6ff', border: '1px solid #bfdbfe', borderRadius: '8px', padding: '10px 12px', marginBottom: '14px', fontSize: '11px', color: '#1e40af', lineHeight: '1.6' }}>
+              💡 <strong>راهنما:</strong> شما می‌توانید پرامپت‌ها را کپی کرده و پس از ایجاد عکس، مستقیماً از دکمه‌های زیر یا دکمه‌های آبی داخل متن مقاله، تصویر را از رسانه انتخاب و جایگزین کنید.
+            </div>
+
+            {/* کارت تصویر شاخص */}
+            <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '8px', padding: '12px', marginBottom: '14px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '8px' }}>
+                <span style={{ fontSize: '16px' }}>🌟</span>
+                <strong style={{ fontSize: '13px', color: '#1e293b' }}>تصویر شاخص نوشته</strong>
+              </div>
+
+              {featuredMedia && featuredMedia.source_url ? (
+                <div style={{ marginBottom: '10px', textAlign: 'center' }}>
+                  <img src={featuredMedia.source_url} alt="" style={{ maxWidth: '100%', maxHeight: '120px', borderRadius: '6px', border: '1px solid #cbd5e1' }} />
+                  <p style={{ margin: '4px 0 0', fontSize: '11px', color: '#16a34a', fontWeight: '600' }}>✓ تصویر شاخص تنظیم شده است</p>
+                </div>
+              ) : (
+                <p style={{ margin: '0 0 10px', fontSize: '12px', color: '#64748b' }}>هنوز تصویری به عنوان تصویر شاخص این نوشته انتخاب نشده است.</p>
+              )}
+
+              {featuredPrompt && (
+                <div style={{ marginBottom: '10px' }}>
+                  <label style={{ fontSize: '11px', fontWeight: '600', color: '#475569', display: 'block', marginBottom: '4px' }}>پرامپت هوش مصنوعی تصویر شاخص:</label>
+                  <pre style={{ background: '#0f172a', color: '#38bdf8', padding: '8px', borderRadius: '6px', fontSize: '10px', whiteSpace: 'pre-wrap', wordBreak: 'break-word', margin: '0 0 6px', direction: 'ltr', maxHeight: '90px', overflowY: 'auto' }}>
+                    {featuredPrompt}
+                  </pre>
+                  <Button
+                    variant="secondary"
+                    isSmall
+                    onClick={() => {
+                      navigator.clipboard.writeText(featuredPrompt);
+                      setNotice({ type: 'success', message: 'پرامپت تصویر شاخص کپی شد!' });
+                    }}
+                    style={{ width: '100%', justifyContent: 'center', marginBottom: '6px' }}
+                  >
+                    📋 کپی پرامپت تصویر شاخص
+                  </Button>
+                </div>
+              )}
+
+              <Button
+                variant="primary"
+                onClick={openFeaturedMediaModal}
+                style={{ width: '100%', justifyContent: 'center' }}
+              >
+                🖼️ {featuredMedia ? 'تغییر تصویر شاخص از رسانه' : 'انتخاب تصویر شاخص از رسانه'}
+              </Button>
+            </div>
+
+            {/* کارت جایگاه‌های درون متن */}
+            <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '8px', padding: '12px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <span style={{ fontSize: '16px' }}>📊</span>
+                  <strong style={{ fontSize: '13px', color: '#1e293b' }}>تصاویر درون محتوا</strong>
+                </div>
+                <span style={{ fontSize: '11px', color: '#64748b', background: '#e2e8f0', padding: '2px 6px', borderRadius: '10px' }}>
+                  {placeholderBlocks.length} مورد
+                </span>
+              </div>
+
+              {placeholderBlocks.length === 0 ? (
+                <div style={{ background: '#dcfce7', border: '1px solid #86efac', color: '#166534', padding: '10px', borderRadius: '6px', fontSize: '12px', textAlign: 'center' }}>
+                  ✓ تمام جایگاه‌های تصاویر در متن تکمیل یا جایگزین شده‌اند.
+                </div>
+              ) : (
+                placeholderBlocks.map((item, idx) => (
+                  <div key={item.clientId || idx} style={{ border: '1px solid #cbd5e1', borderRadius: '6px', padding: '10px', background: '#ffffff', marginBottom: '10px' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
+                      <strong style={{ fontSize: '12px', color: item.isDiagram ? '#0284c7' : '#0f766e' }}>
+                        {item.isDiagram ? '📊 جایگاه دیاگرام معماری' : `📷 جایگاه تصویر شماره ${idx + 1}`}
+                      </strong>
+                    </div>
+
+                    {item.prompt && (
+                      <pre style={{ background: '#0f172a', color: '#f8fafc', padding: '6px 8px', borderRadius: '4px', fontSize: '10px', whiteSpace: 'pre-wrap', wordBreak: 'break-word', margin: '0 0 6px', direction: 'ltr', maxHeight: '70px', overflowY: 'auto' }}>
+                        {item.prompt}
+                      </pre>
+                    )}
+
+                    <div style={{ display: 'flex', gap: '6px' }}>
+                      {item.prompt && (
+                        <Button
+                          variant="secondary"
+                          isSmall
+                          onClick={() => {
+                            navigator.clipboard.writeText(item.prompt);
+                            setNotice({ type: 'success', message: 'پرامپت با موفقیت کپی شد!' });
+                          }}
+                          style={{ flex: 1, justifyContent: 'center', fontSize: '11px' }}
+                        >
+                          📋 کپی
+                        </Button>
+                      )}
+                      <Button
+                        variant="primary"
+                        isSmall
+                        onClick={() => openMediaModalForBlock(item.clientId)}
+                        style={{ flex: 2, justifyContent: 'center', fontSize: '11px' }}
+                      >
+                        🖼️ انتخاب و جایگزینی
+                      </Button>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
+        )}
       </div>
     </PluginSidebar>
   );
@@ -1192,3 +1415,187 @@ registerPlugin('omni-ai-gutenberg', {
     </Fragment>
   ),
 });
+
+// فعال‌سازی باز کردن رسانه و جایگزینی هوشمند هنگام کلیک روی دکمه‌های داخل بوم گوتنبرگ
+function initGutenbergMediaReplacement() {
+  function handleCanvasClick(e) {
+    // ۱. بررسی کلیک روی دکمه کپی پرامپت (پوشش تمام کلاس‌ها و ساختارهای فعلی و قدیمی)
+    const copyBtn = e.target.closest('.omni-copy-btn, [data-prompt], a[href*="omni-copy"]');
+    if (copyBtn) {
+      e.preventDefault();
+      e.stopPropagation();
+      e.stopImmediatePropagation();
+      const codeEl = copyBtn.closest('.omni-diagram-callout-card, .omni-image-callout-card')?.querySelector('code');
+      const textToCopy = copyBtn.getAttribute('data-prompt') || (codeEl ? codeEl.innerText : '');
+      if (textToCopy) {
+        navigator.clipboard.writeText(textToCopy.trim()).then(() => {
+          const originalText = copyBtn.innerText;
+          copyBtn.innerText = 'کپی شد! ✓';
+          setTimeout(() => {
+            copyBtn.innerText = originalText;
+          }, 2000);
+        });
+      }
+      return;
+    }
+
+    // ۲. بررسی کلیک روی دکمه باز کردن رسانه (پوشش کامل کلاس جدید، لینک‌های قدیمی upload.php و متن دکمه)
+    const mediaBtn = e.target.closest(
+      '.omni-open-media-btn, [data-type="image"], [data-type="diagram"], a[href*="upload.php"], .omni-image-callout-card a, .omni-diagram-callout-card a, .omni-image-callout-card button, .omni-diagram-callout-card button'
+    );
+
+    if (mediaBtn) {
+      e.preventDefault();
+      e.stopPropagation();
+      e.stopImmediatePropagation();
+
+      const blockEl = mediaBtn.closest('[data-block]') || mediaBtn.closest('[id^="block-"]');
+      let clientId = blockEl ? (blockEl.getAttribute('data-block') || blockEl.id.replace('block-', '')) : null;
+
+      openMediaModalAndReplace(clientId, mediaBtn);
+      return;
+    }
+  }
+
+  function openMediaModalAndReplace(clientId, triggerEl) {
+    if (typeof wp === 'undefined' || !wp.media) {
+      const fallbackUrl = window.omniAiGutenberg?.adminUploadUrl || '/wp-admin/upload.php';
+      window.open(fallbackUrl, '_blank');
+      return;
+    }
+
+    const frame = wp.media({
+      title: 'انتخاب یا آپلود تصویر جهت جایگزینی در مقاله',
+      button: {
+        text: 'درج و جایگزینی در محتوا',
+      },
+      multiple: false,
+      library: {
+        type: 'image',
+      },
+    });
+
+    frame.on('select', () => {
+      const attachment = frame.state().get('selection').first().toJSON();
+      if (!attachment || !attachment.url) return;
+
+      const { createBlock } = wp.blocks;
+      const { select, dispatch } = wp.data;
+
+      let targetClientId = clientId;
+
+      // در صورت عدم دریافت clientId از دام، جستجو در بین بلوک‌های فعال یا منطبق با پرامپت
+      if (!targetClientId && triggerEl) {
+        const card = triggerEl.closest('.omni-diagram-callout-card, .omni-image-callout-card');
+        const promptCode = card?.querySelector('code')?.innerText?.trim() || '';
+        const allBlocks = select('core/block-editor').getBlocks();
+        for (const b of allBlocks) {
+          if (b.name === 'core/html') {
+            const content = b.attributes?.content || '';
+            if ((promptCode && content.includes(promptCode)) || content.includes('omni-image-callout-card') || content.includes('omni-diagram-callout-card')) {
+              targetClientId = b.clientId;
+              break;
+            }
+          }
+        }
+      }
+
+      if (!targetClientId) {
+        const selected = select('core/block-editor').getSelectedBlock();
+        if (selected) {
+          targetClientId = selected.clientId;
+        }
+      }
+
+      const imageBlock = createBlock('core/image', {
+        id: attachment.id,
+        url: attachment.url,
+        alt: attachment.alt || attachment.title || '',
+        caption: attachment.caption || '',
+      });
+
+      if (targetClientId) {
+        dispatch('core/block-editor').replaceBlock(targetClientId, imageBlock);
+        dispatch('core/block-editor').selectBlock(imageBlock.clientId);
+      } else {
+        dispatch('core/block-editor').insertBlock(imageBlock);
+      }
+    });
+
+    frame.open();
+  }
+
+  // پاک‌سازی گره‌های متنی خراب قدیمی و دکمه‌های خالی سفید از کارت‌های داخل دام
+  function cleanCorruptedDom(doc) {
+    if (!doc) return;
+    try {
+      const cards = doc.querySelectorAll('.omni-image-callout-card, .omni-diagram-callout-card');
+      cards.forEach((card) => {
+        const walker = doc.createTreeWalker(card, NodeFilter.SHOW_TEXT, null, false);
+        const toRemove = [];
+        let node;
+        while ((node = walker.nextNode())) {
+          if (node.nodeValue && (node.nodeValue.includes('this.innerText') || node.nodeValue.includes('cursor:pointer'))) {
+            toRemove.push(node);
+          }
+        }
+        toRemove.forEach((n) => n.parentNode && n.parentNode.removeChild(n));
+
+        // حذف دکمه‌ها و المان‌های بدون متن یا خالی که به صورت جعبه سفید نمایش داده می‌شوند
+        const candidates = card.querySelectorAll('button, a, span');
+        candidates.forEach((el) => {
+          if (el.classList.contains('omni-open-media-btn') || el.classList.contains('omni-copy-btn')) {
+            return;
+          }
+          if (!el.innerText || !el.innerText.trim()) {
+            el.parentNode && el.parentNode.removeChild(el);
+          }
+        });
+      });
+    } catch (_) {}
+  }
+
+  const attachToDocument = (doc) => {
+    if (!doc || doc.__omniMediaListenerAttached) return;
+    doc.__omniMediaListenerAttached = true;
+    doc.addEventListener('click', handleCanvasClick, true);
+    cleanCorruptedDom(doc);
+  };
+
+  attachToDocument(document);
+
+  const checkCanvas = () => {
+    cleanCorruptedDom(document);
+    const iframes = document.querySelectorAll('iframe[name="editor-canvas"]');
+    iframes.forEach((iframe) => {
+      try {
+        if (iframe.contentDocument) {
+          attachToDocument(iframe.contentDocument);
+          cleanCorruptedDom(iframe.contentDocument);
+          iframe.addEventListener('load', () => {
+            try {
+              if (iframe.contentDocument) {
+                attachToDocument(iframe.contentDocument);
+                cleanCorruptedDom(iframe.contentDocument);
+              }
+            } catch (err) {}
+          });
+        }
+      } catch (e) {}
+    });
+  };
+
+  checkCanvas();
+  const timer = setInterval(checkCanvas, 1000);
+  setTimeout(() => clearInterval(timer), 30000);
+}
+
+if (typeof window !== 'undefined') {
+  if (typeof wp !== 'undefined' && wp.domReady) {
+    wp.domReady(initGutenbergMediaReplacement);
+  } else if (document.readyState !== 'loading') {
+    initGutenbergMediaReplacement();
+  } else {
+    document.addEventListener('DOMContentLoaded', initGutenbergMediaReplacement);
+  }
+}

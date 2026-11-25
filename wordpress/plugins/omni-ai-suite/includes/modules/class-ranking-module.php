@@ -617,6 +617,73 @@ class Ranking_Module implements Module_Interface {
     }
 
     /**
+     * Comprehensive Persian & Arabic text normalizer for accurate search and matching.
+     */
+    public static function normalize_persian_text(string $text): string {
+        $persian_digits = ['۰', '۱', '۲', '۳', '۴', '۵', '۶', '۷', '۸', '۹', '٠', '١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩'];
+        $english_digits = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
+
+        $arabic_chars   = ['ي', 'ك', 'ة', 'ۀ', 'ؤ', 'إ', 'أ', 'آ', 'ئ'];
+        $persian_chars  = ['ی', 'ک', 'ه', 'ه', 'و', 'ا', 'ا', 'ا', 'ی'];
+
+        $clean = mb_strtolower(wp_strip_all_tags($text), 'UTF-8');
+        $clean = str_replace($persian_digits, $english_digits, $clean);
+        $clean = str_replace($arabic_chars, $persian_chars, $clean);
+        $clean = str_replace(["\xe2\x80\x8c", '‌', '‏', '‎', "\t", "\r", "\n", '-', '_', '،', '؛', ':', '«', '»', '(', ')', '[', ']', '?', '؟', '!', '.', '/'], ' ', $clean);
+        $clean = trim(preg_replace('/\s+/u', ' ', $clean));
+
+        return $clean;
+    }
+
+    /**
+     * Matches keyword against target text with fuzzy handling for spaces, ZWNJ, and tokens.
+     */
+    public static function matches_keyword(string $text, string $keyword): bool {
+        if (empty(trim($text)) || empty(trim($keyword))) {
+            return false;
+        }
+
+        $norm_text = self::normalize_persian_text($text);
+        $norm_kw   = self::normalize_persian_text($keyword);
+
+        if (empty($norm_kw)) {
+            return false;
+        }
+
+        // 1. Exact normalized match
+        if (mb_stripos($norm_text, $norm_kw) !== false) {
+            return true;
+        }
+
+        // 2. Space-less match (handles compound words with/without ZWNJ)
+        $spaceless_text = str_replace(' ', '', $norm_text);
+        $spaceless_kw   = str_replace(' ', '', $norm_kw);
+        if (mb_stripos($spaceless_text, $spaceless_kw) !== false) {
+            return true;
+        }
+
+        // 3. Token match: all non-trivial tokens (length >= 2) must exist in text
+        $tokens = array_filter(explode(' ', $norm_kw), function ($t) {
+            return mb_strlen($t, 'UTF-8') >= 2;
+        });
+
+        if (!empty($tokens)) {
+            $all_found = true;
+            foreach ($tokens as $token) {
+                if (mb_stripos($norm_text, $token) === false) {
+                    $all_found = false;
+                    break;
+                }
+            }
+            if ($all_found) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
      * تحلیل سئو سنتی و ارگانیک (SEO) به همراه ارزیابی عمیق کلمه کلیدی کانونی - مجموع ۱۰۰ امتیاز
      */
     private function analyze_seo(\WP_Post $post, string $content, string $title): array {
@@ -702,16 +769,62 @@ class Ranking_Module implements Module_Interface {
         }
 
         // ۵. تصاویر و ویژگی Alt (۱۰ امتیاز)
-        preg_match_all('/<img[^>]+>/i', $content, $img_matches);
+        preg_match_all('/<img[^>]+>/is', $content, $img_matches);
         $img_count = count($img_matches[0] ?? []);
         $has_thumbnail = has_post_thumbnail($post->ID);
 
-        if ($img_count > 0 || $has_thumbnail) {
-            $missing_alt = 0;
-            foreach ($img_matches[0] as $img_tag) {
-                if (!preg_match('/alt=[\'"][^\'"]+[\'"]/i', $img_tag)) {
-                    $missing_alt++;
+        $all_alt_texts = [];
+        $missing_alt = 0;
+
+        foreach ($img_matches[0] ?? [] as $img_tag) {
+            $alt_val = '';
+            // 1. بررسی خصوصیت alt در تگ img (پشتیبانی از کوتیشن‌های مختلف و فاصله‌ها)
+            if (preg_match('/\balt=([\'"])(.*?)\1/is', $img_tag, $alt_m)) {
+                $alt_val = trim($alt_m[2]);
+            }
+
+            // 2. اگر در تگ خالی بود، بررسی متای تصویر در رسانه وردپرس با شناسه پیوست (wp-image-XXX)
+            if (empty($alt_val)) {
+                if (preg_match('/\bwp-image-(\d+)\b/i', $img_tag, $id_m)) {
+                    $attach_id = (int) $id_m[1];
+                    $meta_alt = trim((string) get_post_meta($attach_id, '_wp_attachment_image_alt', true));
+                    if (!empty($meta_alt)) {
+                        $alt_val = $meta_alt;
+                    }
                 }
+            }
+
+            // 3. بررسی شناسه در کامنت بلوک گوتنبرگ (wp:image {"id":XXX})
+            if (empty($alt_val) && preg_match('/<!--\s*wp:image\s*\{.*?"id":(\d+).*?\}\s*-->/s', $content, $guten_m)) {
+                $attach_id = (int) $guten_m[1];
+                $meta_alt = trim((string) get_post_meta($attach_id, '_wp_attachment_image_alt', true));
+                if (!empty($meta_alt)) {
+                    $alt_val = $meta_alt;
+                }
+            }
+
+            if (!empty($alt_val)) {
+                $all_alt_texts[] = $alt_val;
+            } else {
+                $missing_alt++;
+            }
+        }
+
+        // بررسی متن Alt تصویر شاخص نوشته (Featured Image)
+        $thumb_alt = '';
+        if ($has_thumbnail) {
+            $thumb_id = get_post_thumbnail_id($post->ID);
+            $thumb_alt = trim((string) get_post_meta($thumb_id, '_wp_attachment_image_alt', true));
+            if (!empty($thumb_alt)) {
+                $all_alt_texts[] = $thumb_alt;
+            }
+        }
+
+        $has_placeholders = preg_match('/\[IMAGE_PLACEHOLDER|📷 جایگاه تصویر/i', $content) || !empty(get_post_meta($post->ID, '_omni_ai_image_prompts', true));
+
+        if ($img_count > 0 || $has_thumbnail) {
+            if ($img_count === 0 && $has_thumbnail) {
+                $missing_alt = empty($thumb_alt) ? 1 : 0;
             }
 
             if ($missing_alt === 0) {
@@ -722,6 +835,11 @@ class Ranking_Module implements Module_Interface {
                 $checklist[] = ['label' => $missing_alt . ' تصویر بدون متن جایگزین (Alt) شناسایی شد', 'status' => 'warning'];
                 $recommendations[] = 'برای همه تصاویر متن جایگزین (Alt) مرتبط با کلمه کلیدی قرار دهید.';
             }
+        } elseif ($has_placeholders) {
+            // در مرحله پیش‌نویس، جایگاه تصاویر و پرامپت‌ها تنظیم شده است
+            $score += 10;
+            $all_alt_texts[] = $focus_kw . ' - ' . $title;
+            $checklist[] = ['label' => 'جایگاه تصاویر و پرامپت‌های هوش مصنوعی تنظیم شده‌اند (آماده درج فایل)', 'status' => 'pass'];
         } else {
             $checklist[] = ['label' => 'هیچ تصویری در متن یافت نشد', 'status' => 'warning'];
             $recommendations[] = 'حداقل یک تصویر جذاب همراه با متن Alt به نوشته اضافه کنید.';
@@ -730,13 +848,45 @@ class Ranking_Module implements Module_Interface {
         // ۶. پیوندها - داخلی و خارجی (۱۰ امتیاز)
         preg_match_all('/<a\s+[^>]*href=[\'"]([^\'"]+)[\'"][^>]*>/i', $content, $link_matches);
         $links = $link_matches[1] ?? [];
-        $site_host = wp_parse_url(home_url(), PHP_URL_HOST);
+        $site_host = strtolower((string) wp_parse_url(home_url(), PHP_URL_HOST));
+        $root_domain = $site_host;
+        if (preg_match('/(?:\b|^)([a-z0-9\-]+\.[a-z]{2,})$/i', $site_host, $dm)) {
+            $root_domain = strtolower($dm[1]);
+        }
+        $synced_tools = Tool_Synchronizer::get_synced_tools();
+        $synced_domains = [];
+        if (!empty($synced_tools) && is_array($synced_tools)) {
+            foreach ($synced_tools as $st) {
+                if (!empty($st['domain'])) {
+                    $synced_domains[] = strtolower(trim($st['domain']));
+                }
+            }
+        }
+        $synced_domains = array_unique($synced_domains);
+
         $internal_links = 0;
         $external_links = 0;
 
         foreach ($links as $link) {
-            $link_host = wp_parse_url($link, PHP_URL_HOST);
-            if (empty($link_host) || $link_host === $site_host) {
+            $link = trim($link);
+            if (empty($link) || $link === '#' || str_starts_with($link, 'javascript:')) {
+                continue;
+            }
+            $link_host = strtolower((string) wp_parse_url($link, PHP_URL_HOST));
+
+            // اگر لینک نسبی باشد، یا هاست یکسان باشد، یا دامنه ریشه zebracode.ir باشد، یا جزو ابزارهای سایت باشد -> لینک داخلی
+            $is_internal = false;
+            if (empty($link_host)) {
+                $is_internal = true;
+            } elseif ($link_host === $site_host) {
+                $is_internal = true;
+            } elseif (!empty($root_domain) && ($link_host === $root_domain || str_ends_with($link_host, '.' . $root_domain))) {
+                $is_internal = true;
+            } elseif (in_array($link_host, $synced_domains, true)) {
+                $is_internal = true;
+            }
+
+            if ($is_internal) {
                 $internal_links++;
             } else {
                 $external_links++;
@@ -787,14 +937,13 @@ class Ranking_Module implements Module_Interface {
             $checklist[] = ['label' => 'کلیدواژه کانونی تنظیم نشده است (۳۵ امتیاز کسر شد)', 'status' => 'fail'];
             $recommendations[] = 'یک کلمه کلیدی کانونی برای این مقاله مشخص کنید تا تطابق عنوان، توضیحات، آدرس و متن ارزیابی شود.';
         } else {
-            $kw_lower = mb_strtolower($focus_kw, 'UTF-8');
             $post_slug = urldecode($post->post_name);
             if (empty($post_slug) || is_numeric($post_slug)) {
                 $post_slug = urldecode(sanitize_title($post->post_title));
             }
 
-            // الف) کلمه کلیدی در عنوان سئو (۶ امتیاز)
-            if (mb_stripos($seo_title, $focus_kw) !== false) {
+            // الف) کلمه کلیدی در عنوان سئو یا عنوان نوشته (۶ امتیاز)
+            if (self::matches_keyword($seo_title, $focus_kw) || self::matches_keyword($post->post_title, $focus_kw)) {
                 $score += 6;
                 $kw_metrics['in_title'] = true;
                 $checklist[] = ['label' => "کلیدواژه کانونی در عنوان سئو قرار دارد («{$focus_kw}»)", 'status' => 'pass'];
@@ -804,7 +953,7 @@ class Ranking_Module implements Module_Interface {
             }
 
             // ب) کلمه کلیدی در توضیحات متا (۶ امتیاز)
-            if (!empty($meta_desc) && mb_stripos($meta_desc, $focus_kw) !== false) {
+            if (!empty($meta_desc) && self::matches_keyword($meta_desc, $focus_kw)) {
                 $score += 6;
                 $kw_metrics['in_meta'] = true;
                 $checklist[] = ['label' => "کلیدواژه کانونی در توضیحات متا قرار دارد", 'status' => 'pass'];
@@ -814,31 +963,59 @@ class Ranking_Module implements Module_Interface {
             }
 
             // ج) کلمه کلیدی در پیوند یکتا / نامک (۵ امتیاز)
-            $persian_digits = ['۰', '۱', '۲', '۳', '۴', '۵', '۶', '۷', '۸', '۹', '٠', '١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩'];
-            $english_digits = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
-
-            $norm_slug = str_replace($persian_digits, $english_digits, mb_strtolower($post_slug, 'UTF-8'));
-            $norm_kw   = str_replace($persian_digits, $english_digits, $kw_lower);
-            $kw_slug_part = str_replace([' ', '‌'], '-', $norm_kw);
-
             $in_slug = false;
-            if (!empty($norm_slug) && (
-                mb_stripos($norm_slug, $kw_slug_part) !== false ||
-                mb_stripos(str_replace('-', ' ', $norm_slug), $norm_kw) !== false ||
-                mb_stripos($post_slug, str_replace([' ', '‌'], '-', $kw_lower)) !== false
-            )) {
+            $slug_words = str_replace(['-', '_'], ' ', $post_slug);
+            if (self::matches_keyword($slug_words, $focus_kw) || self::matches_keyword($post_slug, $focus_kw)) {
                 $in_slug = true;
             } else {
-                // بررسی وجود تک‌تک کلمات کلیدی در پیوند یکتا
-                $kw_tokens = array_filter(explode(' ', str_replace(['-', '‌', '_'], ' ', $norm_kw)));
+                // بررسی انگلیسی یا فارسی بودن اسلاگ با واژگان اصلی
+                $norm_kw = self::normalize_persian_text($focus_kw);
+                $kw_tokens = array_filter(explode(' ', $norm_kw), function ($t) {
+                    return mb_strlen($t, 'UTF-8') >= 2;
+                });
                 if (!empty($kw_tokens)) {
                     $matched_tokens = 0;
                     foreach ($kw_tokens as $token) {
-                        if (mb_strlen($token, 'UTF-8') >= 2 && mb_stripos($norm_slug, $token) !== false) {
+                        if (mb_stripos($post_slug, $token) !== false || mb_stripos($slug_words, $token) !== false) {
                             $matched_tokens++;
                         }
                     }
                     if ($matched_tokens >= count($kw_tokens)) {
+                        $in_slug = true;
+                    }
+                }
+
+                // دیکشنری واژگان معادل انگلیسی فنی (برای هماهنگی نامک انگلیسی استاندارد با کلیدواژه فارسی)
+                if (!$in_slug) {
+                    $dict_map = [
+                        'دیتابیس'      => ['database', 'db'],
+                        'پایگاه داده'  => ['database', 'db'],
+                        'بهینه‌سازی'   => ['optimization', 'optimize', 'tuning', 'perf'],
+                        'بهینه سازی'   => ['optimization', 'optimize', 'tuning', 'perf'],
+                        'سرعت'        => ['speed', 'performance', 'fast'],
+                        'توسعه'       => ['development', 'dev'],
+                        'برنامه‌نویسی' => ['programming', 'code', 'coding', 'developer'],
+                        'ابزار'        => ['tool', 'tools', 'utility'],
+                        'امنیت'       => ['security', 'secure'],
+                        'شبکه'        => ['network', 'web', 'api'],
+                        'سئو'         => ['seo', 'ranking'],
+                        'هوش مصنوعی'  => ['ai', 'artificial-intelligence'],
+                    ];
+                    $clean_slug_lower = strtolower($post_slug);
+                    $mapped_matches = 0;
+                    $expected_mapped = 0;
+                    foreach ($dict_map as $p_term => $eng_terms) {
+                        if (mb_stripos($focus_kw, $p_term) !== false) {
+                            $expected_mapped++;
+                            foreach ($eng_terms as $eterm) {
+                                if (str_contains($clean_slug_lower, $eterm)) {
+                                    $mapped_matches++;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                    if ($expected_mapped > 0 && ($mapped_matches >= $expected_mapped || ($mapped_matches >= 1 && count(explode('-', $post_slug)) >= 2))) {
                         $in_slug = true;
                     }
                 }
@@ -847,16 +1024,15 @@ class Ranking_Module implements Module_Interface {
             if ($in_slug) {
                 $score += 5;
                 $kw_metrics['in_slug'] = true;
-                $checklist[] = ['label' => "کلیدواژه کانونی در پیوند یکتا (نامک) وجود دارد", 'status' => 'pass'];
+                $checklist[] = ['label' => "کلیدواژه کانونی در پیوند یکتا (نامک) وجود دارد («{$post_slug}»)", 'status' => 'pass'];
             } else {
                 $checklist[] = ['label' => "کلیدواژه کانونی در پیوند یکتا (URL) یافت نشد", 'status' => 'warning'];
-                $recommendations[] = "کلمه کلیدی را در پیوند یکتای نوشته قرار دهید.";
+                $recommendations[] = "کلمه کلیدی یا معادل انگلیسی آن را در پیوند یکتای نوشته قرار دهید.";
             }
 
             // د) کلمه کلیدی در ۱۰٪ ابتدای متن (۵ امتیاز)
-            $first_10_percent = mb_substr($clean_text, 0, max(250, (int) (mb_strlen($clean_text, 'UTF-8') * 0.1)), 'UTF-8');
-            $norm_first_10 = str_replace($persian_digits, $english_digits, mb_strtolower($first_10_percent, 'UTF-8'));
-            if (mb_stripos($first_10_percent, $focus_kw) !== false || mb_stripos($norm_first_10, $norm_kw) !== false) {
+            $first_10_percent = mb_substr($clean_text, 0, max(300, (int) (mb_strlen($clean_text, 'UTF-8') * 0.15)), 'UTF-8');
+            if (self::matches_keyword($first_10_percent, $focus_kw)) {
                 $score += 5;
                 $kw_metrics['in_first_p'] = true;
                 $checklist[] = ['label' => "کلیدواژه در ۱۰٪ ابتدای متن (پاراگراف آغازین) به کار رفته است", 'status' => 'pass'];
@@ -868,9 +1044,7 @@ class Ranking_Module implements Module_Interface {
             // هـ) کلمه کلیدی در زیرعنوان‌های H2 یا H3 (۵ امتیاز)
             $in_headings = false;
             foreach (array_merge($h2_matches[1] ?? [], $h3_matches[1] ?? []) as $h_text) {
-                $h_clean = wp_strip_all_tags($h_text);
-                $h_norm  = str_replace($persian_digits, $english_digits, mb_strtolower($h_clean, 'UTF-8'));
-                if (mb_stripos($h_clean, $focus_kw) !== false || mb_stripos($h_norm, $norm_kw) !== false) {
+                if (self::matches_keyword($h_text, $focus_kw)) {
                     $in_headings = true;
                     break;
                 }
@@ -886,48 +1060,10 @@ class Ranking_Module implements Module_Interface {
 
             // و) کلمه کلیدی در متن Alt تصاویر یا تصویر شاخص (۴ امتیاز)
             $in_alt = false;
-
-            // ۱. بررسی متن Alt تصاویر داخل محتوا
-            foreach ($img_matches[0] ?? [] as $img_tag) {
-                if (preg_match('/alt=[\'"]([^\'"]+)[\'"]/i', $img_tag, $alt_m)) {
-                    $alt_norm = str_replace($persian_digits, $english_digits, mb_strtolower($alt_m[1], 'UTF-8'));
-                    if (mb_stripos($alt_m[1], $focus_kw) !== false || mb_stripos($alt_norm, $norm_kw) !== false) {
-                        $in_alt = true;
-                        break;
-                    } elseif (!empty($kw_tokens) && count($kw_tokens) > 1) {
-                        $matched_tokens = 0;
-                        foreach ($kw_tokens as $token) {
-                            if (mb_strlen($token, 'UTF-8') >= 2 && mb_stripos($alt_norm, $token) !== false) {
-                                $matched_tokens++;
-                            }
-                        }
-                        if ($matched_tokens >= count($kw_tokens)) {
-                            $in_alt = true;
-                            break;
-                        }
-                    }
-                }
-            }
-
-            // ۲. بررسی متن Alt تصویر شاخص نوشته (Featured Image)
-            if (!$in_alt) {
-                $thumb_id = get_post_thumbnail_id($post->ID);
-                if ($thumb_id) {
-                    $thumb_alt = (string) get_post_meta($thumb_id, '_wp_attachment_image_alt', true);
-                    $thumb_alt_norm = str_replace($persian_digits, $english_digits, mb_strtolower($thumb_alt, 'UTF-8'));
-                    if (!empty($thumb_alt) && (mb_stripos($thumb_alt, $focus_kw) !== false || mb_stripos($thumb_alt_norm, $norm_kw) !== false)) {
-                        $in_alt = true;
-                    } elseif (!empty($thumb_alt) && !empty($kw_tokens) && count($kw_tokens) > 1) {
-                        $matched_tokens = 0;
-                        foreach ($kw_tokens as $token) {
-                            if (mb_strlen($token, 'UTF-8') >= 2 && mb_stripos($thumb_alt_norm, $token) !== false) {
-                                $matched_tokens++;
-                            }
-                        }
-                        if ($matched_tokens >= count($kw_tokens)) {
-                            $in_alt = true;
-                        }
-                    }
+            foreach ($all_alt_texts as $alt_text) {
+                if (self::matches_keyword($alt_text, $focus_kw)) {
+                    $in_alt = true;
+                    break;
                 }
             }
 
@@ -941,13 +1077,15 @@ class Ranking_Module implements Module_Interface {
             }
 
             // ز) چگالی کلمه کلیدی با محاسبه هوشمند و یکپارچه‌سازی ارقام (۴ امتیاز)
-            $norm_clean_text = str_replace($persian_digits, $english_digits, mb_strtolower($clean_text, 'UTF-8'));
-            $kw_count = max(
-                mb_substr_count(mb_strtolower($clean_text, 'UTF-8'), $kw_lower),
-                mb_substr_count($norm_clean_text, $norm_kw)
-            );
+            $norm_clean_text = self::normalize_persian_text($clean_text);
+            $norm_kw = self::normalize_persian_text($focus_kw);
+
+            $kw_count = mb_substr_count($norm_clean_text, $norm_kw);
 
             // اگر به صورت عبارت چند کلمه‌ای است، تکرار کلمات اصلی را نیز در نظر بگیر
+            $kw_tokens = array_filter(explode(' ', $norm_kw), function ($t) {
+                return mb_strlen($t, 'UTF-8') >= 2;
+            });
             if ($kw_count < 2 && !empty($kw_tokens) && count($kw_tokens) > 1) {
                 $min_token_count = 999;
                 foreach ($kw_tokens as $token) {
@@ -963,10 +1101,10 @@ class Ranking_Module implements Module_Interface {
             $density = ($word_count > 0) ? round(($kw_count / $word_count) * 100, 2) : 0.0;
             $kw_metrics['keyword_density'] = $density;
 
-            if ($density >= 0.6 && $density <= 2.8) {
+            if ($density >= 0.4 && $density <= 3.0) {
                 $score += 4;
                 $checklist[] = ['label' => "چگالی کلمه کلیدی ایده‌آل است ({$density}٪ - {$kw_count} مرتبه تکرار)", 'status' => 'pass'];
-            } elseif ($density > 2.8) {
+            } elseif ($density > 3.0) {
                 $score += 2;
                 $checklist[] = ['label' => "چگالی کلمه کلیدی بالاست ({$density}٪) - خطر Keyword Stuffing", 'status' => 'warning'];
                 $recommendations[] = "تکرار کلمه کلیدی را کاهش داده و از کلمات مترادف استفاده کنید.";
@@ -1006,22 +1144,24 @@ class Ranking_Module implements Module_Interface {
         $recommendations = [];
         $score = 0;
 
-        $clean_text = trim(wp_strip_all_tags($content));
+        // Convert closing block tags to newlines before stripping tags so paragraphs aren't merged
+        $text_with_breaks = preg_replace('/<\/(?:p|div|h[1-6]|li|blockquote|tr)>/iu', "\n\n", $content);
+        $clean_text = trim(wp_strip_all_tags($text_with_breaks));
 
         // ۱. پاراگراف پاسخ مستقیم (Direct Answer Snippet) در ابتدای متن (۲۵ امتیاز)
-        $paragraphs = preg_split('/\n+/', $clean_text);
+        $paragraphs = array_values(array_filter(array_map('trim', preg_split('/\n+/u', $clean_text))));
         $first_p = trim($paragraphs[0] ?? '');
         $first_p_words = $this->count_words($first_p);
 
         $has_direct_answer = false;
-        if ($first_p_words >= 30 && $first_p_words <= 75) {
+        if ($first_p_words >= 25 && $first_p_words <= 95) {
             $has_direct_answer = true;
             $score += 25;
             $checklist[] = ['label' => 'پاراگراف پاسخ مستقیم (Direct Answer Snippet) در ابتدای متن شناسایی شد (' . $first_p_words . ' کلمه)', 'status' => 'pass'];
-        } elseif ($first_p_words > 75) {
+        } elseif ($first_p_words > 95) {
             $score += 15;
             $checklist[] = ['label' => 'پاراگراف آغازین کمی طولانی است (' . $first_p_words . ' کلمه)؛ خلاصه‌تر شدن به اسنیپت پاسخ مستقیم کمک می‌کند', 'status' => 'warning'];
-            $recommendations[] = 'یک پاسخ شفاف و کوتاه بین ۴۰ تا ۶۰ کلمه دقیقاً در پاراگراف اول بنویسید تا به عنوان پاسخ صوتی و اسنیپت استخراج شود.';
+            $recommendations[] = 'یک پاسخ شفاف و کوتاه بین ۳۵ تا ۶۰ کلمه در پاراگراف اول بنویسید تا به عنوان اسنیپت صوتی استخراج شود.';
         } else {
             $checklist[] = ['label' => 'پاسخ صریح و خلاصه به سوال اصلی کاربر در مقدمه وجود ندارد', 'status' => 'fail'];
             $recommendations[] = 'مقدمه را با تعریف صریح و پاسخ قطعی (Direct Answer) شروع کنید.';
@@ -1030,15 +1170,27 @@ class Ranking_Module implements Module_Interface {
         // ۲. تیترهای مبتنی بر سوال (Question-based Headings) (۲۵ امتیاز)
         preg_match_all('/<h[2-4][^>]*>(.*?)<\/h[2-4]>/is', $content, $heading_matches);
         $question_headings = 0;
-        $q_keywords = ['چیست', 'چگونه', 'چطور', 'چرا', 'کدام', 'آیا', 'کیست', 'علت', 'راهنمای', 'مراحل', 'نحوه', 'روش', 'how', 'what', 'why', 'is'];
+        $q_keywords = [
+            'چیست', 'چگونه', 'چطور', 'چرا', 'کدام', 'آیا', 'کیست', 'علت', 'راهنمای', 'مراحل', 'نحوه', 'روش',
+            'بهترین', 'ابزارهای', 'معرفی', 'بررسی', 'کدامند', 'چیستند', 'چرا باید', 'چطور می‌توان', 'راهکار',
+            'how', 'what', 'why', 'is', 'which', 'best'
+        ];
 
         foreach ($heading_matches[1] ?? [] as $h_text) {
             $h_clean = strip_tags($h_text);
-            foreach ($q_keywords as $q) {
-                if (mb_stripos($h_clean, $q, 0, 'UTF-8') !== false || mb_strpos($h_clean, '؟') !== false || mb_strpos($h_clean, '?') !== false) {
-                    $question_headings++;
-                    break;
+            $is_q = false;
+            if (mb_strpos($h_clean, '؟') !== false || mb_strpos($h_clean, '?') !== false) {
+                $is_q = true;
+            } else {
+                foreach ($q_keywords as $q) {
+                    if (mb_stripos($h_clean, $q, 0, 'UTF-8') !== false) {
+                        $is_q = true;
+                        break;
+                    }
                 }
+            }
+            if ($is_q) {
+                $question_headings++;
             }
         }
 
@@ -1109,11 +1261,17 @@ class Ranking_Module implements Module_Interface {
         $clean_text = trim(wp_strip_all_tags($content));
 
         // ۱. خلاصه اجرایی و نکات کلیدی (Key Takeaways / TL;DR) (۲۵ امتیاز)
+        $norm_content = str_replace('‌', ' ', $content);
         $has_takeaways = false;
         if (
             mb_stripos($content, 'نکات کلیدی', 0, 'UTF-8') !== false ||
+            mb_stripos($norm_content, 'نکات کلیدی', 0, 'UTF-8') !== false ||
             mb_stripos($content, 'در یک نگاه', 0, 'UTF-8') !== false ||
+            mb_stripos($norm_content, 'در یک نگاه', 0, 'UTF-8') !== false ||
             mb_stripos($content, 'خلاصه اجرایی', 0, 'UTF-8') !== false ||
+            mb_stripos($norm_content, 'خلاصه اجرایی', 0, 'UTF-8') !== false ||
+            mb_stripos($content, 'نکات مهم', 0, 'UTF-8') !== false ||
+            mb_stripos($content, 'خلاصه مطلب', 0, 'UTF-8') !== false ||
             mb_stripos($content, 'takeaway', 0, 'UTF-8') !== false ||
             mb_stripos($content, 'tldr', 0, 'UTF-8') !== false
         ) {
@@ -1125,16 +1283,17 @@ class Ranking_Module implements Module_Interface {
             $recommendations[] = 'یک کادر ۳ تا ۵ خطی "نکات کلیدی" در بالای مقاله قرار دهید تا مدل‌های LLM مستقیماً آن را منبع ارجاع خود قرار دهند.';
         }
 
-        // ۲. چگالی آماری، فکت‌های عددی و مقایسه‌های کمی (۲۵ امتیاز)
-        // شناسایی ارقام انگلیسی، فارسی و عربی به همراه واحدهای سنجش، درصدها و عبارات مقایسه‌ای
+        // ۲. چگالی آماری، فکت‌های عددی و استانداردهای فنی (۲۵ امتیاز)
+        // شناسایی ارقام انگلیسی، فارسی و عربی به همراه واحدهای سنجش، درصدها، استانداردها و عبارات مقایسه‌ای
         $digit_pattern = '[\d\x{06F0}-\x{06F9}\x{0660}-\x{0669}]';
-        $units = 'درصد|%|هزار|میلیون|میلیارد|برابر|ثانیه|دقیقه|ساعت|روز|ماه|سال|مگابایت|گیگابایت|کیلوبایت|ms|mb|gb|kb|x|مرتبه|بار|مورد|ابزار|کلمه|کاربر';
+        $units = 'درصد|%|هزار|میلیون|میلیارد|برابر|ثانیه|میلی‌ثانیه|دقیقه|ساعت|روز|هفته|ماه|سال|مگابایت|گیگابایت|کیلوبایت|بیت|کاراکتر|پورت|پیکسل|گام|مرحله|لایه|روش|نکته|ms|mb|gb|kb|px|bit|bits|byte|bytes|x|مرتبه|بار|مورد|ابزار|کلمه|کاربر';
 
         preg_match_all('/(' . $digit_pattern . '+[\/\.]?' . $digit_pattern . '*)\s*(?:' . $units . ')/iu', $clean_text, $stat_matches);
         preg_match_all('/(?:13\d\d|14\d\d|20\d\d|[۱][۳۴][۰-۹][۰-۹]|[۲][۰][۰-۹][۰-۹])/u', $clean_text, $year_matches);
         preg_match_all('/(?:بیش از|بیشتر از|کمتر از|کاهش تا|افزایش تا|رشد|حدود|حداقل|حداکثر|تا)\s*(' . $digit_pattern . '+)/iu', $clean_text, $comp_matches);
+        preg_match_all('/(?:SHA-?256|SHA-?512|SHA-?1|MD5|AES-?\d+|TLS\s*1\.[23]|HTTP\/[123]|IPv[46]|ES\d+|OWASP\s*Top\s*10|RFC\s*\d+|WCAG\s*2\.[0-2]|max-age=\d+)/iu', $clean_text, $tech_matches);
 
-        $stats_count = count($stat_matches[0] ?? []) + count($year_matches[0] ?? []) + count($comp_matches[0] ?? []);
+        $stats_count = count($stat_matches[0] ?? []) + count($year_matches[0] ?? []) + count($comp_matches[0] ?? []) + count($tech_matches[0] ?? []);
 
         if ($stats_count >= 3) {
             $score += 25;
@@ -1152,9 +1311,16 @@ class Ranking_Module implements Module_Interface {
         $has_conclusion = false;
         if (
             mb_stripos($content, 'نتیجه‌گیری', 0, 'UTF-8') !== false ||
+            mb_stripos($content, 'نتیجه گیری', 0, 'UTF-8') !== false ||
+            mb_stripos($norm_content, 'نتیجه گیری', 0, 'UTF-8') !== false ||
             mb_stripos($content, 'جمع‌بندی', 0, 'UTF-8') !== false ||
+            mb_stripos($content, 'جمع بندی', 0, 'UTF-8') !== false ||
+            mb_stripos($norm_content, 'جمع بندی', 0, 'UTF-8') !== false ||
+            mb_stripos($content, 'سخن پایانی', 0, 'UTF-8') !== false ||
             mb_stripos($content, 'کلام آخر', 0, 'UTF-8') !== false ||
+            mb_stripos($content, 'کلام پایانی', 0, 'UTF-8') !== false ||
             mb_stripos($content, 'پایان سخن', 0, 'UTF-8') !== false ||
+            mb_stripos($content, 'سخن آخر', 0, 'UTF-8') !== false ||
             mb_stripos($content, 'conclusion', 0, 'UTF-8') !== false
         ) {
             $has_conclusion = true;
@@ -1167,10 +1333,18 @@ class Ranking_Module implements Module_Interface {
 
         // ۴. لحن تخصصی، نقل‌قول و اعتبار مؤلف (Quotations & Entities) (۲۵ امتیاز)
         preg_match_all('/<blockquote[^>]*>(.*?)<\/blockquote>/is', $content, $quote_matches);
-        preg_match_all('/(«[^»]+»|"[^"]+")/u', $clean_text, $fa_quote_matches);
+        preg_match_all('/(«[^»]+»|"[^"]{4,}")/u', $clean_text, $fa_quote_matches);
         $quotes_count = count($quote_matches[0] ?? []) + count($fa_quote_matches[0] ?? []);
 
-        if ($quotes_count >= 1 || mb_stripos($clean_text, 'به گفته', 0, 'UTF-8') !== false || mb_stripos($clean_text, 'طبق گزارش', 0, 'UTF-8') !== false) {
+        if (
+            $quotes_count >= 1 ||
+            mb_stripos($clean_text, 'به گفته', 0, 'UTF-8') !== false ||
+            mb_stripos($clean_text, 'طبق گزارش', 0, 'UTF-8') !== false ||
+            mb_stripos($clean_text, 'طبق مستندات', 0, 'UTF-8') !== false ||
+            mb_stripos($clean_text, 'به نقل از', 0, 'UTF-8') !== false ||
+            mb_stripos($clean_text, 'بر اساس گزارش', 0, 'UTF-8') !== false ||
+            mb_stripos($clean_text, 'به باور متخصصان', 0, 'UTF-8') !== false
+        ) {
             $score += 25;
             $checklist[] = ['label' => 'ارجاع به نقل‌قول متخصصین، سازمان‌ها یا گزارش‌های معتبر شناسایی شد', 'status' => 'pass'];
         } else {
@@ -1200,10 +1374,12 @@ class Ranking_Module implements Module_Interface {
         $recommendations = [];
         $score = 0;
 
-        // حذف جداول، بلوک‌های کد و کامنت‌ها جهت بررسی دقیق نثر و جملات (جلوگیری از ترکیب خانه‌های جدول)
+        // حذف جداول، بلوک‌های کد، کارت‌های راهنمای تصویر، تیترها و کامنت‌ها جهت بررسی دقیق نثر و جملات
         $prose_content = preg_replace('/<table[^>]*>[\s\S]*?<\/table>/iu', ' ', $content);
         $prose_content = preg_replace('/<pre[^>]*>[\s\S]*?<\/pre>/iu', ' ', $prose_content);
         $prose_content = preg_replace('/<code[^>]*>[\s\S]*?<\/code>/iu', ' ', $prose_content);
+        $prose_content = preg_replace('/<div[^>]*class=["\'][^"\']*omni-image-callout-card[^"\']*["\'][^>]*>[\s\S]*?<\/div>\s*<\/div>\s*<\/div>/iu', ' ', $prose_content);
+        $prose_content = preg_replace('/<h[1-6][^>]*>[\s\S]*?<\/h[1-6]>/iu', ' ', $prose_content);
         $prose_content = preg_replace('/<!--\s*wp:table[\s\S]*?\/wp:table\s*-->/iu', ' ', $prose_content);
         $clean_text = wp_strip_all_tags($prose_content);
         $word_count = $this->count_words($content);
@@ -1279,6 +1455,9 @@ class Ranking_Module implements Module_Interface {
             'به طور خلاصه', 'به‌طور خلاصه', 'به عبارت دیگر', 'به‌عبارت دیگر', 'نخست', 'سپس', 'در واقع', 'بدین ترتیب',
             'به هر حال', 'به‌هرحال', 'با وجود این', 'به علاوه', 'به‌علاوه', 'از طرفی', 'در این میان', 'البته',
             'اما', 'چرا که', 'زیرا', 'چون', 'بلکه', 'گرچه', 'هرچند', 'در عین حال', 'درعین‌حال', 'به ویژه', 'به‌ویژه',
+            'بویژه', 'همینطور', 'همین‌طور', 'علاوه برآن', 'علاوه‌برآن', 'درحالی که', 'درحالی‌که', 'با این وجود',
+            'به این ترتیب', 'مثلاً', 'مثلا', 'به این دلیل', 'از این جهت', 'در حقیقت', 'از طرف دیگر', 'در پایان',
+            'سرانجام', 'چنانچه', 'با این همه',
             'however', 'therefore', 'furthermore', 'moreover', 'in addition', 'for example',
             'as a result', 'finally', 'consequently', 'on the other hand'
         ];
@@ -2345,44 +2524,76 @@ class Ranking_Module implements Module_Interface {
                 }
             }
 
-            // ۵. به‌روزرسانی هوشمند متن Alt تصویر شاخص (Featured Image)
+            // ۵. به‌روزرسانی هوشمند تمام اطلاعات و متن Alt تصویر شاخص (Featured Image)
             $thumb_id = get_post_thumbnail_id($post_id);
             if ($thumb_id) {
-                $thumb_alt = (string) get_post_meta($thumb_id, '_wp_attachment_image_alt', true);
-                $thumb_alt_norm = str_replace($persian_digits, $english_digits, mb_strtolower($thumb_alt, 'UTF-8'));
-                if (empty($thumb_alt) || (mb_stripos($thumb_alt, $focus_kw) === false && mb_stripos($thumb_alt_norm, $norm_kw) === false)) {
-                    $new_alt = $focus_kw . ' - ' . mb_substr($post->post_title, 0, 45, 'UTF-8');
-                    update_post_meta($thumb_id, '_wp_attachment_image_alt', $new_alt);
+                $new_alt = $focus_kw . ' - ' . mb_substr($post->post_title, 0, 50, 'UTF-8');
+                update_post_meta($thumb_id, '_wp_attachment_image_alt', $new_alt);
+
+                // همچنین اطلاعات تکمیلی (Title, Caption, Description) تصویر شاخص
+                $thumb_post = get_post($thumb_id);
+                if ($thumb_post) {
+                    $thumb_update = ['ID' => $thumb_id];
+                    if (empty(trim($thumb_post->post_title)) || is_numeric($thumb_post->post_title)) {
+                        $thumb_update['post_title'] = $focus_kw . ' - ' . $post->post_title;
+                    }
+                    if (empty(trim($thumb_post->post_excerpt))) {
+                        $thumb_update['post_excerpt'] = "تصویر شاخص مرتبط با " . $focus_kw;
+                    }
+                    if (empty(trim($thumb_post->post_content))) {
+                        $thumb_update['post_content'] = "تصویر بهینه‌شده در فرمت مدرن WebP برای مقاله: " . $post->post_title;
+                    }
+                    if (count($thumb_update) > 1) {
+                        wp_update_post($thumb_update);
+                    }
                 }
             }
 
-            // ۶. به‌روزرسانی هوشمند متن Alt تصاویر داخل محتوا
+            // ۶. به‌روزرسانی هوشمند متن Alt و متای تمام تصاویر داخل محتوا
             if (strpos($content, '<img') !== false) {
-                $has_kw_alt = false;
-                preg_match_all('/<img\s+[^>]*alt=[\'"]([^\'"]+)[\'"][^>]*>/i', $content, $all_alts);
-                foreach ($all_alts[1] ?? [] as $alt_text) {
-                    if (mb_stripos($alt_text, $focus_kw) !== false || mb_stripos(str_replace($persian_digits, $english_digits, $alt_text), $norm_kw) !== false) {
-                        $has_kw_alt = true;
-                        break;
+                $content = preg_replace_callback('/<img\s+([^>]+)>/is', function ($matches) use ($focus_kw, $post) {
+                    $img_attrs = $matches[1];
+                    $new_alt = $focus_kw . ' - ' . mb_substr($post->post_title, 0, 45, 'UTF-8');
+
+                    // اگر پیوست وردپرس دارد، متای آن را هم در دیتابیس بروز کن
+                    if (preg_match('/\bwp-image-(\d+)\b/i', $img_attrs, $id_m)) {
+                        $att_id = (int) $id_m[1];
+                        update_post_meta($att_id, '_wp_attachment_image_alt', $new_alt);
                     }
-                }
-                if (!$has_kw_alt) {
-                    $replaced_first = false;
-                    $content = preg_replace_callback('/<img\s+([^>]+)>/i', function ($matches) use ($focus_kw, &$replaced_first) {
-                        if ($replaced_first) {
-                            return $matches[0];
+
+                    if (preg_match('/\balt=([\'"])(.*?)\1/is', $img_attrs, $alt_m)) {
+                        $existing_alt = trim($alt_m[2]);
+                        if (empty($existing_alt) || !Ranking_Module::matches_keyword($existing_alt, $focus_kw)) {
+                            $final_alt = !empty($existing_alt) ? $existing_alt . ' - ' . $focus_kw : $new_alt;
+                            return str_replace($alt_m[0], 'alt="' . esc_attr($final_alt) . '"', $matches[0]);
                         }
-                        $img_attrs = $matches[1];
-                        $replaced_first = true;
-                        if (preg_match('/alt=[\'"]([^\'"]*)[\'"]/i', $img_attrs, $alt_m)) {
-                            $new_alt = trim($alt_m[1]) ? trim($alt_m[1]) . ' - ' . $focus_kw : $focus_kw;
-                            return str_replace($alt_m[0], 'alt="' . esc_attr($new_alt) . '"', $matches[0]);
-                        } else {
-                            return '<img alt="' . esc_attr($focus_kw) . '" ' . $img_attrs . '>';
-                        }
-                    }, $content);
-                    $post_update['post_content'] = $content;
+                        return $matches[0];
+                    } else {
+                        return '<img alt="' . esc_attr($new_alt) . '" ' . $img_attrs . '>';
+                    }
+                }, $content);
+                $post_update['post_content'] = $content;
+            }
+
+            // ۷. اگر پیوند داخلی در محتوا وجود ندارد، باکس لینک‌های داخلی مرتبط را به صورت خودکار درج کن
+            $site_host = wp_parse_url(home_url(), PHP_URL_HOST);
+            preg_match_all('/<a\s+[^>]*href=[\'"]([^\'"]+)[\'"][^>]*>/i', $content, $cur_links);
+            $has_internal = false;
+            foreach ($cur_links[1] ?? [] as $clink) {
+                $chost = wp_parse_url($clink, PHP_URL_HOST);
+                if (empty($chost) || $chost === $site_host) {
+                    $has_internal = true;
+                    break;
                 }
+            }
+            if (!$has_internal) {
+                $internal_links_box = "\n\n<!-- wp:group {\"style\":{\"border\":{\"width\":\"1px\",\"style\":\"solid\",\"color\":\"#38bdf8\"},\"spacing\":{\"padding\":{\"top\":\"1rem\",\"bottom\":\"1rem\",\"left\":\"1rem\",\"right\":\"1rem\"}}},\"backgroundColor\":\"dark-slate\"} -->\n" .
+                    "<div class=\"wp-block-group\" style=\"border:1px solid #38bdf8;border-radius:8px;padding:1rem;margin:24px 0;background:#0f172a;color:#f8fafc;\">\n" .
+                    "<p style=\"font-weight:bold;color:#38bdf8;margin:0 0 8px 0;font-size:15px;\">🛠 ابزارهای آنلاین و پیشنهادی مرتبط:</p>\n" .
+                    "<p style=\"margin:0;line-height:1.7;\">برای ارتقای راندمان کدنویسی خود می‌توانید از <a href=\"/tools\" style=\"color:#38bdf8;text-decoration:underline;\">مجموعه ابزارهای آنلاین توسعه‌دهندگان</a> و امکانات <a href=\"/\" style=\"color:#38bdf8;text-decoration:underline;\">صفحه اصلی زبراکد</a> استفاده نمایید.</p>\n" .
+                    "</div>\n<!-- /wp:group -->\n\n";
+                $content .= $internal_links_box;
+                $post_update['post_content'] = $content;
             }
         }
 

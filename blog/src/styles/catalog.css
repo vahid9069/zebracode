@@ -1,3 +1,7 @@
+:root {
+    --header-height: 68px;
+}
+
 .zc-container {
     width: min(1200px, calc(100% - 48px));
     margin-inline: auto;
@@ -1003,6 +1007,9 @@
 }
 
 @media (max-width: 680px) {
+    :root {
+        --header-height: 64px;
+    }
     .zc-container {
         width: calc(100% - 32px);
     }

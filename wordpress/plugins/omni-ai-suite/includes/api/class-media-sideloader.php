@@ -78,7 +78,7 @@ class Media_Sideloader {
      */
     public static function build_visual_image_prompt(string $title, string $style = 'dark_slate_neon', string $custom_prompt = ''): string {
         if (!empty($custom_prompt) && strlen(trim($custom_prompt)) > 5) {
-            return trim($custom_prompt) . ", 16:9 aspect ratio, 8k resolution, modern developer aesthetic, no text, no watermark, no logo";
+            return trim($custom_prompt) . ", 16:9 aspect ratio, 1200x675 resolution, wide angle landscape composition, --ar 16:9, --q 1, modern developer aesthetic, lightweight web asset, no text, no watermark, no logo";
         }
 
         // Extract key English tech words if present in the Persian title (e.g. JSON, Python, React, AI, CSS, API)
@@ -92,16 +92,16 @@ class Media_Sideloader {
         }
 
         $style_map = [
-            'dark_slate_neon' => 'dark slate and electric cyan aesthetic, #0f172a deep background with glowing cyan #38bdf8 accents and crisp vector 3D elements, minimal developer dark mode theme, subtle grid lines, studio lighting, Octane 3D render',
-            'isometric_3d'    => 'clean miniature 3D isometric tech scene, miniature servers, floating code blocks, soft studio ambient lighting, smooth clay and glass materials, Octane render, vibrant modern tech palette',
-            'minimal_flat'    => 'modern minimal flat vector illustration, Stripe and GitHub blog style, clean geometric lines, high-contrast contemporary tech graphics, balanced white-space',
+            'dark_slate_neon' => 'dark slate and electric cyan aesthetic, #0f172a deep background with glowing cyan #38bdf8 accents and crisp vector 3D elements, minimal developer dark mode theme, subtle grid lines, studio lighting, clean web banner render',
+            'isometric_3d'    => 'clean miniature 3D isometric tech scene, miniature servers, floating code blocks, soft studio ambient lighting, smooth clay and glass materials, vibrant modern tech palette',
+            'minimal_flat'    => 'modern minimal flat vector illustration, Stripe and GitHub blog style, clean geometric lines, high-contrast contemporary tech graphics, balanced white-space, vector art',
             'blueprint'       => 'technical software architecture blueprint, schematic engineering grid on deep navy background #0a0f1d, glowing white and laser-blue vector connection lines, high detail flow diagram art',
             'glassmorphism'   => 'modern glassmorphism UI concept, frosted translucent dark acrylic glass cards, subtle neon gradients, floating developer code symbols, soft blur depth of field',
         ];
 
         $style_desc = $style_map[$style] ?? $style_map['dark_slate_neon'];
 
-        return "{$subject}, {$style_desc}, 16:9 aspect ratio, 8k resolution, professional tech graphic, masterpiece, trending on ArtStation, no text, no typography, no watermark, no logos, no blur";
+        return "{$subject}, {$style_desc}, 16:9 aspect ratio, 1200x675 resolution, clean sharp vector styling, lightweight web asset, web banner composition, --ar 16:9, --q 1, no text, no typography, no watermark, no logos, no blur";
     }
 
     /**

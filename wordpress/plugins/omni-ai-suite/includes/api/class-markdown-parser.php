@@ -23,19 +23,23 @@ class Markdown_Parser {
             $clean = 'Technical architecture diagram or flowchart illustrating the concept above.';
         }
         $safe_code = esc_html($clean);
+        $upload_url = admin_url('upload.php');
 
-        return "\n<!-- wp:group {\"style\":{\"border\":{\"width\":\"1px\",\"style\":\"dashed\",\"color\":\"#38bdf8\"},\"spacing\":{\"padding\":{\"top\":\"1.25rem\",\"bottom\":\"1.25rem\",\"left\":\"1.25rem\",\"right\":\"1.25rem\"}}},\"backgroundColor\":\"dark-slate\",\"textColor\":\"slate-100\",\"layout\":{\"type\":\"constrained\"}} -->\n" .
-            "<div class=\"wp-block-group has-slate-100-color has-dark-slate-background-color has-text-color has-background\" style=\"border-color:#38bdf8;border-style:dashed;border-width:1px;border-radius:10px;padding:1.25rem;margin:24px 0;background-color:#0f172a;color:#e2e8f0;\">\n" .
-            "<!-- wp:paragraph {\"style\":{\"typography\":{\"fontWeight\":\"700\"}}} -->\n" .
-            "<p style=\"font-weight:700;color:#38bdf8;margin:0 0 8px 0;font-size:15px;\">📊 جایگاه دیاگرام / اینفوگرافیک معماری (Diagram Placeholder)</p>\n" .
-            "<!-- /wp:paragraph -->\n" .
-            "<!-- wp:paragraph {\"fontSize\":\"small\"} -->\n" .
-            "<p class=\"has-small-font-size\" style=\"color:#94a3b8;margin:0 0 10px 0;font-size:12px;line-height:1.6;\">طراح گرامی: می‌توانید این بلوک را حذف نموده و تصویر اینفوگرافیک را با استفاده از پرامپت یا ساختار دیاگرام زیر در این محل قرار دهید:</p>\n" .
-            "<!-- /wp:paragraph -->\n" .
-            "<!-- wp:code -->\n" .
-            "<pre class=\"wp-block-code\" style=\"font-size:12px;background:#1e293b;color:#f1f5f9;border:1px solid #334155;border-radius:6px;padding:10px;direction:ltr;text-align:left;line-height:1.5;\"><code>{$safe_code}</code></pre>\n" .
-            "<!-- /wp:code -->\n" .
-            "</div>\n<!-- /wp:group -->\n";
+        return "\n<!-- wp:html -->\n" .
+            "<div class=\"omni-diagram-callout-card\" style=\"margin:24px 0;padding:16px 20px;background:#0f172a;border:1px dashed #38bdf8;border-radius:10px;color:#f8fafc;direction:rtl;text-align:right;font-family:sans-serif;box-shadow:0 4px 12px rgba(0,0,0,0.2);\">\n" .
+            "  <div style=\"display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:12px;border-bottom:1px solid #1e293b;padding-bottom:10px;\">\n" .
+            "    <div style=\"display:flex;align-items:center;gap:8px;\">\n" .
+            "      <span style=\"font-size:18px;\">📊</span>\n" .
+            "      <strong style=\"color:#38bdf8;font-size:14px;\">جایگاه دیاگرام / اینفوگرافیک معماری (Diagram Placeholder)</strong>\n" .
+            "    </div>\n" .
+            "    <div style=\"display:flex;gap:8px;flex-wrap:wrap;direction:ltr;align-items:center;\">\n" .
+            "      <a href=\"#omni-media\" class=\"omni-open-media-btn\" data-type=\"diagram\" style=\"cursor:pointer;display:inline-flex;align-items:center;gap:6px;background:#0284c7;color:#ffffff;text-decoration:none;padding:8px 16px;border-radius:6px;font-size:13px;font-weight:600;line-height:1.4;\">🖼️ باز کردن رسانه (انتخاب یا آپلود عکس)</a>\n" .
+            "      <a href=\"#omni-copy\" class=\"omni-copy-btn\" data-prompt=\"{$safe_code}\" style=\"cursor:pointer;display:inline-flex;align-items:center;gap:6px;background:#1e293b;color:#38bdf8;border:1px solid #38bdf8;text-decoration:none;padding:8px 14px;border-radius:6px;font-size:12px;font-weight:600;line-height:1.4;\">📋 کپی پرامپت</a>\n" .
+            "    </div>\n" .
+            "  </div>\n" .
+            "  <p style=\"margin:0 0 8px 0;font-size:12px;color:#94a3b8;line-height:1.6;\">پرامپت تخصصی دیاگرام معماری (یک کلیک روی کادر زیر متن را برای کپی سریع انتخاب می‌کند):</p>\n" .
+            "  <pre style=\"margin:0;font-size:12px;background:#1e293b;color:#e2e8f0;border:1px solid #334155;border-radius:6px;padding:12px;direction:ltr;text-align:left;line-height:1.5;overflow-x:auto;white-space:pre-wrap;word-break:break-word;user-select:all;-webkit-user-select:all;\"><code>{$safe_code}</code></pre>\n" .
+            "</div>\n<!-- /wp:html -->\n";
     }
 
     /**
@@ -44,7 +48,7 @@ class Markdown_Parser {
      * @param string $text
      * @return string
      */
-    public static function parse(string $text): string {
+    public static function parse(string $text, string $diagram_prompt = ''): string {
         $text = trim($text);
         if (empty($text)) return '';
 
@@ -59,8 +63,8 @@ class Markdown_Parser {
             return $token;
         }, $text);
 
-        $text = preg_replace_callback('/\[DIAGRAM_PLACEHOLDER(?::\s*([^\]]+))?\]/iu', function ($matches) use (&$diagram_blocks) {
-            $prompt = !empty($matches[1]) ? trim($matches[1]) : '';
+        $text = preg_replace_callback('/\[DIAGRAM_PLACEHOLDER(?::\s*([^\]]+))?\]/iu', function ($matches) use (&$diagram_blocks, $diagram_prompt) {
+            $prompt = !empty($matches[1]) ? trim($matches[1]) : trim($diagram_prompt);
             $token = '%%DIAGRAM_DIV_' . count($diagram_blocks) . '%%';
             $diagram_blocks[$token] = self::render_diagram_placeholder_block($prompt);
             return $token;

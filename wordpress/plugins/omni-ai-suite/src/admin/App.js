@@ -10,6 +10,7 @@ import RedirectsManager from './pages/RedirectsManager';
 import SecuritySettings from './pages/SecuritySettings';
 import SettingsHub from './pages/SettingsHub';
 import AdsManager from './pages/AdsManager';
+import SearchConsole from './pages/SearchConsole';
 
 export default function App() {
   const parseHash = () => {
@@ -19,6 +20,9 @@ export default function App() {
     }
     if (raw === 'calendar') {
       return { tab: 'studio', sub: 'calendar' };
+    }
+    if (raw === 'api') {
+      return { tab: 'settings', sub: 'api' };
     }
     if (raw === 'cicd' || raw === 'deploy') {
       return { tab: 'settings', sub: 'cicd' };
@@ -32,8 +36,8 @@ export default function App() {
     if (raw === 'logs') {
       return { tab: 'settings', sub: 'logs' };
     }
-    if (['dashboard', 'ranking', 'redirects', 'studio', 'ads', 'security', 'settings'].includes(raw)) {
-      return { tab: raw, sub: null };
+    if (['dashboard', 'ranking', 'redirects', 'studio', 'ads', 'security', 'settings', 'gsc', 'search-console'].includes(raw)) {
+      return { tab: raw === 'search-console' ? 'gsc' : raw, sub: null };
     }
     return { tab: 'dashboard', sub: null };
   };
@@ -73,6 +77,12 @@ export default function App() {
       setActiveTab('studio');
       setStudioSubView('calendar');
       window.location.hash = '#/calendar';
+      return;
+    }
+    if (target === 'api') {
+      setActiveTab('settings');
+      setSettingsSubTab('api');
+      window.location.hash = '#/api';
       return;
     }
     if (target === 'cicd' || target === 'deploy') {
@@ -124,6 +134,11 @@ export default function App() {
       title: isFa ? 'سئو و هوش مصنوعی' : __('SEO & AI Ranking', 'omni-ai-suite'),
     },
     {
+      id: 'gsc',
+      icon: 'dashicons-google',
+      title: isFa ? 'سرچ کنسول' : __('Search Console', 'omni-ai-suite'),
+    },
+    {
       id: 'redirects',
       icon: 'dashicons-randomize',
       title: isFa ? 'ریدایرکت و ۴۰۴' : __('Redirects & 404', 'omni-ai-suite'),
@@ -158,6 +173,9 @@ export default function App() {
         );
       case 'ranking':
         return <ContentRanking onNavigate={handleSelectTab} />;
+      case 'gsc':
+      case 'search-console':
+        return <SearchConsole onNavigate={handleSelectTab} />;
       case 'redirects':
         return <RedirectsManager />;
       case 'ads':

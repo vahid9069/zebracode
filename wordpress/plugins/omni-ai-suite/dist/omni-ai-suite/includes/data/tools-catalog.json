@@ -1,0 +1,1059 @@
+[
+  {
+    "slug": "json-format",
+    "title": "مرتب‌ساز JSON",
+    "description": "زیباسازی و مرتب‌سازی داده‌های JSON شما - پردازش ۱۰۰٪ محلی در مرورگر بدون ارسال اطلاعات به سرور با امنیت تضمین‌شده برای برنامه‌نویسان.",
+    "url": "https://zebracode.ir/json-format",
+    "domain": "zebracode.ir"
+  },
+  {
+    "slug": "json-to-big-query",
+    "title": "تبدیل JSON به BigQuery",
+    "description": "تبدیل JSON به اسکیمای جداول BigQuery - پردازش ۱۰۰٪ محلی در مرورگر بدون ارسال اطلاعات به سرور با امنیت تضمین‌شده برای برنامه‌نویسان.",
+    "url": "https://zebracode.ir/json-to-big-query",
+    "domain": "zebracode.ir"
+  },
+  {
+    "slug": "json-to-flow",
+    "title": "تبدیل JSON به Flow",
+    "description": "تولید تایپ‌های Flow از روی داده‌های JSON - پردازش ۱۰۰٪ محلی در مرورگر بدون ارسال اطلاعات به سرور با امنیت تضمین‌شده برای برنامه‌نویسان.",
+    "url": "https://zebracode.ir/json-to-flow",
+    "domain": "zebracode.ir"
+  },
+  {
+    "slug": "json-to-go",
+    "title": "تبدیل JSON به Go",
+    "description": "تبدیل JSON به ساختارهای (Struct) زبان Go - پردازش ۱۰۰٪ محلی در مرورگر بدون ارسال اطلاعات به سرور با امنیت تضمین‌شده برای برنامه‌نویسان.",
+    "url": "https://zebracode.ir/json-to-go",
+    "domain": "zebracode.ir"
+  },
+  {
+    "slug": "json-to-go-bson",
+    "title": "تبدیل JSON به Go BSON",
+    "description": "ایجاد ساختارهای Go با تگ‌های BSON از JSON - پردازش ۱۰۰٪ محلی در مرورگر بدون ارسال اطلاعات به سرور با امنیت تضمین‌شده برای برنامه‌نویسان.",
+    "url": "https://zebracode.ir/json-to-go-bson",
+    "domain": "zebracode.ir"
+  },
+  {
+    "slug": "json-to-graphql",
+    "title": "تبدیل JSON به GraphQL",
+    "description": "تبدیل یک آبجکت JSON به اسکیمای GraphQL - پردازش ۱۰۰٪ محلی در مرورگر بدون ارسال اطلاعات به سرور با امنیت تضمین‌شده برای برنامه‌نویسان.",
+    "url": "https://zebracode.ir/json-to-graphql",
+    "domain": "zebracode.ir"
+  },
+  {
+    "slug": "json-to-io-ts",
+    "title": "تبدیل JSON به io-ts",
+    "description": "تولید کدهای اعتبارسنجی io-ts از روی JSON - پردازش ۱۰۰٪ محلی در مرورگر بدون ارسال اطلاعات به سرور با امنیت تضمین‌شده برای برنامه‌نویسان.",
+    "url": "https://zebracode.ir/json-to-io-ts",
+    "domain": "zebracode.ir"
+  },
+  {
+    "slug": "json-to-java",
+    "title": "تبدیل JSON به Java",
+    "description": "تولید کلاس‌های POJO جاوا از داده‌های JSON - پردازش ۱۰۰٪ محلی در مرورگر بدون ارسال اطلاعات به سرور با امنیت تضمین‌شده برای برنامه‌نویسان.",
+    "url": "https://zebracode.ir/json-to-java",
+    "domain": "zebracode.ir"
+  },
+  {
+    "slug": "json-to-jsdoc",
+    "title": "تبدیل JSON به JSDoc",
+    "description": "تولید حاشیه‌نویسی‌ها و تایپ‌های JSDoc از روی JSON - پردازش ۱۰۰٪ محلی در مرورگر بدون ارسال اطلاعات به سرور با امنیت تضمین‌شده برای برنامه‌نویسان.",
+    "url": "https://zebracode.ir/json-to-jsdoc",
+    "domain": "zebracode.ir"
+  },
+  {
+    "slug": "json-to-json-schema",
+    "title": "تبدیل JSON به JSON Schema",
+    "description": "استنتاج و تولید خودکار JSON Schema از یک نمونه JSON - پردازش ۱۰۰٪ محلی در مرورگر بدون ارسال اطلاعات به سرور با امنیت تضمین‌شده برای برنامه‌نویسان.",
+    "url": "https://zebracode.ir/json-to-json-schema",
+    "domain": "zebracode.ir"
+  },
+  {
+    "slug": "json-to-kotlin",
+    "title": "تبدیل JSON به Kotlin",
+    "description": "ایجاد کلاس‌های داده‌ای (Data Classes) کاتلین از JSON - پردازش ۱۰۰٪ محلی در مرورگر بدون ارسال اطلاعات به سرور با امنیت تضمین‌شده برای برنامه‌نویسان.",
+    "url": "https://zebracode.ir/json-to-kotlin",
+    "domain": "zebracode.ir"
+  },
+  {
+    "slug": "json-to-mobx-state-tree",
+    "title": "تبدیل JSON به MST",
+    "description": "تولید مدل‌های MobX State Tree از داده‌های JSON - پردازش ۱۰۰٪ محلی در مرورگر بدون ارسال اطلاعات به سرور با امنیت تضمین‌شده برای برنامه‌نویسان.",
+    "url": "https://zebracode.ir/json-to-mobx-state-tree",
+    "domain": "zebracode.ir"
+  },
+  {
+    "slug": "json-to-mongoose",
+    "title": "تبدیل JSON به Mongoose",
+    "description": "تبدیل آبجکت JSON به اسکیمای Mongoose - پردازش ۱۰۰٪ محلی در مرورگر بدون ارسال اطلاعات به سرور با امنیت تضمین‌شده برای برنامه‌نویسان.",
+    "url": "https://zebracode.ir/json-to-mongoose",
+    "domain": "zebracode.ir"
+  },
+  {
+    "slug": "json-to-mysql",
+    "title": "تبدیل JSON به MySQL",
+    "description": "تبدیل JSON به اسکریپت‌های CREATE TABLE در MySQL - پردازش ۱۰۰٪ محلی در مرورگر بدون ارسال اطلاعات به سرور با امنیت تضمین‌شده برای برنامه‌نویسان.",
+    "url": "https://zebracode.ir/json-to-mysql",
+    "domain": "zebracode.ir"
+  },
+  {
+    "slug": "json-to-proptypes",
+    "title": "تبدیل JSON به PropTypes",
+    "description": "تولید اعتبارسنجی React PropTypes از داده‌های JSON - پردازش ۱۰۰٪ محلی در مرورگر بدون ارسال اطلاعات به سرور با امنیت تضمین‌شده برای برنامه‌نویسان.",
+    "url": "https://zebracode.ir/json-to-proptypes",
+    "domain": "zebracode.ir"
+  },
+  {
+    "slug": "json-to-rust-serde",
+    "title": "تبدیل JSON به Rust Serde",
+    "description": "ساخت Struct های Rust با ویژگی Serde از JSON - پردازش ۱۰۰٪ محلی در مرورگر بدون ارسال اطلاعات به سرور با امنیت تضمین‌شده برای برنامه‌نویسان.",
+    "url": "https://zebracode.ir/json-to-rust-serde",
+    "domain": "zebracode.ir"
+  },
+  {
+    "slug": "json-to-sarcastic",
+    "title": "تبدیل JSON به Sarcastic",
+    "description": "تولید تایپ‌های کنایه‌آمیز (طنز) از داده‌های JSON - پردازش ۱۰۰٪ محلی در مرورگر بدون ارسال اطلاعات به سرور با امنیت تضمین‌شده برای برنامه‌نویسان.",
+    "url": "https://zebracode.ir/json-to-sarcastic",
+    "domain": "zebracode.ir"
+  },
+  {
+    "slug": "json-to-scala-case-class",
+    "title": "تبدیل JSON به Case Class اسکالا",
+    "description": "ایجاد Case Class های زبان اسکالا از روی JSON - پردازش ۱۰۰٪ محلی در مرورگر بدون ارسال اطلاعات به سرور با امنیت تضمین‌شده برای برنامه‌نویسان.",
+    "url": "https://zebracode.ir/json-to-scala-case-class",
+    "domain": "zebracode.ir"
+  },
+  {
+    "slug": "json-to-toml",
+    "title": "تبدیل JSON به TOML",
+    "description": "تبدیل فایل‌های کانفیگ JSON به فرمت TOML - پردازش ۱۰۰٪ محلی در مرورگر بدون ارسال اطلاعات به سرور با امنیت تضمین‌شده برای برنامه‌نویسان.",
+    "url": "https://zebracode.ir/json-to-toml",
+    "domain": "zebracode.ir"
+  },
+  {
+    "slug": "json-to-typescript",
+    "title": "تبدیل JSON به TypeScript",
+    "description": "تولید اینترفیس‌های تایپ‌اسکریپت از روی نمونه JSON - پردازش ۱۰۰٪ محلی در مرورگر بدون ارسال اطلاعات به سرور با امنیت تضمین‌شده برای برنامه‌نویسان.",
+    "url": "https://zebracode.ir/json-to-typescript",
+    "domain": "zebracode.ir"
+  },
+  {
+    "slug": "json-to-yaml",
+    "title": "تبدیل JSON به YAML",
+    "description": "تبدیل سریع داده‌های JSON به YAML به صورت آنلاین - پردازش ۱۰۰٪ محلی در مرورگر بدون ارسال اطلاعات به سرور با امنیت تضمین‌شده برای برنامه‌نویسان.",
+    "url": "https://zebracode.ir/json-to-yaml",
+    "domain": "zebracode.ir"
+  },
+  {
+    "slug": "json-to-zod",
+    "title": "تبدیل JSON به Zod",
+    "description": "تولید اسکیمای اعتبارسنجی Zod از داده‌های JSON - پردازش ۱۰۰٪ محلی در مرورگر بدون ارسال اطلاعات به سرور با امنیت تضمین‌شده برای برنامه‌نویسان.",
+    "url": "https://zebracode.ir/json-to-zod",
+    "domain": "zebracode.ir"
+  },
+  {
+    "slug": "es5-to-es6",
+    "title": "تبدیل ES5 به ES6",
+    "description": "تبدیل جاوااسکریپت ES5 به سینتکس مدرن ES6+ - پردازش ۱۰۰٪ محلی در مرورگر بدون ارسال اطلاعات به سرور با امنیت تضمین‌شده برای برنامه‌نویسان.",
+    "url": "https://zebracode.ir/es5-to-es6",
+    "domain": "zebracode.ir"
+  },
+  {
+    "slug": "es6-to-es5",
+    "title": "تبدیل ES6 به ES5",
+    "description": "ترنسپایل ES6+ به ES5 برای سازگاری - پردازش ۱۰۰٪ محلی در مرورگر بدون ارسال اطلاعات به سرور با امنیت تضمین‌شده برای برنامه‌نویسان.",
+    "url": "https://zebracode.ir/es6-to-es5",
+    "domain": "zebracode.ir"
+  },
+  {
+    "slug": "js-to-json",
+    "title": "تبدیل JS به JSON",
+    "description": "تبدیل آبجکت جاوااسکریپت به JSON - پردازش ۱۰۰٪ محلی در مرورگر بدون ارسال اطلاعات به سرور با امنیت تضمین‌شده برای برنامه‌نویسان.",
+    "url": "https://zebracode.ir/js-to-json",
+    "domain": "zebracode.ir"
+  },
+  {
+    "slug": "js-to-typescript",
+    "title": "تبدیل JS به تایپ‌اسکریپت",
+    "description": "تبدیل جاوااسکریپت به TypeScript با حاشیه‌نویسی تایپ - پردازش ۱۰۰٪ محلی در مرورگر بدون ارسال اطلاعات به سرور با امنیت تضمین‌شده برای برنامه‌نویسان.",
+    "url": "https://zebracode.ir/js-to-typescript",
+    "domain": "zebracode.ir"
+  },
+  {
+    "slug": "css-to-js",
+    "title": "تبدیل CSS به JS",
+    "description": "تبدیل CSS به آبجکت جاوااسکریپت - پردازش ۱۰۰٪ محلی در مرورگر بدون ارسال اطلاعات به سرور با امنیت تضمین‌شده برای برنامه‌نویسان.",
+    "url": "https://zebracode.ir/css-to-js",
+    "domain": "zebracode.ir"
+  },
+  {
+    "slug": "css-to-scss",
+    "title": "تبدیل CSS به SCSS",
+    "description": "تبدیل CSS به SCSS (Sassy CSS) - پردازش ۱۰۰٪ محلی در مرورگر بدون ارسال اطلاعات به سرور با امنیت تضمین‌شده برای برنامه‌نویسان.",
+    "url": "https://zebracode.ir/css-to-scss",
+    "domain": "zebracode.ir"
+  },
+  {
+    "slug": "css-to-tailwind",
+    "title": "تبدیل CSS به Tailwind",
+    "description": "تبدیل کلاس‌های CSS به utilityهای Tailwind - پردازش ۱۰۰٪ محلی در مرورگر بدون ارسال اطلاعات به سرور با امنیت تضمین‌شده برای برنامه‌نویسان.",
+    "url": "https://zebracode.ir/css-to-tailwind",
+    "domain": "zebracode.ir"
+  },
+  {
+    "slug": "scss-to-css",
+    "title": "تبدیل SCSS به CSS",
+    "description": "کامپایل SCSS به CSS استاندارد - پردازش ۱۰۰٪ محلی در مرورگر بدون ارسال اطلاعات به سرور با امنیت تضمین‌شده برای برنامه‌نویسان.",
+    "url": "https://zebracode.ir/scss-to-css",
+    "domain": "zebracode.ir"
+  },
+  {
+    "slug": "html-to-jsx",
+    "title": "تبدیل HTML به JSX",
+    "description": "تبدیل HTML به JSX برای React - پردازش ۱۰۰٪ محلی در مرورگر بدون ارسال اطلاعات به سرور با امنیت تضمین‌شده برای برنامه‌نویسان.",
+    "url": "https://zebracode.ir/html-to-jsx",
+    "domain": "zebracode.ir"
+  },
+  {
+    "slug": "html-to-pug",
+    "title": "تبدیل HTML به Pug",
+    "description": "تبدیل HTML به قالب Pug - پردازش ۱۰۰٪ محلی در مرورگر بدون ارسال اطلاعات به سرور با امنیت تضمین‌شده برای برنامه‌نویسان.",
+    "url": "https://zebracode.ir/html-to-pug",
+    "domain": "zebracode.ir"
+  },
+  {
+    "slug": "graphql-to-flow",
+    "title": "تبدیل GraphQL به Flow",
+    "description": "تبدیل اسکیمای GraphQL به تایپ‌های Flow - پردازش ۱۰۰٪ محلی در مرورگر بدون ارسال اطلاعات به سرور با امنیت تضمین‌شده برای برنامه‌نویسان.",
+    "url": "https://zebracode.ir/graphql-to-flow",
+    "domain": "zebracode.ir"
+  },
+  {
+    "slug": "graphql-to-typescript",
+    "title": "تبدیل GraphQL به تایپ‌اسکریپت",
+    "description": "تولید تایپ‌های TypeScript از اسکیمای GraphQL - پردازش ۱۰۰٪ محلی در مرورگر بدون ارسال اطلاعات به سرور با امنیت تضمین‌شده برای برنامه‌نویسان.",
+    "url": "https://zebracode.ir/graphql-to-typescript",
+    "domain": "zebracode.ir"
+  },
+  {
+    "slug": "graphql-to-java",
+    "title": "تبدیل GraphQL به Java",
+    "description": "نگاشت اسکیمای GraphQL به کلاس‌های جاوا - پردازش ۱۰۰٪ محلی در مرورگر بدون ارسال اطلاعات به سرور با امنیت تضمین‌شده برای برنامه‌نویسان.",
+    "url": "https://zebracode.ir/graphql-to-java",
+    "domain": "zebracode.ir"
+  },
+  {
+    "slug": "graphql-to-typescript-mongodb",
+    "title": "تبدیل GraphQL به مدل MongoDB تایپ‌اسکریپت",
+    "description": "تولید مدل‌های TypeScript برای MongoDB از GraphQL - پردازش ۱۰۰٪ محلی در مرورگر بدون ارسال اطلاعات به سرور با امنیت تضمین‌شده برای برنامه‌نویسان.",
+    "url": "https://zebracode.ir/graphql-to-typescript-mongodb",
+    "domain": "zebracode.ir"
+  },
+  {
+    "slug": "graphql-to-schema-ast",
+    "title": "AST اسکیمای GraphQL",
+    "description": "خروجی درخت نحوی انتزاعی اسکیمای GraphQL - پردازش ۱۰۰٪ محلی در مرورگر بدون ارسال اطلاعات به سرور با امنیت تضمین‌شده برای برنامه‌نویسان.",
+    "url": "https://zebracode.ir/graphql-to-schema-ast",
+    "domain": "zebracode.ir"
+  },
+  {
+    "slug": "graphql-to-resolvers-signature",
+    "title": "امضای Resolverهای GraphQL",
+    "description": "تولید امضای توابع resolver از اسکیمای GraphQL - پردازش ۱۰۰٪ محلی در مرورگر بدون ارسال اطلاعات به سرور با امنیت تضمین‌شده برای برنامه‌نویسان.",
+    "url": "https://zebracode.ir/graphql-to-resolvers-signature",
+    "domain": "zebracode.ir"
+  },
+  {
+    "slug": "graphql-to-introspection-json",
+    "title": "JSON اینتروسپکشن GraphQL",
+    "description": "تبدیل اسکیمای GraphQL به JSON اینتروسپکشن - پردازش ۱۰۰٪ محلی در مرورگر بدون ارسال اطلاعات به سرور با امنیت تضمین‌شده برای برنامه‌نویسان.",
+    "url": "https://zebracode.ir/graphql-to-introspection-json",
+    "domain": "zebracode.ir"
+  },
+  {
+    "slug": "graphql-to-fragment-matcher",
+    "title": "Fragment Matcher برای GraphQL",
+    "description": "تولید تنظیمات fragment matcher از اسکیما - پردازش ۱۰۰٪ محلی در مرورگر بدون ارسال اطلاعات به سرور با امنیت تضمین‌شده برای برنامه‌نویسان.",
+    "url": "https://zebracode.ir/graphql-to-fragment-matcher",
+    "domain": "zebracode.ir"
+  },
+  {
+    "slug": "graphql-to-components",
+    "title": "تبدیل GraphQL به کامپوننت",
+    "description": "تولید کامپوننت React/Vue از اسکیمای GraphQL - پردازش ۱۰۰٪ محلی در مرورگر بدون ارسال اطلاعات به سرور با امنیت تضمین‌شده برای برنامه‌نویسان.",
+    "url": "https://zebracode.ir/graphql-to-components",
+    "domain": "zebracode.ir"
+  },
+  {
+    "slug": "jsonld-to-compacted",
+    "title": "فشرده‌سازی JSON-LD",
+    "description": "فشرده کردن سند JSON-LD با یک context - پردازش ۱۰۰٪ محلی در مرورگر بدون ارسال اطلاعات به سرور با امنیت تضمین‌شده برای برنامه‌نویسان.",
+    "url": "https://zebracode.ir/jsonld-to-compacted",
+    "domain": "zebracode.ir"
+  },
+  {
+    "slug": "jsonld-to-flattened",
+    "title": "تخت‌سازی JSON-LD",
+    "description": "تبدیل سند JSON-LD به گراف مبتنی بر نود - پردازش ۱۰۰٪ محلی در مرورگر بدون ارسال اطلاعات به سرور با امنیت تضمین‌شده برای برنامه‌نویسان.",
+    "url": "https://zebracode.ir/jsonld-to-flattened",
+    "domain": "zebracode.ir"
+  },
+  {
+    "slug": "jsonld-to-framed",
+    "title": "فریم کردن JSON-LD",
+    "description": "شکل‌دهی سند JSON-LD با اعمال frame - پردازش ۱۰۰٪ محلی در مرورگر بدون ارسال اطلاعات به سرور با امنیت تضمین‌شده برای برنامه‌نویسان.",
+    "url": "https://zebracode.ir/jsonld-to-framed",
+    "domain": "zebracode.ir"
+  },
+  {
+    "slug": "jsonld-to-normalized",
+    "title": "نرمال‌سازی JSON-LD",
+    "description": "نرمال‌سازی سند JSON-LD (RDF Dataset Normalization) - پردازش ۱۰۰٪ محلی در مرورگر بدون ارسال اطلاعات به سرور با امنیت تضمین‌شده برای برنامه‌نویسان.",
+    "url": "https://zebracode.ir/jsonld-to-normalized",
+    "domain": "zebracode.ir"
+  },
+  {
+    "slug": "jsonld-to-nquads",
+    "title": "تبدیل JSON-LD به N-Quads",
+    "description": "تبدیل سند JSON-LD به فرمت N-Quads - پردازش ۱۰۰٪ محلی در مرورگر بدون ارسال اطلاعات به سرور با امنیت تضمین‌شده برای برنامه‌نویسان.",
+    "url": "https://zebracode.ir/jsonld-to-nquads",
+    "domain": "zebracode.ir"
+  },
+  {
+    "slug": "json-schema-to-openapi-schema",
+    "title": "تبدیل JSON Schema به OpenAPI",
+    "description": "تبدیل تعریف JSON Schema به مشخصات OpenAPI - پردازش ۱۰۰٪ محلی در مرورگر بدون ارسال اطلاعات به سرور با امنیت تضمین‌شده برای برنامه‌نویسان.",
+    "url": "https://zebracode.ir/json-schema-to-openapi-schema",
+    "domain": "zebracode.ir"
+  },
+  {
+    "slug": "json-schema-to-typescript",
+    "title": "تبدیل JSON Schema به تایپ‌اسکریپت",
+    "description": "تولید تایپ‌های TypeScript از JSON Schema - پردازش ۱۰۰٪ محلی در مرورگر بدون ارسال اطلاعات به سرور با امنیت تضمین‌شده برای برنامه‌نویسان.",
+    "url": "https://zebracode.ir/json-schema-to-typescript",
+    "domain": "zebracode.ir"
+  },
+  {
+    "slug": "json-schema-to-zod",
+    "title": "تبدیل JSON Schema به Zod",
+    "description": "تبدیل JSON Schema به اسکیمای اعتبارسنجی Zod - پردازش ۱۰۰٪ محلی در مرورگر بدون ارسال اطلاعات به سرور با امنیت تضمین‌شده برای برنامه‌نویسان.",
+    "url": "https://zebracode.ir/json-schema-to-zod",
+    "domain": "zebracode.ir"
+  },
+  {
+    "slug": "json-schema-to-protobuf",
+    "title": "تبدیل JSON Schema به Protobuf",
+    "description": "تولید تعریف Protocol Buffers از JSON Schema - پردازش ۱۰۰٪ محلی در مرورگر بدون ارسال اطلاعات به سرور با امنیت تضمین‌شده برای برنامه‌نویسان.",
+    "url": "https://zebracode.ir/json-schema-to-protobuf",
+    "domain": "zebracode.ir"
+  },
+  {
+    "slug": "typescript-to-flow",
+    "title": "تبدیل تایپ‌اسکریپت به Flow",
+    "description": "تبدیل تایپ‌های TypeScript به حاشیه‌نویسی Flow - پردازش ۱۰۰٪ محلی در مرورگر بدون ارسال اطلاعات به سرور با امنیت تضمین‌شده برای برنامه‌نویسان.",
+    "url": "https://zebracode.ir/typescript-to-flow",
+    "domain": "zebracode.ir"
+  },
+  {
+    "slug": "typescript-to-javascript",
+    "title": "تبدیل تایپ‌اسکریپت به جاوااسکریپت",
+    "description": "کامپایل TypeScript به جاوااسکریپت خالص آنلاین - پردازش ۱۰۰٪ محلی در مرورگر بدون ارسال اطلاعات به سرور با امنیت تضمین‌شده برای برنامه‌نویسان.",
+    "url": "https://zebracode.ir/typescript-to-javascript",
+    "domain": "zebracode.ir"
+  },
+  {
+    "slug": "typescript-to-json-schema",
+    "title": "تبدیل تایپ‌اسکریپت به JSON Schema",
+    "description": "تولید JSON Schema از اینترفیس‌های TypeScript - پردازش ۱۰۰٪ محلی در مرورگر بدون ارسال اطلاعات به سرور با امنیت تضمین‌شده برای برنامه‌نویسان.",
+    "url": "https://zebracode.ir/typescript-to-json-schema",
+    "domain": "zebracode.ir"
+  },
+  {
+    "slug": "typescript-to-typescript-declaration",
+    "title": "تبدیل تایپ‌اسکریپت به فایل Declaration",
+    "description": "تولید فایل .d.ts از سورس TypeScript - پردازش ۱۰۰٪ محلی در مرورگر بدون ارسال اطلاعات به سرور با امنیت تضمین‌شده برای برنامه‌نویسان.",
+    "url": "https://zebracode.ir/typescript-to-typescript-declaration",
+    "domain": "zebracode.ir"
+  },
+  {
+    "slug": "typescript-to-zod",
+    "title": "تبدیل تایپ‌اسکریپت به Zod",
+    "description": "تولید اسکیمای Zod از تایپ‌های TypeScript - پردازش ۱۰۰٪ محلی در مرورگر بدون ارسال اطلاعات به سرور با امنیت تضمین‌شده برای برنامه‌نویسان.",
+    "url": "https://zebracode.ir/typescript-to-zod",
+    "domain": "zebracode.ir"
+  },
+  {
+    "slug": "svg-to-jsx",
+    "title": "تبدیل SVG به JSX",
+    "description": "تبدیل فایل SVG به JSX برای کامپوننت React - پردازش ۱۰۰٪ محلی در مرورگر بدون ارسال اطلاعات به سرور با امنیت تضمین‌شده برای برنامه‌نویسان.",
+    "url": "https://zebracode.ir/svg-to-jsx",
+    "domain": "zebracode.ir"
+  },
+  {
+    "slug": "svg-to-react-native",
+    "title": "تبدیل SVG به React Native",
+    "description": "تبدیل SVG به کامپوننت react-native-svg - پردازش ۱۰۰٪ محلی در مرورگر بدون ارسال اطلاعات به سرور با امنیت تضمین‌شده برای برنامه‌نویسان.",
+    "url": "https://zebracode.ir/svg-to-react-native",
+    "domain": "zebracode.ir"
+  },
+  {
+    "slug": "cadence-to-go",
+    "title": "تبدیل Cadence به Go",
+    "description": "تبدیل تعریف workflowهای Cadence به کد Go - پردازش ۱۰۰٪ محلی در مرورگر بدون ارسال اطلاعات به سرور با امنیت تضمین‌شده برای برنامه‌نویسان.",
+    "url": "https://zebracode.ir/cadence-to-go",
+    "domain": "zebracode.ir"
+  },
+  {
+    "slug": "markdown-to-html",
+    "title": "تبدیل Markdown به HTML",
+    "description": "تبدیل Markdown به HTML تمیز و معنایی - پردازش ۱۰۰٪ محلی در مرورگر بدون ارسال اطلاعات به سرور با امنیت تضمین‌شده برای برنامه‌نویسان.",
+    "url": "https://zebracode.ir/markdown-to-html",
+    "domain": "zebracode.ir"
+  },
+  {
+    "slug": "toml-to-json",
+    "title": "تبدیل TOML به JSON",
+    "description": "تبدیل فایل‌های TOML به JSON آنلاین - پردازش ۱۰۰٪ محلی در مرورگر بدون ارسال اطلاعات به سرور با امنیت تضمین‌شده برای برنامه‌نویسان.",
+    "url": "https://zebracode.ir/toml-to-json",
+    "domain": "zebracode.ir"
+  },
+  {
+    "slug": "xml-to-json",
+    "title": "تبدیل XML به JSON",
+    "description": "تبدیل داده XML به فرمت JSON - پردازش ۱۰۰٪ محلی در مرورگر بدون ارسال اطلاعات به سرور با امنیت تضمین‌شده برای برنامه‌نویسان.",
+    "url": "https://zebracode.ir/xml-to-json",
+    "domain": "zebracode.ir"
+  },
+  {
+    "slug": "yaml-to-json",
+    "title": "تبدیل YAML به JSON",
+    "description": "تبدیل فوری YAML به JSON - پردازش ۱۰۰٪ محلی در مرورگر بدون ارسال اطلاعات به سرور با امنیت تضمین‌شده برای برنامه‌نویسان.",
+    "url": "https://zebracode.ir/yaml-to-json",
+    "domain": "zebracode.ir"
+  },
+  {
+    "slug": "yaml-to-toml",
+    "title": "تبدیل YAML به TOML",
+    "description": "تبدیل فایل‌های YAML به فرمت TOML - پردازش ۱۰۰٪ محلی در مرورگر بدون ارسال اطلاعات به سرور با امنیت تضمین‌شده برای برنامه‌نویسان.",
+    "url": "https://zebracode.ir/yaml-to-toml",
+    "domain": "zebracode.ir"
+  },
+  {
+    "slug": "toml-to-yaml",
+    "title": "تبدیل TOML به YAML",
+    "description": "تبدیل فایل‌های TOML به فرمت YAML - پردازش ۱۰۰٪ محلی در مرورگر بدون ارسال اطلاعات به سرور با امنیت تضمین‌شده برای برنامه‌نویسان.",
+    "url": "https://zebracode.ir/toml-to-yaml",
+    "domain": "zebracode.ir"
+  },
+  {
+    "slug": "base64-decode",
+    "title": "دیکد Base64",
+    "description": "تبدیل رشته‌های Base64 به متن ساده - پردازش ۱۰۰٪ محلی در مرورگر بدون ارسال اطلاعات به سرور با امنیت تضمین‌شده برای برنامه‌نویسان.",
+    "url": "https://zebracode.ir/base64-decode",
+    "domain": "zebracode.ir"
+  },
+  {
+    "slug": "base64-encode",
+    "title": "انکد Base64",
+    "description": "رمزگذاری متن یا فایل به فرمت Base64 - پردازش ۱۰۰٪ محلی در مرورگر بدون ارسال اطلاعات به سرور با امنیت تضمین‌شده برای برنامه‌نویسان.",
+    "url": "https://zebracode.ir/base64-encode",
+    "domain": "zebracode.ir"
+  },
+  {
+    "slug": "jwt-decoder",
+    "title": "دیکدر JWT",
+    "description": "دیکد و بررسی توکن‌های JWT - پردازش ۱۰۰٪ محلی در مرورگر بدون ارسال اطلاعات به سرور با امنیت تضمین‌شده برای برنامه‌نویسان.",
+    "url": "https://zebracode.ir/jwt-decoder",
+    "domain": "zebracode.ir"
+  },
+  {
+    "slug": "flow-to-javascript",
+    "title": "تبدیل Flow به جاوااسکریپت",
+    "description": "حذف تایپ‌های Flow و دریافت جاوااسکریپت خالص - پردازش ۱۰۰٪ محلی در مرورگر بدون ارسال اطلاعات به سرور با امنیت تضمین‌شده برای برنامه‌نویسان.",
+    "url": "https://zebracode.ir/flow-to-javascript",
+    "domain": "zebracode.ir"
+  },
+  {
+    "slug": "flow-to-typescript",
+    "title": "تبدیل Flow به تایپ‌اسکریپت",
+    "description": "تبدیل تایپ‌های Flow به TypeScript - پردازش ۱۰۰٪ محلی در مرورگر بدون ارسال اطلاعات به سرور با امنیت تضمین‌شده برای برنامه‌نویسان.",
+    "url": "https://zebracode.ir/flow-to-typescript",
+    "domain": "zebracode.ir"
+  },
+  {
+    "slug": "flow-to-typescript-declaration",
+    "title": "تبدیل Flow به Declaration تایپ‌اسکریپت",
+    "description": "تولید فایل‌های .d.ts از تایپ‌های Flow - پردازش ۱۰۰٪ محلی در مرورگر بدون ارسال اطلاعات به سرور با امنیت تضمین‌شده برای برنامه‌نویسان.",
+    "url": "https://zebracode.ir/flow-to-typescript-declaration",
+    "domain": "zebracode.ir"
+  },
+  {
+    "slug": "timestamp",
+    "title": "مبدل Timestamp یونیکس",
+    "description": "تبدیل timestamp یونیکس به تاریخ شمسی و میلادی - پردازش ۱۰۰٪ محلی در مرورگر بدون ارسال اطلاعات به سرور با امنیت تضمین‌شده برای برنامه‌نویسان.",
+    "url": "https://zebracode.ir/timestamp",
+    "domain": "zebracode.ir"
+  },
+  {
+    "slug": "date-diff",
+    "title": "جعبه ابزار تاریخ و زمان",
+    "description": "تبدیل timestamp، محاسبه اختلاف تاریخ و جمع/تفریق تاریخ - پردازش ۱۰۰٪ محلی در مرورگر بدون ارسال اطلاعات به سرور با امنیت تضمین‌شده برای برنامه‌نویسان.",
+    "url": "https://zebracode.ir/date-diff",
+    "domain": "zebracode.ir"
+  },
+  {
+    "slug": "password-generator",
+    "title": "تولید پسورد و توکن امن (توسعه‌دهندگان)",
+    "description": "تولید رمز تصادفی، سکرت و توکن امن کریپتوگرافیک برای برنامه‌نویسان - پردازش ۱۰۰٪ محلی در مرورگر بدون ارسال اطلاعات به سرور با امنیت تضمین‌شده برای برنامه‌نویسان.",
+    "url": "https://zebracode.ir/password-generator",
+    "domain": "zebracode.ir"
+  },
+  {
+    "slug": "lorem-generator",
+    "title": "تولیدکننده لورم ایپسوم",
+    "description": "تولید متن ساختگی چندزبانه برای طراحی - پردازش ۱۰۰٪ محلی در مرورگر بدون ارسال اطلاعات به سرور با امنیت تضمین‌شده برای برنامه‌نویسان.",
+    "url": "https://zebracode.ir/lorem-generator",
+    "domain": "zebracode.ir"
+  },
+  {
+    "slug": "text-diff",
+    "title": "مقایسه‌گر متن",
+    "description": "مقایسه خط‌به‌خط دو متن و مشاهده تفاوت‌ها - پردازش ۱۰۰٪ محلی در مرورگر بدون ارسال اطلاعات به سرور با امنیت تضمین‌شده برای برنامه‌نویسان.",
+    "url": "https://zebracode.ir/text-diff",
+    "domain": "zebracode.ir"
+  },
+  {
+    "slug": "uuid-generator",
+    "title": "تولید UUID",
+    "description": "شناسه UUID تصادفی نسخه ۴ یا زمان‌دار نسخه ۷ را در مرورگر بسازید. تا ۱۰۰۰ شناسه در هر اجرا تولید کنید و نتیجه را کپی یا دانلود کنید.",
+    "url": "https://zebracode.ir/uuid-generator",
+    "domain": "zebracode.ir"
+  },
+  {
+    "slug": "hash-generator",
+    "title": "تولید هش",
+    "description": "هش متن فعلی ویرایشگر را با SHA-1، SHA-256، SHA-384 یا SHA-512 محلی محاسبه کنید؛ خروجی هگزادسیمال UTF-8 با محدودیت‌های امنیتی روشن.",
+    "url": "https://zebracode.ir/hash-generator",
+    "domain": "zebracode.ir"
+  },
+  {
+    "slug": "case-converter",
+    "title": "تبدیل حالت حروف",
+    "description": "متن را در مرورگر به camelCase، PascalCase، snake_case، kebab-case یا حروف بزرگ تبدیل کنید؛ با تشخیص واژه‌های یونیکد و مرز سرواژه‌ها.",
+    "url": "https://zebracode.ir/case-converter",
+    "domain": "zebracode.ir"
+  },
+  {
+    "slug": "slug-generator",
+    "title": "تولید اسلاگ یونیکد",
+    "description": "از عنوان فارسی یا انگلیسی، اسلاگ با حروف کوچک و خط تیره بسازید. حروف و اعداد یونیکد حفظ و نشانه‌گذاری‌ها در مرورگر حذف می‌شوند.",
+    "url": "https://zebracode.ir/slug-generator",
+    "domain": "zebracode.ir"
+  },
+  {
+    "slug": "line-ending-converter",
+    "title": "تبدیل پایان خط",
+    "description": "پایان خط‌های ترکیبی متن را در مرورگر به LF، CRLF یا CR تبدیل کنید. خط‌های خالی و پایان خط نهایی حفظ می‌شوند و خروجی قابل دانلود است.",
+    "url": "https://zebracode.ir/line-ending-converter",
+    "domain": "zebracode.ir"
+  },
+  {
+    "slug": "whitespace-inspector",
+    "title": "بررسی فاصله‌ها و نویسه‌های نامرئی",
+    "description": "فاصله، تب، پایان خط، نیم‌فاصله فارسی و کنترل‌های نامرئی یونیکد را با نشانه‌های خوانا ببینید؛ بررسی محلی متن بدون بارگذاری ورودی.",
+    "url": "https://zebracode.ir/whitespace-inspector",
+    "domain": "zebracode.ir"
+  },
+  {
+    "slug": "http-status-lookup",
+    "title": "جست‌وجوی کد وضعیت HTTP",
+    "description": "کدهای سه‌رقمی رایج HTTP را محلی جست‌وجو کنید. شماره کد و عبارت انگلیسی آن را به‌شکل JSON بگیرید؛ کدهای خارج از فهرست خطا می‌دهند.",
+    "url": "https://zebracode.ir/http-status-lookup",
+    "domain": "zebracode.ir"
+  },
+  {
+    "slug": "mime-type-lookup",
+    "title": "جست‌وجوی نوع MIME",
+    "description": "نوع MIME رایج را با پسوند یا نام ساده فایل پیدا کنید یا پسوندهای یک نوع رسانه را ببینید؛ نتیجه JSON محلی و بدون بارگذاری فایل.",
+    "url": "https://zebracode.ir/mime-type-lookup",
+    "domain": "zebracode.ir"
+  },
+  {
+    "slug": "regex-tester",
+    "title": "آزمایش عبارت منظم",
+    "description": "عبارت منظم جاوااسکریپت را محلی با پرچم‌ها، گروه‌های گیراندازی و موقعیت تطبیق آزمایش کنید؛ نتیجه JSON با اجرای جداگانه و محدود پردازشگر.",
+    "url": "https://zebracode.ir/regex-tester",
+    "domain": "zebracode.ir"
+  },
+  {
+    "slug": "jsonpath-tester",
+    "title": "آزمایش JSONPath",
+    "description": "مقادیر JSON را با ویژگی‌ها، نویسه عام و پیمایش بازگشتی JSONPath انتخاب کنید؛ بررسی محلی آرایه نتایج با اجرای اسکریپت و فیلتر غیرفعال.",
+    "url": "https://zebracode.ir/jsonpath-tester",
+    "domain": "zebracode.ir"
+  },
+  {
+    "slug": "sql-formatter",
+    "title": "قالب‌بندی SQL",
+    "description": "SQL را محلی با کلیدواژه‌های بزرگ و تورفتگی دو فاصله قالب‌بندی کنید. از میان هفت گویش انتخاب کنید و پس از بررسی چیدمان، خروجی را بگیرید.",
+    "url": "https://zebracode.ir/sql-formatter",
+    "domain": "zebracode.ir"
+  },
+  {
+    "slug": "yaml-formatter",
+    "title": "قالب‌بندی YAML",
+    "description": "یک سند YAML را محلی با تورفتگی دو یا چهار فاصله قالب‌بندی کنید؛ تجزیه با JSON_SCHEMA کتابخانه js-yaml و بررسی خروجی پیش از ذخیره.",
+    "url": "https://zebracode.ir/yaml-formatter",
+    "domain": "zebracode.ir"
+  },
+  {
+    "slug": "env-parser",
+    "title": "تبدیل Dotenv و JSON",
+    "description": "متغیرهای خطی dotenv را به JSON تبدیل کنید یا از مقادیر ساده JSON، متغیر محیطی نقل‌قول‌شده بسازید؛ با پردازش محلی و قواعد نگارشی مشخص.",
+    "url": "https://zebracode.ir/env-parser",
+    "domain": "zebracode.ir"
+  },
+  {
+    "slug": "query-string-parser",
+    "title": "تبدیل رشته پرس‌وجو و JSON",
+    "description": "پارامترهای کوئری را به JSON بخوانید، کلیدهای تکراری را به شکل آرایه حفظ کنید یا مقادیر ساده JSON را با قواعد فرم در مرورگر کدگذاری کنید.",
+    "url": "https://zebracode.ir/query-string-parser",
+    "domain": "zebracode.ir"
+  },
+  {
+    "slug": "url-parser",
+    "title": "تجزیه URL",
+    "description": "میزبان، پورت، مسیر، کوئری و قطعه پایانی URL مطلق را با تجزیه‌گر مرورگر بررسی کنید؛ بدون باز کردن نشانی یا ارسال درخواست به مقصد.",
+    "url": "https://zebracode.ir/url-parser",
+    "domain": "zebracode.ir"
+  },
+  {
+    "slug": "curl-to-fetch",
+    "title": "تبدیل cURL به Fetch یا Axios",
+    "description": "فرمان HTTP پشتیبانی‌شده cURL را با حفظ سربرگ و داده درون‌خطی به کد Fetch یا Axios تبدیل کنید؛ بدون اجرای فرمان یا ارسال درخواست.",
+    "url": "https://zebracode.ir/curl-to-fetch",
+    "domain": "zebracode.ir"
+  },
+  {
+    "slug": "openapi-validator",
+    "title": "بررسی ساختار OpenAPI",
+    "description": "بخش‌های مشخصی از ساختار OpenAPI نسخه ۳٫۰ و ۳٫۱، از info تا مسیر و پاسخ را محلی بررسی کنید و گزارش اشکال‌ها و دامنه محدود بررسی را ببینید.",
+    "url": "https://zebracode.ir/openapi-validator",
+    "domain": "zebracode.ir"
+  },
+  {
+    "slug": "json-schema-validator",
+    "title": "اعتبارسنج JSON Schema",
+    "description": "داده JSON را با اسکیمای draft-07 یا 2020-12، به کمک Ajv و بررسی قالب‌ها محلی اعتبارسنجی کنید؛ با مسیر دقیق خطا و بدون دریافت ارجاع خارجی.",
+    "url": "https://zebracode.ir/json-schema-validator",
+    "domain": "zebracode.ir"
+  },
+  {
+    "slug": "docker-compose-validator",
+    "title": "بررسی ساختار Docker Compose",
+    "description": "ساختار سرویس‌ها، پورت‌ها و مقادیر محیطی Compose را محلی بررسی کنید؛ با مسیر اشکال‌ها، بدون اجرای Docker یا ادعای انطباق کامل با مشخصات.",
+    "url": "https://zebracode.ir/docker-compose-validator",
+    "domain": "zebracode.ir"
+  },
+  {
+    "slug": "cidr-calculator",
+    "title": "محاسبه‌گر CIDR برای IPv4",
+    "description": "مرز شبکه IPv4، ماسک و بازه میزبان را از /0 تا /32 محاسبه کنید؛ با توضیح روشن قرارداد نقطه‌به‌نقطه و مسیر تک‌میزبان در خروجی.",
+    "url": "https://zebracode.ir/cidr-calculator",
+    "domain": "zebracode.ir"
+  },
+  {
+    "slug": "html-accessibility-checker",
+    "title": "بررسی دسترس‌پذیری HTML",
+    "description": "متن جایگزین تصویر، برچسب فرم، تیتر و ناحیه شاخص HTML را با تجزیه غیرفعال مرورگر بررسی کنید؛ همراه با محدودیت روشن بررسی‌های ابتکاری.",
+    "url": "https://zebracode.ir/html-accessibility-checker",
+    "domain": "zebracode.ir"
+  },
+  {
+    "slug": "svg-optimizer",
+    "title": "بهینه‌ساز متنی SVG",
+    "description": "کد SVG را با افزونه‌های محافظه‌کارانه SVGO محلی بهینه کنید؛ توضیحات را حذف و مقادیر را ساده کنید، با حفظ viewBox، شناسه و داده دسترس‌پذیری.",
+    "url": "https://zebracode.ir/svg-optimizer",
+    "domain": "zebracode.ir"
+  },
+  {
+    "slug": "jwt-encoder-verifier",
+    "title": "سازنده و تأییدکننده JWT با HS256",
+    "description": "محتوای JSON را امضا یا JWT با HS256 را با کلید UTF-8 محلی تأیید کنید؛ با تفکیک اعتبار امضا از وضعیت زمانی exp و nbf و مجوز دسترسی.",
+    "url": "https://zebracode.ir/jwt-encoder-verifier",
+    "domain": "zebracode.ir"
+  },
+  {
+    "slug": "image-compressor",
+    "title": "فشرده‌ساز و بهینه‌ساز عکس آنلاین",
+    "description": "کاهش حجم و تغییر فرمت تصاویر JPG، PNG، WebP و AVIF با حفظ کیفیت در مرورگر - پردازش ۱۰۰٪ محلی در مرورگر بدون ارسال اطلاعات به سرور با امنیت تضمین‌شده برای برنامه‌نویس",
+    "url": "https://zebracode.ir/image-compressor",
+    "domain": "zebracode.ir"
+  },
+  {
+    "slug": "image-converter",
+    "title": "مبدل فرمت تصاویر آنلاین (Image Converter)",
+    "description": "تبدیل رایگان و سریع فرمت‌های PNG، JPG، WebP، AVIF، SVG، ICO و BMP در مرورگر - پردازش ۱۰۰٪ محلی در مرورگر بدون ارسال اطلاعات به سرور با امنیت تضمین‌شده برای برنامه‌نو",
+    "url": "https://zebracode.ir/image-converter",
+    "domain": "zebracode.ir"
+  },
+  {
+    "slug": "image-compressor",
+    "title": "فشرده‌ساز آنلاین عکس",
+    "description": "کاهش حجم تصاویر JPG و PNG بدون افت کیفیت و با پردازش سریع مرورگر",
+    "url": "https://kit.zebracode.ir/image-compressor",
+    "domain": "kit.zebracode.ir"
+  },
+  {
+    "slug": "image-resizer",
+    "title": "تغییر سایز و ابعاد عکس",
+    "description": "تغییر اندازه پیکسلی یا درصدی تصاویر با حفظ تناسب و وضوح",
+    "url": "https://kit.zebracode.ir/image-resizer",
+    "domain": "kit.zebracode.ir"
+  },
+  {
+    "slug": "circle-avatar",
+    "title": "برش دایره‌ای عکس پروفایل",
+    "description": "ساخت عکس گرد برای آواتار اینستاگرام، تلگرام و رزومه با پس‌زمینه شفاف",
+    "url": "https://kit.zebracode.ir/circle-avatar",
+    "domain": "kit.zebracode.ir"
+  },
+  {
+    "slug": "image-converter",
+    "title": "تبدیل فرمت عکس",
+    "description": "تبدیل فرمت تصاویر بین JPG، PNG و WebP بدون آپلود به سرور",
+    "url": "https://kit.zebracode.ir/image-converter",
+    "domain": "kit.zebracode.ir"
+  },
+  {
+    "slug": "image-blur",
+    "title": "مات‌کردن و سانسور عکس",
+    "description": "شطرنجی و محو کردن بخش‌های حساس اسکرین‌شات‌ها و عکس‌ها",
+    "url": "https://kit.zebracode.ir/image-blur",
+    "domain": "kit.zebracode.ir"
+  },
+  {
+    "slug": "loan-calculator",
+    "title": "محاسبه اقساط و سود وام",
+    "description": "محاسبه مبلغ قسط ماهانه، کل سود و کل بازپرداخت وام‌های بانکی",
+    "url": "https://kit.zebracode.ir/loan-calculator",
+    "domain": "kit.zebracode.ir"
+  },
+  {
+    "slug": "gold-calculator",
+    "title": "محاسبه قیمت طلا و حباب سکه",
+    "description": "تفکیک اجرت، سود و مالیات قانونی فاکتور طلا و تعیین حباب انواع سکه",
+    "url": "https://kit.zebracode.ir/gold-calculator",
+    "domain": "kit.zebracode.ir"
+  },
+  {
+    "slug": "number-to-words",
+    "title": "تبدیل عدد به حروف فارسی",
+    "description": "تبدیل مبالغ عددی به حروف فارسی (تومان و ریال) برای چک، سفته و قراردادها",
+    "url": "https://kit.zebracode.ir/number-to-words",
+    "domain": "kit.zebracode.ir"
+  },
+  {
+    "slug": "bank-deposit-interest",
+    "title": "محاسبه سود سپرده بانکی",
+    "description": "محاسبه سود ماهانه و سالانه سپرده‌های کوتاه‌مدت و بلندمدت بانکی",
+    "url": "https://kit.zebracode.ir/bank-deposit-interest",
+    "domain": "kit.zebracode.ir"
+  },
+  {
+    "slug": "severance-calculator",
+    "title": "محاسبه عیدی، پاداش و سنوات",
+    "description": "محاسبه رسمی عیدی و سنوات کارگری طبق آخرین مصوبات قانون کار",
+    "url": "https://kit.zebracode.ir/severance-calculator",
+    "domain": "kit.zebracode.ir"
+  },
+  {
+    "slug": "salary-tax-calculator",
+    "title": "محاسبه مالیات حقوق",
+    "description": "محاسبه پله‌های معافیت و کسورات مالیات بر درآمد حقوق‌بگیران",
+    "url": "https://kit.zebracode.ir/salary-tax-calculator",
+    "domain": "kit.zebracode.ir"
+  },
+  {
+    "slug": "percentage-calculator",
+    "title": "محاسبه درصد و تخفیف",
+    "description": "محاسبه سریع درصد سود، تخفیف فاکتور و افزایش/کاهش قیمت",
+    "url": "https://kit.zebracode.ir/percentage-calculator",
+    "domain": "kit.zebracode.ir"
+  },
+  {
+    "slug": "invoice-generator",
+    "title": "فاکتور ساز آنلاین کسب‌وکار",
+    "description": "صدور، محاسبه و چاپ فاکتور رسمی و پیش‌فاکتور با لوگو، مالیات بر ارزش افزوده و خروجی PDF",
+    "url": "https://kit.zebracode.ir/invoice-generator",
+    "domain": "kit.zebracode.ir"
+  },
+  {
+    "slug": "age-calculator",
+    "title": "محاسبه سن دقیق",
+    "description": "محاسبه سن بر حسب سال، ماه، روز و زمان مانده تا تولد بعدی",
+    "url": "https://kit.zebracode.ir/age-calculator",
+    "domain": "kit.zebracode.ir"
+  },
+  {
+    "slug": "date-converter",
+    "title": "تبدیل تاریخ سه‌گانه",
+    "description": "تبدیل تاریخ‌های شمسی و میلادی با نمایش روز هفته و سال کبیسه",
+    "url": "https://kit.zebracode.ir/date-converter",
+    "domain": "kit.zebracode.ir"
+  },
+  {
+    "slug": "date-diff",
+    "title": "محاسبه اختلاف دو تاریخ شمسی",
+    "description": "محاسبه فاصله زمانی دقیق بین دو تاریخ به روز، هفته و تفکیک روزهای کاری",
+    "url": "https://kit.zebracode.ir/date-diff",
+    "domain": "kit.zebracode.ir"
+  },
+  {
+    "slug": "pregnancy-calculator",
+    "title": "محاسبه سن بارداری و زایمان",
+    "description": "تعیین هفته‌های بارداری و زمان تقریبی زایمان بر اساس تقویم شمسی",
+    "url": "https://kit.zebracode.ir/pregnancy-calculator",
+    "domain": "kit.zebracode.ir"
+  },
+  {
+    "slug": "persian-editor",
+    "title": "ویراستار و اصلاح نیم‌فاصله",
+    "description": "اصلاح خودکار نیم‌فاصله‌ها، «ي» و «ك» عربی و علائم نگارشی فارسی",
+    "url": "https://kit.zebracode.ir/persian-editor",
+    "domain": "kit.zebracode.ir"
+  },
+  {
+    "slug": "word-counter",
+    "title": "شمارنده کلمات و حروف متن",
+    "description": "شمارش تعداد کلمات مقاله، حروف با فاصله و تخمین زمان مطالعه",
+    "url": "https://kit.zebracode.ir/word-counter",
+    "domain": "kit.zebracode.ir"
+  },
+  {
+    "slug": "remove-duplicate-lines",
+    "title": "حذف خطوط تکراری متن",
+    "description": "پاک‌سازی موارد و ردیف‌های تکراری از لیست‌ها، ایمیل‌ها و شماره‌ها",
+    "url": "https://kit.zebracode.ir/remove-duplicate-lines",
+    "domain": "kit.zebracode.ir"
+  },
+  {
+    "slug": "alphabetical-sort",
+    "title": "مرتب‌سازی الفبایی متن",
+    "description": "سورت کردن خطوط متن به ترتیب حروف الفبای فارسی و انگلیسی (A-Z و Z-A)",
+    "url": "https://kit.zebracode.ir/alphabetical-sort",
+    "domain": "kit.zebracode.ir"
+  },
+  {
+    "slug": "clean-text-lines",
+    "title": "حذف فاصله‌ها و خطوط خالی",
+    "description": "پاک‌سازی شکستگی‌های خطوط و فاصله‌های اضافه کپی‌شده از PDF و وب",
+    "url": "https://kit.zebracode.ir/clean-text-lines",
+    "domain": "kit.zebracode.ir"
+  },
+  {
+    "slug": "finglish-converter",
+    "title": "تبدیل فینگلیش به فارسی",
+    "description": "تبدیل هوشمند متون نوشته‌شده با حروف انگلیسی (Finglish) به خط فارسی",
+    "url": "https://kit.zebracode.ir/finglish-converter",
+    "domain": "kit.zebracode.ir"
+  },
+  {
+    "slug": "pdf-merge",
+    "title": "ادغام فایل‌های PDF",
+    "description": "ترکیب و چسباندن چند فایل PDF به یک سند واحد به صورت آفلاین در مرورگر",
+    "url": "https://kit.zebracode.ir/pdf-merge",
+    "domain": "kit.zebracode.ir"
+  },
+  {
+    "slug": "images-to-pdf",
+    "title": "تبدیل عکس به PDF",
+    "description": "تبدیل یک یا چند تصویر JPG و PNG به یک فایل PDF منسجم برای چاپ و ارسال",
+    "url": "https://kit.zebracode.ir/images-to-pdf",
+    "domain": "kit.zebracode.ir"
+  },
+  {
+    "slug": "qr-generator",
+    "title": "ساخت بارکد QR آنلاین",
+    "description": "تولید رایگان QR Code برای لینک، وای‌فای، شماره تماس و متن دلخواه",
+    "url": "https://kit.zebracode.ir/qr-generator",
+    "domain": "kit.zebracode.ir"
+  },
+  {
+    "slug": "barcode-generator",
+    "title": "تولید بارکد میله‌ای (Barcode)",
+    "description": "ساخت بارکدهای استاندارد فروشگاهی Code 128 و EAN-13 با امکان دانلود SVG",
+    "url": "https://kit.zebracode.ir/barcode-generator",
+    "domain": "kit.zebracode.ir"
+  },
+  {
+    "slug": "whatsapp-link-generator",
+    "title": "ساخت لینک چت مستقیم واتساپ",
+    "description": "ایجاد لینک شروع گفتگو در واتساپ بدون نیاز به ذخیره شماره در مخاطبین",
+    "url": "https://kit.zebracode.ir/whatsapp-link-generator",
+    "domain": "kit.zebracode.ir"
+  },
+  {
+    "slug": "social-counter",
+    "title": "شمارنده بیو و کپشن شبکه‌های اجتماعی",
+    "description": "بررسی محدودیت طول کاراکتر بیو و کپشن اینستاگرام، توییتر و تلگرام",
+    "url": "https://kit.zebracode.ir/social-counter",
+    "domain": "kit.zebracode.ir"
+  },
+  {
+    "slug": "bmi-calculator",
+    "title": "محاسبه شاخص توده بدنی (BMI)",
+    "description": "بررسی وضعیت تناسب اندام، کمبود یا اضافه وزن و وزن ایده‌آل",
+    "url": "https://kit.zebracode.ir/bmi-calculator",
+    "domain": "kit.zebracode.ir"
+  },
+  {
+    "slug": "calorie-calculator",
+    "title": "محاسبه کالری روزانه (BMR / TDEE)",
+    "description": "محاسبه کالری مصرفی بر اساس وزن، قد و میزان تحرک برای لاغری یا تثبیت",
+    "url": "https://kit.zebracode.ir/calorie-calculator",
+    "domain": "kit.zebracode.ir"
+  },
+  {
+    "slug": "password-generator",
+    "title": "ساخت رمز عبور قوی آنلاین",
+    "description": "تولید کلمه عبور غیرقابل حدس و مطمئن برای اینستاگرام، ایمیل و اکانت‌ها",
+    "url": "https://kit.zebracode.ir/password-generator",
+    "domain": "kit.zebracode.ir"
+  },
+  {
+    "slug": "national-code",
+    "title": "بررسی صحت کد ملی و کارت بانکی",
+    "description": "اعتبارسنجی الگوریتمی کد ملی، تشخیص شهر و بررسی کارت شتاب با فرمول Luhn",
+    "url": "https://kit.zebracode.ir/national-code",
+    "domain": "kit.zebracode.ir"
+  },
+  {
+    "slug": "random-picker",
+    "title": "قرعه‌کشی و انتخاب تصادفی",
+    "description": "انتخاب رندوم برنده از بین لیست اسامی، شماره‌ها و شرکت‌کنندگان مسابقه",
+    "url": "https://kit.zebracode.ir/random-picker",
+    "domain": "kit.zebracode.ir"
+  },
+  {
+    "slug": "coin-dice",
+    "title": "شیر یا خط و پرتاب تاس آنلاین",
+    "description": "ابزار شبیه‌ساز پرتاب سکه و تاس تصادفی برای بازی و تصمیم‌گیری سریع",
+    "url": "https://kit.zebracode.ir/coin-dice",
+    "domain": "kit.zebracode.ir"
+  },
+  {
+    "slug": "table-builder",
+    "title": "جدول‌ساز آنلاین و بصری",
+    "description": "ساخت و ویرایش آسان جدول بدون نیاز به اکسل با خروجی کپی برای Word و CSV",
+    "url": "https://kit.zebracode.ir/table-builder",
+    "domain": "kit.zebracode.ir"
+  },
+  {
+    "slug": "html-table-to-excel",
+    "title": "تبدیل جدول وب به اکسل",
+    "description": "استخراج جداول کپی‌شده از سایت‌ها و تبدیل مستقیم به فایل اکسل و CSV",
+    "url": "https://kit.zebracode.ir/html-table-to-excel",
+    "domain": "kit.zebracode.ir"
+  },
+  {
+    "slug": "csv-viewer",
+    "title": "نمایشگر و اصلاح فایل CSV",
+    "description": "باز کردن فایل‌های CSV، اصلاح به‌هم‌ریختگی حروف فارسی UTF-8 و خروجی تمیز اکسل",
+    "url": "https://kit.zebracode.ir/csv-viewer",
+    "domain": "kit.zebracode.ir"
+  },
+  {
+    "slug": "markdown-table",
+    "title": "جدول‌ساز مارک‌داون (Markdown)",
+    "description": "طراحی بصری جدول و تولید خودکار کد Markdown برای وردپرس، گیت‌هاب و نوت‌ها",
+    "url": "https://kit.zebracode.ir/markdown-table",
+    "domain": "kit.zebracode.ir"
+  },
+  {
+    "slug": "text-table",
+    "title": "تبدیل جدول به متن تمیز (ASCII)",
+    "description": "ساخت جداول متنی خط‌کشی‌شده با کاراکترهای منظم برای ارسال در تلگرام و واتساپ",
+    "url": "https://kit.zebracode.ir/text-table",
+    "domain": "kit.zebracode.ir"
+  },
+  {
+    "slug": "unit-converter",
+    "title": "مبدل جامع واحدها",
+    "description": "تبدیل واحدهای وزن (مثقال، گرم، اونس)، طول (اینچ، متر)، دما، مساحت و حجم",
+    "url": "https://kit.zebracode.ir/unit-converter",
+    "domain": "kit.zebracode.ir"
+  },
+  {
+    "slug": "toman-rial-converter",
+    "title": "تبدیل تومان به ریال و برعکس",
+    "description": "تبدیل آسان مبالغ بین تومان و ریال با حذف/افزودن صفر و نمایش حروف برای چک و فاکتور",
+    "url": "https://kit.zebracode.ir/toman-rial-converter",
+    "domain": "kit.zebracode.ir"
+  },
+  {
+    "slug": "gharzolhasaneh-loan",
+    "title": "محاسبه وام قرض‌الحسنه ۴٪",
+    "description": "محاسبه اقساط و کارمزد سالانه وام‌های قرض‌الحسنه بانک مهر ایران و رسالت",
+    "url": "https://kit.zebracode.ir/gharzolhasaneh-loan",
+    "domain": "kit.zebracode.ir"
+  },
+  {
+    "slug": "timer-stopwatch",
+    "title": "تایمر، کرونومتر و پومودورو",
+    "description": "زمان‌سنج دقیق، شمارش معکوس و زمان‌بندی تکنیک پومودورو برای مطالعه و کار",
+    "url": "https://kit.zebracode.ir/timer-stopwatch",
+    "domain": "kit.zebracode.ir"
+  },
+  {
+    "slug": "world-clock",
+    "title": "ساعت جهانی و اختلاف زمان",
+    "description": "مشاهده ساعت رسمی و اختلاف زمانی تهران با استانبول، دبی، تورنتو، لندن و فرانکفورت",
+    "url": "https://kit.zebracode.ir/world-clock",
+    "domain": "kit.zebracode.ir"
+  },
+  {
+    "slug": "lorem-generator",
+    "title": "تولیدکننده لورم ایپسوم فارسی",
+    "description": "تولید متن ساختگی و آزمایشی فارسی و انگلیسی برای طراحان وب و گرافیست‌ها",
+    "url": "https://kit.zebracode.ir/lorem-generator",
+    "domain": "kit.zebracode.ir"
+  },
+  {
+    "slug": "case-converter",
+    "title": "تغییر حروف انگلیسی (Case)",
+    "description": "تبدیل سریع حروف متن به حروف بزرگ (UPPERCASE)، کوچک (lowercase) و Title Case",
+    "url": "https://kit.zebracode.ir/case-converter",
+    "domain": "kit.zebracode.ir"
+  },
+  {
+    "slug": "water-intake",
+    "title": "محاسبه آب مصرفی روزانه بدن",
+    "description": "محاسبه لیتر و لیوان آب مورد نیاز روزانه بر اساس وزن، قد و میزان فعالیت ورزشی",
+    "url": "https://kit.zebracode.ir/water-intake",
+    "domain": "kit.zebracode.ir"
+  },
+  {
+    "slug": "blood-type",
+    "title": "سازگاری گروه‌های خونی",
+    "description": "بررسی علمی سازگاری اهدا و دریافت خون و فاکتور Rh بین تمامی گروه‌ها",
+    "url": "https://kit.zebracode.ir/blood-type",
+    "domain": "kit.zebracode.ir"
+  },
+  {
+    "slug": "random-number",
+    "title": "تولید عدد تصادفی آنلاین",
+    "description": "تولید سریع اعداد رندوم در بازه دلخواه بدون تکرار برای قرعه‌کشی و بازی",
+    "url": "https://kit.zebracode.ir/random-number",
+    "domain": "kit.zebracode.ir"
+  },
+  {
+    "slug": "color-picker-image",
+    "title": "استخراج رنگ و پالت از عکس",
+    "description": "قطره‌چکان آنلاین و شناسایی کدهای رنگی HEX و RGB از هر نقطه تصویر",
+    "url": "https://kit.zebracode.ir/color-picker-image",
+    "domain": "kit.zebracode.ir"
+  }
+]

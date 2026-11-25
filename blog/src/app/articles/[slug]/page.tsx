@@ -39,7 +39,10 @@ export async function generateMetadata({ params }: ArticlePageProps): Promise<Me
     } catch {}
     const post = (await getPostBySlug(decodedSlug)) || (await getPostBySlug(slug));
     if (!post) notFound();
-    const url = post.seo?.canonicalUrl || absoluteUrl(postPath(post.slug));
+    const rawCanonical = post.seo?.canonicalUrl;
+    const url = rawCanonical && !rawCanonical.includes('/blog-admin/')
+        ? rawCanonical
+        : absoluteUrl(postPath(post.slug));
     const title = post.seo?.title || post.title;
     const description = post.seo?.description ?? post.metaDescription ?? post.excerpt;
     const ogTitle = post.seo?.ogTitle || title;

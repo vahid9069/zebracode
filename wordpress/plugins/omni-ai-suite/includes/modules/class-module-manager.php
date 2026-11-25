@@ -43,6 +43,8 @@ class Module_Manager {
         self::add_module(new Ranking_Module());
         self::add_module(new Sitemap_Module());
         self::add_module(new Redirect_Module());
+        self::add_module(new Webp_Converter());
+        self::add_module(new Search_Console_Module());
     }
 
     public static function add_module(Module_Interface $module): void {

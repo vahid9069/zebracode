@@ -192,7 +192,14 @@ class Gemini_Provider implements AI_Provider_Interface {
 
     private function get_clean_model(string $model): string {
         $model = preg_replace('/^models\//', '', trim($model));
-        return $model ?: $this->default_model;
+        if (empty($model)) {
+            return $this->default_model;
+        }
+        // Auto-migrate retired Gemini 1.0 / 1.5 models to active stable equivalents
+        if (str_starts_with($model, 'gemini-1.')) {
+            return str_contains($model, 'pro') ? 'gemini-2.5-pro' : 'gemini-2.5-flash';
+        }
+        return $model;
     }
 
     /**
@@ -205,8 +212,6 @@ class Gemini_Provider implements AI_Provider_Interface {
         // Primary candidate on v1beta
         $candidates[] = ['version' => 'v1beta', 'model' => $clean];
 
-        // If gemini-3.7-flash (deprecated in favor of 3.8-flash by Google) or 3.8-flash,
-        // provide intelligent fallback to avoid halting user requests with 400
         if ($clean === 'gemini-3.7-flash') {
             $candidates[] = ['version' => 'v1beta', 'model' => 'gemini-3.8-flash'];
             $candidates[] = ['version' => 'v1beta', 'model' => 'gemini-3.6-flash'];
@@ -216,6 +221,14 @@ class Gemini_Provider implements AI_Provider_Interface {
 
         // Also try v1 for standard release models
         $candidates[] = ['version' => 'v1', 'model' => $clean];
+
+        // Resilient fallback to stable active models if primary model is retired/unavailable
+        if ($clean !== 'gemini-2.5-flash') {
+            $candidates[] = ['version' => 'v1beta', 'model' => 'gemini-2.5-flash'];
+        }
+        if ($clean !== 'gemini-flash-latest') {
+            $candidates[] = ['version' => 'v1beta', 'model' => 'gemini-flash-latest'];
+        }
 
         return $candidates;
     }

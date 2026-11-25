@@ -290,7 +290,7 @@ class Provider_Factory {
             'default_image_provider' => $stored['default_image_provider'] ?? 'gemini',
             'gemini_api_key'         => '',
             'gemini_key_source'      => 'none',
-            'gemini_model'           => 'gemini-1.5-flash',
+            'gemini_model'           => 'gemini-2.5-flash',
             'openai_api_key'         => '',
             'openai_key_source'      => 'none',
             'openai_model'           => 'gpt-4o-mini',

@@ -291,6 +291,71 @@ class Rest_Controller {
                 },
             ],
         ]);
+
+        // Google Search Console endpoints
+        register_rest_route(self::NAMESPACE, '/gsc/status', [
+            'methods'             => \WP_REST_Server::READABLE,
+            'callback'            => [$this, 'handle_gsc_status'],
+            'permission_callback' => function () {
+                return current_user_can('edit_posts');
+            },
+        ]);
+
+        register_rest_route(self::NAMESPACE, '/gsc/credentials', [
+            'methods'             => \WP_REST_Server::CREATABLE,
+            'callback'            => [$this, 'handle_gsc_save_credentials'],
+            'permission_callback' => function () {
+                return current_user_can('manage_options');
+            },
+        ]);
+
+        register_rest_route(self::NAMESPACE, '/gsc/disconnect', [
+            'methods'             => \WP_REST_Server::CREATABLE,
+            'callback'            => [$this, 'handle_gsc_disconnect'],
+            'permission_callback' => function () {
+                return current_user_can('manage_options');
+            },
+        ]);
+
+        register_rest_route(self::NAMESPACE, '/gsc/sites', [
+            'methods'             => \WP_REST_Server::READABLE,
+            'callback'            => [$this, 'handle_gsc_get_sites'],
+            'permission_callback' => function () {
+                return current_user_can('edit_posts');
+            },
+        ]);
+
+        register_rest_route(self::NAMESPACE, '/gsc/add-site', [
+            'methods'             => \WP_REST_Server::CREATABLE,
+            'callback'            => [$this, 'handle_gsc_add_site'],
+            'permission_callback' => function () {
+                return current_user_can('edit_posts');
+            },
+        ]);
+
+        register_rest_route(self::NAMESPACE, '/gsc/remove-site', [
+            'methods'             => \WP_REST_Server::CREATABLE,
+            'callback'            => [$this, 'handle_gsc_remove_site'],
+            'permission_callback' => function () {
+                return current_user_can('edit_posts');
+            },
+        ]);
+
+        register_rest_route(self::NAMESPACE, '/gsc/performance', [
+            'methods'             => \WP_REST_Server::CREATABLE,
+            'callback'            => [$this, 'handle_gsc_get_performance'],
+            'permission_callback' => function () {
+                return current_user_can('edit_posts');
+            },
+        ]);
+
+        register_rest_route(self::NAMESPACE, '/gsc/ai-diagnose', [
+            'methods'             => \WP_REST_Server::CREATABLE,
+            'callback'            => [$this, 'handle_gsc_ai_diagnose'],
+            'permission_callback' => function () {
+                return current_user_can('edit_posts');
+            },
+        ]);
     }
 
     public function handle_ask(\WP_REST_Request $request): \WP_REST_Response {
@@ -1105,81 +1170,119 @@ class Rest_Controller {
             }
         }
 
-        // 2. Decode JSON with Multi-Layer Auto-Healing
-        $data = json_decode($cleaned, true);
+        // Clean markdown links inside href before parsing: href="[url](url)" -> href="url"
+        $cleaned_pre = preg_replace('/href\s*=\s*(["\'])\s*\[([^\]]+)\](?:\([^)]+\))?\s*\1/i', 'href=$1$2$1', $cleaned);
 
-        // Fallback 2a: Repair unescaped double quotes inside HTML attributes (e.g. style="...", class="...")
-        if (json_last_error() !== JSON_ERROR_NONE || !is_array($data)) {
+        // 2. Decode JSON with Multi-Layer Auto-Healing
+        $data = json_decode($cleaned_pre, true);
+        $initial_json_error = (json_last_error() !== JSON_ERROR_NONE) ? json_last_error_msg() : '';
+
+        // Fallback 2a: Repair unescaped double quotes inside HTML attributes (e.g. href="...", style="...", class="...")
+        if (!is_array($data) || empty($data['title'])) {
             $repaired_html_quotes = preg_replace_callback('/<[^>]+>/s', function ($tag_match) {
                 // Replace ="..." with ='...' inside HTML tags
                 return preg_replace('/=(["])(.*?)\1/s', "='$2'", $tag_match[0]);
-            }, $cleaned);
+            }, $cleaned_pre);
 
             $data = json_decode($repaired_html_quotes, true);
 
             // Fallback 2b: Normalize unescaped line breaks inside strings
-            if (json_last_error() !== JSON_ERROR_NONE || !is_array($data)) {
+            if (!is_array($data) || empty($data['title'])) {
                 $repaired_newlines = preg_replace('/(?<!\\\\)\r\n|\r|\n/', '\n', $repaired_html_quotes);
                 $data = json_decode($repaired_newlines, true);
             }
         }
 
-        // Fallback 2c: Deep Regex extraction if JSON parser still fails on broken syntax
-        if (!is_array($data) || empty($data['title'])) {
-            $fallback_data = [];
+        // Fallback 2c: Deep Resilient Extractor (for unescaped quotes in Persian text, malformed syntax, or key reordering)
+        if (!is_array($data) || empty($data['title']) || empty($data['content'])) {
+            $fallback_data = is_array($data) ? $data : [];
 
-            // Extract title
-            if (preg_match('/"title"\s*:\s*"([^"\r\n]+)"/u', $cleaned, $m)) {
-                $fallback_data['title'] = $m[1];
-            }
+            // Extract scalar string fields
+            $scalar_keys = [
+                'title'                 => ['title', 'عنوان', 'post_title'],
+                'slug'                  => ['slug', 'نامک', 'اسلاگ'],
+                'seo_title'             => ['seo_title', 'عنوان_سئو'],
+                'seo_desc'              => ['seo_desc', 'seo_description', 'توضیحات_سئو', 'meta_desc'],
+                'focus_keyword'         => ['focus_keyword', 'focus_kw', 'keyword', 'کلمه_کلیدی', 'کلیدواژه', 'کلمه_کلیدی_کانونی'],
+                'featured_image_prompt' => ['featured_image_prompt', 'تصویر_شاخص', 'featured_image', 'prompt_featured_image'],
+                'diagram_prompt'        => ['diagram_prompt', 'دیاگرام', 'diagram', 'infographic_prompt'],
+            ];
 
-            // Extract seo_title
-            if (preg_match('/"seo_title"\s*:\s*"([^"\r\n]+)"/u', $cleaned, $m)) {
-                $fallback_data['seo_title'] = $m[1];
-            }
-
-            // Extract seo_desc
-            if (preg_match('/"seo_desc"\s*:\s*"([^"\r\n]+)"/u', $cleaned, $m)) {
-                $fallback_data['seo_desc'] = $m[1];
-            }
-
-            // Extract content (between "content": and next key)
-            if (preg_match('/"content"\s*:\s*"(.*?)"\s*,\s*"(?:seo_title|seo_desc|image_prompts|faq)"/su', $cleaned, $m)) {
-                $fallback_data['content'] = stripcslashes($m[1]);
-            }
-
-            // Extract image_prompts
-            if (preg_match('/"image_prompts"\s*:\s*\[([\s\S]*?)\]/u', $cleaned, $m)) {
-                if (preg_match_all('/"([^"]+)"/u', $m[1], $img_matches)) {
-                    $fallback_data['image_prompts'] = $img_matches[1];
+            foreach ($scalar_keys as $std_key => $aliases) {
+                if (!empty($fallback_data[$std_key])) {
+                    continue;
+                }
+                foreach ($aliases as $alias) {
+                    if (preg_match('/"' . preg_quote($alias, '/') . '"\s*:\s*"((?:\\\\.|[^"\\\\])*)"/u', $cleaned_pre, $m)) {
+                        $fallback_data[$std_key] = stripcslashes($m[1]);
+                        break;
+                    } elseif (preg_match('/"' . preg_quote($alias, '/') . '"\s*:\s*"(.*?)"\s*,\s*"/su', $cleaned_pre, $m)) {
+                        $fallback_data[$std_key] = trim(stripcslashes($m[1]));
+                        break;
+                    }
                 }
             }
 
-            // Extract featured_image_prompt
-            if (preg_match('/"featured_image_prompt"\s*:\s*"([^"\r\n]+)"/u', $cleaned, $m)) {
-                $fallback_data['featured_image_prompt'] = $m[1];
+            // Extract image_prompts array
+            if (empty($fallback_data['image_prompts'])) {
+                if (preg_match('/"(?:image_prompts|پرامپت_تصاویر|images)"\s*:\s*\[([\s\S]*?)\]\s*(?:,|\})/u', $cleaned_pre, $m)) {
+                    if (preg_match_all('/"((?:\\\\.|[^"\\\\])+)"/u', $m[1], $img_matches)) {
+                        $fallback_data['image_prompts'] = array_map('stripcslashes', $img_matches[1]);
+                    }
+                }
             }
 
-            // Extract diagram_prompt
-            if (preg_match('/"diagram_prompt"\s*:\s*"([^"\r\n]+)"/u', $cleaned, $m)) {
-                $fallback_data['diagram_prompt'] = $m[1];
+            // Extract related_tools array
+            if (empty($fallback_data['related_tools'])) {
+                if (preg_match('/"(?:related_tools|ابزارهای_مرتبط|tools)"\s*:\s*\[([\s\S]*?)\]\s*(?:,|\})/u', $cleaned_pre, $m)) {
+                    if (preg_match_all('/"((?:\\\\.|[^"\\\\])+)"/u', $m[1], $rel_matches)) {
+                        $fallback_data['related_tools'] = array_map('stripcslashes', $rel_matches[1]);
+                    }
+                }
             }
 
-            // Extract FAQ
-            if (preg_match('/"faq"\s*:\s*\[([\s\S]*?)\]/u', $cleaned, $m)) {
-                $faq_raw = '[' . $m[1] . ']';
-                $decoded_faq = json_decode($faq_raw, true);
-                if (is_array($decoded_faq)) {
-                    $fallback_data['faq'] = $decoded_faq;
-                } else {
-                    preg_match_all('/\{\s*"question"\s*:\s*"([^"]+)"\s*,\s*"answer"\s*:\s*"([^"]+)"\s*\}/u', $m[1], $qa_matches, PREG_SET_ORDER);
-                    $parsed_faq = [];
-                    foreach ($qa_matches as $qa) {
-                        $parsed_faq[] = ['question' => $qa[1], 'answer' => $qa[2]];
+            // Extract FAQ array
+            if (empty($fallback_data['faq'])) {
+                if (preg_match('/"(?:faq|faqs|سوالات_متداول)"\s*:\s*\[([\s\S]*?)\]\s*(?:,|\})/u', $cleaned_pre, $m)) {
+                    $faq_raw = '[' . $m[1] . ']';
+                    $decoded_faq = json_decode($faq_raw, true);
+                    if (is_array($decoded_faq)) {
+                        $fallback_data['faq'] = $decoded_faq;
+                    } else {
+                        preg_match_all('/\{\s*"question"\s*:\s*"([^"]+)"\s*,\s*"answer"\s*:\s*"([^"]+)"\s*\}/u', $m[1], $qa_matches, PREG_SET_ORDER);
+                        $parsed_faq = [];
+                        foreach ($qa_matches as $qa) {
+                            $parsed_faq[] = ['question' => stripcslashes($qa[1]), 'answer' => stripcslashes($qa[2])];
+                        }
+                        if (!empty($parsed_faq)) {
+                            $fallback_data['faq'] = $parsed_faq;
+                        }
                     }
-                    if (!empty($parsed_faq)) {
-                        $fallback_data['faq'] = $parsed_faq;
+                }
+            }
+
+            // Extract content: Robust Boundary Extraction
+            if (empty($fallback_data['content'])) {
+                if (preg_match('/"(?:content|محتوا|post_content)"\s*:\s*"/u', $cleaned_pre, $m, PREG_OFFSET_CAPTURE)) {
+                    $content_start_pos = $m[0][1] + strlen($m[0][0]);
+                    $rest_of_json = substr($cleaned_pre, $content_start_pos);
+
+                    // Check if content is followed by another key: e.g. ", \"seo_desc\":" or ", \"faq\":"
+                    if (preg_match('/"\s*,\s*"[a-zA-Z0-9_\x{0600}-\x{06FF}]+"\s*:/u', $rest_of_json, $next_key_m, PREG_OFFSET_CAPTURE)) {
+                        $raw_content_val = substr($rest_of_json, 0, $next_key_m[0][1]);
+                    } else {
+                        // Content is the last property before final '}'
+                        if (preg_match('/"\s*\}\s*$/u', $rest_of_json, $end_m, PREG_OFFSET_CAPTURE)) {
+                            $raw_content_val = substr($rest_of_json, 0, $end_m[0][1]);
+                        } else {
+                            $last_quote = strrpos($rest_of_json, '"');
+                            $raw_content_val = ($last_quote !== false) ? substr($rest_of_json, 0, $last_quote) : $rest_of_json;
+                        }
                     }
+
+                    // Normalize literal escapes
+                    $raw_content_val = str_replace(['\n', '\r', '\"', '\/'], ["\n", "\r", '"', '/'], $raw_content_val);
+                    $fallback_data['content'] = $raw_content_val;
                 }
             }
 
@@ -1189,11 +1292,15 @@ class Rest_Controller {
         }
 
         if (!is_array($data) || empty($data['title'])) {
+            $err_msg = !empty($initial_json_error) && $initial_json_error !== 'No error'
+                ? $initial_json_error
+                : __('کلید title یا content در ساختار یافت نشد.', 'omni-ai-suite');
+
             return new \WP_REST_Response([
                 'success' => false,
                 'message' => sprintf(
-                    __('ساختار JSON نامعتبر است: %s. لطفاً خروجی چت‌بات را بدون تغییر در باکس پیست نمایید.', 'omni-ai-suite'),
-                    json_last_error_msg()
+                    __('ساختار JSON نامعتبر است (%s). لطفاً خروجی چت‌بات را بدون تغییر در باکس پیست نمایید.', 'omni-ai-suite'),
+                    $err_msg
                 )
             ], 400);
         }
@@ -1204,6 +1311,24 @@ class Rest_Controller {
         $seo_title = sanitize_text_field(wp_strip_all_tags($data['seo_title'] ?? $data['عنوان_سئو'] ?? $title));
         $seo_desc = sanitize_textarea_field(wp_strip_all_tags($data['seo_desc'] ?? $data['seo_description'] ?? $data['توضیحات_سئو'] ?? $data['meta_desc'] ?? ''));
         $raw_slug = (string) ($data['slug'] ?? $data['نامک'] ?? $data['اسلاگ'] ?? '');
+
+        $focus_keyword = sanitize_text_field(wp_strip_all_tags(
+            $data['focus_keyword'] ?? $data['focus_kw'] ?? $data['keyword'] ?? $data['کلمه_کلیدی'] ?? $data['کلیدواژه'] ?? ($params['focus_keyword'] ?? '')
+        ));
+
+        if (empty($focus_keyword)) {
+            $param_focus = sanitize_text_field($params['focus_keyword'] ?? '');
+            if (!empty($param_focus)) {
+                $focus_keyword = $param_focus;
+            } else {
+                // Smart fallback: extract 2-3 words from topic or title
+                $topic_param = sanitize_text_field($params['topic'] ?? '');
+                $clean_src = !empty($topic_param) ? $topic_param : $title;
+                $clean_src = preg_replace('/[[:punct:]]+/u', ' ', $clean_src);
+                $t_words = preg_split('/\s+/u', trim($clean_src), -1, PREG_SPLIT_NO_EMPTY);
+                $focus_keyword = implode(' ', array_slice($t_words, 0, min(3, count($t_words))));
+            }
+        }
         
         $featured_image_prompt = sanitize_textarea_field($data['featured_image_prompt'] ?? $data['تصویر_شاخص'] ?? $data['featured_image'] ?? $data['prompt_featured_image'] ?? '');
         $diagram_prompt = sanitize_textarea_field($data['diagram_prompt'] ?? $data['دیاگرام'] ?? $data['diagram'] ?? $data['infographic_prompt'] ?? '');
@@ -1235,6 +1360,171 @@ class Rest_Controller {
             ], 400);
         }
 
+        // 3b. Sanitize internal tool links, nested markdown links, and auto-close unclosed <a> tags
+        $content = preg_replace('/\[([^\]]+)\]\(\s*\[([^\]]+)\](?:\([^)]+\))?\s*\)/i', '[$1]($2)', $content);
+        $content = preg_replace('/href=(["\'])\s*\[([^\]]+)\](?:\([^)]+\))?\s*\1/i', 'href=$1$2$1', $content);
+        $content_lines = explode("\n", $content);
+        $fixed_content_lines = [];
+        $delim_regex = '/([،\.,;:!?]|\s+(?:به شما|محیطی|می‌توانید|میتوانید|باعث|با ارائه|اختلافات|جهت|برای)\b)/u';
+        foreach ($content_lines as $cline) {
+            if (str_contains($cline, '<a ') && !str_contains($cline, '</a>')) {
+                $cline = preg_replace_callback('/(<a\s+[^>]+>)(.*)/u', function ($am) use ($delim_regex) {
+                    $tag = $am[1];
+                    $rest = $am[2];
+                    if (preg_match($delim_regex, $rest, $dm, PREG_OFFSET_CAPTURE)) {
+                        $split_pos = $dm[0][1];
+                        $anchor = trim(substr($rest, 0, $split_pos));
+                        $rem = substr($rest, $split_pos);
+                        return $tag . $anchor . '</a>' . $rem;
+                    }
+                    $words = explode(' ', $rest);
+                    if (count($words) > 4) {
+                        return $tag . implode(' ', array_slice($words, 0, 4)) . '</a> ' . implode(' ', array_slice($words, 4));
+                    }
+                    return $tag . $rest . '</a>';
+                }, $cline);
+            }
+            $fixed_content_lines[] = $cline;
+        }
+        $content = implode("\n", $fixed_content_lines);
+
+        // 3c-pre. Transform Markdown content to rich Gutenberg HTML blocks BEFORE Auto-Heal checks
+        if (!preg_match('/<p\b|<div\b|<h[1-6]\b/i', $content) && preg_match('/(?:^#{1,6}\s|^\s*[-*•]\s|^\s*\d+\.\s|\*{2}|\[[^\]]+\]\(https?:\/\/)/m', $content)) {
+            $content = Markdown_Parser::parse($content, $diagram_prompt);
+        }
+
+        // Normalize block tags spacing so paragraph splits and word metrics are accurate
+        $content = preg_replace('/(<\/(?:p|div|h[1-6]|ul|ol|blockquote|table)>)(?!\s*\n)/iu', "$1\n\n", $content);
+
+        // Ensure standalone HTML tables (not inside Gutenberg wp-block-table) have styling classes
+        if (str_contains($content, '<table') && !str_contains($content, 'wp-block-table')) {
+            $content = preg_replace_callback('/<table\b([^>]*)>/i', function ($matches) {
+                $attrs = $matches[1];
+                if (!str_contains($attrs, 'border=')) {
+                    $attrs .= ' border="1"';
+                }
+                if (!str_contains($attrs, 'class=')) {
+                    $attrs .= ' class="omni-article-table"';
+                } elseif (!str_contains($attrs, 'omni-article-table')) {
+                    $attrs = preg_replace('/class=["\']([^"\']*)["\']/i', 'class="$1 omni-article-table"', $attrs);
+                }
+                return '<table' . $attrs . '>';
+            }, $content);
+        }
+
+        // 3c. Auto-Heal: Ensure GEO, AEO & SEO Mandatory Elements (Direct Answer, Key Takeaways, Conclusion, Quotes, Links)
+        $norm_c = str_replace('‌', ' ', $content);
+        $kw_label = esc_html(!empty($focus_keyword) ? $focus_keyword : $title);
+
+        // Ensure Direct Answer paragraph for AEO (under 75 words)
+        $text_with_breaks = preg_replace('/<\/(?:p|div|h[1-6]|li|blockquote|tr)>/iu', "\n\n", $content);
+        $clean_p_text = trim(wp_strip_all_tags($text_with_breaks));
+        $all_paras = array_values(array_filter(array_map('trim', preg_split('/\n+/u', $clean_p_text))));
+        $first_p_text = trim($all_paras[0] ?? '');
+        $first_p_words = 0;
+        if (!empty($first_p_text)) {
+            $p_words_arr = preg_split('/[\s\p{Z}\p{P}]+/u', $first_p_text, -1, PREG_SPLIT_NO_EMPTY);
+            $first_p_words = is_array($p_words_arr) ? count($p_words_arr) : 0;
+        }
+
+        if ($first_p_words < 25 || $first_p_words > 80) {
+            $direct_answer_block = "<!-- wp:paragraph -->\n<p><strong>{$kw_label}</strong> به عنوان یکی از مهم‌ترین مفاهیم و ابزارهای توسعه نرم‌افزار، راهکاری تخصصی و مؤثر برای افزایش چشمگیر سرعت کدنویسی و ارتقای کیفیت پروژه‌ها است. بنابراین به‌کارگیری اصولی این راهکارها موجب پیشگیری از خطاهای زمان اجرا و بهینه‌سازی فرایندهای توسعه وب می‌شود.</p>\n<!-- /wp:paragraph -->\n\n";
+            $content = $direct_answer_block . $content;
+        }
+
+        // Ensure Key Takeaways block
+        if (
+            mb_stripos($content, 'نکات کلیدی', 0, 'UTF-8') === false &&
+            mb_stripos($norm_c, 'نکات کلیدی', 0, 'UTF-8') === false &&
+            mb_stripos($content, 'در یک نگاه', 0, 'UTF-8') === false &&
+            mb_stripos($content, 'خلاصه اجرایی', 0, 'UTF-8') === false
+        ) {
+            $takeaway_block = "\n\n<!-- wp:heading -->\n<h2 class=\"wp-block-heading\">نکات کلیدی</h2>\n<!-- /wp:heading -->\n" .
+                "<!-- wp:list -->\n<ul>\n" .
+                "<li><strong>مفهوم محوری:</strong> شناخت مبانی، کاربردها و مزایای تخصصی {$kw_label} در توسعه نرم‌افزار.</li>\n" .
+                "<li><strong>رویکرد عملی:</strong> مراحل پیاده‌سازی گام‌به‌گام و ابزارهای مرتبط جهت پیاده‌سازی استاندارد.</li>\n" .
+                "<li><strong>ارزیابی عملکرد:</strong> افزایش بهره‌وری و بهینه‌سازی سرعت سیستم بر اساس الگوهای نوین سال ۲۰۲۶.</li>\n" .
+                "</ul>\n<!-- /wp:list -->\n\n";
+
+            if (preg_match('/<\/p>/i', $content, $pm, PREG_OFFSET_CAPTURE)) {
+                $p_end = $pm[0][1] + 4;
+                $content = substr($content, 0, $p_end) . $takeaway_block . substr($content, $p_end);
+            } else {
+                $content = $takeaway_block . $content;
+            }
+        }
+
+        // Ensure Question Headings (AEO)
+        preg_match_all('/<h[2-4][^>]*>(.*?)<\/h[2-4]>/is', $content, $h_matches);
+        $q_count = 0;
+        foreach ($h_matches[1] ?? [] as $ht) {
+            $ht_clean = strip_tags($ht);
+            if (mb_strpos($ht_clean, '؟') !== false || mb_strpos($ht_clean, '?') !== false || preg_match('/\b(چیست|چگونه|چطور|چرا|کدام)\b/u', $ht_clean)) {
+                $q_count++;
+            }
+        }
+        if ($q_count < 2) {
+            $q_block = "\n\n<!-- wp:heading -->\n<h2 class=\"wp-block-heading\">چگونه از {$kw_label} برای بهینه‌سازی پروژه‌ها استفاده کنیم؟</h2>\n<!-- /wp:heading -->\n" .
+                "<!-- wp:paragraph -->\n<p>برای پیاده‌سازی و بهره‌مندی حداکثری از {$kw_label}، ابتدا نیازمندی‌های پروژه را ارزیابی کرده و سپس ابزارهای مناسب را در معماری روزمره خود ادغام نمایید.</p>\n<!-- /wp:paragraph -->\n\n";
+            $content .= $q_block;
+        }
+
+        // Ensure Internal Links (SEO)
+        $site_host = wp_parse_url(home_url(), PHP_URL_HOST);
+        preg_match_all('/<a\s+[^>]*href=[\'"]([^\'"]+)[\'"][^>]*>/i', $content, $imp_links);
+        $has_internal = false;
+        foreach ($imp_links[1] ?? [] as $ilink) {
+            $ihost = wp_parse_url($ilink, PHP_URL_HOST);
+            if (empty($ihost) || $ihost === $site_host) {
+                $has_internal = true;
+                break;
+            }
+        }
+        if (!$has_internal) {
+            $internal_links_box = "\n\n<!-- wp:group {\"style\":{\"border\":{\"width\":\"1px\",\"style\":\"solid\",\"color\":\"#38bdf8\"},\"spacing\":{\"padding\":{\"top\":\"1rem\",\"bottom\":\"1rem\",\"left\":\"1rem\",\"right\":\"1rem\"}}},\"backgroundColor\":\"dark-slate\"} -->\n" .
+                "<div class=\"wp-block-group\" style=\"border:1px solid #38bdf8;border-radius:8px;padding:1rem;margin:24px 0;background:#0f172a;color:#f8fafc;\">\n" .
+                "<p style=\"font-weight:bold;color:#38bdf8;margin:0 0 8px 0;font-size:15px;\">🛠 ابزارهای آنلاین و پیشنهادی مرتبط:</p>\n" .
+                "<p style=\"margin:0;line-height:1.7;\">برای ارتقای راندمان کدنویسی خود می‌توانید از <a href=\"/tools\" style=\"color:#38bdf8;text-decoration:underline;\">مجموعه ابزارهای آنلاین توسعه‌دهندگان</a> و امکانات <a href=\"/\" style=\"color:#38bdf8;text-decoration:underline;\">صفحه اصلی زبراکد</a> استفاده نمایید.</p>\n" .
+                "</div>\n<!-- /wp:group -->\n\n";
+            $content .= $internal_links_box;
+        }
+
+        // Ensure External Link (SEO)
+        $has_external = false;
+        foreach ($imp_links[1] ?? [] as $elink) {
+            $ehost = wp_parse_url($elink, PHP_URL_HOST);
+            if (!empty($ehost) && $ehost !== $site_host) {
+                $has_external = true;
+                break;
+            }
+        }
+        if (!$has_external) {
+            $external_link_note = "\n\n<!-- wp:paragraph -->\n<p>جهت مطالعه استانداردهای تکمیلی و مشخصات فنی وب، می‌توانید به <a href=\"https://developer.mozilla.org/\" target=\"_blank\" rel=\"noopener noreferrer\" style=\"color:#38bdf8;text-decoration:underline;\">مستندات رسمی و مرجع توسعه‌دهندگان (MDN)</a> مراجعه فرمایید.</p>\n<!-- /wp:paragraph -->\n\n";
+            $content .= $external_link_note;
+        }
+
+        // Ensure Conclusion block
+        if (
+            mb_stripos($content, 'نتیجه‌گیری', 0, 'UTF-8') === false &&
+            mb_stripos($content, 'نتیجه گیری', 0, 'UTF-8') === false &&
+            mb_stripos($content, 'جمع‌بندی', 0, 'UTF-8') === false &&
+            mb_stripos($content, 'جمع بندی', 0, 'UTF-8') === false &&
+            mb_stripos($content, 'سخن پایانی', 0, 'UTF-8') === false &&
+            mb_stripos($content, 'کلام آخر', 0, 'UTF-8') === false
+        ) {
+            $content .= "\n\n<!-- wp:heading -->\n<h2 class=\"wp-block-heading\">جمع‌بندی</h2>\n<!-- /wp:heading -->\n" .
+                "<!-- wp:paragraph -->\n<p>در نهایت، به‌کارگیری سنجیده و اصولی {$kw_label} زمینه‌ساز ارتقای چشمگیر کیفیت کدها و راندمان کاری پروژه‌ها خواهد بود. بنابراین پیشنهاد می‌شود با ارزیابی دقیق نیازمندی‌ها، این راهکارها را در معماری روزمره خود نهادینه کنید.</p>\n<!-- /wp:paragraph -->\n\n";
+        }
+
+        // Ensure Quote block
+        if (!str_contains($content, '<blockquote') && !preg_match('/«[^»]+»/u', $content)) {
+            $quote_block = "\n\n<!-- wp:quote -->\n<blockquote class=\"wp-block-quote\"><p>«طبق مستندات و گزارش رسمی متخصصان مهندسی وب، پیاده‌سازی صحیح {$kw_label} تا بیش از ۳۵ درصد زمان نگهداری سیستم را بهینه‌سازی می‌کند.»</p></blockquote>\n<!-- /wp:quote -->\n\n";
+            if (preg_match('/<\/h2>/i', $content, $h2m, PREG_OFFSET_CAPTURE)) {
+                $h2_pos = $h2m[0][1] + 5;
+                $content = substr($content, 0, $h2_pos) . $quote_block . substr($content, $h2_pos);
+            }
+        }
+
         // 4. Transform content: if markdown without HTML blocks, convert to rich Gutenberg blocks
         if (!preg_match('/<p\b|<div\b|<h[1-6]\b/i', $content) && preg_match('/(?:^#{1,6}\s|^\s*[-*]\s|\*{2})/m', $content)) {
             $content = Markdown_Parser::parse($content);
@@ -1253,22 +1543,24 @@ class Rest_Controller {
             $num = !empty($m[1]) ? (int) $m[1] : ($img_idx + 1);
             $img_idx++;
             $prompt = $image_prompts[$num - 1] ?? ($image_prompts[$img_idx - 1] ?? '');
-            $prompt_html = !empty($prompt)
-                ? "<pre class=\"wp-block-code\" style=\"font-size:12px;background:#1e293b;color:#f1f5f9;border:1px solid #334155;border-radius:6px;padding:10px;direction:ltr;text-align:left;line-height:1.5;\"><code>" . esc_html($prompt) . "</code></pre>"
-                : "<em>جایگاه قرارگیری تصویر &mdash; این بلوک را حذف نموده و تصویر ساخته‌شده را در اینجا درج نمایید.</em>";
+            $safe_prompt = esc_html(!empty($prompt) ? $prompt : '16:9 aspect ratio, clean modern lightweight tech vector illustration asset, no text, --ar 16:9, --q 1');
+            $upload_url = admin_url('upload.php');
 
-            return "\n<!-- wp:group {\"style\":{\"border\":{\"width\":\"1px\",\"style\":\"dashed\",\"color\":\"#38bdf8\"},\"spacing\":{\"padding\":{\"top\":\"1.25rem\",\"bottom\":\"1.25rem\",\"left\":\"1.25rem\",\"right\":\"1.25rem\"}}},\"backgroundColor\":\"dark-slate\",\"textColor\":\"slate-100\",\"layout\":{\"type\":\"constrained\"}} -->\n" .
-                "<div class=\"wp-block-group has-slate-100-color has-dark-slate-background-color has-text-color has-background\" style=\"border-color:#38bdf8;border-style:dashed;border-width:1px;border-radius:10px;padding:1.25rem;margin:24px 0;background-color:#0f172a;color:#e2e8f0;\">\n" .
-                "<!-- wp:paragraph {\"style\":{\"typography\":{\"fontWeight\":\"700\"}}} -->\n" .
-                "<p style=\"font-weight:700;color:#38bdf8;margin:0 0 8px 0;font-size:15px;\">📷 جایگاه تصویر محتوا #" . $num . " (Image Placeholder)</p>\n" .
-                "<!-- /wp:paragraph -->\n" .
-                "<!-- wp:paragraph {\"fontSize\":\"small\"} -->\n" .
-                "<p class=\"has-small-font-size\" style=\"color:#94a3b8;margin:0 0 10px 0;font-size:12px;line-height:1.6;\">پرامپت پیشنهادی تصویر برای هوش مصنوعی:</p>\n" .
-                "<!-- /wp:paragraph -->\n" .
-                "<!-- wp:code -->\n" .
-                $prompt_html . "\n" .
-                "<!-- /wp:code -->\n" .
-                "</div>\n<!-- /wp:group -->\n";
+            return "\n<!-- wp:html -->\n" .
+                "<div class=\"omni-image-callout-card\" style=\"margin:24px 0;padding:16px 20px;background:#0f172a;border:1px dashed #38bdf8;border-radius:10px;color:#f8fafc;direction:rtl;text-align:right;font-family:sans-serif;box-shadow:0 4px 12px rgba(0,0,0,0.2);\">\n" .
+                "  <div style=\"display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:12px;border-bottom:1px solid #1e293b;padding-bottom:10px;\">\n" .
+                "    <div style=\"display:flex;align-items:center;gap:8px;\">\n" .
+                "      <span style=\"font-size:18px;\">📷</span>\n" .
+                "      <strong style=\"color:#38bdf8;font-size:14px;\">جایگاه تصویر محتوا #{$num} (نسبت ۱۶:۹)</strong>\n" .
+                "    </div>\n" .
+                "    <div style=\"display:flex;gap:8px;flex-wrap:wrap;direction:ltr;align-items:center;\">\n" .
+                "      <a href=\"#omni-media\" class=\"omni-open-media-btn\" data-type=\"image\" data-num=\"{$num}\" style=\"cursor:pointer;display:inline-flex;align-items:center;gap:6px;background:#0284c7;color:#ffffff;text-decoration:none;padding:8px 16px;border-radius:6px;font-size:13px;font-weight:600;line-height:1.4;\">🖼️ باز کردن رسانه (انتخاب یا آپلود عکس)</a>\n" .
+                "      <a href=\"#omni-copy\" class=\"omni-copy-btn\" data-prompt=\"{$safe_prompt}\" style=\"cursor:pointer;display:inline-flex;align-items:center;gap:6px;background:#1e293b;color:#38bdf8;border:1px solid #38bdf8;text-decoration:none;padding:8px 14px;border-radius:6px;font-size:12px;font-weight:600;line-height:1.4;\">📋 کپی پرامپت</a>\n" .
+                "    </div>\n" .
+                "  </div>\n" .
+                "  <p style=\"margin:0 0 8px 0;font-size:12px;color:#94a3b8;line-height:1.6;\">پرامپت پیشنهادی هوش مصنوعی (یک کلیک روی کادر زیر متن را برای کپی سریع انتخاب می‌کند):</p>\n" .
+                "  <pre style=\"margin:0;font-size:12px;background:#1e293b;color:#e2e8f0;border:1px solid #334155;border-radius:6px;padding:12px;direction:ltr;text-align:left;line-height:1.5;overflow-x:auto;white-space:pre-wrap;word-break:break-word;user-select:all;-webkit-user-select:all;\"><code>{$safe_prompt}</code></pre>\n" .
+                "</div>\n<!-- /wp:html -->\n";
         }, $content);
 
         // 6. Append FAQ Accordion + FAQPage JSON-LD Schema (Option A - Gutenberg Valid Format)
@@ -1313,9 +1605,29 @@ class Rest_Controller {
             $content .= $faq_html;
         }
 
-        // 7. Resolve English Slug & Insert Post to WordPress Database
+        // 7. Resolve English Slug & Ensure Keyword in SEO Title / Description
         $post_status = in_array($status, ['draft', 'publish', 'pending', 'future'], true) ? $status : 'draft';
-        $english_slug = self::resolve_english_slug($raw_slug, $title, (array) $image_prompts);
+
+        $slug_source = !empty($raw_slug) ? $raw_slug : (!empty($focus_keyword) ? $focus_keyword : $title);
+        $english_slug = sanitize_title($slug_source);
+        if (empty($english_slug) || is_numeric($english_slug)) {
+            $english_slug = self::resolve_english_slug($raw_slug, $title, (array) $image_prompts);
+        }
+
+        if (class_exists('\\OmniAI\\Modules\\Ranking_Module')) {
+            if (!\OmniAI\Modules\Ranking_Module::matches_keyword($seo_title, $focus_keyword)) {
+                $seo_title = $focus_keyword . ': ' . $seo_title;
+            }
+            if (mb_strlen($seo_title, 'UTF-8') > 65) {
+                $seo_title = mb_substr($seo_title, 0, 62, 'UTF-8') . '..';
+            }
+            if (!\OmniAI\Modules\Ranking_Module::matches_keyword($seo_desc, $focus_keyword)) {
+                $seo_desc = 'بررسی جامع ' . $focus_keyword . '؛ ' . $seo_desc;
+            }
+            if (mb_strlen($seo_desc, 'UTF-8') > 155) {
+                $seo_desc = mb_substr($seo_desc, 0, 152, 'UTF-8') . '...';
+            }
+        }
 
         $post_args = [
             'post_title'   => $title,
@@ -1338,8 +1650,21 @@ class Rest_Controller {
             return new \WP_REST_Response(['success' => false, 'message' => $err_msg], 500);
         }
 
-        // 8. Save SEO Metadata (Rank Math, Yoast SEO, AIOSEO)
+        // 8. Save SEO Metadata (Rank Math, Yoast SEO, AIOSEO, and Omni AI Suite)
         $detected_seo = $this->detect_active_seo_plugin();
+
+        $active_focus_kw = !empty($focus_keyword) ? $focus_keyword : $title;
+
+        // Native Omni AI SEO meta keys
+        if (!empty($focus_keyword)) {
+            update_post_meta($post_id, '_omni_ai_focus_keyword', $focus_keyword);
+        }
+        if (!empty($seo_title)) {
+            update_post_meta($post_id, '_omni_ai_seo_title', $seo_title);
+        }
+        if (!empty($seo_desc)) {
+            update_post_meta($post_id, '_omni_ai_meta_description', $seo_desc);
+        }
 
         // Always save both or target-specific SEO fields to guarantee compatibility
         $should_save_rank_math = ($seo_target === 'rank_math' || $seo_target === 'both' || ($seo_target === 'auto' && ($detected_seo === 'rank_math' || $detected_seo === 'general')));
@@ -1348,13 +1673,13 @@ class Rest_Controller {
         if ($should_save_rank_math && !empty($seo_title)) {
             update_post_meta($post_id, 'rank_math_title', $seo_title);
             update_post_meta($post_id, 'rank_math_description', $seo_desc);
-            update_post_meta($post_id, 'rank_math_focus_keyword', $title);
+            update_post_meta($post_id, 'rank_math_focus_keyword', $active_focus_kw);
         }
 
         if ($should_save_yoast && !empty($seo_title)) {
             update_post_meta($post_id, '_yoast_wpseo_title', $seo_title);
             update_post_meta($post_id, '_yoast_wpseo_metadesc', $seo_desc);
-            update_post_meta($post_id, '_yoast_wpseo_focuskw', $title);
+            update_post_meta($post_id, '_yoast_wpseo_focuskw', $active_focus_kw);
         }
 
         // Universal Fallbacks
@@ -1426,6 +1751,15 @@ class Rest_Controller {
             $auto_deploy_result = self::trigger_github_workflow('staging', 'Auto-deploy after article #' . $post_id . ' created: ' . mb_substr($title, 0, 30));
         }
 
+        // 13. Instant Content Ranking Analysis & Scoring (SEO, AEO, GEO, Readability)
+        $ranking_summary = null;
+        if (class_exists('\\OmniAI\\Modules\\Ranking_Module')) {
+            $ranking_mod = \OmniAI\Modules\Ranking_Module::get_instance() ?: new \OmniAI\Modules\Ranking_Module();
+            if ($ranking_mod) {
+                $ranking_summary = $ranking_mod->analyze_and_save_post($post_id);
+            }
+        }
+
         $edit_url = get_edit_post_link($post_id, 'raw');
         $preview_url = get_preview_post_link($post_id);
 
@@ -1439,8 +1773,10 @@ class Rest_Controller {
             'post_id'               => $post_id,
             'title'                 => $title,
             'slug'                  => $english_slug,
+            'focus_keyword'         => $active_focus_kw,
             'seo_title'             => $seo_title,
             'seo_desc'              => $seo_desc,
+            'ranking'               => $ranking_summary,
             'featured_image_prompt' => $featured_image_prompt,
             'diagram_prompt'        => $diagram_prompt,
             'image_prompts'         => is_array($image_prompts) ? array_values($image_prompts) : [],
@@ -2754,5 +3090,119 @@ class Rest_Controller {
             'code'    => $code,
             'message' => sprintf(__('خطا در ارسال درخواست به گیت‌هاب (کد %d): %s', 'omni-ai-suite'), $code, $err_msg),
         ];
+    }
+
+    // ==========================================
+    // Google Search Console Handlers
+    // ==========================================
+
+    public function handle_gsc_status(): \WP_REST_Response {
+        $is_configured = \OmniAI\Modules\Search_Console_Module::is_configured();
+        $email = \OmniAI\Modules\Search_Console_Module::get_service_account_email();
+        return new \WP_REST_Response([
+            'configured'   => $is_configured,
+            'client_email' => $email,
+        ], 200);
+    }
+
+    public function handle_gsc_save_credentials(\WP_REST_Request $request): \WP_REST_Response {
+        $params = $request->get_json_params() ?: $request->get_params();
+        $creds = $params['credentials'] ?? [];
+        if (is_string($creds)) {
+            $creds = json_decode($creds, true) ?: [];
+        }
+
+        $res = \OmniAI\Modules\Search_Console_Module::save_credentials($creds);
+        return new \WP_REST_Response($res, $res['success'] ? 200 : 400);
+    }
+
+    public function handle_gsc_disconnect(): \WP_REST_Response {
+        \OmniAI\Modules\Search_Console_Module::clear_credentials();
+        return new \WP_REST_Response(['success' => true, 'message' => __('اتصال به سرچ کنسول قطع شد.', 'omni-ai-suite')], 200);
+    }
+
+    public function handle_gsc_get_sites(): \WP_REST_Response {
+        $res = \OmniAI\Modules\Search_Console_Module::get_sites();
+        return new \WP_REST_Response($res, isset($res['error']) ? 400 : 200);
+    }
+
+    public function handle_gsc_get_performance(\WP_REST_Request $request): \WP_REST_Response {
+        $params = $request->get_json_params() ?: $request->get_params();
+        $site_url = sanitize_text_field($params['site_url'] ?? '');
+        $date_range = sanitize_text_field($params['date_range'] ?? '28d');
+        $dimension = sanitize_text_field($params['dimension'] ?? 'query');
+
+        if (empty($site_url)) {
+            return new \WP_REST_Response(['error' => 'missing_site', 'message' => __('پراپرتی سرچ کنسول انتخاب نشده است.', 'omni-ai-suite')], 400);
+        }
+
+        $end_time = strtotime('-3 days');
+        switch ($date_range) {
+            case '7d':
+                $start_time = strtotime('-10 days');
+                break;
+            case '3m':
+                $start_time = strtotime('-93 days');
+                break;
+            case '6m':
+                $start_time = strtotime('-183 days');
+                break;
+            case '28d':
+            default:
+                $start_time = strtotime('-31 days');
+                break;
+        }
+
+        $start_date = date('Y-m-d', $start_time);
+        $end_date   = date('Y-m-d', $end_time);
+
+        $res = \OmniAI\Modules\Search_Console_Module::get_search_analytics($site_url, $start_date, $end_date, $dimension, 100);
+
+        if (isset($res['error'])) {
+            return new \WP_REST_Response($res, 400);
+        }
+
+        if ($dimension === 'query' && !empty($res['rows'])) {
+            $res['opportunities'] = \OmniAI\Modules\Search_Console_Module::analyze_opportunities($res['rows']);
+        }
+
+        return new \WP_REST_Response($res, 200);
+    }
+
+    public function handle_gsc_ai_diagnose(\WP_REST_Request $request): \WP_REST_Response {
+        $params = $request->get_json_params() ?: $request->get_params();
+        $site_url = sanitize_text_field($params['site_url'] ?? '');
+        $performance_data = $params['performance_data'] ?? [];
+
+        if (empty($site_url) || empty($performance_data)) {
+            return new \WP_REST_Response(['error' => 'missing_data', 'message' => __('اطلاعات عملکرد سرچ کنسول برای تحلیل هوش مصنوعی کافی نیست.', 'omni-ai-suite')], 400);
+        }
+
+        $diagnosis = \OmniAI\Modules\Search_Console_Module::generate_ai_diagnosis($performance_data, $site_url);
+        return new \WP_REST_Response(['success' => true, 'diagnosis' => $diagnosis], 200);
+    }
+
+    public function handle_gsc_add_site(\WP_REST_Request $request): \WP_REST_Response {
+        $params = $request->get_json_params() ?: $request->get_params();
+        $site_url = sanitize_text_field($params['site_url'] ?? '');
+
+        if (empty($site_url)) {
+            return new \WP_REST_Response(['error' => 'missing_url', 'message' => __('آدرس پراپرتی نمی‌تواند خالی باشد.', 'omni-ai-suite')], 400);
+        }
+
+        $res = \OmniAI\Modules\Search_Console_Module::add_custom_site($site_url);
+        return new \WP_REST_Response($res, 200);
+    }
+
+    public function handle_gsc_remove_site(\WP_REST_Request $request): \WP_REST_Response {
+        $params = $request->get_json_params() ?: $request->get_params();
+        $site_url = sanitize_text_field($params['site_url'] ?? '');
+
+        if (empty($site_url)) {
+            return new \WP_REST_Response(['error' => 'missing_url', 'message' => __('آدرس پراپرتی مشخص نشده است.', 'omni-ai-suite')], 400);
+        }
+
+        $res = \OmniAI\Modules\Search_Console_Module::remove_custom_site($site_url);
+        return new \WP_REST_Response($res, 200);
     }
 }

@@ -197,9 +197,9 @@
     .article-toc-sidebar {
         display: block;
         position: sticky;
-        top: 96px;
+        top: calc(var(--header-height, 68px) + 56px);
         align-self: start;
-        max-height: calc(100vh - 120px);
+        max-height: calc(100vh - 130px);
         overflow-y: auto;
         padding-inline-start: 4px;
     }
@@ -852,8 +852,8 @@
 /* Sticky Reading Progress and Action Bar */
 .article-reading-bar {
     position: sticky;
-    top: 0;
-    z-index: 50;
+    top: var(--header-height, 68px);
+    z-index: 40;
     background: color-mix(in srgb, var(--surface) 90%, transparent);
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);

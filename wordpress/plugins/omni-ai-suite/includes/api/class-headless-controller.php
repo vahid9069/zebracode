@@ -442,7 +442,7 @@ class Headless_Controller {
                 'title'               => $seo_title,
                 'description'         => $seo_desc,
                 'focus_keyword'       => $focus_keyword,
-                'canonical_url'       => $canonical_url ?: get_permalink($post_id),
+                'canonical_url'       => $canonical_url,
                 'robots'              => $robots_list,
                 'is_noindex'          => $is_noindex,
                 'is_nofollow'         => $is_nofollow,

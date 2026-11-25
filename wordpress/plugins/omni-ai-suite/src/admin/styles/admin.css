@@ -484,3 +484,67 @@
 .omni-content-calendar table.widefat tbody tr:hover {
   background-color: #f8fafc;
 }
+
+/* ========================================================
+   Google Search Console & AI Diagnostics Styles
+   ======================================================== */
+.omni-gsc-wrap {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  direction: rtl;
+  font-family: inherit;
+  color: #0f172a;
+}
+
+.omni-gsc-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  padding: 24px;
+  box-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.04);
+  margin-bottom: 20px;
+}
+
+.omni-gsc-kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  gap: 16px;
+  margin-bottom: 22px;
+}
+
+.omni-gsc-kpi-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 18px 22px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+  position: relative;
+  overflow: hidden;
+}
+
+.omni-gsc-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: right;
+  font-size: 13px;
+}
+
+.omni-gsc-table th {
+  background: #f8fafc;
+  color: #475569;
+  font-weight: 700;
+  padding: 12px 16px;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.omni-gsc-table td {
+  padding: 12px 16px;
+  border-bottom: 1px solid #f1f5f9;
+  color: #1e293b;
+}
+
+.omni-gsc-table tbody tr:hover {
+  background-color: #f8fafc;
+}
+

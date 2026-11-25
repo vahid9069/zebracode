@@ -3,7 +3,7 @@
  * Plugin Name:       Omni AI Suite - All-in-One AI for WordPress
  * Plugin URI:        https://github.com/zebracode/omni-ai-suite
  * Description:       A modular, high-performance All-in-One WordPress AI plugin with BYOK, real-time streaming, Action Scheduler bulk generation, Gutenberg & Elementor integration, and zero DB bloat.
- * Version:           1.0.0
+ * Version:           1.0.2
  * Requires at least: 6.4
  * Requires PHP:      8.0
  * Author:            Omni AI Team
@@ -45,7 +45,7 @@ if (!function_exists('str_contains')) {
 }
 
 // Plugin constants
-define('OMNI_AI_VERSION', '1.0.0');
+define('OMNI_AI_VERSION', '1.0.2');
 define('OMNI_AI_FILE', __FILE__);
 define('OMNI_AI_PATH', plugin_dir_path(__FILE__));
 define('OMNI_AI_URL', plugin_dir_url(__FILE__));

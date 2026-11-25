@@ -35,9 +35,57 @@ class Tool_Synchronizer {
     }
 
     /**
+     * Load comprehensive tools catalog from bundled JSON file.
+     * Contains 151 developer and utility tools across zebracode.ir and kit.zebracode.ir.
+     */
+    public static function get_catalog_tools(): array {
+        static $cached = null;
+        if ($cached !== null) {
+            return $cached;
+        }
+
+        $candidates = [
+            defined('OMNI_AI_PATH') ? OMNI_AI_PATH . 'includes/data/tools-catalog.json' : '',
+            dirname(__DIR__) . '/data/tools-catalog.json',
+            dirname(dirname(__DIR__)) . '/includes/data/tools-catalog.json',
+        ];
+
+        foreach ($candidates as $file) {
+            if (!empty($file) && file_exists($file)) {
+                $raw = @file_get_contents($file);
+                if (!empty($raw)) {
+                    $data = json_decode($raw, true);
+                    if (is_array($data) && !empty($data)) {
+                        $cached = $data;
+                        return $cached;
+                    }
+                }
+            }
+        }
+
+        $cached = [];
+        return $cached;
+    }
+
+    /**
      * Built-in dictionary of Persian titles and descriptions for known developer tools.
      */
     public static function get_known_tools_dict(): array {
+        $catalog = self::get_catalog_tools();
+        if (!empty($catalog)) {
+            $dict = [];
+            foreach ($catalog as $item) {
+                $slug = $item['slug'] ?? '';
+                if (!empty($slug)) {
+                    $dict[$slug] = [
+                        'title'       => $item['title'] ?? '',
+                        'description' => $item['description'] ?? '',
+                    ];
+                }
+            }
+            return $dict;
+        }
+
         return [
             // Core ZebraCode tools
             'json-to-big-query' => [
@@ -152,6 +200,11 @@ class Tool_Synchronizer {
      * Initial seed tools when storage is empty.
      */
     public static function get_default_seed_tools(): array {
+        $catalog = self::get_catalog_tools();
+        if (!empty($catalog)) {
+            return $catalog;
+        }
+
         $dict = self::get_known_tools_dict();
         $kit_slugs = ['invoice-generator', 'qr-code-generator', 'barcode-generator', 'uuid-generator', 'password-generator', 'text-diff'];
 
@@ -174,11 +227,11 @@ class Tool_Synchronizer {
     }
 
     /**
-     * Get all synced tools, seeding with defaults if empty.
+     * Get all synced tools, seeding with defaults if empty or outdated.
      */
     public static function get_synced_tools(): array {
         $tools = get_option(self::OPTION_SYNCED_TOOLS, null);
-        if (!is_array($tools) || empty($tools)) {
+        if (!is_array($tools) || count($tools) < 100) {
             $tools = self::get_default_seed_tools();
             update_option(self::OPTION_SYNCED_TOOLS, $tools, false);
         }

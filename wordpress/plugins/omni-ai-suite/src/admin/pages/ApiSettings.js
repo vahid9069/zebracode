@@ -18,7 +18,7 @@ export default function ApiSettings({ onSettingsUpdated }) {
     default_provider: 'gemini',
     default_image_provider: 'gemini',
     gemini_api_key: '',
-    gemini_model: 'gemini-1.5-flash',
+    gemini_model: 'gemini-2.5-flash',
     openai_api_key: '',
     openai_model: 'gpt-4o-mini',
     claude_api_key: '',
@@ -231,9 +231,10 @@ export default function ApiSettings({ onSettingsUpdated }) {
                   label={__('Model', 'omni-ai-suite')}
                   value={settings.gemini_model}
                   options={[
-                    { label: 'Gemini 1.5 Flash', value: 'gemini-1.5-flash' },
-                    { label: 'Gemini 1.5 Pro', value: 'gemini-1.5-pro' },
-                    { label: 'Gemini 2.0 Flash', value: 'gemini-2.0-flash' },
+                    { label: 'Gemini 2.5 Flash (پیشنهادی)', value: 'gemini-2.5-flash' },
+                    { label: 'Gemini 2.5 Pro', value: 'gemini-2.5-pro' },
+                    { label: 'Gemini 3.8 Flash', value: 'gemini-3.8-flash' },
+                    { label: 'Gemini Flash Latest', value: 'gemini-flash-latest' },
                   ]}
                   onChange={(val) => setSettings({ ...settings, gemini_model: val })}
                 />

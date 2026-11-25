@@ -233,6 +233,19 @@ export function htmlToBlocks(html: string, stripFaq = false): Post['blocks'] {
         const inner = match[2] ?? '';
 
         if (tag === 'figure' || tag === 'img') {
+            if (tag === 'figure' && /<table\b/i.test(inner)) {
+                const headers = [...inner.matchAll(/<th(?:\s[^>]*)?>([\s\S]*?)<\/th>/gi)].map(cell => stripHtml(cell[1])).filter(Boolean);
+                const rowMatches = [...inner.matchAll(/<tr(?:\s[^>]*)?>([\s\S]*?)<\/tr>/gi)];
+                const rows: string[][] = [];
+                for (const rowMatch of rowMatches) {
+                    const cells = [...rowMatch[1].matchAll(/<td(?:\s[^>]*)?>([\s\S]*?)<\/td>/gi)].map(cell => stripHtml(cell[1]));
+                    if (cells.length > 0) rows.push(cells);
+                }
+                if (headers.length > 0 || rows.length > 0) {
+                    blocks.push({ type: 'table', headers: headers.length ? headers : rows[0], rows: headers.length ? rows : rows.slice(1) });
+                }
+                continue;
+            }
             const imgMatch = fullMatch.match(/<img[^>]+src=["']([^"']+)["'][^>]*>/i);
             if (imgMatch) {
                 const url = imgMatch[1];

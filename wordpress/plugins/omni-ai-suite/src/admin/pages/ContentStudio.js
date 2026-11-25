@@ -74,6 +74,8 @@ export default function ContentStudio({ initialSubView = 'json', onSubViewChange
 
   // States for Prompt & JSON workflow
   const [topic, setTopic] = useState('');
+  const [focusKeyword, setFocusKeyword] = useState('');
+  const [articleDepth, setArticleDepth] = useState('comprehensive');
   const [additionalNotes, setAdditionalNotes] = useState('');
   const [selectedCalendarItemId, setSelectedCalendarItemId] = useState(null);
   const [visualStyle, setVisualStyle] = useState('dark_slate_neon');
@@ -128,72 +130,154 @@ export default function ContentStudio({ initialSubView = 'json', onSubViewChange
   // Dynamic Standalone Featured Image Prompt Generator
   const generateStandaloneFeaturedImagePrompt = () => {
     const cleanTopic = topic.trim() || 'Modern software engineering and developer tooling';
-    return `Modern conceptual illustration of ${cleanTopic}, ${selectedPresetObj.promptSnippet}, 16:9 aspect ratio, 8k resolution, professional tech graphic, masterpiece, trending on ArtStation, no text, no typography, no watermark, no logos, no blur`;
+    const cleanKeyword = focusKeyword.trim() ? `, themed around ${focusKeyword.trim()}` : '';
+    return `Modern conceptual illustration of ${cleanTopic}${cleanKeyword}, ${selectedPresetObj.promptSnippet}, 16:9 aspect ratio, 1200x675 resolution, wide angle landscape composition, --ar 16:9, --q 1, clean sharp vector styling, lightweight web asset, modern developer aesthetic, no text, no typography, no watermark, no logos, no blur`;
   };
 
   // Dynamic Full SEO, AEO, and GEO Prompt Generator for Master LLM
   const generatePromptWithTopic = () => {
-    const cleanTopic = topic.trim() || '[موضوع یا کلمه کلیدی اصلی مقاله خود را اینجا بگذارید]';
+    const cleanTopic = topic.trim() || '[موضوع یا عنوان اصلی مقاله خود را اینجا بگذارید]';
+    const cleanFocusKeyword = focusKeyword.trim() || topic.trim() || '[کلمه کلیدی کانونی ۱ تا ۳ کلمه‌ای اصلی]';
     const notesPart = additionalNotes.trim()
       ? `\n**الزامات و نکات تکمیلی درخواستی کاربر:**\n${additionalNotes.trim()}\n`
       : '';
 
+    let wordCountGuideline = 'حداقل ۱۰۰۰ تا ۱۵۰۰ کلمه تخصصی، جامع، با مثال و کاربردی';
+    let minWords = 1000;
+    if (articleDepth === 'standard') {
+      wordCountGuideline = 'حداقل ۷۰۰ تا ۱۰۰۰ کلمه استاندارد و منسجم';
+      minWords = 700;
+    } else if (articleDepth === 'pillar') {
+      wordCountGuideline = 'حداقل ۱۵۰۰ تا ۲۵۰۰ کلمه مرجع، بسیار عمیق و همه‌جانبه';
+      minWords = 1500;
+    }
+
     let toolsGuideline = '';
     let toolsJsonSample = '';
     if (syncedTools && syncedTools.length > 0) {
-      const toolListStr = syncedTools.slice(0, 35).map((t) => {
+      const topicTerms = `${cleanTopic} ${cleanFocusKeyword} ${notesPart}`
+        .toLowerCase()
+        .split(/[\s,\-_،؛()/]+/)
+        .filter((w) => w.length >= 2);
+
+      const scored = syncedTools.map((t) => {
+        let score = 0;
+        const searchable = `${t.slug || ''} ${t.title || ''} ${t.description || ''} ${t.domain || ''}`.toLowerCase();
+        for (const term of topicTerms) {
+          if (searchable.includes(term)) score += 10;
+          if ((t.slug || '').toLowerCase().includes(term)) score += 15;
+        }
+        return { tool: t, score };
+      });
+
+      scored.sort((a, b) => b.score - a.score);
+
+      const toolListStr = scored.map(({ tool: t }) => {
         return `- ${t.title} (${t.domain}): ${t.url} [اسلاگ: "${t.slug}"]`;
       }).join('\n');
 
       toolsGuideline = `
-5. **🔗 لینک‌سازی داخلی و ابزارهای مرتبط (Internal Tool Links & Related Tools):**
-   - در سایت ما ابزارهای آنلاین توسعه‌دهندگان زیر فعال هستند:
+- **🔗 لینک‌سازی داخلی هوشمند و معتبر (فقط از ابزارهای واقعی سایت):**
+  قانون قطعی: فقط و فقط از میان لیست ابزارهای واقعی زیر (که بر اساس ارتباط موضوعی اولویت‌بندی شده‌اند)، ۳ تا ۵ مورد را که ارتباط ماهوی، فنی و مستقیم با موضوع مقاله دارند انتخاب کرده و در طول متن با فرمت استاندارد مارک‌داون \`[عنوان طبیعی و کاربردی ابزار](URL)\` لینک دهید. **هرگز هیچ ابزار، صفحه یا URL فرضی را اختراع نکنید:**
 ${toolListStr}
-   - **الزام اکید:** در صورت ارتباط موضوع مقاله با هرکدام از این ابزارها:
-     ۱. در بدنه محتوا (\`content\`) حداقل ۱ تا ۲ لینک مستقیم و طبیعی با تگ HTML (\`<a href="URL">عنوان ابزار</a>\`) به این ابزارها ایجاد کن.
-     ۲. اسلاگ‌های ابزارهای مرتبط را در فیلد \`"related_tools": ["slug-1", "slug-2"]\` در JSON قرار بده.`;
+  نمونه لینک داخلی مارک‌داون: \`[فرمت و مرتب‌سازی JSON](https://zebracode.ir/json-format)\`
+  اسلاگ دقیق این ابزارها را حتماً در فیلد \`"related_tools": ["slug-1", "slug-2"]\` در خروجی JSON قرار دهید.`;
 
-      toolsJsonSample = `\n  "related_tools": ["slug-1", "slug-2"],`;
+      toolsJsonSample = `\n  "related_tools": ["slug-1", "slug-2", "slug-3"],`;
+    } else {
+      toolsGuideline = `
+- **🔗 لینک‌سازی داخلی هوشمند و معتبر:**
+  حداقل ۲ تا ۳ لینک داخلی ارگانیک با فرمت مارک‌داون (\`[ابزارهای آنلاین توسعه‌دهندگان](/tools)\` یا \`[صفحه اصلی زبراکد](/)\`) در بخش‌های متناسب متن قرار دهید.`;
     }
 
-    return `You are an elite SEO/GEO/AEO content strategist, senior technical writer, and web researcher.
-Write a deeply researched, comprehensive, engaging, and modern article in fluent Persian (Farsi) about the following topic:
+    return `You are an elite SEO/GEO/AEO content strategist, principal software architect, and senior Persian technical writer.
+Write an authoritative, deeply researched, engaging, and comprehensive article in fluent Persian (Farsi) about the following topic:
 
 **Topic / موضوع اصلی مقاله:** ${cleanTopic}
+**Focus Keyword / کلیدواژه کانونی اصلی:** ${cleanFocusKeyword}
+**حجم و عمق محتوا:** ${wordCountGuideline}
 ${notesPart}
+### الزامات ۵ گانه برای تولید محتوای رتبه یک (SEO, AEO, GEO, Readability, Architecture - نسخه طلایی ۲.۲):
 
-### استراتژی محتوا و استانداردهای نگارش (Strict Guidelines):
-1. **جامعیت و عمق علمی:** پوشش کامل مفاهیم از مقدماتی تا پیشرفته با تکیه بر استانداردهای 2026.
-2. **سئو و بهینه‌سازی موتورهای هوش مصنوعی (AEO & GEO):**
-   - عنوان سئو جذاب، ترغیب‌کننده و دارای کلمه کلیدی اصلی (حداکثر ۶۰ کاراکتر).
-   - توضیحات متا متقاعدکننده (۱۴۰ تا ۱۶۰ کاراکتر).
-   - حداقل ۴ تا ۶ سوال و جواب کوتاه، شفاف و مستقیم برای بخش FAQ (مناسب برای AI Overview و Featured Snippets).
-3. **ساختار بصری و پرامپت‌های تصویری هوشمند:**
-   - **تصویر شاخص (Featured Image - ۱۶:۹):** تولید یک پرامپت انگلیسی بسیار دقیق برای هوش مصنوعی (Ideogram / Midjourney / DALL-E) با سبک زیر:
-     "${selectedPresetObj.promptSnippet}"
-     تأکید اکید: هیچ متنی نباید در عکس باشد (no typography, no text, no logos).
-   - **دیاگرام یا اینفوگرافیک مفهومی:** تولید یک پرامپت مفهومی دیاگرام و قرار دادن برچسب [DIAGRAM_PLACEHOLDER] در متن.
-   - **تصاویر تکمیلی درون متن:** قرار دادن تگ‌های [IMAGE_PLACEHOLDER_1] و [IMAGE_PLACEHOLDER_2] در بخش‌های مناسب به همراه آرایه image_prompts به انگلیسی.
-4. **نامک انگلیسی (Slug):** یک اسلاگ انگلیسی کوتاه و استاندارد سئو (۲ تا ۴ کلمه).${toolsGuideline}
-6. **خروجی الزامی:** پاسخ شما باید **فقط و فقط یک آبجکت JSON معتبر** بدون هیچ متن اضافی قبل یا بعد از آن با ساختار زیر باشد:
+#### ۱. سئو ارگانیک و کلیدواژه معنایی (SEO & Semantic Search):
+- **کلیدواژه کانونی («${cleanFocusKeyword}»):**
+  ۱. عنوان سئو (\`seo_title\`): شامل «${cleanFocusKeyword}» در نیمه نخست عنوان همراه با قلاب جذاب کلیک (CTR Hook) مانند سناریوی کاربردی یا راهنمای جامع (طول ۴۰ تا ۶۰ کاراکتر؛ کوتاه و رسا تا در نتایج گوگل بریده نشود).
+  ۲. عنوان درون صفحه (\`title\`): عنوان اصلی مقاله برای تگ H1 (جذاب، تحلیلی و معطوف به حل نیاز کاربر).
+  ۳. متای توضیحات (\`seo_desc\`): شامل «${cleanFocusKeyword}» همراه با ارزش پیشنهادی ملموس برای کاربر و ترغیب به کلیک (طول ۱۳۰ تا ۱۵۵ کاراکتر).
+  ۴. در اولین پاراگراف مقدمه (پاسخ صریح) کلمه کلیدی «${cleanFocusKeyword}» با \` **${cleanFocusKeyword}** \` بولد شود.
+  ۵. حداقل در یکی از تیترهای سطح ۲ (\`## \`) عبارت «${cleanFocusKeyword}» به شکلی طبیعی و مرتبط حضور داشته باشد.
+  ۶. اسلاگ انگلیسی (\`slug\`): معادل دقیق انگلیسی کلیدواژه با حروف کوچک و خط تیره (kebab-case) مانند \`database-optimization\` یا \`developer-tools\` (بدون تاریخ انقضا یا پسوندهای غیرضروری).
+  ۷. **پوشش معنایی و سئو ارگانیک (Semantic SEO):** توزیع ارگانیک و روان کلیدواژه در سراسر متن متناسب با طول محتوا (بدون اصرار بر عددسازی یا چگالی مکانیکی). اولویت مطلق با موجودیت‌های مرتبط (Entities)، مترادف‌ها و ارتباط موضوعی عمیق است.
+- **جداول داده‌ای و مقایسه‌ای:** فقط در صورت مقایسه‌ای یا لیستی بودن موضوع، یک جدول استاندارد **Markdown Table** با خط‌های عمودی (\`| ستون ۱ | ستون ۲ |\`) و خط جداکننده (\`| --- | --- |\`) ایجاد کنید. در موضوعات غیرمقایسه‌ای نیازی به جدول اجباری نیست.
+- **لینک‌های معتبر و امن:**
+  ۱. لینک‌های داخلی متنی: فقط و فقط از میان لیست ابزارهای واقعی ارائه‌شده در زیر، ۳ تا ۵ مورد واقعاً مرتبط را با انکر تکست توصیفی و فرمت مارک‌داون \`[نام ابزار](URL)\` لینک دهید. هرگز صفحه یا URL خیالی اختراع نکنید:
+${toolsGuideline}
+  ۲. حداقل ۱ لینک خارجی به دامنه اصلی مرجع معتبر جهانی متناسب با موضوع با فرمت مارک‌داون: \`[مستندات وب (MDN)](https://developer.mozilla.org/)\` یا W3C / RFC رسمی. هرگز URLهای فرعی و ناموجود حدس نزنید.
+
+#### ۲. بهینه‌سازی موتورهای پاسخگو و هوش مصنوعی محاوره‌ای (AEO):
+- **پاسخ مستقیم (Direct Answer Snippet):** اولین پاراگراف مقاله بین ۳۵ تا ۵۰ کلمه باشد و با تعریف صریح، دقیق و پاسخ قاطع به چیستی و چرایی «${cleanFocusKeyword}» آغاز گردد.
+- **تیترهای سؤالی:** حداقل ۲ تیتر سطح ۲ (\`## \`) باید ساختار شفاف سؤالی با علامت سؤال (؟) داشته باشند تا دغدغه‌های پرتکرار کاربران را هدف قرار دهند.
+- **پرسش و پاسخ (FAQ):** حداقل ۴ پرسش پرتکرار و فنی با پاسخ‌های مستقیم و شفاف (هر پاسخ بین ۴۰ تا ۶۰ کلمه) در فیلد \`faq\` در JSON.
+
+#### ۳. استناد و بهینه‌سازی موتورهای هوش مصنوعی مولد (GEO & E-E-A-T):
+- **باکس نکات کلیدی:** تیتر \`## نکات کلیدی\` به همراه یک لیست نشانه‌دار (\`- نکته...\`) شامل ۳ تا ۴ نکته محوری، کلیدی و برجسته درباره موضوع درج شود.
+- **استدلال‌های فنی متناسب با موضوع (بدون کلیشه و توهم آماری):**
+  * اگر موضوع به پردازش کلاینت/محلی مربوط است: از حذف رفت‌وبرگشت‌های شبکه (Zero Network Round-Trips) و عدم ارسال داده‌های حساس به سرور ثالث دفاع کنید.
+  * اگر موضوع به دیتابیس یا سرور مربوط است: از تیونینگ منابع، ایندکس‌گذاری، کشینگ و کاهش مصرف I/O و CPU دفاع کنید.
+  * از تولید آمار ساختگی، درصدهای جعلی و ادعای تست‌های خیالی سازمانی خودداری کنید.
+  * در عوض، از **فکت‌های عددی واقعی و استانداردهای فنی** (مانند سال ۲۰۲۶، نسخه‌های استاندارد مثل \`SHA-256\`، \`TLS 1.3\`، \`HTTP/2\`، \`OWASP Top 10\`، بازه‌های زمانی واقعی مثل \`۷ تا ۱۴ روز\` یا \`۳۶۵ روز\` و نوشتن شمارش‌ها با رقم مثل \`۳ لایه\` یا \`۷ گام\`) در متن استفاده کنید.
+- **بینش غیرکلیشه‌ای و تخصصی (Unique Insight):** حداقل یک زاویه دید تحلیلی نوآورانه یا راهکار متمایز ارائه کنید که فراتر از توضیحات رایج و بازنویسی‌های سطحی وب باشد.
+- **چالش‌ها، محدودیت‌ها و عیب‌یابی عمیق (Trade-offs & Pitfalls):** برای اثبات نگاه مهندسی و متوازن، حداقل ۲ محدودیت فنی واقعی و حداقل ۱ سناریوی مشخص که «استفاده از این رویکرد نامناسب است یا نتیجه عکس می‌دهد» را صراحتاً بیان کنید.
+- **استناد مستند (Blockquote):** استناد به یک اصل استاندارد مهندسی نرم‌افزار، مستندات رسمی معتبر یا یک بینش اصیل معماری با علامت نقل‌قول مارک‌داون (\`> نقل‌قول...\`) (از نسبت دادن جملات ساختگی به اشخاص خودداری شود).
+- **بخش جمع‌بندی:** پایان مقاله با تیتر \`## جمع‌بندی\` و چکیده کاربردی به پایان برسد.
+
+#### ۴. نگارش سلیس فارسی و خوانایی تحریریه‌ای (Readability):
+- **لحن طبیعی و تحریریه‌ای:** متن باید لحن روان، سلیس، تخصصی و ساختاریافته داشته باشد و از ترجمه‌های خشک یا ماشینی پرهیز شود.
+- **تنوع ریتمیک در طول جملات:** جملات کوتاه و صریح (۱۰ تا ۱۵ کلمه) را با جملات تحلیلی مرکب (۲۰ تا ۲۵ کلمه) ترکیب کنید تا جریان متن زنده و پویا بماند.
+- **پیوستگی معنایی:** از کلمات پیوند فارسی (مانند بنابراین، همچنین، علاوه بر این، در نتیجه، با این حال، به عنوان مثال) به شکلی طبیعی در جریان متن استفاده کنید.
+
+#### ۵. استاندارد تصاویر سبک و مدرن وب (۱۶:۹ - 1200x675):
+- **تصویر شاخص (featured_image_prompt):** پرامپت انگلیسی برای تصویر سبک و کم‌حجم وب با نسبت ۱۶:۹ متناسب با موضوع:
+  "${selectedPresetObj.promptSnippet}, 16:9 aspect ratio, 1200x675 resolution, wide angle landscape composition, clean modern dark tech vector styling with electric cyan accents, lightweight web asset, --ar 16:9, --q 1, no text, no typography, no watermark, no logos"
+- **دیاگرام معماری (diagram_prompt):** در صورت ماهیت معماری یا گردشی موضوع، پرامپت انگلیسی معماری/فلوچارت مفهومی با ترکیب افقی ۱۶:۹ بدون متن، به همراه قرار دادن برچسب [DIAGRAM_PLACEHOLDER] در یک خط مجزا در بخش فنی متن مقاله.
+- **تصاویر درون محتوا (image_prompts):** حداقل ۲ پرامپت انگلیسی برای عکس‌های سبک متن با نسبت ۱۶:۹ بدون متن، همراه با قرار دادن برچسب‌های [IMAGE_PLACEHOLDER_1] و [IMAGE_PLACEHOLDER_2] هر کدام در یک خط مجزا در بخش‌های متناسب متن.
+
+### 📐 ساختار سکشن‌های فیلد content (Modular Adaptive Markdown Structure):
+متن درون فیلد \`content\` باید یک ساختار ماژولار و تطبیقی با **فرمت خالص Markdown** داشته باشد (هرگز از تگ‌های HTML مانند \`<p>\`، \`<h2>\`، \`<a>\` یا \`<table>\` درون \`content\` استفاده نکنید؛ فقط Markdown بنویسید و بین هر بخش یک خط خالی \`\\n\\n\` بگذارید):
+- **پاراگراف پاسخ صریح (Direct Answer):** پاراگراف اول که با \`**${cleanFocusKeyword}**\` آغاز شده، بین ۳۵ تا ۵۰ کلمه بوده و پاسخی دقیق و فنی بدهد.
+- **باکس نکات کلیدی:** تیتر \`## نکات کلیدی\` به همراه لیست \`-\` با ۳ تا ۴ بولت‌پوینت تحلیلی و دست‌اول.
+- **پلیس‌هولدر دیاگرام:** برچسب \`[DIAGRAM_PLACEHOLDER]\` در یک خط مجزا.
+- **بخش تحلیل مفهومی و چرایی:** تیترهای \`## \` و \`### \` تحلیلی (شامل حداقل ۲ تیتر سؤالی با علامت ؟).
+- **پلیس‌هولدرهای تصاویر:** برچسب‌های \`[IMAGE_PLACEHOLDER_1]\` و \`[IMAGE_PLACEHOLDER_2]\` در خطوط مجزا.
+- **بخش پیاده‌سازی عملی / مقایسه تخصصی:** در صورت نیاز جدول مقایسه‌ای استاندارد Markdown (\`| ... |\`) یا نمونه کدهای فنی با بلوک کد مارک‌داون (\`\`\`language ... \`\`\`) یا لیست‌های ترتیبی (\`1. \`).
+- **چالش‌ها، محدودیت‌ها و عیب‌یابی (Trade-offs & Pitfalls):** بررسی حداقل ۲ محدودیت فنی واقعی و سناریوهای منع استفاده.
+- **واکاوی استانداردها، استناد و لینک‌سازی داخلی:** استناد مستند با \`> \` و درج طبیعی لینک‌های داخلی ابزارها و لینک خارجی MDN به شکل \`[متن](URL)\`.
+- **جمع‌بندی تحلیلی:** تیتر \`## جمع‌بندی\` به همراه نتیجه‌گیری کاربردی و راهنمای گام بعدی.
+
+#### ۶. قوانین خروجی و فرمت دقیق JSON (Strict JSON Validity):
+- خروجی فقط و فقط باید یک آبجکت معتبر JSON باشد.
+- ⚠️ **قانون قطعی برای فیلد content:** تمام متن مقاله در فیلد \`content\` را منحصراً با **Markdown استاندارد** (\`##\`، \`###\`، \`-\`، \`1.\`، \`| جدول |\`، \`> نقل‌قول\`، \`[متن](URL)\`) بنویسید و پاراگراف‌ها/بخش‌ها را با \`\\n\\n\` جدا کنید. **به هیچ عنوان تگ‌های HTML داخل \`content\` نگذارید تا هیچ چت‌باتی تگ‌ها را حذف یا خراب نکند.**
+- **اکیداً ممنوع:** هیچ متن توضیحی، پیام احوال‌پرسی، تعارف، یا سؤال و پیشنهاد پیگیری قبل یا بعد از JSON ننویسید.
+- پاسخ شما باید منحصراً با کاراکتر { آغاز شده و با علامت } به پایان برسد.
 
 \`\`\`json
 {
-  "title": "عنوان جذاب و استاندارد مقاله به زبان فارسی",
-  "slug": "english-seo-friendly-slug",
-  "seo_title": "عنوان سئو کمتر از ۶۰ کاراکتر",
-  "seo_desc": "توضیحات متا جذاب بین ۱۴۰ تا ۱۶۰ کاراکتر",
-  "featured_image_prompt": "Prompt for 16:9 featured image in English...",
-  "diagram_prompt": "Detailed architecture/flowchart prompt for infographic...",
+  "title": "راهنمای جامع ${cleanFocusKeyword}: تحلیل معماری، ابزارها و تکنیک‌های پیاده‌سازی",
+  "focus_keyword": "${cleanFocusKeyword}",
+  "slug": "web-security-guide",
+  "seo_title": "${cleanFocusKeyword} چیست؟ راهنمای جامع و کاربردی",
+  "seo_desc": "راهنمای کامل ${cleanFocusKeyword}؛ بررسی تکنیک‌های پیشگیری از نفوذ، پیکربندی هدرهای امنیتی و چک‌لیست ضروری برای توسعه‌دهندگان وب.",
+  "featured_image_prompt": "English prompt for 16:9 featured image...",
+  "diagram_prompt": "English prompt for technical architecture diagram...",
   "image_prompts": [
     "English prompt for in-content image 1...",
     "English prompt for in-content image 2..."
   ],
   "faq": [
-    {"question": "سوال اول؟", "answer": "پاسخ مستقیم و کوتاه..."},
-    {"question": "سوال دوم؟", "answer": "پاسخ مستقیم و کوتاه..."}
+    {"question": "${cleanFocusKeyword} چیست و چرا در وب مدرن حیاتی است؟", "answer": "پاسخ مستقیم و کوتاه بین ۴۰ تا ۶۰ کلمه..."},
+    {"question": "مهم‌ترین محدودیت یا چالش در پیاده‌سازی ${cleanFocusKeyword} چیست؟", "answer": "پاسخ تحلیلی بین ۴۰ تا ۶۰ کلمه درباره محدودیت‌ها و راه‌حل..."}
   ],${toolsJsonSample}
-  "content": "متن کامل مقاله به فرمت HTML معتبر با هدینگ‌های h2, h3، پاراگراف‌ها، لیست‌ها، جداول، لینک‌های داخلی ابزارها و برچسب‌های [DIAGRAM_PLACEHOLDER] و [IMAGE_PLACEHOLDER_1]..."
+  "content": "**${cleanFocusKeyword}** پاسخی ۳۵ تا ۵۰ کلمه‌ای...\\n\\n## نکات کلیدی\\n- نکته ۱\\n- نکته ۲\\n\\n[DIAGRAM_PLACEHOLDER]\\n\\n## چرا امنیت کاربردی وب حیاتی است؟\\nتوضیحات...\\n\\n[IMAGE_PLACEHOLDER_1]\\n\\n| عنوان | ویژگی |\\n| --- | --- |\\n| روش ۱ | توضیح |\\n\\n[IMAGE_PLACEHOLDER_2]\\n\\n> نقل‌قول مهندسی\\n\\n## جمع‌بندی\\nنتیجه‌گیری..."
 }
 \`\`\``;
   };
@@ -231,7 +315,7 @@ ${notesPart}
   };
 
   const handleSubmitJson = async () => {
-    const trimmedInput = (jsonInput || '').trim();
+    let trimmedInput = (jsonInput || '').trim();
     if (!trimmedInput) {
       setNotice({
         type: 'error',
@@ -239,6 +323,13 @@ ${notesPart}
       });
       return;
     }
+
+    // Auto-clean markdown backticks (```json ... ```)
+    trimmedInput = trimmedInput.replace(/^```(?:json)?\s*([\s\S]*?)\s*```$/i, '$1').trim();
+    // Auto-clean accidental nested markdown links: [text]([url](url)) -> [text](url)
+    trimmedInput = trimmedInput.replace(/\[([^\]]+)\]\(\s*\[([^\]]+)\](?:\([^)]+\))?\s*\)/gi, '[$1]($2)');
+    // Auto-clean accidental markdown link syntax inside HTML attributes: href="[url](url)" -> href='url'
+    trimmedInput = trimmedInput.replace(/href\s*=\s*(["'])\s*\[([^\]]+)\](?:\([^)]+\))?\s*\1/gi, "href='$2'");
 
     setIsLoading(true);
     setNotice(null);
@@ -255,6 +346,8 @@ ${notesPart}
           seo_target: seoTarget,
           calendar_item_id: selectedCalendarItemId || '',
           disable_ads: disableAds,
+          focus_keyword: focusKeyword.trim(),
+          topic: topic.trim(),
         }),
       });
 
@@ -288,10 +381,10 @@ ${notesPart}
 
   const handleCreateFromCalendarItem = (item) => {
     setTopic(item.title || '');
-    const notesArr = [];
     if (item.focus_keyword) {
-      notesArr.push(`کلمه کلیدی کانونی: ${item.focus_keyword}`);
+      setFocusKeyword(item.focus_keyword);
     }
+    const notesArr = [];
     if (item.pillar) {
       notesArr.push(`رویکرد و پیلار محتوا: ${item.pillar}`);
     }
@@ -423,14 +516,34 @@ ${notesPart}
               {/* Inputs */}
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '14px', marginBottom: '14px' }}>
                 <TextControl
-                  label="موضوع یا کلمه کلیدی اصلی:"
-                  placeholder="مثال: راهنمای بهینه‌سازی دیتابیس در وردپرس و Next.js"
+                  label="موضوع یا عنوان اصلی مقاله:"
+                  placeholder="مثال: راهنمای جامع بهینه‌سازی دیتابیس در وردپرس و Next.js"
                   value={topic}
                   onChange={(val) => setTopic(val || '')}
                 />
                 <TextControl
+                  label="کلمه کلیدی کانونی (Focus Keyword):"
+                  help="عبارت ۱ تا ۳ کلمه‌ای اصلی مقاله برای سنجش دقیق سئو، AEO و Rank Math"
+                  placeholder="مثال: بهینه‌سازی دیتابیس"
+                  value={focusKeyword}
+                  onChange={(val) => setFocusKeyword(val || '')}
+                />
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '14px', marginBottom: '14px' }}>
+                <SelectControl
+                  label="عمق محتوا و حداقل کلمات:"
+                  value={articleDepth}
+                  options={[
+                    { label: 'مقاله جامع و تحلیلی (۱۰۰۰ تا ۱۵۰۰ کلمه) - پیشنهادی', value: 'comprehensive' },
+                    { label: 'مقاله استاندارد (۷۰۰ تا ۱۰۰۰ کلمه)', value: 'standard' },
+                    { label: 'راهنمای مرجع و پیلار (۱۵۰۰ تا ۲۵۰۰ کلمه)', value: 'pillar' },
+                  ]}
+                  onChange={(val) => setArticleDepth(val || 'comprehensive')}
+                />
+                <TextControl
                   label="نکات تکمیلی و الزامات (اختیاری):"
-                  placeholder="مثال: مقایسه روش‌های کشینگ با Redis..."
+                  placeholder="مثال: تمرکز بر کشینگ با Redis و مقایسه متدهای ایندکس‌گذاری..."
                   value={additionalNotes}
                   onChange={(val) => setAdditionalNotes(val || '')}
                 />
@@ -691,10 +804,71 @@ ${notesPart}
                   {/* Summary Bar */}
                   <div style={{ display: 'flex', flexWrap: 'wrap', gap: '16px', background: '#f8fafc', padding: '10px 14px', borderRadius: '6px', marginBottom: '14px', border: '1px solid #e2e8f0', fontSize: '12.5px' }}>
                     <div><strong>عنوان:</strong> <span style={{ color: '#0f172a' }}>{result.title}</span></div>
+                    <div><strong>کلمه کلیدی:</strong> <span style={{ color: '#0284c7', fontWeight: 600 }}>{result.focus_keyword || '-'}</span></div>
                     <div><strong>نامک:</strong> <span style={{ color: '#0284c7', fontFamily: 'monospace' }}>{result.slug || '-'}</span></div>
                     <div><strong>عنوان سئو:</strong> <span style={{ color: '#475569' }}>{result.seo_title || '-'}</span></div>
                     <div><strong>FAQ:</strong> <span style={{ color: '#059669', fontWeight: 600 }}>{result.faq_count} سوال با اسکیما</span></div>
                   </div>
+
+                  {/* Instant Content Ranking & Scoring Card */}
+                  {Boolean(result.ranking) && (
+                    <div style={{ background: '#f0fdf4', border: '1px solid #86efac', borderRadius: '8px', padding: '12px 16px', marginBottom: '14px' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '10px', marginBottom: '10px' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                          <span style={{ fontSize: '18px' }}>⚡</span>
+                          <strong style={{ color: '#166534', fontSize: '13.5px' }}>
+                            ارزیابی و امتیاز هوشمند مقاله (Omni AI Content Ranking):
+                          </strong>
+                        </div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                          <span style={{ fontSize: '12px', color: '#166534', fontWeight: 600 }}>میانگین امتیاز کل:</span>
+                          <span style={{
+                            background: result.ranking.avg_score >= 80 ? '#15803d' : (result.ranking.avg_score >= 50 ? '#d97706' : '#dc2626'),
+                            color: '#ffffff',
+                            fontWeight: 700,
+                            fontSize: '13px',
+                            padding: '2px 10px',
+                            borderRadius: '12px',
+                          }}>
+                            {result.ranking.avg_score} / ۱۰۰
+                          </span>
+                        </div>
+                      </div>
+
+                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: '8px', fontSize: '12px' }}>
+                        <div style={{ background: '#ffffff', padding: '6px 10px', borderRadius: '6px', border: '1px solid #bbf7d0', textAlign: 'center' }}>
+                          <span style={{ color: '#64748b', display: 'block', fontSize: '11px' }}>سئو ارگانیک (SEO)</span>
+                          <strong style={{ color: result.ranking.seo?.score >= 80 ? '#15803d' : '#0f172a', fontSize: '13px' }}>
+                            {result.ranking.seo?.score ?? '-'}/100
+                          </strong>
+                        </div>
+                        <div style={{ background: '#ffffff', padding: '6px 10px', borderRadius: '6px', border: '1px solid #bbf7d0', textAlign: 'center' }}>
+                          <span style={{ color: '#64748b', display: 'block', fontSize: '11px' }}>موتور پاسخگو (AEO)</span>
+                          <strong style={{ color: result.ranking.aeo?.score >= 80 ? '#15803d' : '#0f172a', fontSize: '13px' }}>
+                            {result.ranking.aeo?.score ?? '-'}/100
+                          </strong>
+                        </div>
+                        <div style={{ background: '#ffffff', padding: '6px 10px', borderRadius: '6px', border: '1px solid #bbf7d0', textAlign: 'center' }}>
+                          <span style={{ color: '#64748b', display: 'block', fontSize: '11px' }}>مدل‌های مولد (GEO)</span>
+                          <strong style={{ color: result.ranking.geo?.score >= 80 ? '#15803d' : '#0f172a', fontSize: '13px' }}>
+                            {result.ranking.geo?.score ?? '-'}/100
+                          </strong>
+                        </div>
+                        <div style={{ background: '#ffffff', padding: '6px 10px', borderRadius: '6px', border: '1px solid #bbf7d0', textAlign: 'center' }}>
+                          <span style={{ color: '#64748b', display: 'block', fontSize: '11px' }}>روانی و خوانایی</span>
+                          <strong style={{ color: result.ranking.readability?.score >= 80 ? '#15803d' : '#0f172a', fontSize: '13px' }}>
+                            {result.ranking.readability?.score ?? '-'}/100
+                          </strong>
+                        </div>
+                        <div style={{ background: '#ffffff', padding: '6px 10px', borderRadius: '6px', border: '1px solid #bbf7d0', textAlign: 'center' }}>
+                          <span style={{ color: '#64748b', display: 'block', fontSize: '11px' }}>تعداد کلمات متن</span>
+                          <strong style={{ color: '#0f172a', fontSize: '13px' }}>
+                            {result.ranking.word_count ?? '-'} کلمه
+                          </strong>
+                        </div>
+                      </div>
+                    </div>
+                  )}
 
                   {/* Compact Terminal Boxes with max-height 90px */}
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
