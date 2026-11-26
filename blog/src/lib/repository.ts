@@ -7,7 +7,7 @@ import { jsonDebugging } from '@/content/json-debugging';
 import { jsonToTypescript } from '@/content/json-to-typescript';
 import { jwtVerification } from '@/content/jwt-verification';
 import { uuidV4V7 } from '@/content/uuid-v4-v7';
-import type { Category, FeaturedImage, Post, PostSummary, RankMathSeo, ToolLink } from '@/lib/types';
+import type { Category, FeaturedImage, InlineToken, Post, PostSummary, RankMathSeo, ToolLink } from '@/lib/types';
 
 // Static data behind an async repository boundary for a future API; no WordPress connection yet.
 const fallbackPosts: Post[] = [
@@ -219,6 +219,48 @@ export function toPost(value: unknown): Post | undefined {
     };
 }
 
+function parseInlineTokens(html: string): InlineToken[] {
+    const tokens: InlineToken[] = [];
+    const inlinePattern = /<(a)\s+[^>]*href=(["'])([^"']+)\2[^>]*>([\s\S]*?)<\/a>|<(strong|b)(?:\s[^>]*)?>([\s\S]*?)<\/\5>|<(code)(?:\s[^>]*)?>([\s\S]*?)<\/code>/gi;
+    let lastIndex = 0;
+    let m: RegExpExecArray | null;
+
+    while ((m = inlinePattern.exec(html)) !== null) {
+        if (m.index > lastIndex) {
+            const plain = stripHtml(html.slice(lastIndex, m.index));
+            if (plain) tokens.push({ type: 'text', text: plain });
+        }
+
+        if (m[1]) {
+            const rawHref = m[3].trim();
+            const linkText = stripHtml(m[4]);
+            if (linkText) {
+                if (/^(https?:\/\/|\/)/i.test(rawHref)) {
+                    const isExternal = /^https?:\/\//i.test(rawHref) && !/^https?:\/\/(?:[a-z0-9-]+\.)?zebracode\.ir\b/i.test(rawHref);
+                    tokens.push({ type: 'link', text: linkText, href: rawHref, isExternal });
+                } else {
+                    tokens.push({ type: 'text', text: linkText });
+                }
+            }
+        } else if (m[5]) {
+            const boldText = stripHtml(m[6]);
+            if (boldText) tokens.push({ type: 'bold', text: boldText });
+        } else if (m[7]) {
+            const codeText = stripHtml(m[8]);
+            if (codeText) tokens.push({ type: 'code', text: codeText });
+        }
+
+        lastIndex = inlinePattern.lastIndex;
+    }
+
+    if (lastIndex < html.length) {
+        const tail = stripHtml(html.slice(lastIndex));
+        if (tail) tokens.push({ type: 'text', text: tail });
+    }
+
+    return tokens;
+}
+
 export function htmlToBlocks(html: string, stripFaq = false): Post['blocks'] {
     const blocks: Post['blocks'] = [];
     if (!html || typeof html !== 'string') {
@@ -285,8 +327,17 @@ export function htmlToBlocks(html: string, stripFaq = false): Post['blocks'] {
             const code = inner.replace(/<[^>]+>/g, '').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&').replace(/&quot;/g, '"').trim();
             if (code) blocks.push({ type: 'code', language: languageMatch?.[1] ?? 'text', code });
         } else if (tag === 'ul' || tag === 'ol') {
-            const items = [...inner.matchAll(/<li(?:\s[^>]*)?>([\s\S]*?)<\/li>/gi)].map(item => stripHtml(item[1])).filter(Boolean);
-            if (items.length) blocks.push({ type: 'list', items });
+            const rawItems = [...inner.matchAll(/<li(?:\s[^>]*)?>([\s\S]*?)<\/li>/gi)];
+            const items: string[] = [];
+            const itemTokens: InlineToken[][] = [];
+            for (const item of rawItems) {
+                const text = stripHtml(item[1]);
+                if (text) {
+                    items.push(text);
+                    itemTokens.push(parseInlineTokens(item[1]));
+                }
+            }
+            if (items.length) blocks.push({ type: 'list', items, ordered: tag === 'ol', itemTokens });
         } else if (tag === 'table') {
             const headers = [...inner.matchAll(/<th(?:\s[^>]*)?>([\s\S]*?)<\/th>/gi)].map(cell => stripHtml(cell[1])).filter(Boolean);
             const rowMatches = [...inner.matchAll(/<tr(?:\s[^>]*)?>([\s\S]*?)<\/tr>/gi)];
@@ -307,7 +358,10 @@ export function htmlToBlocks(html: string, stripFaq = false): Post['blocks'] {
             if (title) blocks.push({ type: 'heading', id: slugify(title), title, level });
         } else {
             const text = stripHtml(inner);
-            if (text) blocks.push({ type: 'paragraph', text });
+            if (text) {
+                const tokens = parseInlineTokens(inner);
+                blocks.push({ type: 'paragraph', text, ...(tokens.length ? { tokens } : {}) });
+            }
         }
     }
     return blocks.length ? blocks : [{ type: 'paragraph', text: stripHtml(processedHtml) || 'این مقاله هنوز محتوایی ندارد.' }];

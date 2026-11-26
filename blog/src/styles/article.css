@@ -367,9 +367,26 @@
     scroll-margin-block-start: 100px;
     color: var(--ink);
 }
-.article-prose ul {
+.article-prose ul,
+.article-prose ol {
     margin-block: 18px 28px;
     padding-inline-start: 24px;
+}
+.article-prose ol {
+    list-style: decimal;
+}
+.article-prose ul {
+    list-style: disc;
+}
+.article-prose code {
+    background: var(--soft);
+    border: 1px solid var(--line);
+    border-radius: 5px;
+    padding: 1px 6px;
+    font-family: Consolas, Monaco, 'Courier New', monospace;
+    font-size: .88em;
+    direction: ltr;
+    unicode-bidi: embed;
 }
 .article-prose li {
     padding-inline-start: 4px;
@@ -402,6 +419,80 @@
     overflow: hidden;
     background: var(--surface);
     box-shadow: 0 8px 24px color-mix(in srgb, var(--ink) 5%, transparent);
+}
+.article-figure-trigger {
+    position: relative;
+    display: block;
+    width: 100%;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    cursor: zoom-in;
+}
+.article-figure-trigger img {
+    display: block;
+    width: 100%;
+    height: auto;
+}
+.article-figure-zoom {
+    position: absolute;
+    bottom: 10px;
+    left: 10px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    background: rgba(15, 23, 42, 0.72);
+    color: #f8fafc;
+    opacity: 0;
+    transition: opacity .15s ease;
+    pointer-events: none;
+}
+.article-figure-trigger:hover .article-figure-zoom {
+    opacity: 1;
+}
+.article-lightbox-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    background: rgba(2, 6, 23, 0.88);
+    backdrop-filter: blur(6px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+.article-lightbox-close {
+    position: fixed;
+    top: 18px;
+    right: 18px;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: 1px solid rgba(255,255,255,0.2);
+    background: rgba(15, 23, 42, 0.8);
+    color: #ffffff;
+    display: grid;
+    place-items: center;
+    cursor: pointer;
+}
+.article-lightbox-content {
+    max-width: min(1100px, 94vw);
+    max-height: 90vh;
+    text-align: center;
+}
+.article-lightbox-content img {
+    max-width: 100%;
+    max-height: 82vh;
+    border-radius: 10px;
+    object-fit: contain;
+}
+.article-lightbox-caption {
+    margin: 10px 0 0;
+    color: #cbd5e1;
+    font-size: .85rem;
 }
 .article-figure img {
     width: 100%;

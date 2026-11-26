@@ -4,9 +4,10 @@ import PostArtwork from '@/components/PostArtwork';
 import ArticleReadingBar from '@/components/ArticleReadingBar';
 import TableOfContents from '@/components/TableOfContents';
 import BackToTop from '@/components/BackToTop';
+import ImageLightbox from '@/components/ImageLightbox';
 import { AdBanner } from '@/components/AdBanner';
 import { categoryPath, formatDate, formatNumber, getToolUrl, postPath } from '@/lib/site';
-import type { ArticleBlock, Category, Post, PostSummary } from '@/lib/types';
+import type { ArticleBlock, Category, InlineToken, Post, PostSummary } from '@/lib/types';
 
 interface ArticleReaderProps {
     post: Post;
@@ -14,10 +15,37 @@ interface ArticleReaderProps {
     related: PostSummary[];
 }
 
+function renderInlineTokens(tokens?: InlineToken[], fallbackText?: string) {
+    if (!tokens || tokens.length === 0) {
+        return fallbackText ?? null;
+    }
+    return tokens.map((token, idx) => {
+        switch (token.type) {
+            case 'bold':
+                return <strong key={idx}>{token.text}</strong>;
+            case 'code':
+                return <code key={idx}>{token.text}</code>;
+            case 'link':
+                return (
+                    <a
+                        key={idx}
+                        href={token.href}
+                        target={token.isExternal ? '_blank' : undefined}
+                        rel={token.isExternal ? 'noopener noreferrer' : undefined}
+                    >
+                        {token.text}
+                    </a>
+                );
+            default:
+                return <span key={idx}>{token.text}</span>;
+        }
+    });
+}
+
 function ArticleContentBlock({ block }: { block: ArticleBlock }) {
     switch (block.type) {
         case 'paragraph':
-            return <p>{block.text}</p>;
+            return <p>{renderInlineTokens(block.tokens, block.text)}</p>;
         case 'heading':
             return block.level === 3 ? (
                 <h3 id={block.id}>{block.title}</h3>
@@ -25,14 +53,17 @@ function ArticleContentBlock({ block }: { block: ArticleBlock }) {
                 <h2 id={block.id}>{block.title}</h2>
             );
         case 'image':
+            return <ImageLightbox src={block.url} alt={block.alt || ''} caption={block.caption} />;
+        case 'list': {
+            const ListTag = block.ordered ? 'ol' : 'ul';
             return (
-                <figure className="article-figure">
-                    <img src={block.url} alt={block.alt || ''} loading="lazy" />
-                    {block.caption && <figcaption>{block.caption}</figcaption>}
-                </figure>
+                <ListTag>
+                    {block.items.map((item, index) => (
+                        <li key={index}>{renderInlineTokens(block.itemTokens?.[index], item)}</li>
+                    ))}
+                </ListTag>
             );
-        case 'list':
-            return <ul>{block.items.map((item, index) => <li key={index}>{item}</li>)}</ul>;
+        }
         case 'code':
             return <CodeBlock language={block.language} code={block.code} caption={block.caption} />;
         case 'callout':
@@ -108,7 +139,7 @@ export default function ArticleReader({ post, categories, related }: ArticleRead
                 <div className="reading-shell">
                     <div className="article-main-content">
                         {hasContents && (
-                            <details className="reading-toc reading-toc-mobile" open>
+                            <details className="reading-toc reading-toc-mobile">
                                 <summary>در این مقاله می‌خوانید</summary>
                                 <nav aria-label="فهرست مقاله"><TableOfContents post={post} /></nav>
                             </details>

@@ -30,6 +30,14 @@ fs.copyFileSync(
   path.join(distPluginDir, 'includes', 'modules', 'class-ranking-module.php')
 );
 fs.copyFileSync(
+  path.join(pluginDir, 'includes', 'modules', 'class-module-manager.php'),
+  path.join(distPluginDir, 'includes', 'modules', 'class-module-manager.php')
+);
+fs.copyFileSync(
+  path.join(pluginDir, 'includes', 'modules', 'class-social-broadcast.php'),
+  path.join(distPluginDir, 'includes', 'modules', 'class-social-broadcast.php')
+);
+fs.copyFileSync(
   path.join(pluginDir, 'includes', 'api', 'class-rest-controller.php'),
   path.join(distPluginDir, 'includes', 'api', 'class-rest-controller.php')
 );

@@ -58,3 +58,11 @@ jobs:
           local-dir: ./blog/out/
           server-dir: ${{ vars.FTP_DIR_BLOG_MAIN || '/blog/' }}
           dangerous-clean-slate: false
+
+      - name: 📢 Broadcast newly published articles to Telegram & Bale
+        if: success() && secrets.OMNI_SOCIAL_WEBHOOK_SECRET != ''
+        run: |
+          curl -sS -X POST "${{ vars.WORDPRESS_BLOG_API_URL || 'https://zebracode.ir/blog-admin/wp-json/omni-ai/v1' }}/social-broadcast/webhook" \
+            -H "Content-Type: application/json" \
+            -H "X-Omni-Webhook-Secret: ${{ secrets.OMNI_SOCIAL_WEBHOOK_SECRET }}" \
+            -d '{"source":"github-actions-main"}' || true

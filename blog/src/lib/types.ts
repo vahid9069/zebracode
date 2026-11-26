@@ -9,10 +9,16 @@ export interface Category {
     count?: number;
 }
 
+export type InlineToken =
+    | { type: 'text'; text: string }
+    | { type: 'bold'; text: string }
+    | { type: 'code'; text: string }
+    | { type: 'link'; text: string; href: string; isExternal?: boolean };
+
 export type ArticleBlock =
-    | { type: 'paragraph'; text: string }
+    | { type: 'paragraph'; text: string; tokens?: InlineToken[] }
     | { type: 'heading'; id: string; title: string; level?: 2 | 3 }
-    | { type: 'list'; items: string[] }
+    | { type: 'list'; items: string[]; ordered?: boolean; itemTokens?: InlineToken[][] }
     | { type: 'code'; language: string; code: string; caption?: string }
     | { type: 'callout'; title: string; text: string; tone?: 'note' | 'warning' }
     | { type: 'table'; headers: string[]; rows: string[][] }

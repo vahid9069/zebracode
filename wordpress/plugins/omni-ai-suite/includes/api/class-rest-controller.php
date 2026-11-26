@@ -178,6 +178,30 @@ class Rest_Controller {
             ],
         ]);
 
+        // Social Broadcast (Telegram & Bale) endpoints
+        register_rest_route(self::NAMESPACE, '/social-broadcast', [
+            [
+                'methods'             => \WP_REST_Server::READABLE,
+                'callback'            => [$this, 'handle_get_social_broadcast'],
+                'permission_callback' => function () {
+                    return current_user_can('manage_options');
+                },
+            ],
+            [
+                'methods'             => \WP_REST_Server::CREATABLE,
+                'callback'            => [$this, 'handle_post_social_broadcast'],
+                'permission_callback' => function () {
+                    return current_user_can('manage_options');
+                },
+            ],
+        ]);
+
+        register_rest_route(self::NAMESPACE, '/social-broadcast/webhook', [
+            'methods'             => \WP_REST_Server::CREATABLE,
+            'callback'            => [$this, 'handle_social_broadcast_webhook'],
+            'permission_callback' => '__return_true',
+        ]);
+
         // Register Headless Blog & SEO public and management routes
         (new Headless_Controller())->register_routes();
 
@@ -206,6 +230,30 @@ class Rest_Controller {
                     return current_user_can('edit_posts');
                 },
             ],
+        ]);
+
+        // Social Broadcast (Telegram & Bale) endpoints
+        register_rest_route(self::NAMESPACE, '/social-broadcast', [
+            [
+                'methods'             => \WP_REST_Server::READABLE,
+                'callback'            => [$this, 'handle_get_social_broadcast'],
+                'permission_callback' => function () {
+                    return current_user_can('manage_options');
+                },
+            ],
+            [
+                'methods'             => \WP_REST_Server::CREATABLE,
+                'callback'            => [$this, 'handle_post_social_broadcast'],
+                'permission_callback' => function () {
+                    return current_user_can('manage_options');
+                },
+            ],
+        ]);
+
+        register_rest_route(self::NAMESPACE, '/social-broadcast/webhook', [
+            'methods'             => \WP_REST_Server::CREATABLE,
+            'callback'            => [$this, 'handle_social_broadcast_webhook'],
+            'permission_callback' => '__return_true',
         ]);
 
         // Security Settings & Routes management endpoints
@@ -250,6 +298,30 @@ class Rest_Controller {
             ],
         ]);
 
+        // Social Broadcast (Telegram & Bale) endpoints
+        register_rest_route(self::NAMESPACE, '/social-broadcast', [
+            [
+                'methods'             => \WP_REST_Server::READABLE,
+                'callback'            => [$this, 'handle_get_social_broadcast'],
+                'permission_callback' => function () {
+                    return current_user_can('manage_options');
+                },
+            ],
+            [
+                'methods'             => \WP_REST_Server::CREATABLE,
+                'callback'            => [$this, 'handle_post_social_broadcast'],
+                'permission_callback' => function () {
+                    return current_user_can('manage_options');
+                },
+            ],
+        ]);
+
+        register_rest_route(self::NAMESPACE, '/social-broadcast/webhook', [
+            'methods'             => \WP_REST_Server::CREATABLE,
+            'callback'            => [$this, 'handle_social_broadcast_webhook'],
+            'permission_callback' => '__return_true',
+        ]);
+
         register_rest_route(self::NAMESPACE, '/tools/sync', [
             'methods'             => \WP_REST_Server::CREATABLE,
             'callback'            => [$this, 'handle_sync_tools'],
@@ -274,6 +346,30 @@ class Rest_Controller {
             ],
         ]);
 
+        // Social Broadcast (Telegram & Bale) endpoints
+        register_rest_route(self::NAMESPACE, '/social-broadcast', [
+            [
+                'methods'             => \WP_REST_Server::READABLE,
+                'callback'            => [$this, 'handle_get_social_broadcast'],
+                'permission_callback' => function () {
+                    return current_user_can('manage_options');
+                },
+            ],
+            [
+                'methods'             => \WP_REST_Server::CREATABLE,
+                'callback'            => [$this, 'handle_post_social_broadcast'],
+                'permission_callback' => function () {
+                    return current_user_can('manage_options');
+                },
+            ],
+        ]);
+
+        register_rest_route(self::NAMESPACE, '/social-broadcast/webhook', [
+            'methods'             => \WP_REST_Server::CREATABLE,
+            'callback'            => [$this, 'handle_social_broadcast_webhook'],
+            'permission_callback' => '__return_true',
+        ]);
+
         // CI/CD Blog Deployment & GitHub Actions monitor
         register_rest_route(self::NAMESPACE, '/deploy', [
             [
@@ -290,6 +386,30 @@ class Rest_Controller {
                     return current_user_can('edit_posts');
                 },
             ],
+        ]);
+
+        // Social Broadcast (Telegram & Bale) endpoints
+        register_rest_route(self::NAMESPACE, '/social-broadcast', [
+            [
+                'methods'             => \WP_REST_Server::READABLE,
+                'callback'            => [$this, 'handle_get_social_broadcast'],
+                'permission_callback' => function () {
+                    return current_user_can('manage_options');
+                },
+            ],
+            [
+                'methods'             => \WP_REST_Server::CREATABLE,
+                'callback'            => [$this, 'handle_post_social_broadcast'],
+                'permission_callback' => function () {
+                    return current_user_can('manage_options');
+                },
+            ],
+        ]);
+
+        register_rest_route(self::NAMESPACE, '/social-broadcast/webhook', [
+            'methods'             => \WP_REST_Server::CREATABLE,
+            'callback'            => [$this, 'handle_social_broadcast_webhook'],
+            'permission_callback' => '__return_true',
         ]);
 
         // Google Search Console endpoints
@@ -3203,6 +3323,141 @@ class Rest_Controller {
         }
 
         $res = \OmniAI\Modules\Search_Console_Module::remove_custom_site($site_url);
+        return new \WP_REST_Response($res, 200);
+    }
+
+    // =========================================================================
+    // Social Broadcast (Telegram & Bale) Endpoints
+    // =========================================================================
+
+    public function handle_get_social_broadcast(\WP_REST_Request $request): \WP_REST_Response {
+        $settings = \OmniAI\Modules\Social_Broadcast::get_settings();
+        $tg_token = $settings['telegram_bot_token'] ?? '';
+        $bale_token = $settings['bale_bot_token'] ?? '';
+        $rubika_token = $settings['rubika_bot_token'] ?? '';
+
+        $recent_posts = get_posts([
+            'post_type'      => 'post',
+            'post_status'    => 'publish',
+            'posts_per_page' => 15,
+            'orderby'        => 'date',
+            'order'          => 'DESC',
+        ]);
+
+        $posts_data = [];
+        foreach ($recent_posts as $p) {
+            $posted_at = get_post_meta($p->ID, \OmniAI\Modules\Social_Broadcast::META_POSTED, true);
+            $msgs = get_post_meta($p->ID, \OmniAI\Modules\Social_Broadcast::META_MESSAGES, true);
+            $posts_data[] = [
+                'id'        => $p->ID,
+                'title'     => $p->post_title,
+                'slug'      => $p->post_name,
+                'date'      => $p->post_date,
+                'posted'    => !empty($posted_at),
+                'posted_at' => $posted_at ?: null,
+                'channels'  => is_array($msgs) ? array_keys($msgs) : [],
+            ];
+        }
+
+        return new \WP_REST_Response([
+            'success'  => true,
+            'settings' => [
+                'blog_base_url'      => $settings['blog_base_url'],
+                'telegram_enabled'   => !empty($settings['telegram_enabled']),
+                'has_telegram_token' => !empty($tg_token),
+                'telegram_masked'    => !empty($tg_token) ? (substr($tg_token, 0, 6) . '••••' . substr($tg_token, -4)) : '',
+                'telegram_chat_id'   => $settings['telegram_chat_id'],
+                'bale_enabled'       => !empty($settings['bale_enabled']),
+                'has_bale_token'     => !empty($bale_token),
+                'bale_masked'        => !empty($bale_token) ? (substr($bale_token, 0, 6) . '••••' . substr($bale_token, -4)) : '',
+                'bale_chat_id'       => $settings['bale_chat_id'],
+                'rubika_enabled'     => !empty($settings['rubika_enabled']),
+                'has_rubika_token'   => !empty($rubika_token),
+                'rubika_masked'      => !empty($rubika_token) ? (substr($rubika_token, 0, 6) . '••••' . substr($rubika_token, -4)) : '',
+                'rubika_chat_id'     => $settings['rubika_chat_id'],
+                'delete_on_draft'    => !empty($settings['delete_on_draft']),
+                'verify_live_url'    => !empty($settings['verify_live_url']),
+                'webhook_secret'     => $settings['webhook_secret'],
+                'webhook_url'        => rest_url(self::NAMESPACE . '/social-broadcast/webhook'),
+            ],
+            'posts' => $posts_data,
+        ], 200);
+    }
+
+    public function handle_post_social_broadcast(\WP_REST_Request $request): \WP_REST_Response {
+        $params = $request->get_json_params() ?: $request->get_params();
+        $action = sanitize_text_field($params['action'] ?? 'save_settings');
+
+        if ($action === 'save_settings') {
+            $existing = \OmniAI\Modules\Social_Broadcast::get_settings();
+
+            $new_tg_token = trim((string) ($params['telegram_bot_token'] ?? ''));
+            $new_bale_token = trim((string) ($params['bale_bot_token'] ?? ''));
+            $new_rubika_token = trim((string) ($params['rubika_bot_token'] ?? ''));
+
+            $updated = [
+                'webhook_secret'     => $existing['webhook_secret'],
+                'blog_base_url'      => esc_url_raw(trim((string) ($params['blog_base_url'] ?? $existing['blog_base_url']))) ?: 'https://zebracode.ir/blog',
+                'telegram_enabled'   => !empty($params['telegram_enabled']),
+                'telegram_bot_token' => !empty($new_tg_token) ? sanitize_text_field($new_tg_token) : $existing['telegram_bot_token'],
+                'telegram_chat_id'   => sanitize_text_field(trim((string) ($params['telegram_chat_id'] ?? $existing['telegram_chat_id']))),
+                'bale_enabled'       => !empty($params['bale_enabled']),
+                'bale_bot_token'     => !empty($new_bale_token) ? sanitize_text_field($new_bale_token) : $existing['bale_bot_token'],
+                'bale_chat_id'       => sanitize_text_field(trim((string) ($params['bale_chat_id'] ?? $existing['bale_chat_id']))),
+                'rubika_enabled'     => !empty($params['rubika_enabled']),
+                'rubika_bot_token'   => !empty($new_rubika_token) ? sanitize_text_field($new_rubika_token) : $existing['rubika_bot_token'],
+                'rubika_chat_id'     => sanitize_text_field(trim((string) ($params['rubika_chat_id'] ?? $existing['rubika_chat_id']))),
+                'delete_on_draft'    => !empty($params['delete_on_draft']),
+                'verify_live_url'    => !empty($params['verify_live_url']),
+            ];
+
+            update_option(\OmniAI\Modules\Social_Broadcast::OPTION_SETTINGS, $updated, false);
+
+            return new \WP_REST_Response([
+                'success' => true,
+                'message' => __('تنظیمات انتشار خودکار در تلگرام، بله و روبیکا ذخیره شد.', 'omni-ai-suite'),
+            ], 200);
+        }
+
+        if ($action === 'test_channel') {
+            $platform = sanitize_text_field($params['platform'] ?? '');
+            $res = \OmniAI\Modules\Social_Broadcast::send_test_message($platform);
+            return new \WP_REST_Response($res, !empty($res['success']) ? 200 : 400);
+        }
+
+        if ($action === 'broadcast_pending') {
+            $res = \OmniAI\Modules\Social_Broadcast::broadcast_pending_posts(10);
+            return new \WP_REST_Response($res, 200);
+        }
+
+        if ($action === 'broadcast_post') {
+            $post_id = intval($params['post_id'] ?? 0);
+            $force = !empty($params['force']);
+            if ($post_id <= 0) {
+                return new \WP_REST_Response(['success' => false, 'message' => 'شناسه مقاله نامعتبر است.'], 400);
+            }
+            $res = \OmniAI\Modules\Social_Broadcast::broadcast_single_post($post_id, $force);
+            return new \WP_REST_Response($res, !empty($res['success']) ? 200 : 400);
+        }
+
+        return new \WP_REST_Response(['success' => false, 'message' => 'عملیات نامعتبر است.'], 400);
+    }
+
+    public function handle_social_broadcast_webhook(\WP_REST_Request $request): \WP_REST_Response {
+        $settings = \OmniAI\Modules\Social_Broadcast::get_settings();
+        $expected = (string) ($settings['webhook_secret'] ?? '');
+
+        $provided = (string) $request->get_header('X-Omni-Webhook-Secret');
+        if (empty($provided)) {
+            $params = $request->get_json_params() ?: $request->get_params();
+            $provided = (string) ($params['secret'] ?? '');
+        }
+
+        if (empty($expected) || empty($provided) || !hash_equals($expected, $provided)) {
+            return new \WP_REST_Response(['success' => false, 'message' => 'Unauthorized webhook secret'], 401);
+        }
+
+        $res = \OmniAI\Modules\Social_Broadcast::broadcast_pending_posts(10);
         return new \WP_REST_Response($res, 200);
     }
 }

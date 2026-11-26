@@ -2,6 +2,7 @@ import { createElement, useState, useEffect, useRef } from '@wordpress/element';
 import { Card, CardBody, CardHeader, Button, Spinner, Notice, TextControl, CheckboxControl } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { apiFetch } from '../utils/api';
+import SocialBroadcastCard from '../components/SocialBroadcastCard';
 
 export default function DeployManager() {
   const [loading, setLoading] = useState(true);
@@ -546,6 +547,8 @@ export default function DeployManager() {
           </form>
         </CardBody>
       </Card>
+
+      <SocialBroadcastCard />
     </div>
   );
 }
