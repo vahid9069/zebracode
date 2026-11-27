@@ -1,7 +1,8 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { formatDate } from '@/lib/site';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { MessageSquareReply, Send, X } from 'lucide-react';
+import { formatDate, formatNumber } from '@/lib/site';
 import type { PostComment } from '@/lib/types';
 
 interface CommentsSectionProps {
@@ -10,14 +11,36 @@ interface CommentsSectionProps {
     apiBaseUrl: string;
 }
 
+interface CommentNode extends PostComment {
+    replies: CommentNode[];
+}
+
+function buildCommentTree(list: PostComment[]): CommentNode[] {
+    const byId = new Map<number, CommentNode>();
+    for (const item of list) {
+        byId.set(item.id, { ...item, replies: [] });
+    }
+    const roots: CommentNode[] = [];
+    for (const node of byId.values()) {
+        if (node.parentId > 0 && byId.has(node.parentId)) {
+            byId.get(node.parentId)!.replies.push(node);
+        } else {
+            roots.push(node);
+        }
+    }
+    return roots;
+}
+
 export default function CommentsSection({ slug, initialComments, apiBaseUrl }: CommentsSectionProps) {
     const [comments, setComments] = useState<PostComment[]>(initialComments);
     const [authorName, setAuthorName] = useState('');
     const [authorEmail, setAuthorEmail] = useState('');
     const [content, setContent] = useState('');
     const [websiteHp, setWebsiteHp] = useState('');
+    const [replyTo, setReplyTo] = useState<{ id: number; authorName: string } | null>(null);
     const [submitting, setSubmitting] = useState(false);
     const [feedback, setFeedback] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+    const textareaRef = useRef<HTMLTextAreaElement | null>(null);
 
     useEffect(() => {
         if (!apiBaseUrl || !slug) return;
@@ -47,6 +70,15 @@ export default function CommentsSection({ slug, initialComments, apiBaseUrl }: C
         return () => controller.abort();
     }, [apiBaseUrl, slug]);
 
+    const commentTree = useMemo(() => buildCommentTree(comments), [comments]);
+
+    const handleReplyClick = (comment: PostComment) => {
+        setReplyTo({ id: comment.id, authorName: comment.authorName });
+        setFeedback(null);
+        textareaRef.current?.focus();
+        textareaRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    };
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setFeedback(null);
@@ -74,6 +106,7 @@ export default function CommentsSection({ slug, initialComments, apiBaseUrl }: C
                     author_name: authorName.trim(),
                     author_email: authorEmail.trim(),
                     content: content.trim(),
+                    parent_id: replyTo?.id ?? 0,
                     website_hp: websiteHp,
                 }),
             });
@@ -86,6 +119,7 @@ export default function CommentsSection({ slug, initialComments, apiBaseUrl }: C
                 setAuthorName('');
                 setAuthorEmail('');
                 setContent('');
+                setReplyTo(null);
             } else {
                 setFeedback({ type: 'error', text: data?.message || 'خطا در ثبت دیدگاه.' });
             }
@@ -96,49 +130,113 @@ export default function CommentsSection({ slug, initialComments, apiBaseUrl }: C
         }
     };
 
-    return (
-        <section className="mx-auto mt-12 max-w-3xl rounded-2xl border border-slate-200 bg-white/80 p-6 dark:border-slate-800 dark:bg-slate-900/60" aria-labelledby="comments-heading">
-            <h2 id="comments-heading" className="mb-2 text-xl font-bold">
-                دیدگاه‌ها ({comments.length})
-            </h2>
-            <p className="mb-6 text-sm text-slate-500 dark:text-slate-400">
-                دیدگاه‌ها پیش از انتشار بررسی می‌شوند و ایمیل شما منتشر نخواهد شد.
-            </p>
-
-            {comments.length > 0 ? (
-                <ul className="mb-8 space-y-4">
-                    {comments.map((comment) => (
-                        <li
-                            key={comment.id}
-                            className="rounded-xl border border-slate-200/80 bg-slate-50/70 p-4 dark:border-slate-800 dark:bg-slate-950/50"
-                        >
-                            <div className="mb-2 flex items-center justify-between gap-2 text-xs">
-                                <span className="font-bold text-slate-800 dark:text-slate-100">
-                                    {comment.authorName}
-                                    {comment.isAdmin && (
-                                        <span className="mr-2 rounded bg-blue-100 px-1.5 py-0.5 text-[10px] text-blue-700 dark:bg-sky-900/60 dark:text-sky-200">
-                                            نویسنده
-                                        </span>
-                                    )}
-                                </span>
-                                <time dateTime={comment.date} className="text-slate-500 dark:text-slate-400">
-                                    {formatDate(comment.date)}
-                                </time>
+    const renderCommentItem = (node: CommentNode, depth = 0, parentAuthor?: string) => {
+        const initial = node.authorName.trim().charAt(0) || 'ک';
+        return (
+            <li key={node.id} className={depth > 0 ? 'mt-3' : ''}>
+                <div
+                    className={`rounded-xl border p-4 transition ${
+                        node.isAdmin
+                            ? 'border-[var(--brand)]/35 bg-[var(--brand-soft)]'
+                            : 'border-[var(--line)] bg-[var(--soft)]'
+                    }`}
+                >
+                    <div className="mb-2.5 flex flex-wrap items-center justify-between gap-2">
+                        <div className="flex items-center gap-2.5">
+                            <span
+                                aria-hidden="true"
+                                className={`grid h-8 w-8 shrink-0 place-items-center rounded-full text-xs font-bold ${
+                                    node.isAdmin
+                                        ? 'bg-[var(--brand)] text-white'
+                                        : 'bg-[var(--line)] text-[var(--ink)]'
+                                }`}
+                            >
+                                {initial}
+                            </span>
+                            <div className="flex flex-wrap items-center gap-2">
+                                <span className="text-sm font-bold text-[var(--ink)]">{node.authorName}</span>
+                                {node.isAdmin && (
+                                    <span className="rounded-md bg-[var(--brand)]/15 px-2 py-0.5 text-[11px] font-semibold text-[var(--brand)]">
+                                        نویسنده
+                                    </span>
+                                )}
+                                {parentAuthor && (
+                                    <span className="text-[11px] text-[var(--muted)]">
+                                        در پاسخ به {parentAuthor}
+                                    </span>
+                                )}
                             </div>
-                            <p className="whitespace-pre-line text-sm leading-7 text-slate-700 dark:text-slate-300">
-                                {comment.content}
-                            </p>
-                        </li>
-                    ))}
+                        </div>
+
+                        <div className="flex items-center gap-3 text-xs text-[var(--muted)]">
+                            <time dateTime={node.date}>{formatDate(node.date)}</time>
+                            <button
+                                type="button"
+                                onClick={() => handleReplyClick(node)}
+                                className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs font-medium text-[var(--brand)] transition hover:bg-[var(--brand-soft)]"
+                            >
+                                <MessageSquareReply size={13} aria-hidden="true" />
+                                <span>پاسخ</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <p className="whitespace-pre-line pr-10 text-sm leading-7 text-[var(--ink)]/90">
+                        {node.content}
+                    </p>
+                </div>
+
+                {node.replies.length > 0 && (
+                    <ul className="mt-3 mr-4 border-r-2 border-[var(--brand)]/30 pr-4 sm:mr-6 sm:pr-5">
+                        {node.replies.map((reply) => renderCommentItem(reply, depth + 1, node.authorName))}
+                    </ul>
+                )}
+            </li>
+        );
+    };
+
+    return (
+        <section
+            className="mt-12 w-full rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-5 sm:p-7"
+            aria-labelledby="comments-heading"
+        >
+            <div className="mb-6 flex flex-wrap items-center justify-between gap-2 border-b border-[var(--line-subtle)] pb-4">
+                <div>
+                    <h2 id="comments-heading" className="text-lg font-bold text-[var(--ink)] sm:text-xl">
+                        دیدگاه‌ها ({formatNumber(comments.length)})
+                    </h2>
+                    <p className="mt-1 text-xs text-[var(--muted)] sm:text-sm">
+                        دیدگاه‌ها پیش از انتشار بررسی می‌شوند و ایمیل شما منتشر نخواهد شد.
+                    </p>
+                </div>
+            </div>
+
+            {commentTree.length > 0 ? (
+                <ul className="mb-8 space-y-4">
+                    {commentTree.map((node) => renderCommentItem(node))}
                 </ul>
             ) : (
-                <p className="mb-6 text-sm text-slate-500 dark:text-slate-400">
-                    هنوز دیدگاهی ثبت نشده است. اولین نفری باشید که نظر می‌دهید.
-                </p>
+                <div className="mb-8 rounded-xl border border-dashed border-[var(--line)] bg-[var(--soft)] p-5 text-center text-sm text-[var(--muted)]">
+                    هنوز دیدگاهی ثبت نشده است. اولین نفری باشید که سوال یا نظر خود را می‌نویسید.
+                </div>
             )}
 
-            <form onSubmit={handleSubmit} className="space-y-4 border-t border-slate-200 pt-6 dark:border-slate-800">
-                <h3 className="text-base font-semibold">ثبت دیدگاه جدید</h3>
+            <form onSubmit={handleSubmit} className="space-y-4 border-t border-[var(--line)] pt-6">
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                    <h3 className="text-base font-bold text-[var(--ink)]">
+                        {replyTo ? `پاسخ به ${replyTo.authorName}` : 'ثبت دیدگاه جدید'}
+                    </h3>
+                    {replyTo && (
+                        <button
+                            type="button"
+                            onClick={() => setReplyTo(null)}
+                            className="inline-flex items-center gap-1 rounded-lg border border-[var(--line)] px-2.5 py-1 text-xs text-[var(--muted)] transition hover:text-[var(--ink)]"
+                        >
+                            <X size={13} aria-hidden="true" />
+                            <span>لغو پاسخ</span>
+                        </button>
+                    )}
+                </div>
 
                 {/* Honeypot anti-spam field */}
                 <div className="hidden" aria-hidden="true">
@@ -155,7 +253,7 @@ export default function CommentsSection({ slug, initialComments, apiBaseUrl }: C
 
                 <div className="grid gap-4 sm:grid-cols-2">
                     <div>
-                        <label htmlFor="comment-author-name" className="mb-1 block text-xs font-medium">
+                        <label htmlFor="comment-author-name" className="mb-1.5 block text-xs font-semibold text-[var(--ink)]">
                             نام و نام خانوادگی
                         </label>
                         <input
@@ -164,13 +262,14 @@ export default function CommentsSection({ slug, initialComments, apiBaseUrl }: C
                             required
                             minLength={2}
                             maxLength={60}
+                            placeholder="مثلاً: علی محمدی"
                             value={authorName}
                             onChange={(e) => setAuthorName(e.target.value)}
-                            className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm outline-none focus:border-blue-500 dark:border-slate-700 dark:bg-slate-950"
+                            className="w-full rounded-xl border border-[var(--line)] bg-[var(--soft)] px-3.5 py-2.5 text-sm text-[var(--ink)] outline-none transition focus:border-[var(--brand)] focus:bg-[var(--surface)]"
                         />
                     </div>
                     <div>
-                        <label htmlFor="comment-author-email" className="mb-1 block text-xs font-medium">
+                        <label htmlFor="comment-author-email" className="mb-1.5 block text-xs font-semibold text-[var(--ink)]">
                             ایمیل (محرمانه می‌ماند)
                         </label>
                         <input
@@ -178,35 +277,44 @@ export default function CommentsSection({ slug, initialComments, apiBaseUrl }: C
                             type="email"
                             required
                             dir="ltr"
+                            placeholder="name@example.com"
                             value={authorEmail}
                             onChange={(e) => setAuthorEmail(e.target.value)}
-                            className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm outline-none focus:border-blue-500 dark:border-slate-700 dark:bg-slate-950"
+                            className="w-full rounded-xl border border-[var(--line)] bg-[var(--soft)] px-3.5 py-2.5 text-sm text-[var(--ink)] outline-none transition focus:border-[var(--brand)] focus:bg-[var(--surface)]"
                         />
                     </div>
                 </div>
 
                 <div>
-                    <label htmlFor="comment-content" className="mb-1 block text-xs font-medium">
-                        متن دیدگاه
-                    </label>
+                    <div className="mb-1.5 flex items-center justify-between">
+                        <label htmlFor="comment-content" className="block text-xs font-semibold text-[var(--ink)]">
+                            متن دیدگاه
+                        </label>
+                        <span className="text-[11px] text-[var(--muted)]">
+                            {formatNumber(content.length)} / {formatNumber(2000)}
+                        </span>
+                    </div>
                     <textarea
+                        ref={textareaRef}
                         id="comment-content"
                         rows={4}
                         required
                         minLength={5}
                         maxLength={2000}
+                        placeholder="سوال، تجربه یا نظر خود را درباره این مقاله بنویسید..."
                         value={content}
                         onChange={(e) => setContent(e.target.value)}
-                        className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm outline-none focus:border-blue-500 dark:border-slate-700 dark:bg-slate-950"
+                        className="w-full rounded-xl border border-[var(--line)] bg-[var(--soft)] px-3.5 py-2.5 text-sm leading-7 text-[var(--ink)] outline-none transition focus:border-[var(--brand)] focus:bg-[var(--surface)]"
                     />
                 </div>
 
                 {feedback && (
                     <div
-                        className={`rounded-lg px-4 py-2.5 text-sm ${
+                        role="status"
+                        className={`rounded-xl px-4 py-3 text-sm font-medium ${
                             feedback.type === 'success'
-                                ? 'bg-emerald-50 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-200'
-                                : 'bg-red-50 text-red-800 dark:bg-red-950/60 dark:text-red-200'
+                                ? 'border border-emerald-200 bg-emerald-50 text-emerald-800 dark:border-emerald-900/60 dark:bg-emerald-950/60 dark:text-emerald-200'
+                                : 'border border-red-200 bg-red-50 text-red-800 dark:border-red-900/60 dark:bg-red-950/60 dark:text-red-200'
                         }`}
                     >
                         {feedback.text}
@@ -216,9 +324,10 @@ export default function CommentsSection({ slug, initialComments, apiBaseUrl }: C
                 <button
                     type="submit"
                     disabled={submitting}
-                    className="rounded-xl bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-blue-700 disabled:opacity-60"
+                    className="inline-flex items-center gap-2 rounded-xl bg-[var(--brand)] px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-[var(--brand-hover)] disabled:opacity-60"
                 >
-                    {submitting ? 'در حال ارسال...' : 'ارسال دیدگاه'}
+                    <Send size={15} aria-hidden="true" />
+                    <span>{submitting ? 'در حال ارسال...' : replyTo ? 'ارسال پاسخ' : 'ارسال دیدگاه'}</span>
                 </button>
             </form>
         </section>
