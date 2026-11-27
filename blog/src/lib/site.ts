@@ -4,10 +4,11 @@ export const site = {
     description: 'راهنماهای کاربردی برنامه‌نویسی، ابزارهای توسعه و بهره‌وری؛ از مسئله تا راه‌حل، با مثال‌های قابل استفاده.',
     url: (process.env.NEXT_PUBLIC_BLOG_URL || 'https://zebracode.ir/blog').replace(/\/+$/, ''),
     toolsUrl: (process.env.NEXT_PUBLIC_TOOLS_URL || 'https://zebracode.ir').replace(/\/+$/, ''),
+    kitUrl: (process.env.NEXT_PUBLIC_KIT_URL || 'https://kit.zebracode.ir').replace(/\/+$/, ''),
     indexable: process.env.NEXT_PUBLIC_BLOG_INDEXABLE === 'true',
 };
 
-export const postPath = (slug: string) => `/articles/${encodeURIComponent(slug)}/`;
+export const postPath = (slug: string) => `/${encodeURIComponent(slug)}/`;
 export const categoryPath = (slug: string) => `/category/${encodeURIComponent(slug)}/`;
 export const absoluteUrl = (path = '/') => `${site.url}${path.startsWith('/') ? path : `/${path}`}`;
 export const getToolUrl = (slug: string) => `${site.toolsUrl}/${encodeURIComponent(slug)}/`;

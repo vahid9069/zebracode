@@ -90,6 +90,36 @@ class Headless_Controller {
             },
         ]);
 
+        // Public Blog Site Settings (Featured Post, Logo, Favicon & Social Links)
+        register_rest_route(self::NAMESPACE, '/site-settings', [
+            [
+                'methods'             => \WP_REST_Server::READABLE,
+                'callback'            => [$this, 'handle_get_site_settings'],
+                'permission_callback' => '__return_true',
+            ],
+            [
+                'methods'             => \WP_REST_Server::CREATABLE,
+                'callback'            => [$this, 'handle_save_site_settings'],
+                'permission_callback' => function () {
+                    return current_user_can('edit_posts');
+                },
+            ],
+        ]);
+
+        // Public & Moderated Article Comments Endpoint (XSS-safe, rate-limited, honeypot)
+        register_rest_route(self::NAMESPACE, '/comments', [
+            [
+                'methods'             => \WP_REST_Server::READABLE,
+                'callback'            => [$this, 'handle_get_comments'],
+                'permission_callback' => '__return_true',
+            ],
+            [
+                'methods'             => \WP_REST_Server::CREATABLE,
+                'callback'            => [$this, 'handle_create_comment'],
+                'permission_callback' => '__return_true',
+            ],
+        ]);
+
         // Signed Headless Preview Endpoint for static Next.js frontend
         register_rest_route(self::NAMESPACE, '/preview', [
             'methods'             => \WP_REST_Server::READABLE,
@@ -110,6 +140,254 @@ class Headless_Controller {
                 ],
             ],
         ]);
+    }
+
+    /**
+     * Get stored blog site settings (featured article mode/ID, logo, favicon).
+     */
+    public static function get_site_settings(): array {
+        $saved = get_option('omni_ai_blog_site_settings', []);
+        if (!is_array($saved)) {
+            $saved = [];
+        }
+        return wp_parse_args($saved, [
+            'featured_mode'    => 'latest',
+            'featured_post_id' => 0,
+            'logo_url'         => '',
+            'favicon_url'      => '',
+            'social_links'     => [
+                'telegram' => 'https://t.me/zebracode_ir',
+                'bale'     => 'https://ble.ir/zebracode_ir',
+                'rubika'   => 'https://rubika.ir/zebracode_ir',
+                'github'   => '',
+            ],
+        ]);
+    }
+
+    /**
+     * Public endpoint to return blog branding and featured post settings.
+     */
+    public function handle_get_site_settings(\WP_REST_Request $request): \WP_REST_Response {
+        $settings = self::get_site_settings();
+        $payload = [
+            'success'          => true,
+            'featured_mode'    => $settings['featured_mode'],
+            'featured_post_id' => (int) $settings['featured_post_id'],
+            'logo_url'         => $settings['logo_url'],
+            'favicon_url'      => $settings['favicon_url'],
+            'social_links'     => is_array($settings['social_links'] ?? null) ? $settings['social_links'] : [],
+        ];
+
+        if ($request->get_param('mode') === 'admin' && current_user_can('edit_posts')) {
+            $posts = get_posts([
+                'post_type'      => 'post',
+                'post_status'    => 'publish',
+                'posts_per_page' => 100,
+                'orderby'        => 'date',
+                'order'          => 'DESC',
+            ]);
+            $payload['posts'] = array_map(function ($p) {
+                return [
+                    'id'    => (int) $p->ID,
+                    'title' => $p->post_title,
+                    'slug'  => $p->post_name,
+                ];
+            }, $posts);
+        }
+
+        return new \WP_REST_Response($payload, 200);
+    }
+
+    /**
+     * Save blog branding and featured post settings.
+     */
+    public function handle_save_site_settings(\WP_REST_Request $request): \WP_REST_Response {
+        $params = $request->get_json_params() ?: $request->get_params();
+        $mode = ($params['featured_mode'] ?? 'latest') === 'custom' ? 'custom' : 'latest';
+        $raw_social = is_array($params['social_links'] ?? null) ? $params['social_links'] : [];
+        $clean = [
+            'featured_mode'    => $mode,
+            'featured_post_id' => absint($params['featured_post_id'] ?? 0),
+            'logo_url'         => esc_url_raw(trim((string) ($params['logo_url'] ?? ''))),
+            'favicon_url'      => esc_url_raw(trim((string) ($params['favicon_url'] ?? ''))),
+            'social_links'     => [
+                'telegram' => esc_url_raw(trim((string) ($raw_social['telegram'] ?? ''))),
+                'bale'     => esc_url_raw(trim((string) ($raw_social['bale'] ?? ''))),
+                'rubika'   => esc_url_raw(trim((string) ($raw_social['rubika'] ?? ''))),
+                'github'   => esc_url_raw(trim((string) ($raw_social['github'] ?? ''))),
+            ],
+        ];
+
+        update_option('omni_ai_blog_site_settings', $clean, false);
+
+        return new \WP_REST_Response([
+            'success'  => true,
+            'settings' => $clean,
+            'message'  => 'تنظیمات نمایش وبلاگ (مقاله برگزیده، لوگو، فاوآیکن و شبکه‌های اجتماعی) ذخیره شد.',
+        ], 200);
+    }
+
+    /**
+     * Get approved comments for a post without exposing private fields (emails/IPs).
+     */
+    private function get_approved_comments_for_post(int $post_id): array {
+        if ($post_id <= 0) {
+            return [];
+        }
+
+        $wp_comments = get_comments([
+            'post_id' => $post_id,
+            'status'  => 'approve',
+            'orderby' => 'comment_date_gmt',
+            'order'   => 'ASC',
+            'number'  => 100,
+        ]);
+
+        $list = [];
+        if (is_array($wp_comments)) {
+            foreach ($wp_comments as $c) {
+                $list[] = [
+                    'id'          => (int) $c->comment_ID,
+                    'parent_id'   => (int) $c->comment_parent,
+                    'author_name' => sanitize_text_field((string) $c->comment_author),
+                    'content'     => wp_strip_all_tags((string) $c->comment_content),
+                    'date'        => get_comment_date('c', $c),
+                    'is_admin'    => (int) $c->user_id > 0 && user_can((int) $c->user_id, 'edit_posts'),
+                ];
+            }
+        }
+        return $list;
+    }
+
+    /**
+     * Build a REST response with strict CORS headers for the headless blog frontend.
+     */
+    private function cors_blog_response(array $data, int $status): \WP_REST_Response {
+        $response = new \WP_REST_Response($data, $status);
+        $request_origin = isset($_SERVER['HTTP_ORIGIN']) ? esc_url_raw(wp_unslash($_SERVER['HTTP_ORIGIN'])) : '';
+        $parsed_blog    = wp_parse_url($this->get_blog_base_url());
+        $blog_origin    = (!empty($parsed_blog['scheme']) && !empty($parsed_blog['host']))
+            ? ($parsed_blog['scheme'] . '://' . $parsed_blog['host'] . (!empty($parsed_blog['port']) ? ':' . $parsed_blog['port'] : ''))
+            : '';
+
+        $allowed_origins = array_filter(array_unique([
+            $blog_origin,
+            'https://zebracode.ir',
+            'https://test.zebracode.ir',
+            'http://localhost:3004',
+            'http://127.0.0.1:3004',
+        ]));
+
+        if ($request_origin && in_array($request_origin, $allowed_origins, true)) {
+            $response->header('Access-Control-Allow-Origin', $request_origin);
+        } elseif ($blog_origin) {
+            $response->header('Access-Control-Allow-Origin', $blog_origin);
+        }
+        $response->header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+        $response->header('Access-Control-Allow-Headers', 'Content-Type');
+        $response->header('Vary', 'Origin');
+        return $response;
+    }
+
+    /**
+     * Public endpoint to fetch approved comments for a post (by post_id or slug).
+     */
+    public function handle_get_comments(\WP_REST_Request $request): \WP_REST_Response {
+        $post_id = absint($request->get_param('post_id'));
+        $slug    = sanitize_title((string) ($request->get_param('slug') ?? ''));
+
+        if ($post_id <= 0 && $slug !== '') {
+            $post = get_page_by_path($slug, OBJECT, 'post');
+            if ($post instanceof \WP_Post) {
+                $post_id = (int) $post->ID;
+            }
+        }
+
+        if ($post_id <= 0) {
+            return $this->cors_blog_response(['success' => true, 'comments' => []], 200);
+        }
+
+        return $this->cors_blog_response([
+            'success'  => true,
+            'post_id'  => $post_id,
+            'comments' => $this->get_approved_comments_for_post($post_id),
+        ], 200);
+    }
+
+    /**
+     * Public endpoint to submit a new comment (moderated, sanitized, rate-limited, honeypot-protected).
+     */
+    public function handle_create_comment(\WP_REST_Request $request): \WP_REST_Response {
+        $params = $request->get_json_params() ?: $request->get_params();
+
+        // Honeypot check (bots fill hidden fields)
+        if (!empty($params['website_hp'])) {
+            return $this->cors_blog_response(['success' => true, 'message' => 'دیدگاه شما ثبت شد و پس از تایید نمایش داده می‌شود.'], 200);
+        }
+
+        // IP-based rate limiting: max 3 comments per 10 minutes
+        $ip = isset($_SERVER['REMOTE_ADDR']) ? sanitize_text_field(wp_unslash($_SERVER['REMOTE_ADDR'])) : 'unknown';
+        $rl_key = 'omni_ai_crl_' . md5($ip);
+        $attempts = (int) get_transient($rl_key);
+        if ($attempts >= 3) {
+            return $this->cors_blog_response([
+                'success' => false,
+                'message' => 'تعداد درخواست‌های شما زیاد است. لطفاً چند دقیقه دیگر دوباره تلاش کنید.',
+            ], 429);
+        }
+
+        $post_id = absint($params['post_id'] ?? 0);
+        $slug    = sanitize_title((string) ($params['slug'] ?? ''));
+        if ($post_id <= 0 && $slug !== '') {
+            $post = get_page_by_path($slug, OBJECT, 'post');
+            if ($post instanceof \WP_Post) {
+                $post_id = (int) $post->ID;
+            }
+        }
+
+        $post = $post_id > 0 ? get_post($post_id) : null;
+        if (!($post instanceof \WP_Post) || $post->post_status !== 'publish' || $post->post_type !== 'post') {
+            return $this->cors_blog_response(['success' => false, 'message' => 'مقاله مورد نظر یافت نشد.'], 404);
+        }
+
+        $author_name  = sanitize_text_field(trim((string) ($params['author_name'] ?? '')));
+        $author_email = sanitize_email(trim((string) ($params['author_email'] ?? '')));
+        $content      = trim(wp_strip_all_tags((string) ($params['content'] ?? '')));
+        $parent_id    = absint($params['parent_id'] ?? 0);
+
+        if (mb_strlen($author_name, 'UTF-8') < 2 || mb_strlen($author_name, 'UTF-8') > 60) {
+            return $this->cors_blog_response(['success' => false, 'message' => 'نام باید بین ۲ تا ۶۰ کاراکتر باشد.'], 400);
+        }
+        if (!is_email($author_email)) {
+            return $this->cors_blog_response(['success' => false, 'message' => 'لطفاً یک ایمیل معتبر وارد کنید.'], 400);
+        }
+        if (mb_strlen($content, 'UTF-8') < 5 || mb_strlen($content, 'UTF-8') > 2000) {
+            return $this->cors_blog_response(['success' => false, 'message' => 'متن دیدگاه باید بین ۵ تا ۲۰۰۰ کاراکتر باشد.'], 400);
+        }
+
+        $comment_id = wp_insert_comment([
+            'comment_post_ID'      => $post_id,
+            'comment_author'       => $author_name,
+            'comment_author_email' => $author_email,
+            'comment_author_url'   => '', // Disabled to prevent SEO comment spam
+            'comment_content'      => $content,
+            'comment_parent'       => $parent_id,
+            'comment_author_IP'    => $ip,
+            'comment_approved'     => 0, // Always require moderation before publishing
+            'comment_type'         => 'comment',
+        ]);
+
+        if (!$comment_id) {
+            return $this->cors_blog_response(['success' => false, 'message' => 'خطا در ثبت دیدگاه.'], 500);
+        }
+
+        set_transient($rl_key, $attempts + 1, 10 * MINUTE_IN_SECONDS);
+
+        return $this->cors_blog_response([
+            'success'    => true,
+            'comment_id' => (int) $comment_id,
+            'message'    => 'دیدگاه شما با موفقیت ثبت شد و پس از تایید مدیر نمایش داده می‌شود.',
+        ], 201);
     }
 
     /**
@@ -574,6 +852,9 @@ class Headless_Controller {
 
         // Content (rendered Gutenberg blocks or HTML)
         $rendered_content = apply_filters('the_content', $post->post_content);
+        $site_settings = self::get_site_settings();
+        $is_featured = ($site_settings['featured_mode'] ?? 'latest') === 'custom'
+            && (int) ($site_settings['featured_post_id'] ?? 0) === $post_id;
 
         return [
             'id'               => $post_id,
@@ -581,6 +862,7 @@ class Headless_Controller {
             'title'            => $post_title,
             'excerpt'          => $post_excerpt,
             'content'          => $rendered_content,
+            'featured'         => $is_featured,
             'category'         => $primary_category,
             'categories'       => $category_list,
             'tags'             => $tags,
@@ -599,6 +881,7 @@ class Headless_Controller {
             'related_tools'    => $related_tools,
             'disable_ads'      => $disable_ads,
             'ads'              => $post_ads,
+            'comments'         => $this->get_approved_comments_for_post($post_id),
             'seo'              => [
                 'title'               => $seo_title,
                 'description'         => $seo_desc,

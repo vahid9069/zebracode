@@ -28,14 +28,75 @@ export default function DeployManager() {
   const [githubError, setGithubError] = useState(null);
   const pollTimerRef = useRef(null);
 
+  const [siteSettings, setSiteSettings] = useState({
+    featured_mode: 'latest',
+    featured_post_id: 0,
+    logo_url: '',
+    favicon_url: '',
+    social_links: {
+      telegram: 'https://t.me/zebracode_ir',
+      bale: 'https://ble.ir/zebracode_ir',
+      rubika: 'https://rubika.ir/zebracode_ir',
+      github: '',
+    },
+  });
+  const [sitePosts, setSitePosts] = useState([]);
+  const [savingSiteSettings, setSavingSiteSettings] = useState(false);
+
   const isFa = document.dir === 'rtl' || (window.omniAiData?.isRtl ?? true);
 
   useEffect(() => {
     fetchDeployStatus(false);
+    fetchSiteSettings();
     return () => {
       if (pollTimerRef.current) clearInterval(pollTimerRef.current);
     };
   }, []);
+
+  const fetchSiteSettings = async () => {
+    try {
+      const res = await apiFetch('site-settings?mode=admin');
+      const data = await res.json();
+      if (data && data.success) {
+        setSiteSettings({
+          featured_mode: data.featured_mode || 'latest',
+          featured_post_id: Number(data.featured_post_id) || 0,
+          logo_url: data.logo_url || '',
+          favicon_url: data.favicon_url || '',
+          social_links: {
+            telegram: data.social_links?.telegram ?? 'https://t.me/zebracode_ir',
+            bale: data.social_links?.bale ?? 'https://ble.ir/zebracode_ir',
+            rubika: data.social_links?.rubika ?? 'https://rubika.ir/zebracode_ir',
+            github: data.social_links?.github ?? '',
+          },
+        });
+        setSitePosts(Array.isArray(data.posts) ? data.posts : []);
+      }
+    } catch (_) {}
+  };
+
+  const handleSaveSiteSettings = async (e) => {
+    e.preventDefault();
+    setSavingSiteSettings(true);
+    setNotice(null);
+    try {
+      const res = await apiFetch('site-settings', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(siteSettings),
+      });
+      const data = await res.json();
+      if (data && data.success) {
+        setNotice({ type: 'success', message: data.message || 'تنظیمات نمایش وبلاگ ذخیره شد.' });
+      } else {
+        throw new Error(data?.message || 'خطا در ذخیره تنظیمات نمایش وبلاگ');
+      }
+    } catch (err) {
+      setNotice({ type: 'error', message: err?.message || 'خطا در ارتباط با سرور' });
+    } finally {
+      setSavingSiteSettings(false);
+    }
+  };
 
   // Auto poll every 10 seconds if any run is queued or in_progress
   useEffect(() => {
@@ -544,6 +605,133 @@ export default function DeployManager() {
                 {saving ? <Spinner /> : 'ذخیره تنظیمات CI/CD'}
               </Button>
             </div>
+          </form>
+        </CardBody>
+      </Card>
+
+      <Card style={{ marginTop: '22px', border: '1px solid #e2e8f0', borderRadius: '10px' }}>
+        <CardHeader style={{ background: '#f8fafc', borderBottom: '1px solid #e2e8f0' }}>
+          <span style={{ fontWeight: 700, fontSize: '14px', color: '#0f172a' }}>
+            🎨 تنظیمات نمایش وبلاگ (مقاله برگزیده، لوگو و فاوآیکن)
+          </span>
+        </CardHeader>
+        <CardBody>
+          <form onSubmit={handleSaveSiteSettings}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '14px', marginBottom: '16px' }}>
+              <div>
+                <label style={{ display: 'block', fontWeight: 600, fontSize: '12.5px', marginBottom: '6px', color: '#334155' }}>
+                  نحوه انتخاب مقاله برگزیده:
+                </label>
+                <select
+                  value={siteSettings.featured_mode}
+                  onChange={(e) => setSiteSettings({ ...siteSettings, featured_mode: e.target.value })}
+                  style={{ width: '100%', height: '38px', borderRadius: '6px', border: '1px solid #cbd5e1', padding: '0 10px', fontSize: '13px' }}
+                >
+                  <option value="latest">خودکار (جدیدترین مقاله منتشرشده)</option>
+                  <option value="custom">انتخاب یک مقاله خاص</option>
+                </select>
+              </div>
+
+              {siteSettings.featured_mode === 'custom' && (
+                <div>
+                  <label style={{ display: 'block', fontWeight: 600, fontSize: '12.5px', marginBottom: '6px', color: '#334155' }}>
+                    مقاله برگزیده دلخواه:
+                  </label>
+                  <select
+                    value={String(siteSettings.featured_post_id || 0)}
+                    onChange={(e) => setSiteSettings({ ...siteSettings, featured_post_id: Number(e.target.value) || 0 })}
+                    style={{ width: '100%', height: '38px', borderRadius: '6px', border: '1px solid #cbd5e1', padding: '0 10px', fontSize: '13px' }}
+                  >
+                    <option value="0">-- انتخاب کنید --</option>
+                    {sitePosts.map((p) => (
+                      <option key={p.id} value={String(p.id)}>{p.title}</option>
+                    ))}
+                  </select>
+                </div>
+              )}
+
+              <div>
+                <label style={{ display: 'block', fontWeight: 600, fontSize: '12.5px', marginBottom: '6px', color: '#334155' }}>
+                  آدرس تصویر لوگو (Logo URL):
+                </label>
+                <input
+                  type="url"
+                  value={siteSettings.logo_url}
+                  onChange={(e) => setSiteSettings({ ...siteSettings, logo_url: e.target.value })}
+                  placeholder="https://.../logo.png (خالی = لوگوی پیش‌فرض)"
+                  style={{ width: '100%', height: '38px', borderRadius: '6px', border: '1px solid #cbd5e1', padding: '0 10px', fontSize: '12.5px', direction: 'ltr' }}
+                />
+              </div>
+
+              <div>
+                <label style={{ display: 'block', fontWeight: 600, fontSize: '12.5px', marginBottom: '6px', color: '#334155' }}>
+                  آدرس فاوآیکن (Favicon URL):
+                </label>
+                <input
+                  type="url"
+                  value={siteSettings.favicon_url}
+                  onChange={(e) => setSiteSettings({ ...siteSettings, favicon_url: e.target.value })}
+                  placeholder="https://.../favicon.ico (خالی = پیش‌فرض)"
+                  style={{ width: '100%', height: '38px', borderRadius: '6px', border: '1px solid #cbd5e1', padding: '0 10px', fontSize: '12.5px', direction: 'ltr' }}
+                />
+              </div>
+
+              <div>
+                <label style={{ display: 'block', fontWeight: 600, fontSize: '12.5px', marginBottom: '6px', color: '#334155' }}>
+                  لینک کانال تلگرام:
+                </label>
+                <input
+                  type="url"
+                  value={siteSettings.social_links?.telegram || ''}
+                  onChange={(e) => setSiteSettings({ ...siteSettings, social_links: { ...siteSettings.social_links, telegram: e.target.value } })}
+                  placeholder="https://t.me/zebracode_ir"
+                  style={{ width: '100%', height: '38px', borderRadius: '6px', border: '1px solid #cbd5e1', padding: '0 10px', fontSize: '12.5px', direction: 'ltr' }}
+                />
+              </div>
+
+              <div>
+                <label style={{ display: 'block', fontWeight: 600, fontSize: '12.5px', marginBottom: '6px', color: '#334155' }}>
+                  لینک کانال بله:
+                </label>
+                <input
+                  type="url"
+                  value={siteSettings.social_links?.bale || ''}
+                  onChange={(e) => setSiteSettings({ ...siteSettings, social_links: { ...siteSettings.social_links, bale: e.target.value } })}
+                  placeholder="https://ble.ir/zebracode_ir"
+                  style={{ width: '100%', height: '38px', borderRadius: '6px', border: '1px solid #cbd5e1', padding: '0 10px', fontSize: '12.5px', direction: 'ltr' }}
+                />
+              </div>
+
+              <div>
+                <label style={{ display: 'block', fontWeight: 600, fontSize: '12.5px', marginBottom: '6px', color: '#334155' }}>
+                  لینک کانال روبیکا:
+                </label>
+                <input
+                  type="url"
+                  value={siteSettings.social_links?.rubika || ''}
+                  onChange={(e) => setSiteSettings({ ...siteSettings, social_links: { ...siteSettings.social_links, rubika: e.target.value } })}
+                  placeholder="https://rubika.ir/zebracode_ir"
+                  style={{ width: '100%', height: '38px', borderRadius: '6px', border: '1px solid #cbd5e1', padding: '0 10px', fontSize: '12.5px', direction: 'ltr' }}
+                />
+              </div>
+
+              <div>
+                <label style={{ display: 'block', fontWeight: 600, fontSize: '12.5px', marginBottom: '6px', color: '#334155' }}>
+                  لینک گیت‌هاب (اختیاری):
+                </label>
+                <input
+                  type="url"
+                  value={siteSettings.social_links?.github || ''}
+                  onChange={(e) => setSiteSettings({ ...siteSettings, social_links: { ...siteSettings.social_links, github: e.target.value } })}
+                  placeholder="https://github.com/..."
+                  style={{ width: '100%', height: '38px', borderRadius: '6px', border: '1px solid #cbd5e1', padding: '0 10px', fontSize: '12.5px', direction: 'ltr' }}
+                />
+              </div>
+            </div>
+
+            <Button variant="primary" type="submit" disabled={savingSiteSettings} style={{ height: '36px', padding: '0 18px', borderRadius: '6px' }}>
+              {savingSiteSettings ? <Spinner /> : 'ذخیره تنظیمات نمایش وبلاگ'}
+            </Button>
           </form>
         </CardBody>
       </Card>

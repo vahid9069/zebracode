@@ -36,6 +36,9 @@ class Plugin {
         // Register REST API endpoints
         add_action('rest_api_init', [$this->rest_controller, 'register_routes']);
 
+        // Register Headless Preview hooks (preview_post_link filter)
+        (new \OmniAI\Api\Headless_Controller())->register_preview_hooks();
+
         // Initialize Admin UI
         if (is_admin()) {
             $this->admin->init();

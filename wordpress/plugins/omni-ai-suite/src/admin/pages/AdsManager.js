@@ -23,10 +23,18 @@ const PLACEMENT_LABELS = {
 
 export default function AdsManager() {
   const [campaigns, setCampaigns] = useState([]);
+  const [rotatedTool, setRotatedTool] = useState(null);
   const [settings, setSettings] = useState({
     master_enabled: true,
     head_script_enabled: false,
     global_head_script: '',
+    tool_rotation_enabled: true,
+    tool_rotation_mode: 'per_post',
+    tool_rotation_days: 1,
+    tool_rotation_placement: 'after_content',
+    tool_rotation_badge: 'پیشنهاد ویژه ابزار',
+    tool_rotation_cta: 'مشاهده و استفاده رایگان',
+    tool_rotation_offset: 0,
     placements_status: {
       before_content: true,
       middle_content: true,
@@ -98,7 +106,8 @@ export default function AdsManager() {
       const data = await res.json();
       if (data && data.success) {
         if (data.campaigns) setCampaigns(data.campaigns);
-        if (data.settings) setSettings(data.settings);
+        if (data.settings) setSettings((prev) => ({ ...prev, ...data.settings }));
+        setRotatedTool(data.rotated_tool || null);
       }
     } catch (err) {
       console.error('Error fetching ads data:', err);
@@ -139,6 +148,8 @@ export default function AdsManager() {
       });
       const data = await res.json();
       if (data && data.success) {
+        if (data.settings) setSettings((prev) => ({ ...prev, ...data.settings }));
+        if ('rotated_tool' in data) setRotatedTool(data.rotated_tool || null);
         setNotice({ type: 'success', message: 'تنظیمات عمومی تبلیغات ذخیره شد.' });
       }
     } catch (err) {
@@ -487,6 +498,137 @@ export default function AdsManager() {
               );
             })}
           </div>
+        </CardBody>
+      </Card>
+
+      {/* Auto Tool Rotation Card */}
+      <Card style={{ marginBottom: '20px', border: '1px solid #bae6fd', borderRadius: '10px', background: '#f8fafc' }}>
+        <CardBody style={{ padding: '16px 20px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '12px', marginBottom: '12px' }}>
+            <div>
+              <div style={{ fontSize: '14px', fontWeight: 700, color: '#0f172a' }}>
+                🔄 چرخش خودکار «پیشنهاد ویژه ابزار» (بین ابزارهای زبراکد)
+              </div>
+              <p style={{ margin: '4px 0 0 0', fontSize: '12px', color: '#475569' }}>
+                به صورت خودکار هر چند روز یک‌بار یکی از ابزارهای کاتالوگ را به عنوان کارت همسان (Native) در وبلاگ نمایش می‌دهد.
+              </p>
+            </div>
+            <ToggleControl
+              label={settings.tool_rotation_enabled ? 'فعال' : 'غیرفعال'}
+              checked={Boolean(settings.tool_rotation_enabled)}
+              onChange={(val) => {
+                const updated = { ...settings, tool_rotation_enabled: val };
+                setSettings(updated);
+                saveGlobalSettings(updated);
+              }}
+            />
+          </div>
+
+          {settings.tool_rotation_enabled && (
+            <>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '12px', marginBottom: '12px' }}>
+                <SelectControl
+                  label="حالت چرخش"
+                  value={settings.tool_rotation_mode || 'per_post'}
+                  options={[
+                    { label: 'متفاوت برای هر مقاله (توزیع بین همه ابزارها)', value: 'per_post' },
+                    { label: 'یکسان برای کل وبلاگ (ابزار ویژه دوره)', value: 'global' },
+                  ]}
+                  onChange={(val) => setSettings({ ...settings, tool_rotation_mode: val })}
+                />
+
+                <SelectControl
+                  label="بازه تغییر خودکار"
+                  value={String(settings.tool_rotation_days ?? 1)}
+                  options={[
+                    { label: 'روزانه (هر ۱ روز)', value: '1' },
+                    { label: 'هر ۲ روز یک‌بار', value: '2' },
+                    { label: 'هر ۳ روز یک‌بار', value: '3' },
+                    { label: 'هر ۵ روز یک‌بار', value: '5' },
+                    { label: 'هفتگی (هر ۷ روز)', value: '7' },
+                    { label: 'هر ۱۴ روز یک‌بار', value: '14' },
+                    { label: 'ماهانه (هر ۳۰ روز)', value: '30' },
+                  ]}
+                  onChange={(val) => setSettings({ ...settings, tool_rotation_days: Number(val) || 1 })}
+                />
+
+                <SelectControl
+                  label="جایگاه نمایش"
+                  value={settings.tool_rotation_placement || 'after_content'}
+                  options={Object.entries(PLACEMENT_LABELS).map(([k, v]) => ({ label: v, value: k }))}
+                  onChange={(val) => setSettings({ ...settings, tool_rotation_placement: val })}
+                />
+
+                <div>
+                  <label style={{ display: 'block', fontSize: '11px', fontWeight: 600, marginBottom: '4px', color: '#334155' }}>
+                    برچسب بالای کارت (Badge)
+                  </label>
+                  <input
+                    type="text"
+                    value={settings.tool_rotation_badge || ''}
+                    onChange={(e) => setSettings({ ...settings, tool_rotation_badge: e.target.value })}
+                    style={{ width: '100%', padding: '6px 10px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '12px' }}
+                  />
+                </div>
+
+                <div>
+                  <label style={{ display: 'block', fontSize: '11px', fontWeight: 600, marginBottom: '4px', color: '#334155' }}>
+                    متن دکمه (CTA)
+                  </label>
+                  <input
+                    type="text"
+                    value={settings.tool_rotation_cta || ''}
+                    onChange={(e) => setSettings({ ...settings, tool_rotation_cta: e.target.value })}
+                    style={{ width: '100%', padding: '6px 10px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '12px' }}
+                  />
+                </div>
+              </div>
+
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '10px', padding: '10px 12px', background: '#ffffff', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
+                <div style={{ fontSize: '12px', color: '#334155' }}>
+                  {rotatedTool ? (
+                    <>
+                      <strong>{settings.tool_rotation_mode === 'per_post' ? 'نمونه ابزار پایه این دوره (در هر مقاله متفاوت است):' : 'ابزار فعلی این دوره:'}</strong>{' '}
+                      <a href={rotatedTool.target_url} target="_blank" rel="noreferrer" style={{ color: '#0284c7', fontWeight: 700 }}>
+                        {rotatedTool.headline}
+                      </a>
+                      {rotatedTool.rotation_index && rotatedTool.rotation_total ? (
+                        <span style={{ color: '#64748b', marginRight: '6px' }}>
+                          ({rotatedTool.rotation_index} از {rotatedTool.rotation_total})
+                        </span>
+                      ) : null}
+                    </>
+                  ) : (
+                    <span>ابزار فعلی در دسترس نیست (بررسی کنید جایگاه نمایش فعال باشد).</span>
+                  )}
+                </div>
+
+                <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                  <Button
+                    isSecondary
+                    disabled={savingSettings}
+                    onClick={() => {
+                      const nextOffset = (Number(settings.tool_rotation_offset) || 0) + 1;
+                      const updated = { ...settings, tool_rotation_offset: nextOffset };
+                      setSettings(updated);
+                      saveGlobalSettings(updated);
+                    }}
+                    style={{ borderRadius: '6px', fontSize: '12px' }}
+                  >
+                    ⏭️ تغییر به ابزار بعدی
+                  </Button>
+                  <Button
+                    isPrimary
+                    disabled={savingSettings}
+                    onClick={() => saveGlobalSettings(settings)}
+                    style={{ borderRadius: '6px', fontSize: '12px' }}
+                  >
+                    {savingSettings ? 'در حال ذخیره...' : 'ذخیره تنظیمات چرخش'}
+                  </Button>
+                </div>
+              </div>
+            </>
+          )}
         </CardBody>
       </Card>
 

@@ -5,6 +5,7 @@ import ArticleReadingBar from '@/components/ArticleReadingBar';
 import TableOfContents from '@/components/TableOfContents';
 import BackToTop from '@/components/BackToTop';
 import ImageLightbox from '@/components/ImageLightbox';
+import CommentsSection from '@/components/CommentsSection';
 import { AdBanner } from '@/components/AdBanner';
 import { categoryPath, formatDate, formatNumber, getToolUrl, postPath } from '@/lib/site';
 import type { ArticleBlock, Category, InlineToken, Post, PostSummary } from '@/lib/types';
@@ -13,6 +14,7 @@ interface ArticleReaderProps {
     post: Post;
     categories: Category[];
     related: PostSummary[];
+    commentsApiBase?: string;
 }
 
 function renderInlineTokens(tokens?: InlineToken[], fallbackText?: string) {
@@ -87,7 +89,7 @@ function ArticleContentBlock({ block }: { block: ArticleBlock }) {
     }
 }
 
-export default function ArticleReader({ post, categories, related }: ArticleReaderProps) {
+export default function ArticleReader({ post, categories, related, commentsApiBase }: ArticleReaderProps) {
     const category = categories.find((item) => item.slug === post.category);
     const hasContents = post.blocks.some((block) => block.type === 'heading') || post.faq.length > 0 || post.references.length > 0;
 
@@ -233,6 +235,14 @@ export default function ArticleReader({ post, categories, related }: ArticleRead
                         })}
                     </ul>
                 </section>
+            )}
+
+            {commentsApiBase && (
+                <CommentsSection
+                    slug={post.slug}
+                    initialComments={post.comments ?? []}
+                    apiBaseUrl={commentsApiBase}
+                />
             )}
 
             {related.length > 0 && (

@@ -7,6 +7,7 @@ export default function SocialBroadcastCard() {
   const [saving, setSaving] = useState(false);
   const [broadcasting, setBroadcasting] = useState(false);
   const [testingPlatform, setTestingPlatform] = useState(null);
+  const [testingReminder, setTestingReminder] = useState(false);
   const [sendingPostId, setSendingPostId] = useState(null);
   const [notice, setNotice] = useState(null);
   const [secretCopied, setSecretCopied] = useState(false);
@@ -78,6 +79,12 @@ export default function SocialBroadcastCard() {
           rubika_chat_id: settings.rubika_chat_id,
           delete_on_draft: settings.delete_on_draft,
           verify_live_url: settings.verify_live_url,
+          daily_reminder_enabled: settings.daily_reminder_enabled,
+          daily_reminder_time: settings.daily_reminder_time,
+          daily_reminder_telegram: settings.daily_reminder_telegram,
+          daily_reminder_bale: settings.daily_reminder_bale,
+          daily_reminder_telegram_chat_id: settings.daily_reminder_telegram_chat_id,
+          daily_reminder_bale_chat_id: settings.daily_reminder_bale_chat_id,
         }),
       });
       const data = await res.json();
@@ -345,6 +352,92 @@ export default function SocialBroadcastCard() {
                     <span>حذف خودکار پست از کانال در صورت برگشت مقاله به «پیش‌نویس» یا «زباله‌دان»</span>
                   </label>
                 </div>
+              </div>
+
+              {/* Daily Missing-Article Reminder */}
+              <div style={{ padding: '14px', background: '#fffbeb', border: '1px solid #fde68a', borderRadius: '8px', marginBottom: '16px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px', marginBottom: '10px' }}>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px', fontWeight: 700, color: '#92400e', cursor: 'pointer' }}>
+                    <input
+                      type="checkbox"
+                      checked={Boolean(settings.daily_reminder_enabled)}
+                      onChange={(e) => setSettings({ ...settings, daily_reminder_enabled: e.target.checked })}
+                    />
+                    <span>⏰ یادآور روزانه عدم ثبت مقاله (هشدار در تلگرام یا بله اگر امروز مقاله‌ای نساخته‌اید)</span>
+                  </label>
+                  <Button
+                    variant="secondary"
+                    size="small"
+                    disabled={testingReminder}
+                    onClick={async () => {
+                      setTestingReminder(true);
+                      setNotice(null);
+                      try {
+                        const res = await apiFetch('social-broadcast', {
+                          method: 'POST',
+                          headers: { 'Content-Type': 'application/json' },
+                          body: JSON.stringify({ action: 'test_daily_reminder' }),
+                        });
+                        const data = await res.json();
+                        setNotice({ type: data?.success ? 'success' : 'error', message: data?.message || 'خطا در تست یادآور' });
+                      } catch (err) {
+                        setNotice({ type: 'error', message: err?.message || 'خطا در ارتباط با سرور' });
+                      } finally {
+                        setTestingReminder(false);
+                      }
+                    }}
+                  >
+                    {testingReminder ? '...' : '🧪 تست هشدار یادآور'}
+                  </Button>
+                </div>
+
+                {settings.daily_reminder_enabled && (
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '10px', marginTop: '8px' }}>
+                    <div>
+                      <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, marginBottom: '4px', color: '#78350f' }}>ساعت بررسی و ارسال هشدار</label>
+                      <input
+                        type="time"
+                        value={settings.daily_reminder_time || '20:00'}
+                        onChange={(e) => setSettings({ ...settings, daily_reminder_time: e.target.value })}
+                        style={{ width: '100%', height: '34px', borderRadius: '6px', border: '1px solid #fcd34d', padding: '0 8px', fontSize: '12.5px', direction: 'ltr' }}
+                      />
+                    </div>
+                    <div>
+                      <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', fontWeight: 600, marginBottom: '4px', color: '#78350f', cursor: 'pointer' }}>
+                        <input
+                          type="checkbox"
+                          checked={Boolean(settings.daily_reminder_telegram)}
+                          onChange={(e) => setSettings({ ...settings, daily_reminder_telegram: e.target.checked })}
+                        />
+                        <span>ارسال به تلگرام (اختیاری: چت‌آیدی شخصی)</span>
+                      </label>
+                      <input
+                        type="text"
+                        value={settings.daily_reminder_telegram_chat_id || ''}
+                        onChange={(e) => setSettings({ ...settings, daily_reminder_telegram_chat_id: e.target.value })}
+                        placeholder="خالی = کانال اصلی تلگرام"
+                        style={{ width: '100%', height: '34px', borderRadius: '6px', border: '1px solid #fcd34d', padding: '0 8px', fontSize: '12px', direction: 'ltr' }}
+                      />
+                    </div>
+                    <div>
+                      <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', fontWeight: 600, marginBottom: '4px', color: '#78350f', cursor: 'pointer' }}>
+                        <input
+                          type="checkbox"
+                          checked={Boolean(settings.daily_reminder_bale)}
+                          onChange={(e) => setSettings({ ...settings, daily_reminder_bale: e.target.checked })}
+                        />
+                        <span>ارسال به بله (اختیاری: چت‌آیدی شخصی)</span>
+                      </label>
+                      <input
+                        type="text"
+                        value={settings.daily_reminder_bale_chat_id || ''}
+                        onChange={(e) => setSettings({ ...settings, daily_reminder_bale_chat_id: e.target.value })}
+                        placeholder="خالی = کانال اصلی بله"
+                        style={{ width: '100%', height: '34px', borderRadius: '6px', border: '1px solid #fcd34d', padding: '0 8px', fontSize: '12px', direction: 'ltr' }}
+                      />
+                    </div>
+                  </div>
+                )}
               </div>
 
               {/* GitHub Actions Webhook Info */}

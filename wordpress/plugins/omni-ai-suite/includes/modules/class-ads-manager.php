@@ -19,10 +19,17 @@ class Ads_Manager {
      */
     public static function get_default_settings(): array {
         return [
-            'master_enabled'      => true,
-            'head_script_enabled' => false,
-            'global_head_script'  => '',
-            'placements_status'   => [
+            'master_enabled'          => true,
+            'head_script_enabled'     => false,
+            'global_head_script'      => '',
+            'tool_rotation_enabled'   => true,
+            'tool_rotation_mode'      => 'per_post',
+            'tool_rotation_days'      => 1,
+            'tool_rotation_placement' => 'after_content',
+            'tool_rotation_badge'     => 'پیشنهاد ویژه ابزار',
+            'tool_rotation_cta'       => 'مشاهده و استفاده رایگان',
+            'tool_rotation_offset'    => 0,
+            'placements_status'       => [
                 'before_content'  => true,
                 'middle_content'  => true,
                 'after_paragraph' => true,
@@ -62,11 +69,23 @@ class Ads_Manager {
     public static function save_settings(array $settings): array {
         $current = self::get_settings();
 
+        $valid_placements = ['before_content', 'middle_content', 'after_paragraph', 'after_content', 'catalog_top', 'catalog_bottom'];
+        $rotation_placement = isset($settings['tool_rotation_placement']) && in_array($settings['tool_rotation_placement'], $valid_placements, true)
+            ? $settings['tool_rotation_placement']
+            : ($current['tool_rotation_placement'] ?? 'after_content');
+
         $clean_settings = [
-            'master_enabled'      => isset($settings['master_enabled']) ? (bool) $settings['master_enabled'] : $current['master_enabled'],
-            'head_script_enabled' => isset($settings['head_script_enabled']) ? (bool) $settings['head_script_enabled'] : $current['head_script_enabled'],
-            'global_head_script'  => isset($settings['global_head_script']) ? trim((string) $settings['global_head_script']) : $current['global_head_script'],
-            'placements_status'   => $current['placements_status'],
+            'master_enabled'          => isset($settings['master_enabled']) ? (bool) $settings['master_enabled'] : $current['master_enabled'],
+            'head_script_enabled'     => isset($settings['head_script_enabled']) ? (bool) $settings['head_script_enabled'] : $current['head_script_enabled'],
+            'global_head_script'      => isset($settings['global_head_script']) ? trim((string) $settings['global_head_script']) : $current['global_head_script'],
+            'tool_rotation_enabled'   => isset($settings['tool_rotation_enabled']) ? (bool) $settings['tool_rotation_enabled'] : (bool) ($current['tool_rotation_enabled'] ?? true),
+            'tool_rotation_mode'      => isset($settings['tool_rotation_mode']) && in_array($settings['tool_rotation_mode'], ['global', 'per_post'], true) ? $settings['tool_rotation_mode'] : (string) ($current['tool_rotation_mode'] ?? 'per_post'),
+            'tool_rotation_days'      => isset($settings['tool_rotation_days']) ? max(1, min(30, (int) $settings['tool_rotation_days'])) : (int) ($current['tool_rotation_days'] ?? 1),
+            'tool_rotation_placement' => $rotation_placement,
+            'tool_rotation_badge'     => isset($settings['tool_rotation_badge']) ? sanitize_text_field((string) $settings['tool_rotation_badge']) : (string) ($current['tool_rotation_badge'] ?? 'پیشنهاد ویژه ابزار'),
+            'tool_rotation_cta'       => isset($settings['tool_rotation_cta']) ? sanitize_text_field((string) $settings['tool_rotation_cta']) : (string) ($current['tool_rotation_cta'] ?? 'مشاهده و استفاده رایگان'),
+            'tool_rotation_offset'    => isset($settings['tool_rotation_offset']) ? max(0, (int) $settings['tool_rotation_offset']) : (int) ($current['tool_rotation_offset'] ?? 0),
+            'placements_status'       => $current['placements_status'],
         ];
 
         if (isset($settings['placements_status']) && is_array($settings['placements_status'])) {
@@ -80,9 +99,10 @@ class Ads_Manager {
         update_option(self::OPTION_SETTINGS, $clean_settings, false);
 
         return [
-            'success'  => true,
-            'settings' => $clean_settings,
-            'message'  => __('تنظیمات عمومی تبلیغات با موفقیت ذخیره شد.', 'omni-ai-suite'),
+            'success'      => true,
+            'settings'     => $clean_settings,
+            'rotated_tool' => self::get_rotated_tool_ad($clean_settings),
+            'message'      => __('تنظیمات عمومی تبلیغات با موفقیت ذخیره شد.', 'omni-ai-suite'),
         ];
     }
 
@@ -296,10 +316,84 @@ class Ads_Manager {
     }
 
     /**
+     * Build the deterministic auto-rotated native tool ad for the current period (globally or per post).
+     */
+    public static function get_rotated_tool_ad(?array $settings = null, int $post_id = 0): ?array {
+        $settings = $settings ?? self::get_settings();
+        if (empty($settings['master_enabled']) || empty($settings['tool_rotation_enabled'])) {
+            return null;
+        }
+
+        $placement = $settings['tool_rotation_placement'] ?? 'after_content';
+        $placements_status = $settings['placements_status'] ?? [];
+        if (isset($placements_status[$placement]) && empty($placements_status[$placement])) {
+            return null;
+        }
+
+        if (!class_exists('\\OmniAI\\Modules\\Tool_Synchronizer')) {
+            return null;
+        }
+
+        $catalog = Tool_Synchronizer::get_catalog_tools();
+        $tools = array_values(array_filter($catalog, function ($item) {
+            return is_array($item) && !empty($item['title']) && !empty($item['url']);
+        }));
+
+        if (empty($tools)) {
+            return null;
+        }
+
+        $days = max(1, min(30, (int) ($settings['tool_rotation_days'] ?? 1)));
+        $offset = max(0, (int) ($settings['tool_rotation_offset'] ?? 0));
+        $mode = ($settings['tool_rotation_mode'] ?? 'per_post') === 'global' ? 'global' : 'per_post';
+        $day_number = (int) floor(current_time('timestamp') / DAY_IN_SECONDS);
+        $period_index = (int) floor($day_number / $days);
+        $post_shift = ($mode === 'per_post' && $post_id > 0) ? $post_id : 0;
+        $index = ($period_index + $offset + $post_shift) % count($tools);
+        $tool = $tools[$index];
+
+        $badge = trim((string) ($settings['tool_rotation_badge'] ?? ''));
+        $cta   = trim((string) ($settings['tool_rotation_cta'] ?? ''));
+        $desc  = trim((string) ($tool['description'] ?? ''));
+        if ($desc === '') {
+            $desc = 'ابزار آنلاین و رایگان برای برنامه‌نویسان با پردازش سریع و امن در مرورگر.';
+        }
+
+        return [
+            'id'                => 'ad_auto_tool_rotation',
+            'title'             => 'پیشنهاد خودکار ابزار: ' . sanitize_text_field((string) $tool['title']),
+            'active'            => true,
+            'ad_type'           => 'native',
+            'placement'         => $placement,
+            'paragraph_number'  => 3,
+            'priority'          => 1,
+            'image_url'         => '',
+            'mobile_image_url'  => '',
+            'target_url'        => esc_url_raw((string) $tool['url']),
+            'alt_text'          => sanitize_text_field((string) $tool['title']),
+            'utm_campaign'      => 'auto_tool_rotation',
+            'open_new_tab'      => true,
+            'script_code'       => '',
+            'badge_text'        => $badge !== '' ? $badge : 'پیشنهاد ویژه ابزار',
+            'headline'          => sanitize_text_field((string) $tool['title']),
+            'description'       => sanitize_textarea_field($desc),
+            'cta_text'          => $cta !== '' ? $cta : 'مشاهده و استفاده رایگان',
+            'target_categories' => [],
+            'include_posts'     => '',
+            'exclude_posts'     => '',
+            'device'            => 'all',
+            'start_date'        => '',
+            'end_date'          => '',
+            'rotation_index'    => $index + 1,
+            'rotation_total'    => count($tools),
+        ];
+    }
+
+    /**
      * Get active ads eligible for frontend delivery.
      * Respects Master Kill Switch, Placement Toggles, Campaign Active, and Date Scheduling.
      */
-    public static function get_active_ads_for_frontend(): array {
+    public static function get_active_ads_for_frontend(int $post_id = 0): array {
         $settings = self::get_settings();
         if (empty($settings['master_enabled'])) {
             return [];
@@ -308,10 +402,16 @@ class Ads_Manager {
         $placements_status = $settings['placements_status'] ?? [];
         $campaigns = self::get_campaigns();
         $today = current_time('Y-m-d');
+        $rotated_tool_ad = self::get_rotated_tool_ad($settings, $post_id);
 
         $active_ads = [];
         foreach ($campaigns as $ad) {
             if (empty($ad['active'])) {
+                continue;
+            }
+
+            // Replace default static native seed when auto-rotation is active on the same placement
+            if ($rotated_tool_ad !== null && ($ad['id'] ?? '') === 'ad_sample_native_1' && ($ad['placement'] ?? '') === $rotated_tool_ad['placement']) {
                 continue;
             }
 
@@ -329,6 +429,10 @@ class Ads_Manager {
             }
 
             $active_ads[] = $ad;
+        }
+
+        if ($rotated_tool_ad !== null) {
+            array_unshift($active_ads, $rotated_tool_ad);
         }
 
         return $active_ads;
@@ -354,7 +458,7 @@ class Ads_Manager {
             return [];
         }
 
-        $all_active = self::get_active_ads_for_frontend();
+        $all_active = self::get_active_ads_for_frontend($post_id);
         if (empty($all_active)) {
             return [];
         }

@@ -202,6 +202,24 @@ class Rest_Controller {
             'permission_callback' => '__return_true',
         ]);
 
+        // Web Trends / RSS-to-Article endpoints by category
+        register_rest_route(self::NAMESPACE, '/web-trends', [
+            [
+                'methods'             => \WP_REST_Server::READABLE,
+                'callback'            => [$this, 'handle_get_web_trends'],
+                'permission_callback' => function () {
+                    return current_user_can('edit_posts');
+                },
+            ],
+            [
+                'methods'             => \WP_REST_Server::CREATABLE,
+                'callback'            => [$this, 'handle_post_web_trends'],
+                'permission_callback' => function () {
+                    return current_user_can('edit_posts');
+                },
+            ],
+        ]);
+
         // Register Headless Blog & SEO public and management routes
         (new Headless_Controller())->register_routes();
 
@@ -254,6 +272,24 @@ class Rest_Controller {
             'methods'             => \WP_REST_Server::CREATABLE,
             'callback'            => [$this, 'handle_social_broadcast_webhook'],
             'permission_callback' => '__return_true',
+        ]);
+
+        // Web Trends / RSS-to-Article endpoints by category
+        register_rest_route(self::NAMESPACE, '/web-trends', [
+            [
+                'methods'             => \WP_REST_Server::READABLE,
+                'callback'            => [$this, 'handle_get_web_trends'],
+                'permission_callback' => function () {
+                    return current_user_can('edit_posts');
+                },
+            ],
+            [
+                'methods'             => \WP_REST_Server::CREATABLE,
+                'callback'            => [$this, 'handle_post_web_trends'],
+                'permission_callback' => function () {
+                    return current_user_can('edit_posts');
+                },
+            ],
         ]);
 
         // Security Settings & Routes management endpoints
@@ -322,6 +358,24 @@ class Rest_Controller {
             'permission_callback' => '__return_true',
         ]);
 
+        // Web Trends / RSS-to-Article endpoints by category
+        register_rest_route(self::NAMESPACE, '/web-trends', [
+            [
+                'methods'             => \WP_REST_Server::READABLE,
+                'callback'            => [$this, 'handle_get_web_trends'],
+                'permission_callback' => function () {
+                    return current_user_can('edit_posts');
+                },
+            ],
+            [
+                'methods'             => \WP_REST_Server::CREATABLE,
+                'callback'            => [$this, 'handle_post_web_trends'],
+                'permission_callback' => function () {
+                    return current_user_can('edit_posts');
+                },
+            ],
+        ]);
+
         register_rest_route(self::NAMESPACE, '/tools/sync', [
             'methods'             => \WP_REST_Server::CREATABLE,
             'callback'            => [$this, 'handle_sync_tools'],
@@ -370,6 +424,24 @@ class Rest_Controller {
             'permission_callback' => '__return_true',
         ]);
 
+        // Web Trends / RSS-to-Article endpoints by category
+        register_rest_route(self::NAMESPACE, '/web-trends', [
+            [
+                'methods'             => \WP_REST_Server::READABLE,
+                'callback'            => [$this, 'handle_get_web_trends'],
+                'permission_callback' => function () {
+                    return current_user_can('edit_posts');
+                },
+            ],
+            [
+                'methods'             => \WP_REST_Server::CREATABLE,
+                'callback'            => [$this, 'handle_post_web_trends'],
+                'permission_callback' => function () {
+                    return current_user_can('edit_posts');
+                },
+            ],
+        ]);
+
         // CI/CD Blog Deployment & GitHub Actions monitor
         register_rest_route(self::NAMESPACE, '/deploy', [
             [
@@ -410,6 +482,24 @@ class Rest_Controller {
             'methods'             => \WP_REST_Server::CREATABLE,
             'callback'            => [$this, 'handle_social_broadcast_webhook'],
             'permission_callback' => '__return_true',
+        ]);
+
+        // Web Trends / RSS-to-Article endpoints by category
+        register_rest_route(self::NAMESPACE, '/web-trends', [
+            [
+                'methods'             => \WP_REST_Server::READABLE,
+                'callback'            => [$this, 'handle_get_web_trends'],
+                'permission_callback' => function () {
+                    return current_user_can('edit_posts');
+                },
+            ],
+            [
+                'methods'             => \WP_REST_Server::CREATABLE,
+                'callback'            => [$this, 'handle_post_web_trends'],
+                'permission_callback' => function () {
+                    return current_user_can('edit_posts');
+                },
+            ],
         ]);
 
         // Google Search Console endpoints
@@ -2625,10 +2715,11 @@ class Rest_Controller {
         if ($mode === 'admin' && current_user_can('edit_posts')) {
             $campaigns = \OmniAI\Modules\Ads_Manager::get_campaigns();
             return new \WP_REST_Response([
-                'success'   => true,
-                'settings'  => $settings,
-                'campaigns' => $campaigns,
-                'count'     => count($campaigns),
+                'success'      => true,
+                'settings'     => $settings,
+                'campaigns'    => $campaigns,
+                'count'        => count($campaigns),
+                'rotated_tool' => \OmniAI\Modules\Ads_Manager::get_rotated_tool_ad($settings),
             ], 200, [
                 'Access-Control-Allow-Origin' => '*',
                 'Content-Type'                => 'application/json; charset=utf-8',
@@ -3375,9 +3466,15 @@ class Rest_Controller {
                 'has_rubika_token'   => !empty($rubika_token),
                 'rubika_masked'      => !empty($rubika_token) ? (substr($rubika_token, 0, 6) . '••••' . substr($rubika_token, -4)) : '',
                 'rubika_chat_id'     => $settings['rubika_chat_id'],
-                'delete_on_draft'    => !empty($settings['delete_on_draft']),
-                'verify_live_url'    => !empty($settings['verify_live_url']),
-                'webhook_secret'     => $settings['webhook_secret'],
+                'delete_on_draft'                 => !empty($settings['delete_on_draft']),
+                'verify_live_url'                 => !empty($settings['verify_live_url']),
+                'daily_reminder_enabled'          => !empty($settings['daily_reminder_enabled']),
+                'daily_reminder_time'             => $settings['daily_reminder_time'] ?? '20:00',
+                'daily_reminder_telegram'         => !empty($settings['daily_reminder_telegram']),
+                'daily_reminder_bale'             => !empty($settings['daily_reminder_bale']),
+                'daily_reminder_telegram_chat_id' => $settings['daily_reminder_telegram_chat_id'] ?? '',
+                'daily_reminder_bale_chat_id'     => $settings['daily_reminder_bale_chat_id'] ?? '',
+                'webhook_secret'                  => $settings['webhook_secret'],
                 'webhook_url'        => rest_url(self::NAMESPACE . '/social-broadcast/webhook'),
             ],
             'posts' => $posts_data,
@@ -3396,19 +3493,25 @@ class Rest_Controller {
             $new_rubika_token = trim((string) ($params['rubika_bot_token'] ?? ''));
 
             $updated = [
-                'webhook_secret'     => $existing['webhook_secret'],
-                'blog_base_url'      => esc_url_raw(trim((string) ($params['blog_base_url'] ?? $existing['blog_base_url']))) ?: 'https://zebracode.ir/blog',
-                'telegram_enabled'   => !empty($params['telegram_enabled']),
-                'telegram_bot_token' => !empty($new_tg_token) ? sanitize_text_field($new_tg_token) : $existing['telegram_bot_token'],
-                'telegram_chat_id'   => sanitize_text_field(trim((string) ($params['telegram_chat_id'] ?? $existing['telegram_chat_id']))),
-                'bale_enabled'       => !empty($params['bale_enabled']),
-                'bale_bot_token'     => !empty($new_bale_token) ? sanitize_text_field($new_bale_token) : $existing['bale_bot_token'],
-                'bale_chat_id'       => sanitize_text_field(trim((string) ($params['bale_chat_id'] ?? $existing['bale_chat_id']))),
-                'rubika_enabled'     => !empty($params['rubika_enabled']),
-                'rubika_bot_token'   => !empty($new_rubika_token) ? sanitize_text_field($new_rubika_token) : $existing['rubika_bot_token'],
-                'rubika_chat_id'     => sanitize_text_field(trim((string) ($params['rubika_chat_id'] ?? $existing['rubika_chat_id']))),
-                'delete_on_draft'    => !empty($params['delete_on_draft']),
-                'verify_live_url'    => !empty($params['verify_live_url']),
+                'webhook_secret'                  => $existing['webhook_secret'],
+                'blog_base_url'                   => esc_url_raw(trim((string) ($params['blog_base_url'] ?? $existing['blog_base_url']))) ?: 'https://zebracode.ir/blog',
+                'telegram_enabled'                => !empty($params['telegram_enabled']),
+                'telegram_bot_token'              => !empty($new_tg_token) ? sanitize_text_field($new_tg_token) : $existing['telegram_bot_token'],
+                'telegram_chat_id'                => sanitize_text_field(trim((string) ($params['telegram_chat_id'] ?? $existing['telegram_chat_id']))),
+                'bale_enabled'                    => !empty($params['bale_enabled']),
+                'bale_bot_token'                  => !empty($new_bale_token) ? sanitize_text_field($new_bale_token) : $existing['bale_bot_token'],
+                'bale_chat_id'                    => sanitize_text_field(trim((string) ($params['bale_chat_id'] ?? $existing['bale_chat_id']))),
+                'rubika_enabled'                  => !empty($params['rubika_enabled']),
+                'rubika_bot_token'                => !empty($new_rubika_token) ? sanitize_text_field($new_rubika_token) : $existing['rubika_bot_token'],
+                'rubika_chat_id'                  => sanitize_text_field(trim((string) ($params['rubika_chat_id'] ?? $existing['rubika_chat_id']))),
+                'delete_on_draft'                 => !empty($params['delete_on_draft']),
+                'verify_live_url'                 => !empty($params['verify_live_url']),
+                'daily_reminder_enabled'          => !empty($params['daily_reminder_enabled']),
+                'daily_reminder_time'             => preg_match('/^\d{2}:\d{2}$/', trim((string) ($params['daily_reminder_time'] ?? ''))) ? trim((string) $params['daily_reminder_time']) : ($existing['daily_reminder_time'] ?? '20:00'),
+                'daily_reminder_telegram'         => !empty($params['daily_reminder_telegram']),
+                'daily_reminder_bale'             => !empty($params['daily_reminder_bale']),
+                'daily_reminder_telegram_chat_id' => sanitize_text_field(trim((string) ($params['daily_reminder_telegram_chat_id'] ?? ''))),
+                'daily_reminder_bale_chat_id'     => sanitize_text_field(trim((string) ($params['daily_reminder_bale_chat_id'] ?? ''))),
             ];
 
             update_option(\OmniAI\Modules\Social_Broadcast::OPTION_SETTINGS, $updated, false);
@@ -3422,6 +3525,11 @@ class Rest_Controller {
         if ($action === 'test_channel') {
             $platform = sanitize_text_field($params['platform'] ?? '');
             $res = \OmniAI\Modules\Social_Broadcast::send_test_message($platform);
+            return new \WP_REST_Response($res, !empty($res['success']) ? 200 : 400);
+        }
+
+        if ($action === 'test_daily_reminder') {
+            $res = \OmniAI\Modules\Social_Broadcast::maybe_send_daily_reminder(true);
             return new \WP_REST_Response($res, !empty($res['success']) ? 200 : 400);
         }
 
@@ -3459,5 +3567,223 @@ class Rest_Controller {
 
         $res = \OmniAI\Modules\Social_Broadcast::broadcast_pending_posts(10);
         return new \WP_REST_Response($res, 200);
+    }
+
+    /**
+     * Default curated RSS feeds mapped by blog category slug.
+     */
+    private function get_category_feeds_map(): array {
+        $defaults = [
+            'ai'          => "https://openai.com/blog/rss.xml\nhttps://huggingface.co/blog/feed.xml",
+            'security'    => "https://feeds.feedburner.com/TheHackersNews\nhttps://portswigger.net/daily-swig/rss",
+            'programming' => "https://dev.to/feed\nhttps://css-tricks.com/feed/",
+            'development' => "https://dev.to/feed/tag/webdev\nhttps://vercel.com/atom",
+            'tools'       => "https://github.blog/changelog/feed/\nhttps://dev.to/feed/tag/productivity",
+            'tech-news'   => "https://techcrunch.com/feed/\nhttps://www.theverge.com/rss/index.xml",
+            'data'        => "https://dev.to/feed/tag/database\nhttps://www.postgresql.org/news.rss",
+            'network'     => "https://blog.cloudflare.com/rss/",
+        ];
+        $saved = get_option('omni_ai_category_feeds', []);
+        if (!is_array($saved)) {
+            $saved = [];
+        }
+        return array_merge($defaults, $saved);
+    }
+
+    /**
+     * Get configured RSS feeds and optionally fetch latest items for a category.
+     */
+    public function handle_get_web_trends(\WP_REST_Request $request): \WP_REST_Response {
+        $feeds_map = $this->get_category_feeds_map();
+        $category  = sanitize_title($request->get_param('category') ?? '');
+
+        if ($category === '') {
+            return new \WP_REST_Response([
+                'success' => true,
+                'feeds'   => $feeds_map,
+            ], 200);
+        }
+
+        $raw_urls = $feeds_map[$category] ?? ($feeds_map['tech-news'] ?? '');
+        $urls = array_values(array_filter(array_map('trim', preg_split('/[\r\n,]+/', (string) $raw_urls))));
+        $items = [];
+
+        foreach (array_slice($urls, 0, 3) as $feed_url) {
+            if (!filter_var($feed_url, FILTER_VALIDATE_URL)) {
+                continue;
+            }
+            $res = wp_remote_get($feed_url, [
+                'timeout'    => 12,
+                'user-agent' => 'OmniAI-TrendFetcher/1.0 (+https://zebracode.ir)',
+            ]);
+            if (is_wp_error($res) || wp_remote_retrieve_response_code($res) >= 400) {
+                continue;
+            }
+            $xml_str = wp_remote_retrieve_body($res);
+            if (empty($xml_str)) {
+                continue;
+            }
+            $prev_err = libxml_use_internal_errors(true);
+            $xml = simplexml_load_string($xml_str, 'SimpleXMLElement', LIBXML_NOCDATA);
+            libxml_clear_errors();
+            libxml_use_internal_errors($prev_err);
+            if (!$xml) {
+                continue;
+            }
+
+            $source_host = wp_parse_url($feed_url, PHP_URL_HOST) ?: $feed_url;
+            // RSS 2.0
+            if (isset($xml->channel->item)) {
+                $count = 0;
+                foreach ($xml->channel->item as $entry) {
+                    if ($count >= 6) break;
+                    $title = wp_strip_all_tags((string) $entry->title);
+                    $link  = esc_url_raw((string) $entry->link);
+                    $desc  = wp_trim_words(wp_strip_all_tags((string) $entry->description), 40);
+                    $date  = sanitize_text_field((string) $entry->pubDate);
+                    if ($title && $link) {
+                        $items[] = [
+                            'title'   => $title,
+                            'link'    => $link,
+                            'summary' => $desc,
+                            'date'    => $date,
+                            'source'  => $source_host,
+                        ];
+                        $count++;
+                    }
+                }
+            } elseif (isset($xml->entry)) {
+                // Atom
+                $count = 0;
+                foreach ($xml->entry as $entry) {
+                    if ($count >= 6) break;
+                    $title = wp_strip_all_tags((string) $entry->title);
+                    $link = '';
+                    if (isset($entry->link['href'])) {
+                        $link = esc_url_raw((string) $entry->link['href']);
+                    }
+                    $desc = wp_trim_words(wp_strip_all_tags((string) ($entry->summary ?: $entry->content)), 40);
+                    $date = sanitize_text_field((string) ($entry->updated ?: $entry->published));
+                    if ($title && $link) {
+                        $items[] = [
+                            'title'   => $title,
+                            'link'    => $link,
+                            'summary' => $desc,
+                            'date'    => $date,
+                            'source'  => $source_host,
+                        ];
+                        $count++;
+                    }
+                }
+            }
+        }
+
+        return new \WP_REST_Response([
+            'success'  => true,
+            'category' => $category,
+            'feeds'    => $feeds_map,
+            'items'    => array_slice($items, 0, 12),
+        ], 200);
+    }
+
+    /**
+     * Save custom category RSS feeds or generate a Persian SEO article from a web trend item.
+     */
+    public function handle_post_web_trends(\WP_REST_Request $request): \WP_REST_Response {
+        $params = $request->get_json_params() ?: $request->get_params();
+        $action = sanitize_text_field($params['action'] ?? 'generate_from_trend');
+
+        if ($action === 'save_feeds') {
+            $category = sanitize_title($params['category'] ?? '');
+            $urls     = sanitize_textarea_field((string) ($params['urls'] ?? ''));
+            if ($category === '') {
+                return new \WP_REST_Response(['success' => false, 'message' => 'دسته‌بندی مشخص نشده است.'], 400);
+            }
+            $feeds_map = $this->get_category_feeds_map();
+            $feeds_map[$category] = trim($urls);
+            update_option('omni_ai_category_feeds', $feeds_map, false);
+            return new \WP_REST_Response(['success' => true, 'feeds' => $feeds_map, 'message' => 'منابع RSS دسته‌بندی ذخیره شد.'], 200);
+        }
+
+        // generate_from_trend
+        $title    = sanitize_text_field((string) ($params['title'] ?? ''));
+        $link     = esc_url_raw((string) ($params['link'] ?? ''));
+        $summary  = sanitize_textarea_field((string) ($params['summary'] ?? ''));
+        $category = sanitize_title((string) ($params['category'] ?? 'tech-news'));
+
+        if ($title === '') {
+            return new \WP_REST_Response(['success' => false, 'message' => 'عنوان خبر نامعتبر است.'], 400);
+        }
+
+        $provider = Provider_Factory::get_default();
+        if (!$provider) {
+            return new \WP_REST_Response(['success' => false, 'message' => 'هیچ ارائه‌دهنده هوش مصنوعی فعالی تنظیم نشده است.'], 400);
+        }
+
+        $prompt = "تو سردبیر ارشد وبلاگ فنی زبراکد هستی. بر اساس خبر/مطلب جدید زیر که به تازگی در اینترنت منتشر شده، یک مقاله تخصصی، جامع، کاربردی و سئو-محور به زبان فارسی روان بنویس (کپی مستقیم نکن، تحلیل و آموزش کامل با مثال کد یا چک‌لیست ارائه بده):\n\n"
+            . "عنوان منبع: {$title}\n"
+            . ($link ? "لینک منبع: {$link}\n" : '')
+            . ($summary ? "خلاصه منبع: {$summary}\n" : '')
+            . "دسته‌بندی هدف: {$category}\n\n"
+            . "خروجی را دقیقاً و فقط به فرمت JSON معتبر با فیلدهای زیر بده:\n"
+            . "{\n"
+            . "  \"title\": \"عنوان جذاب فارسی مقاله\",\n"
+            . "  \"slug\": \"english-seo-friendly-slug\",\n"
+            . "  \"excerpt\": \"خلاصه ۲ خطی جذاب\",\n"
+            . "  \"focus_keyword\": \"کلمه کلیدی کانونی\",\n"
+            . "  \"seo_title\": \"عنوان سئو (۴۵ تا ۶۰ کاراکتر)\",\n"
+            . "  \"meta_description\": \"توضیحات متا (۱۳۰ تا ۱۵۵ کاراکتر)\",\n"
+            . "  \"content\": \"<p>محتوای کامل HTML با تگ‌های h2, h3, p, ul, pre/code</p>\"\n"
+            . "}";
+
+        try {
+            $response = $provider->generate($prompt, ['max_tokens' => 4000, 'temperature' => 0.5]);
+            $text = trim($response['text'] ?? '');
+            $text = preg_replace('/^```(?:json)?\s*/i', '', $text);
+            $text = preg_replace('/\s*```$/i', '', $text);
+            $json = json_decode($text, true);
+
+            if (!is_array($json) || empty($json['title']) || empty($json['content'])) {
+                return new \WP_REST_Response(['success' => false, 'message' => 'پاسخ هوش مصنوعی ساختار JSON معتبر نداشت.'], 500);
+            }
+
+            $term = get_term_by('slug', $category, 'category');
+            $cat_ids = $term ? [(int) $term->term_id] : [];
+
+            $post_id = wp_insert_post([
+                'post_title'    => sanitize_text_field($json['title']),
+                'post_name'     => sanitize_title($json['slug'] ?? $json['title']),
+                'post_excerpt'  => sanitize_textarea_field($json['excerpt'] ?? ''),
+                'post_content'  => wp_kses_post($json['content']),
+                'post_status'   => 'draft',
+                'post_type'     => 'post',
+                'post_category' => $cat_ids,
+            ], true);
+
+            if (is_wp_error($post_id)) {
+                return new \WP_REST_Response(['success' => false, 'message' => $post_id->get_error_message()], 500);
+            }
+
+            $kw = sanitize_text_field($json['focus_keyword'] ?? '');
+            $st = sanitize_text_field($json['seo_title'] ?? $json['title']);
+            $md = sanitize_textarea_field($json['meta_description'] ?? ($json['excerpt'] ?? ''));
+
+            update_post_meta($post_id, '_omni_ai_focus_keyword', $kw);
+            update_post_meta($post_id, 'rank_math_focus_keyword', $kw);
+            update_post_meta($post_id, '_omni_ai_seo_title', $st);
+            update_post_meta($post_id, 'rank_math_title', $st);
+            update_post_meta($post_id, '_omni_ai_meta_description', $md);
+            update_post_meta($post_id, 'rank_math_description', $md);
+
+            return new \WP_REST_Response([
+                'success'  => true,
+                'post_id'  => $post_id,
+                'title'    => get_the_title($post_id),
+                'edit_url' => admin_url("post.php?post={$post_id}&action=edit"),
+                'message'  => 'پیش‌نویس مقاله با موفقیت از روی خبر وب تولید شد.',
+            ], 200);
+        } catch (\Throwable $e) {
+            return new \WP_REST_Response(['success' => false, 'message' => 'خطا در تولید مقاله: ' . $e->getMessage()], 500);
+        }
     }
 }

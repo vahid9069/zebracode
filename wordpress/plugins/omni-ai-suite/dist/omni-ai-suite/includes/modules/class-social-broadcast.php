@@ -279,7 +279,8 @@ class Social_Broadcast implements Module_Interface {
             ];
         }
 
-        $err = $body['status_det'] ?? ($body['message'] ?? ('HTTP ' . wp_remote_retrieve_response_code($res)));
+        $raw_body = wp_remote_retrieve_body($res);
+        $err = $body['status_det'] ?? ($body['dev_message'] ?? ($body['message'] ?? ($body['error'] ?? ($status ?: ('HTTP ' . wp_remote_retrieve_response_code($res) . ': ' . mb_substr($raw_body, 0, 150))))));
         return ['success' => false, 'error' => (string) $err];
     }
 
@@ -329,7 +330,7 @@ class Social_Broadcast implements Module_Interface {
         }
 
         $api_base = ($platform === 'bale')
-            ? "https://tapi.bale.me/bot{$token}/"
+            ? "https://tapi.bale.ai/bot{$token}/"
             : "https://api.telegram.org/bot{$token}/";
 
         $reply_markup = wp_json_encode([
@@ -416,7 +417,7 @@ class Social_Broadcast implements Module_Interface {
         }
 
         $api_base = ($platform === 'bale')
-            ? "https://tapi.bale.me/bot{$token}/"
+            ? "https://tapi.bale.ai/bot{$token}/"
             : "https://api.telegram.org/bot{$token}/";
 
         $res = wp_remote_post($api_base . 'deleteMessage', [

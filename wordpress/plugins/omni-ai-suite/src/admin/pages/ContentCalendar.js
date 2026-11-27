@@ -76,6 +76,14 @@ export default function ContentCalendar({ categories = [], onSelectTopic }) {
   const [filterStatus, setFilterStatus] = useState('all');
   const [searchTerm, setSearchTerm] = useState('');
 
+  // Web Trends / RSS-to-Article state
+  const [trendCat, setTrendCat] = useState('ai');
+  const [trendFeeds, setTrendFeeds] = useState({});
+  const [trendItems, setTrendItems] = useState([]);
+  const [loadingTrends, setLoadingTrends] = useState(false);
+  const [generatingTrendLink, setGeneratingTrendLink] = useState(null);
+  const [showFeedEditor, setShowFeedEditor] = useState(false);
+
   // Live Categories State initialized from prop or window.omniAiData
   const [liveCategories, setLiveCategories] = useState(() => {
     if (Array.isArray(categories) && categories.length > 0) return categories;
@@ -510,6 +518,150 @@ Requirements:
               );
             })}
           </div>
+        </CardBody>
+      </Card>
+
+      {/* Web Trends / Generate Article from Latest Internet News by Category */}
+      <Card style={{ marginBottom: '20px', border: '1px solid #c7d2fe', borderRadius: '10px', background: '#f8fafc' }}>
+        <CardHeader style={{ background: '#eef2ff', borderBottom: '1px solid #c7d2fe' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '10px', width: '100%' }}>
+            <span style={{ fontWeight: 700, fontSize: '14px', color: '#312e81' }}>
+              🌐 شکار مطالب جدید اینترنت و تبدیل به مقاله (بر اساس دسته‌بندی)
+            </span>
+            <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap' }}>
+              <select
+                value={trendCat}
+                onChange={(e) => setTrendCat(e.target.value)}
+                style={{ height: '32px', borderRadius: '6px', border: '1px solid #a5b4fc', padding: '0 10px', fontSize: '12px' }}
+              >
+                {enrichedCategories.map((c) => (
+                  <option key={c.slug} value={c.slug}>{c.name}</option>
+                ))}
+              </select>
+              <Button
+                variant="primary"
+                size="small"
+                disabled={loadingTrends}
+                onClick={async () => {
+                  setLoadingTrends(true);
+                  setNotice(null);
+                  try {
+                    const res = await apiFetch(`web-trends?category=${encodeURIComponent(trendCat)}`);
+                    const data = await res.json();
+                    if (data && data.success) {
+                      setTrendFeeds(data.feeds || {});
+                      setTrendItems(Array.isArray(data.items) ? data.items : []);
+                      if (!data.items || data.items.length === 0) {
+                        setNotice({ type: 'warning', text: 'مطلبی از فیدهای این دسته دریافت نشد. می‌توانید آدرس RSS دلخواه اضافه کنید.' });
+                      }
+                    }
+                  } catch (err) {
+                    setNotice({ type: 'error', text: err?.message || 'خطا در دریافت اخبار جدید' });
+                  } finally {
+                    setLoadingTrends(false);
+                  }
+                }}
+              >
+                {loadingTrends ? 'در حال دریافت...' : '🔍 دریافت مطالب جدید اینترنت'}
+              </Button>
+              <Button variant="secondary" size="small" onClick={() => setShowFeedEditor(!showFeedEditor)}>
+                {showFeedEditor ? 'بستن منابع RSS' : '⚙️ ویرایش منابع RSS'}
+              </Button>
+            </div>
+          </div>
+        </CardHeader>
+        <CardBody style={{ padding: '14px 18px' }}>
+          {showFeedEditor && (
+            <div style={{ marginBottom: '14px', padding: '12px', background: '#ffffff', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
+              <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, marginBottom: '6px' }}>
+                آدرس فیدهای RSS/Atom برای دسته «{trendCat}» (هر آدرس در یک خط):
+              </label>
+              <textarea
+                rows={3}
+                value={trendFeeds[trendCat] || ''}
+                onChange={(e) => setTrendFeeds({ ...trendFeeds, [trendCat]: e.target.value })}
+                style={{ width: '100%', borderRadius: '6px', border: '1px solid #cbd5e1', padding: '8px', fontSize: '12px', direction: 'ltr', marginBottom: '8px' }}
+              />
+              <Button
+                variant="secondary"
+                size="small"
+                onClick={async () => {
+                  try {
+                    const res = await apiFetch('web-trends', {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({ action: 'save_feeds', category: trendCat, urls: trendFeeds[trendCat] || '' }),
+                    });
+                    const data = await res.json();
+                    if (data?.success) setNotice({ type: 'success', text: data.message });
+                  } catch (_) {}
+                }}
+              >
+                ذخیره منابع RSS این دسته
+              </Button>
+            </div>
+          )}
+
+          {trendItems.length > 0 ? (
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '12px' }}>
+              {trendItems.map((item, idx) => (
+                <div key={`${item.link}-${idx}`} style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '8px', padding: '12px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', gap: '8px' }}>
+                  <div>
+                    <div style={{ fontSize: '11px', color: '#64748b', marginBottom: '4px' }}>
+                      {item.source} {item.date ? `• ${item.date}` : ''}
+                    </div>
+                    <a href={item.link} target="_blank" rel="noreferrer" style={{ fontWeight: 700, fontSize: '13px', color: '#0f172a', textDecoration: 'none', display: 'block', marginBottom: '6px' }}>
+                      {item.title}
+                    </a>
+                    {item.summary && (
+                      <p style={{ margin: 0, fontSize: '11.5px', color: '#475569', lineHeight: 1.5 }}>{item.summary}</p>
+                    )}
+                  </div>
+                  <Button
+                    variant="secondary"
+                    size="small"
+                    disabled={generatingTrendLink === item.link}
+                    onClick={async () => {
+                      setGeneratingTrendLink(item.link);
+                      setNotice(null);
+                      try {
+                        const res = await apiFetch('web-trends', {
+                          method: 'POST',
+                          headers: { 'Content-Type': 'application/json' },
+                          body: JSON.stringify({
+                            action: 'generate_from_trend',
+                            category: trendCat,
+                            title: item.title,
+                            link: item.link,
+                            summary: item.summary,
+                          }),
+                        });
+                        const data = await res.json();
+                        if (data && data.success) {
+                          setNotice({
+                            type: 'success',
+                            text: `✅ پیش‌نویس «${data.title}» ساخته شد (شناسه: ${data.post_id}).`,
+                          });
+                        } else {
+                          setNotice({ type: 'error', text: data?.message || 'خطا در تولید مقاله' });
+                        }
+                      } catch (err) {
+                        setNotice({ type: 'error', text: err?.message || 'خطا در ارتباط با سرور' });
+                      } finally {
+                        setGeneratingTrendLink(null);
+                      }
+                    }}
+                  >
+                    {generatingTrendLink === item.link ? 'در حال نگارش با AI...' : '✨ تولید پیش‌نویس مقاله فارسی'}
+                  </Button>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p style={{ margin: 0, fontSize: '12px', color: '#64748b' }}>
+              دسته مورد نظر را انتخاب کرده و روی «دریافت مطالب جدید اینترنت» بزنید تا تازه‌ترین مقالات منتشرشده در وب را ببینید و با یک کلیک به مقاله فارسی تبدیل کنید.
+            </p>
+          )}
         </CardBody>
       </Card>
 

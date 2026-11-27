@@ -95,6 +95,22 @@ export interface AdCampaign {
     end_date?: string;
 }
 
+export interface PostComment {
+    id: number;
+    parentId: number;
+    authorName: string;
+    content: string;
+    date: string;
+    isAdmin?: boolean;
+}
+
+export interface SiteSocialLinks {
+    telegram?: string;
+    bale?: string;
+    rubika?: string;
+    github?: string;
+}
+
 export interface Post extends PostSummary {
     blocks: ArticleBlock[];
     tools: ToolLink[];
@@ -103,4 +119,5 @@ export interface Post extends PostSummary {
     metaDescription?: string;
     disableAds?: boolean;
     ads?: AdCampaign[];
+    comments?: PostComment[];
 }

@@ -39,6 +39,12 @@ class Plugin {
         // Register Headless Preview hooks (preview_post_link filter)
         (new \OmniAI\Api\Headless_Controller())->register_preview_hooks();
 
+        // Schedule & hook daily missing-article reminder
+        add_action('omni_ai_daily_article_reminder_hook', ['OmniAI\\Modules\\Social_Broadcast', 'maybe_send_daily_reminder']);
+        if (!wp_next_scheduled('omni_ai_daily_article_reminder_hook')) {
+            wp_schedule_event(time(), 'hourly', 'omni_ai_daily_article_reminder_hook');
+        }
+
         // Initialize Admin UI
         if (is_admin()) {
             $this->admin->init();

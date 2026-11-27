@@ -89,6 +89,166 @@ class Headless_Controller {
                 return current_user_can('edit_posts');
             },
         ]);
+
+        // Signed Headless Preview Endpoint for static Next.js frontend
+        register_rest_route(self::NAMESPACE, '/preview', [
+            'methods'             => \WP_REST_Server::READABLE,
+            'callback'            => [$this, 'handle_get_preview_post'],
+            'permission_callback' => '__return_true',
+            'args'                => [
+                'id'    => [
+                    'required'          => true,
+                    'sanitize_callback' => 'absint',
+                ],
+                'exp'   => [
+                    'required'          => true,
+                    'sanitize_callback' => 'absint',
+                ],
+                'token' => [
+                    'required'          => true,
+                    'sanitize_callback' => 'sanitize_text_field',
+                ],
+            ],
+        ]);
+    }
+
+    /**
+     * Register WordPress admin/editor hooks for headless preview links.
+     */
+    public function register_preview_hooks(): void {
+        add_filter('preview_post_link', [$this, 'filter_preview_post_link'], 10, 2);
+    }
+
+    /**
+     * Resolve the configured Next.js blog base URL.
+     */
+    private function get_blog_base_url(): string {
+        $base_url = '';
+        if (defined('OMNI_AI_PREVIEW_BASE_URL') && is_string(OMNI_AI_PREVIEW_BASE_URL)) {
+            $base_url = trim(OMNI_AI_PREVIEW_BASE_URL);
+        }
+        if ($base_url === '' && class_exists('\\OmniAI\\Modules\\Social_Broadcast')) {
+            $settings = \OmniAI\Modules\Social_Broadcast::get_settings();
+            if (!empty($settings['blog_base_url']) && is_string($settings['blog_base_url'])) {
+                $base_url = trim($settings['blog_base_url']);
+            }
+        }
+        if ($base_url === '') {
+            $base_url = 'https://zebracode.ir/blog';
+        }
+        return rtrim((string) apply_filters('omni_ai_preview_base_url', $base_url), '/');
+    }
+
+    /**
+     * Generate an HMAC-SHA256 preview token bound to post ID and expiration timestamp.
+     */
+    private function generate_preview_token(int $post_id, int $exp): string {
+        return hash_hmac('sha256', $post_id . '|' . $exp, wp_salt('auth'));
+    }
+
+    /**
+     * Redirect WordPress editor "Preview" button to the static Next.js /preview/ page.
+     *
+     * @param string   $preview_link
+     * @param \WP_Post $post
+     * @return string
+     */
+    public function filter_preview_post_link(string $preview_link, $post): string {
+        if (!($post instanceof \WP_Post) || $post->post_type !== 'post') {
+            return $preview_link;
+        }
+
+        $exp   = time() + (15 * MINUTE_IN_SECONDS);
+        $token = $this->generate_preview_token((int) $post->ID, $exp);
+
+        return add_query_arg([
+            'id'    => (int) $post->ID,
+            'exp'   => $exp,
+            'token' => $token,
+        ], $this->get_blog_base_url() . '/preview/');
+    }
+
+    /**
+     * Return a single post (including drafts & autosaves) when a valid signed preview token is provided.
+     */
+    public function handle_get_preview_post(\WP_REST_Request $request): \WP_REST_Response {
+        $post_id = absint($request->get_param('id'));
+        $exp     = absint($request->get_param('exp'));
+        $token   = sanitize_text_field((string) ($request->get_param('token') ?? ''));
+
+        $respond = function (array $data, int $status): \WP_REST_Response {
+            $response = new \WP_REST_Response($data, $status);
+            $request_origin = isset($_SERVER['HTTP_ORIGIN']) ? esc_url_raw(wp_unslash($_SERVER['HTTP_ORIGIN'])) : '';
+            $blog_origin    = '';
+            $parsed_blog    = wp_parse_url($this->get_blog_base_url());
+            if (!empty($parsed_blog['scheme']) && !empty($parsed_blog['host'])) {
+                $blog_origin = $parsed_blog['scheme'] . '://' . $parsed_blog['host'] . (!empty($parsed_blog['port']) ? ':' . $parsed_blog['port'] : '');
+            }
+            $allowed_origins = array_filter(array_unique([
+                $blog_origin,
+                'https://zebracode.ir',
+                'http://localhost:3004',
+                'http://127.0.0.1:3004',
+            ]));
+            if ($request_origin && in_array($request_origin, $allowed_origins, true)) {
+                $response->header('Access-Control-Allow-Origin', $request_origin);
+            } elseif ($blog_origin) {
+                $response->header('Access-Control-Allow-Origin', $blog_origin);
+            }
+            $response->header('Vary', 'Origin');
+            $response->header('Cache-Control', 'no-store, no-cache, must-revalidate');
+            return $response;
+        };
+
+        if (!$post_id || !$exp || $token === '') {
+            return $respond(['success' => false, 'message' => 'پارامترهای پیش‌نمایش ناقص است.'], 400);
+        }
+
+        if (time() > $exp) {
+            return $respond(['success' => false, 'message' => 'لینک پیش‌نمایش منقضی شده است. لطفاً دوباره در وردپرس روی Preview کلیک کنید.'], 403);
+        }
+
+        $expected = $this->generate_preview_token($post_id, $exp);
+        if (!hash_equals($expected, $token)) {
+            return $respond(['success' => false, 'message' => 'توکن پیش‌نمایش نامعتبر است.'], 403);
+        }
+
+        $post = get_post($post_id);
+        if (!($post instanceof \WP_Post) || $post->post_type !== 'post') {
+            return $respond(['success' => false, 'message' => 'مقاله مورد نظر پیدا نشد.'], 404);
+        }
+
+        $is_autosave = false;
+        $autosave    = wp_get_post_autosave($post_id);
+        $target_post = clone $post;
+
+        if ($autosave instanceof \WP_Post && strtotime($autosave->post_modified_gmt) > strtotime($post->post_modified_gmt)) {
+            $is_autosave               = true;
+            $target_post->post_title   = $autosave->post_title;
+            $target_post->post_content = $autosave->post_content;
+            $target_post->post_excerpt = $autosave->post_excerpt;
+        }
+
+        $formatted = $this->format_post_for_blog($target_post);
+
+        if ($is_autosave) {
+            if (!empty($autosave->post_title)) {
+                $formatted['title'] = wp_strip_all_tags($autosave->post_title);
+            }
+            if (!empty($autosave->post_excerpt)) {
+                $formatted['excerpt'] = wp_strip_all_tags($autosave->post_excerpt);
+            }
+        }
+        if (empty($formatted['slug'])) {
+            $formatted['slug'] = 'preview-' . $post_id;
+        }
+
+        return $respond([
+            'success'     => true,
+            'status'      => $post->post_status,
+            'is_autosave' => $is_autosave,
+            'post'        => $formatted,
+        ], 200);
     }
 
     /**

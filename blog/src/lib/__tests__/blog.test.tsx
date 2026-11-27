@@ -7,7 +7,7 @@ import { filterPosts } from '@/lib/search';
 import { absoluteUrl, categoryPath, formatDate, getToolUrl, postPath } from '@/lib/site';
 import ArticleCatalog from '@/components/ArticleCatalog';
 import ArticleReader from '@/components/ArticleReader';
-import ArticlePage, { generateMetadata, generateStaticParams } from '@/app/articles/[slug]/page';
+import ArticlePage, { generateMetadata, generateStaticParams } from '@/app/[slug]/page';
 import { generateStaticParams as categoryParams } from '@/app/category/[slug]/page';
 import sitemap from '@/app/sitemap';
 
@@ -103,9 +103,9 @@ describe('blog routing and metadata', () => {
         expect(await generateStaticParams()).toHaveLength(8);
         expect(await categoryParams()).toHaveLength(6);
         expect(await sitemap()).toHaveLength(15);
-        expect(postPath('json-debugging')).toBe('/articles/json-debugging/');
+        expect(postPath('json-debugging')).toBe('/json-debugging/');
         expect(categoryPath('data')).toBe('/category/data/');
-        expect(new URL(absoluteUrl(postPath('json-debugging'))).pathname).toBe('/blog/articles/json-debugging/');
+        expect(new URL(absoluteUrl(postPath('json-debugging'))).pathname).toBe('/blog/json-debugging/');
         expect(new URL(getToolUrl('json-format')).pathname).toBe('/json-format/');
         expect(formatDate('2026-10-17')).not.toContain('Invalid');
     });

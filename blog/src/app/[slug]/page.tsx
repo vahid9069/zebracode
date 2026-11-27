@@ -9,6 +9,8 @@ interface ArticlePageProps {
     params: Promise<{ slug: string }>;
 }
 
+const RESERVED_SLUGS = new Set(['category', 'preview']);
+
 export const dynamicParams = false;
 
 export async function generateStaticParams() {
@@ -18,6 +20,7 @@ export async function generateStaticParams() {
     for (const post of posts) {
         if (!post.slug) continue;
         const decoded = decodeURIComponent(post.slug);
+        if (RESERVED_SLUGS.has(decoded.toLowerCase())) continue;
         if (!seen.has(decoded)) {
             seen.add(decoded);
             params.push({ slug: decoded });
@@ -151,6 +154,7 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
                     cssSelector: ['#article-title', '.article-deck', '.article-callout'],
                 },
                 articleBody: post.blocks.map(blockText).join('\n\n'),
+                ...(post.comments && post.comments.length > 0 ? { commentCount: post.comments.length } : {}),
             },
             {
                 '@type': 'BreadcrumbList',
@@ -169,9 +173,14 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
         ],
     };
 
+    const commentsApiBase =
+        process.env.NEXT_PUBLIC_WORDPRESS_BLOG_API_URL?.trim() ||
+        process.env.WORDPRESS_BLOG_API_URL?.trim() ||
+        'https://test.zebracode.ir/blog-admin/wp-json/omni-ai/v1';
+
     return (
         <>
-            <ArticleReader post={post} categories={categories} related={related} />
+            <ArticleReader post={post} categories={categories} related={related} commentsApiBase={commentsApiBase} />
             <script type="application/ld+json">{JSON.stringify(structuredData).replace(/</g, '\\u003c')}</script>
         </>
     );

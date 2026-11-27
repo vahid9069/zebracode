@@ -7,7 +7,7 @@ import { jsonDebugging } from '@/content/json-debugging';
 import { jsonToTypescript } from '@/content/json-to-typescript';
 import { jwtVerification } from '@/content/jwt-verification';
 import { uuidV4V7 } from '@/content/uuid-v4-v7';
-import type { Category, FeaturedImage, InlineToken, Post, PostSummary, RankMathSeo, ToolLink } from '@/lib/types';
+import type { Category, FeaturedImage, InlineToken, Post, PostComment, PostSummary, RankMathSeo, SiteSocialLinks, ToolLink } from '@/lib/types';
 
 // Static data behind an async repository boundary for a future API; no WordPress connection yet.
 const fallbackPosts: Post[] = [
@@ -193,6 +193,20 @@ export function toPost(value: unknown): Post | undefined {
     }, 0);
     const readingMinutes = Math.max(1, Math.ceil(totalWords / 220));
 
+    const parsedComments: PostComment[] = Array.isArray(item.comments)
+        ? item.comments
+            .filter((c): c is Record<string, unknown> => Boolean(c && typeof c === 'object'))
+            .map((c) => ({
+                id: typeof c.id === 'number' ? c.id : Number(c.id) || 0,
+                parentId: typeof c.parent_id === 'number' ? c.parent_id : Number(c.parent_id) || 0,
+                authorName: typeof c.author_name === 'string' ? c.author_name.trim() : 'کاربر',
+                content: typeof c.content === 'string' ? c.content.trim() : '',
+                date: typeof c.date === 'string' ? c.date : new Date().toISOString(),
+                isAdmin: Boolean(c.is_admin),
+            }))
+            .filter((c) => c.id > 0 && c.content.length > 0)
+        : [];
+
     return {
         slug,
         title,
@@ -203,7 +217,7 @@ export function toPost(value: unknown): Post | undefined {
         publishedAt,
         ...(updatedAt ? { updatedAt } : {}),
         readingMinutes,
-        featured: false,
+        featured: Boolean(item.featured),
         cover: categoryValue === 'security' ? 'security' : categoryValue === 'network' ? 'network' : 'code',
         tags,
         author,
@@ -216,6 +230,7 @@ export function toPost(value: unknown): Post | undefined {
         seo,
         ...(typeof item.disable_ads === 'boolean' ? { disableAds: item.disable_ads } : {}),
         ...(Array.isArray(item.ads) ? { ads: item.ads } : {}),
+        ...(parsedComments.length > 0 ? { comments: parsedComments } : {}),
     };
 }
 
@@ -490,6 +505,39 @@ export async function getRelatedPosts(post: Post, limit = 3): Promise<PostSummar
         ...others.filter(candidate => candidate.category !== post.category),
     ];
     return ordered.slice(0, Math.max(0, Math.floor(limit))).map(summarize);
+}
+
+export async function getSiteBranding(): Promise<{ logoUrl?: string; faviconUrl?: string; socialLinks?: SiteSocialLinks }> {
+    const endpoint = process.env.WORDPRESS_BLOG_API_URL?.trim();
+    const defaultSocial: SiteSocialLinks = {
+        telegram: 'https://t.me/zebracode_ir',
+        bale: 'https://ble.ir/zebracode_ir',
+        rubika: 'https://rubika.ir/zebracode_ir',
+    };
+    if (!endpoint) return { socialLinks: defaultSocial };
+
+    try {
+        const fetchOptions: RequestInit = process.env.NODE_ENV === 'development'
+            ? { cache: 'no-store' }
+            : { cache: 'force-cache' };
+        const res = await fetch(`${endpoint.replace(/\/$/, '')}/site-settings`, fetchOptions);
+        if (!res.ok) return { socialLinks: defaultSocial };
+        const data = await res.json() as { logo_url?: string; favicon_url?: string; social_links?: Record<string, unknown> };
+        const rawSocial = data.social_links && typeof data.social_links === 'object' ? data.social_links : {};
+        const pickUrl = (val: unknown, fallback = '') => (typeof val === 'string' && /^https?:\/\//i.test(val.trim()) ? val.trim() : fallback);
+        return {
+            ...(typeof data.logo_url === 'string' && data.logo_url.trim() ? { logoUrl: data.logo_url.trim() } : {}),
+            ...(typeof data.favicon_url === 'string' && data.favicon_url.trim() ? { faviconUrl: data.favicon_url.trim() } : {}),
+            socialLinks: {
+                telegram: pickUrl(rawSocial.telegram, defaultSocial.telegram),
+                bale: pickUrl(rawSocial.bale, defaultSocial.bale),
+                rubika: pickUrl(rawSocial.rubika, defaultSocial.rubika),
+                ...(pickUrl(rawSocial.github) ? { github: pickUrl(rawSocial.github) } : {}),
+            },
+        };
+    } catch {
+        return { socialLinks: defaultSocial };
+    }
 }
 
 export { filterPosts } from './search';

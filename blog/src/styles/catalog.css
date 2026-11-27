@@ -3,7 +3,7 @@
 }
 
 .zc-container {
-    width: min(1200px, calc(100% - 48px));
+    width: min(1360px, calc(100% - 32px));
     margin-inline: auto;
 }
 
@@ -16,7 +16,7 @@
     position: sticky;
     top: 0;
     border-bottom: 1px solid var(--line);
-    background: color-mix(in srgb, var(--surface) 80%, transparent);
+    background: color-mix(in srgb, var(--surface) 95%, transparent);
     backdrop-filter: blur(14px);
     -webkit-backdrop-filter: blur(14px);
     z-index: 50;
@@ -39,6 +39,14 @@
     font: 800 18px/1 -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif;
     letter-spacing: -.6px;
     flex-shrink: 0;
+}
+
+.zc-brand-logo-img {
+    height: 32px;
+    width: auto;
+    max-width: 180px;
+    object-fit: contain;
+    display: block;
 }
 
 .zc-brand-mark {
@@ -527,7 +535,8 @@
 }
 
 .zc-catalog-toolbar > .zc-search-field {
-    max-width: 260px;
+    min-width: 280px;
+    max-width: 340px;
     flex-shrink: 0;
 }
 

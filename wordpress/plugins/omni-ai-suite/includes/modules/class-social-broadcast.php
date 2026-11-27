@@ -54,19 +54,25 @@ class Social_Broadcast implements Module_Interface {
         }
 
         return wp_parse_args($saved, [
-            'webhook_secret'     => '',
-            'blog_base_url'      => 'https://zebracode.ir/blog',
-            'telegram_enabled'   => false,
-            'telegram_bot_token' => '',
-            'telegram_chat_id'   => '',
-            'bale_enabled'       => false,
-            'bale_bot_token'     => '',
-            'bale_chat_id'       => '',
-            'rubika_enabled'     => false,
-            'rubika_bot_token'   => '',
-            'rubika_chat_id'     => '',
-            'delete_on_draft'    => false,
-            'verify_live_url'    => true,
+            'webhook_secret'                  => '',
+            'blog_base_url'                   => 'https://zebracode.ir/blog',
+            'telegram_enabled'                => false,
+            'telegram_bot_token'              => '',
+            'telegram_chat_id'                => '',
+            'bale_enabled'                    => false,
+            'bale_bot_token'                  => '',
+            'bale_chat_id'                    => '',
+            'rubika_enabled'                  => false,
+            'rubika_bot_token'                => '',
+            'rubika_chat_id'                  => '',
+            'delete_on_draft'                 => false,
+            'verify_live_url'                 => true,
+            'daily_reminder_enabled'          => false,
+            'daily_reminder_time'             => '20:00',
+            'daily_reminder_telegram'         => true,
+            'daily_reminder_bale'             => false,
+            'daily_reminder_telegram_chat_id' => '',
+            'daily_reminder_bale_chat_id'     => '',
         ]);
     }
 
@@ -118,7 +124,7 @@ class Social_Broadcast implements Module_Interface {
             $base = 'https://zebracode.ir/blog';
         }
         $slug = rawurlencode($post->post_name);
-        return "{$base}/articles/{$slug}/";
+        return "{$base}/{$slug}/";
     }
 
     /**
@@ -279,7 +285,8 @@ class Social_Broadcast implements Module_Interface {
             ];
         }
 
-        $err = $body['status_det'] ?? ($body['message'] ?? ('HTTP ' . wp_remote_retrieve_response_code($res)));
+        $raw_body = wp_remote_retrieve_body($res);
+        $err = $body['status_det'] ?? ($body['dev_message'] ?? ($body['message'] ?? ($body['error'] ?? ($status ?: ('HTTP ' . wp_remote_retrieve_response_code($res) . ': ' . mb_substr($raw_body, 0, 150))))));
         return ['success' => false, 'error' => (string) $err];
     }
 
@@ -329,7 +336,7 @@ class Social_Broadcast implements Module_Interface {
         }
 
         $api_base = ($platform === 'bale')
-            ? "https://tapi.bale.me/bot{$token}/"
+            ? "https://tapi.bale.ai/bot{$token}/"
             : "https://api.telegram.org/bot{$token}/";
 
         $reply_markup = wp_json_encode([
@@ -416,7 +423,7 @@ class Social_Broadcast implements Module_Interface {
         }
 
         $api_base = ($platform === 'bale')
-            ? "https://tapi.bale.me/bot{$token}/"
+            ? "https://tapi.bale.ai/bot{$token}/"
             : "https://api.telegram.org/bot{$token}/";
 
         $res = wp_remote_post($api_base . 'deleteMessage', [
@@ -623,5 +630,91 @@ class Social_Broadcast implements Module_Interface {
         }
 
         return ['success' => false, 'error' => 'پلتفرم نامعتبر است.'];
+    }
+
+    /**
+     * Check if at least one article was created today; if not, send a reminder to Telegram/Bale.
+     */
+    public static function maybe_send_daily_reminder(bool $force = false): array {
+        $settings = self::get_settings();
+        if (!$force && empty($settings['daily_reminder_enabled'])) {
+            return ['success' => false, 'skipped' => true, 'message' => 'هشدار روزانه غیرفعال است.'];
+        }
+
+        $today = current_time('Y-m-d');
+        $now_hm = current_time('H:i');
+        $target_hm = preg_match('/^\d{2}:\d{2}$/', (string) ($settings['daily_reminder_time'] ?? ''))
+            ? (string) $settings['daily_reminder_time']
+            : '20:00';
+
+        if (!$force) {
+            if ($now_hm < $target_hm) {
+                return ['success' => false, 'skipped' => true, 'message' => 'هنوز به ساعت هشدار نرسیده است.'];
+            }
+            if (get_option('omni_ai_last_reminder_date', '') === $today) {
+                return ['success' => false, 'skipped' => true, 'message' => 'هشدار امروز قبلاً ارسال شده است.'];
+            }
+        }
+
+        $today_parts = explode('-', $today);
+        $todays_posts = get_posts([
+            'post_type'      => 'post',
+            'post_status'    => ['publish', 'future', 'pending', 'draft'],
+            'posts_per_page' => 1,
+            'fields'         => 'ids',
+            'date_query'     => [
+                [
+                    'year'  => (int) $today_parts[0],
+                    'month' => (int) $today_parts[1],
+                    'day'   => (int) $today_parts[2],
+                ],
+            ],
+        ]);
+
+        if (!$force && !empty($todays_posts)) {
+            return ['success' => true, 'skipped' => true, 'message' => 'برای امروز مقاله ثبت شده است؛ نیازی به هشدار نیست.'];
+        }
+
+        $admin_url = admin_url('admin.php?page=omni-ai-suite#/calendar');
+        $status_line = empty($todays_posts)
+            ? "امروز ({$today}) هنوز هیچ مقاله‌ای در وبلاگ ثبت نکرده‌اید."
+            : "تست هشدار روزانه ({$today}) — امروز " . count($todays_posts) . " مقاله ثبت شده است.";
+
+        $msg = "⏰ <b>یادآور انتشار مقاله روزانه — زبراکد</b>\n\n{$status_line}\n\n💡 می‌توانید از تقویم محتوایی یا بخش مطالب جدید وب در پنل وردپرس، سریع یک مقاله بسازید:\n{$admin_url}";
+
+        $results = [];
+        $any_sent = false;
+
+        if (!empty($settings['daily_reminder_telegram']) && !empty($settings['telegram_bot_token'])) {
+            $chat_id = trim((string) ($settings['daily_reminder_telegram_chat_id'] ?? '')) ?: trim((string) $settings['telegram_chat_id']);
+            if ($chat_id !== '') {
+                $res = self::send_to_channel('telegram', $settings['telegram_bot_token'], $chat_id, '', $msg, $admin_url);
+                $results['telegram'] = $res;
+                if (!empty($res['success'])) {
+                    $any_sent = true;
+                }
+            }
+        }
+
+        if (!empty($settings['daily_reminder_bale']) && !empty($settings['bale_bot_token'])) {
+            $chat_id = trim((string) ($settings['daily_reminder_bale_chat_id'] ?? '')) ?: trim((string) $settings['bale_chat_id']);
+            if ($chat_id !== '') {
+                $res = self::send_to_channel('bale', $settings['bale_bot_token'], $chat_id, '', $msg, $admin_url);
+                $results['bale'] = $res;
+                if (!empty($res['success'])) {
+                    $any_sent = true;
+                }
+            }
+        }
+
+        if ($any_sent && !$force) {
+            update_option('omni_ai_last_reminder_date', $today, false);
+        }
+
+        return [
+            'success' => $any_sent,
+            'results' => $results,
+            'message' => $any_sent ? 'هشدار یادآور با موفقیت ارسال شد.' : 'هیچ کانال/ربات فعالی برای ارسال هشدار تنظیم نشده است.',
+        ];
     }
 }
