@@ -99,6 +99,7 @@ export interface PostComment {
     id: number;
     parentId: number;
     authorName: string;
+    avatarUrl?: string;
     content: string;
     date: string;
     isAdmin?: boolean;

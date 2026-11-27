@@ -246,10 +246,13 @@ class Headless_Controller {
         $list = [];
         if (is_array($wp_comments)) {
             foreach ($wp_comments as $c) {
+                $avatar_target = (int) $c->user_id > 0 ? (int) $c->user_id : $c;
+                $avatar_url    = get_avatar_url($avatar_target, ['size' => 96, 'default' => '404']);
                 $list[] = [
                     'id'          => (int) $c->comment_ID,
                     'parent_id'   => (int) $c->comment_parent,
                     'author_name' => sanitize_text_field((string) $c->comment_author),
+                    'avatar_url'  => is_string($avatar_url) ? esc_url_raw($avatar_url) : '',
                     'content'     => wp_strip_all_tags((string) $c->comment_content),
                     'date'        => get_comment_date('c', $c),
                     'is_admin'    => (int) $c->user_id > 0 && user_can((int) $c->user_id, 'edit_posts'),
@@ -257,6 +260,21 @@ class Headless_Controller {
             }
         }
         return $list;
+    }
+
+    /**
+     * Generate a signed math captcha challenge for comment submission.
+     */
+    private function generate_comment_challenge(): array {
+        $a = wp_rand(1, 9);
+        $b = wp_rand(1, 9);
+        $exp = time() + (15 * MINUTE_IN_SECONDS);
+        $sig = hash_hmac('sha256', ($a + $b) . '|' . $exp, wp_salt('auth'));
+        return [
+            'question' => "{$a} + {$b} = ؟",
+            'exp'      => $exp,
+            'sig'      => $sig,
+        ];
     }
 
     /**
@@ -304,13 +322,18 @@ class Headless_Controller {
         }
 
         if ($post_id <= 0) {
-            return $this->cors_blog_response(['success' => true, 'comments' => []], 200);
+            return $this->cors_blog_response([
+                'success'   => true,
+                'comments'  => [],
+                'challenge' => $this->generate_comment_challenge(),
+            ], 200);
         }
 
         return $this->cors_blog_response([
-            'success'  => true,
-            'post_id'  => $post_id,
-            'comments' => $this->get_approved_comments_for_post($post_id),
+            'success'   => true,
+            'post_id'   => $post_id,
+            'comments'  => $this->get_approved_comments_for_post($post_id),
+            'challenge' => $this->generate_comment_challenge(),
         ], 200);
     }
 
@@ -325,8 +348,16 @@ class Headless_Controller {
             return $this->cors_blog_response(['success' => true, 'message' => 'دیدگاه شما ثبت شد و پس از تایید نمایش داده می‌شود.'], 200);
         }
 
-        // IP-based rate limiting: max 3 comments per 10 minutes
+        // IP-based cooldown (30s) & rate limiting (max 3 comments per 10 minutes)
         $ip = isset($_SERVER['REMOTE_ADDR']) ? sanitize_text_field(wp_unslash($_SERVER['REMOTE_ADDR'])) : 'unknown';
+        $cd_key = 'omni_ai_crl_cd_' . md5($ip);
+        if (get_transient($cd_key)) {
+            return $this->cors_blog_response([
+                'success' => false,
+                'message' => 'لطفاً ۳۰ ثانیه بین ارسال دیدگاه‌های متوالی صبر کنید.',
+            ], 429);
+        }
+
         $rl_key = 'omni_ai_crl_' . md5($ip);
         $attempts = (int) get_transient($rl_key);
         if ($attempts >= 3) {
@@ -334,6 +365,26 @@ class Headless_Controller {
                 'success' => false,
                 'message' => 'تعداد درخواست‌های شما زیاد است. لطفاً چند دقیقه دیگر دوباره تلاش کنید.',
             ], 429);
+        }
+
+        // Signed Math Captcha Verification
+        $captcha_ans = trim((string) ($params['captcha_answer'] ?? ''));
+        $captcha_exp = absint($params['captcha_exp'] ?? 0);
+        $captcha_sig = sanitize_text_field((string) ($params['captcha_sig'] ?? ''));
+        if ($captcha_ans === '' || !$captcha_exp || $captcha_sig === '' || time() > $captcha_exp) {
+            return $this->cors_blog_response([
+                'success'   => false,
+                'message'   => 'کد امنیتی منقضی شده یا وارد نشده است. لطفاً پاسخ سوال امنیتی را وارد کنید.',
+                'challenge' => $this->generate_comment_challenge(),
+            ], 400);
+        }
+        $expected_sig = hash_hmac('sha256', intval($captcha_ans) . '|' . $captcha_exp, wp_salt('auth'));
+        if (!hash_equals($expected_sig, $captcha_sig)) {
+            return $this->cors_blog_response([
+                'success'   => false,
+                'message'   => 'پاسخ سوال امنیتی نادرست است.',
+                'challenge' => $this->generate_comment_challenge(),
+            ], 400);
         }
 
         $post_id = absint($params['post_id'] ?? 0);
@@ -381,11 +432,13 @@ class Headless_Controller {
             return $this->cors_blog_response(['success' => false, 'message' => 'خطا در ثبت دیدگاه.'], 500);
         }
 
+        set_transient($cd_key, 1, 30);
         set_transient($rl_key, $attempts + 1, 10 * MINUTE_IN_SECONDS);
 
         return $this->cors_blog_response([
             'success'    => true,
             'comment_id' => (int) $comment_id,
+            'challenge'  => $this->generate_comment_challenge(),
             'message'    => 'دیدگاه شما با موفقیت ثبت شد و پس از تایید مدیر نمایش داده می‌شود.',
         ], 201);
     }

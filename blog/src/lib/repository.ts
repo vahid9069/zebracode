@@ -200,6 +200,7 @@ export function toPost(value: unknown): Post | undefined {
                 id: typeof c.id === 'number' ? c.id : Number(c.id) || 0,
                 parentId: typeof c.parent_id === 'number' ? c.parent_id : Number(c.parent_id) || 0,
                 authorName: typeof c.author_name === 'string' ? c.author_name.trim() : 'کاربر',
+                ...(typeof c.avatar_url === 'string' && /^https?:\/\//i.test(c.avatar_url.trim()) ? { avatarUrl: c.avatar_url.trim() } : {}),
                 content: typeof c.content === 'string' ? c.content.trim() : '',
                 date: typeof c.date === 'string' ? c.date : new Date().toISOString(),
                 isAdmin: Boolean(c.is_admin),

@@ -31,12 +31,42 @@ function buildCommentTree(list: PostComment[]): CommentNode[] {
     return roots;
 }
 
+function CommentAvatar({ name, avatarUrl, isAdmin }: { name: string; avatarUrl?: string; isAdmin?: boolean }) {
+    const [imgFailed, setImgFailed] = useState(false);
+    const initial = name.trim().charAt(0) || 'ک';
+
+    if (avatarUrl && !imgFailed) {
+        return (
+            <img
+                src={avatarUrl}
+                alt={name}
+                loading="lazy"
+                onError={() => setImgFailed(true)}
+                className="h-8 w-8 shrink-0 rounded-full border border-[var(--line)] object-cover"
+            />
+        );
+    }
+
+    return (
+        <span
+            aria-hidden="true"
+            className={`grid h-8 w-8 shrink-0 place-items-center rounded-full text-xs font-bold ${
+                isAdmin ? 'bg-[var(--brand)] text-white' : 'bg-[var(--line)] text-[var(--ink)]'
+            }`}
+        >
+            {initial}
+        </span>
+    );
+}
+
 export default function CommentsSection({ slug, initialComments, apiBaseUrl }: CommentsSectionProps) {
     const [comments, setComments] = useState<PostComment[]>(initialComments);
     const [authorName, setAuthorName] = useState('');
     const [authorEmail, setAuthorEmail] = useState('');
     const [content, setContent] = useState('');
     const [websiteHp, setWebsiteHp] = useState('');
+    const [challenge, setChallenge] = useState<{ question: string; exp: number; sig: string } | null>(null);
+    const [captchaAnswer, setCaptchaAnswer] = useState('');
     const [replyTo, setReplyTo] = useState<{ id: number; authorName: string } | null>(null);
     const [submitting, setSubmitting] = useState(false);
     const [feedback, setFeedback] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
@@ -50,13 +80,17 @@ export default function CommentsSection({ slug, initialComments, apiBaseUrl }: C
             signal: controller.signal,
         })
             .then((res) => (res.ok ? res.json() : null))
-            .then((data: { success?: boolean; comments?: Array<Record<string, unknown>> } | null) => {
+            .then((data: { success?: boolean; comments?: Array<Record<string, unknown>>; challenge?: { question: string; exp: number; sig: string } } | null) => {
+                if (data?.challenge?.question) {
+                    setChallenge(data.challenge);
+                }
                 if (data?.success && Array.isArray(data.comments)) {
                     const parsed = data.comments
                         .map((c) => ({
                             id: Number(c.id) || 0,
                             parentId: Number(c.parent_id) || 0,
                             authorName: typeof c.author_name === 'string' ? c.author_name : 'کاربر',
+                            ...(typeof c.avatar_url === 'string' && /^https?:\/\//i.test(c.avatar_url.trim()) ? { avatarUrl: c.avatar_url.trim() } : {}),
                             content: typeof c.content === 'string' ? c.content : '',
                             date: typeof c.date === 'string' ? c.date : new Date().toISOString(),
                             isAdmin: Boolean(c.is_admin),
@@ -95,6 +129,10 @@ export default function CommentsSection({ slug, initialComments, apiBaseUrl }: C
             setFeedback({ type: 'error', text: 'متن دیدگاه باید حداقل ۵ کاراکتر باشد.' });
             return;
         }
+        if (challenge && !captchaAnswer.trim()) {
+            setFeedback({ type: 'error', text: 'لطفاً پاسخ سوال امنیتی را وارد کنید.' });
+            return;
+        }
 
         setSubmitting(true);
         try {
@@ -108,9 +146,16 @@ export default function CommentsSection({ slug, initialComments, apiBaseUrl }: C
                     content: content.trim(),
                     parent_id: replyTo?.id ?? 0,
                     website_hp: websiteHp,
+                    captcha_answer: captchaAnswer.trim(),
+                    captcha_exp: challenge?.exp ?? 0,
+                    captcha_sig: challenge?.sig ?? '',
                 }),
             });
-            const data = (await res.json()) as { success?: boolean; message?: string };
+            const data = (await res.json()) as { success?: boolean; message?: string; challenge?: { question: string; exp: number; sig: string } };
+            if (data?.challenge?.question) {
+                setChallenge(data.challenge);
+                setCaptchaAnswer('');
+            }
             if (res.ok && data?.success) {
                 setFeedback({
                     type: 'success',
@@ -131,7 +176,6 @@ export default function CommentsSection({ slug, initialComments, apiBaseUrl }: C
     };
 
     const renderCommentItem = (node: CommentNode, depth = 0, parentAuthor?: string) => {
-        const initial = node.authorName.trim().charAt(0) || 'ک';
         return (
             <li key={node.id} className={depth > 0 ? 'mt-3' : ''}>
                 <div
@@ -143,16 +187,7 @@ export default function CommentsSection({ slug, initialComments, apiBaseUrl }: C
                 >
                     <div className="mb-2.5 flex flex-wrap items-center justify-between gap-2">
                         <div className="flex items-center gap-2.5">
-                            <span
-                                aria-hidden="true"
-                                className={`grid h-8 w-8 shrink-0 place-items-center rounded-full text-xs font-bold ${
-                                    node.isAdmin
-                                        ? 'bg-[var(--brand)] text-white'
-                                        : 'bg-[var(--line)] text-[var(--ink)]'
-                                }`}
-                            >
-                                {initial}
-                            </span>
+                            <CommentAvatar name={node.authorName} avatarUrl={node.avatarUrl} isAdmin={node.isAdmin} />
                             <div className="flex flex-wrap items-center gap-2">
                                 <span className="text-sm font-bold text-[var(--ink)]">{node.authorName}</span>
                                 {node.isAdmin && (
@@ -307,6 +342,25 @@ export default function CommentsSection({ slug, initialComments, apiBaseUrl }: C
                         className="w-full rounded-xl border border-[var(--line)] bg-[var(--soft)] px-3.5 py-2.5 text-sm leading-7 text-[var(--ink)] outline-none transition focus:border-[var(--brand)] focus:bg-[var(--surface)]"
                     />
                 </div>
+
+                {challenge && (
+                    <div className="max-w-xs">
+                        <label htmlFor="comment-captcha" className="mb-1.5 block text-xs font-semibold text-[var(--ink)]">
+                            سوال امنیتی: <span dir="ltr" className="font-bold text-[var(--brand)]">{challenge.question}</span>
+                        </label>
+                        <input
+                            id="comment-captcha"
+                            type="text"
+                            inputMode="numeric"
+                            required
+                            dir="ltr"
+                            placeholder="پاسخ عددی"
+                            value={captchaAnswer}
+                            onChange={(e) => setCaptchaAnswer(e.target.value)}
+                            className="w-full rounded-xl border border-[var(--line)] bg-[var(--soft)] px-3.5 py-2 text-sm text-[var(--ink)] outline-none transition focus:border-[var(--brand)] focus:bg-[var(--surface)]"
+                        />
+                    </div>
+                )}
 
                 {feedback && (
                     <div
